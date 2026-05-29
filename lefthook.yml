@@ -1,0 +1,8 @@
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      run: pnpm lint {staged_files} && git add {staged_files}
+      glob: "*.{js,jsx,ts,tsx,mjs,cjs}"
+    format:
+      run: pnpm fmt:check --no-error-on-unmatched-pattern {staged_files} && git add {staged_files}
