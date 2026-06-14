@@ -5,5 +5,7 @@
     "source.format.oxc": "explicit", // run formatter first
     "source.fixAll.oxc": "explicit" // run lint fixes after
   },
-  "css.lint.unknownAtRules": "ignore"
+  "css.lint.unknownAtRules": "ignore",
+  "doppler.autocomplete.enable": true,
+  "doppler.hover.enable": true
 }
