@@ -1,0 +1,35 @@
+name: "Chromatic"
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  statuses: write
+
+jobs:
+  chromatic:
+    name: Storybook Publish
+    runs-on: ubuntu-latest
+    # Job steps
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm and Node.js
+        uses: ./.github/actions/pnpm-setup-node
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Publish to Chromatic
+        uses: chromaui/action@latest
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          buildScriptName: build-storybook
+          onlyChanged: true
+          autoAcceptChanges: "main"
+          skip: "@(renovate/**|dependabot/**)"
