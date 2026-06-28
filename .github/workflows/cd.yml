@@ -39,6 +39,11 @@ jobs:
         with:
           mask-password: "true"
 
+      #   - name: Sync static files with S3
+      #     env:
+      #       MAX_AGE: ${{ vars.CACHE_CONTROL_MAX_AGE }}
+      #     run: aws s3 sync .next/static s3://${{ vars.S3_BUCKET }}/${{ github.sha }}/_next/static --cache-control max-age=$MAX_AGE,public,immutable
+
       - name: build docker image
         id: build-image
         env:
@@ -47,7 +52,6 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build --platform linux/amd64 \
-            --build-arg NEXT_PUBLIC_NODE_ENV=production \
             -f docker/Dockerfile \
             -t "$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" .
           docker push $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

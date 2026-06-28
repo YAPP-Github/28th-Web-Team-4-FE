@@ -23,8 +23,12 @@ vitest.*.ts
 .github
 .gitignore
 
-.next
+.next/*
+!.next/standalone
+!.next/static
+
 node_modules
+!.next/standalone/node_modules
 dist
 
 docker
