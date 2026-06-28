@@ -5,7 +5,6 @@ title: 'feature: '
 labels: ''
 assignees: ''
 type: Feature
-
 ---
 
 <!-- 티켓 이슈 제목 템플릿입니다. -->

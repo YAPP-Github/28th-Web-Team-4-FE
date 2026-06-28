@@ -1,4 +1,4 @@
-name: "cd"
+name: 'cd'
 
 on:
   push:
@@ -39,7 +39,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
         with:
-          mask-password: "true"
+          mask-password: 'true'
 
       - name: Sync static files with S3
         env:

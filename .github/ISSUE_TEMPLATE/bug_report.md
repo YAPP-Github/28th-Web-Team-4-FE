@@ -5,7 +5,6 @@ title: 'bug: '
 labels: ''
 assignees: ''
 type: Bug
-
 ---
 
 <!-- 버그 리포트 이슈 제목입니다. -->

@@ -1,4 +1,4 @@
-name: "Chromatic"
+name: 'Chromatic'
 
 on:
   push:
@@ -31,5 +31,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           buildScriptName: build-storybook
           onlyChanged: true
-          autoAcceptChanges: "main"
-          skip: "@(renovate/**|dependabot/**)"
+          autoAcceptChanges: 'main'
+          skip: '@(renovate/**|dependabot/**)'

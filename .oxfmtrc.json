@@ -1,4 +1,18 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "arrowParens": "always", // 화살표 함수 매개변수가 하나여도 괄호로 감싸기
+  "printWidth": 100, // 한 줄 최대 너비 (기본값 100)
+  "tabWidth": 2, // 들여쓰기 너비 (기본값 2)
+  "useTabs": false, // 탭 대신 공백 사용 (기본값 false)
+  "semi": true, // 세미콜론 추가 (기본값 true)
+  "singleQuote": true, // 작은따옴표 사용 (기본값 false)
+  "trailingComma": "all", // 여러 줄 구조 끝에 항상 후행 콤마 (git diff 축소). 'always'는 미지원이라 'all' 사용
+  "sortTailwindcss": true, // Tailwind 클래스 정렬 (sortTailwindcssTailwind가 아니라 sortTailwindcss)
+  "sortPackageJson": true, // package.json 키 정렬 (기본값 true)
+  "bracketSpacing": true, // 객체 리터럴 중괄호 안쪽 공백 { a: 1 }
+  "endOfLine": "lf", // 줄바꿈 문자 (oxfmt는 'auto' 미지원, mac/git 표준인 lf 사용)
+  "jsxSingleQuote": false, // JSX 속성은 쌍따옴표 사용
+  "bracketSameLine": false, // 여러 줄 JSX 닫는 >를 마지막 속성 줄에 붙이지 않고 다음 줄로
+  "singleAttributePerLine": false, // JSX 속성을 한 줄에 하나씩 강제하지 않음
   "ignorePatterns": []
 }
