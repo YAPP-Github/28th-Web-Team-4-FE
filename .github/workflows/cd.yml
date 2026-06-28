@@ -25,6 +25,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: build
+        env:
+          ASSET_PREFIX: ${{ vars.CDN_BASE_URL }}/${{ github.sha }}
         run: pnpm build
 
       - name: Configure AWS Credentials
@@ -39,10 +41,10 @@ jobs:
         with:
           mask-password: "true"
 
-      #   - name: Sync static files with S3
-      #     env:
-      #       MAX_AGE: ${{ vars.CACHE_CONTROL_MAX_AGE }}
-      #     run: aws s3 sync .next/static s3://${{ vars.S3_BUCKET }}/${{ github.sha }}/_next/static --cache-control max-age=$MAX_AGE,public,immutable
+      - name: Sync static files with S3
+        env:
+          MAX_AGE: ${{ vars.CACHE_CONTROL_MAX_AGE }}
+        run: aws s3 sync .next/static s3://${{ vars.S3_BUCKET }}/${{ github.sha }}/_next/static --cache-control max-age=$MAX_AGE,public,immutable
 
       - name: build docker image
         id: build-image

@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
   output: "standalone",
+  assetPrefix: process.env.ASSET_PREFIX || undefined,
   ...(isProd && {
     compiler: {
       removeConsole: {
