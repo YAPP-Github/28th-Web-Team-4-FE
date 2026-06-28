@@ -1,0 +1,38 @@
+{
+  "family": "nextjs-ecs-task",
+  "executionRoleArn": "arn:aws:iam::953138073651:role/ecsTaskExecutionRole",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "containerDefinitions": [
+    {
+      "name": "nextjs-ecs-container",
+      "image": "953138073651.dkr.ecr.ap-northeast-2.amazonaws.com/nextjs-ecr:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "name": "nextjs-ecs-container-3000-tcp",
+          "containerPort": 3000,
+          "hostPort": 3000,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "ulimits": [{ "name": "nofile", "softLimit": 65535, "hardLimit": 65535 }],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/nextjs-ecs-task",
+          "awslogs-create-group": "true",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}
