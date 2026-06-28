@@ -1,10 +1,163 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["eslint", "typescript", "unicorn", "oxc", "react", "vitest"],
+  "plugins": [
+    "eslint",
+    "typescript",
+    "unicorn",
+    "oxc",
+    "react",
+    "vitest",
+    "import",
+    "promise",
+    "nextjs"
+  ],
   "categories": {
     "correctness": "error"
   },
-  "rules": {},
+  "rules": {
+    // === eslint (core) ===
+    "eslint/eqeqeq": ["error", "always", { "null": "ignore" }], // == 대신 === 강제, null 비교만 예외 허용
+    "eslint/no-var": "error", // var 금지, let/const 사용
+    "eslint/prefer-const": "error", // 재할당 없는 변수는 const로
+    "eslint/curly": "error", // if/for 등 제어문에 중괄호 강제
+    "eslint/no-console": "warn", // console 사용 경고 (배포 전 제거 유도)
+    "eslint/no-alert": "error", // alert/confirm/prompt 금지
+    "eslint/no-duplicate-imports": "error", // 같은 모듈을 여러 번 import 금지
+    "eslint/object-shorthand": "error", // { a: a } 대신 { a } 축약 표기 강제
+    "eslint/prefer-template": "warn", // 문자열 + 연결 대신 템플릿 리터럴 권장
+    "eslint/no-param-reassign": "error", // 함수 매개변수에 재할당 금지
+    "eslint/no-bitwise": "error", // &&/|| 오타 방지용, 비트 연산 사용 안 함
+    "eslint/no-unused-expressions": ["error", { "allowShortCircuit": true }], // foo;처럼 효과 없는 표현식 금지, callback && callback() 패턴은 허용
+    "eslint/guard-for-in": "error", // for...in에서 hasOwnProperty 체크 강제 (상속 속성 순회 버그 방지)
+    "eslint/array-callback-return": ["error", { "allowImplicit": true }], // map/filter 콜백에서 값 반환 강제, 값 없는 return;은 허용
+    "eslint/no-negated-condition": "error", // if (!x) ... else 같은 부정 조건 분기 금지 (가독성)
+    "eslint/no-nested-ternary": "error", // 삼항 중첩 금지
+    "eslint/no-template-curly-in-string": "error", // 일반 따옴표 안의 "${x}" 감지
+    "eslint/radix": ["error"], // parseInt(x, 10)처럼 진법 명시 필수
+    "eslint/no-case-declarations": "error", // case 안에서 중괄호 없이 선언 금지
+    "eslint/no-empty": "error", // if (x) {} 같은 빈 블록 금지
+    "eslint/no-fallthrough": "error", // switch에서 break 누락 금지
+    "eslint/no-prototype-builtins": "error", // obj.hasOwnProperty(key) 금지, Object.hasOwn(obj, key) 사용
+    "eslint/no-regex-spaces": "error", // 정규식 안 연속 공백 금지, /foo {3}bar/로 명시
+    "eslint/prefer-rest-params": "error", // arguments 대신 ...args
+    "eslint/prefer-spread": "error", // fn.apply(null, args) 대신 fn(...args)
+    "eslint/prefer-arrow-callback": ["error", { "allowNamedFunctions": true }], // 콜백은 화살표 함수로, 이름 붙은 함수는 예외
+    "eslint/no-array-constructor": "error", // new Array() 대신 배열 리터럴 [] 사용
+    "eslint/no-restricted-imports": "error", // 금지할 import 경로 지정용 (필요 시 목록 추가)
+    "eslint/no-unused-vars": [
+      "warn",
+      {
+        "vars": "all",
+        "varsIgnorePattern": "^_",
+        "args": "after-used",
+        "argsIgnorePattern": "^_"
+      }
+    ], // 미사용 변수/import 모두 감지, _ 접두사는 무시
+
+    // === promise ===
+    "promise/no-new-statics": "error", // Promise 정적 메서드에 new 금지
+    "promise/valid-params": "warn", // Promise 메서드 인자 개수 검증
+
+    // === typescript ===
+    "typescript/consistent-type-imports": "error", // 타입만 쓰는 import는 import type으로 분리
+    "typescript/no-non-null-assertion": "warn", // ! 비-null 단언 자제 (런타임 보장 없음)
+    "typescript/no-explicit-any": "warn", // any 명시 자제
+    "typescript/no-empty-object-type": ["error", { "allowInterfaces": "with-single-extends" }], // 빈 {} 타입 금지, interface Props extends BaseProps {} 는 예외 허용
+    "typescript/prefer-as-const": "error", // 리터럴 고정은 as 캐스팅 대신 as const
+    "typescript/prefer-for-of": "warn", // 인덱스만 쓰는 for문은 for-of로
+    "typescript/no-floating-promises": ["error", { "ignoreVoid": true }], // 처리 안 한 Promise 금지, void로 명시 무시는 허용
+    "typescript/no-misused-promises": "off", // async를 조건/이벤트 핸들러에 잘못 넘기는 것 검사 (현재 끔)
+    "typescript/no-unnecessary-type-assertion": "warn", // 불필요한 타입 단언 경고
+    "typescript/restrict-template-expressions": [
+      "error",
+      { "allowNumber": true, "allowBoolean": true }
+    ], // 템플릿 리터럴 보간은 문자열만, 숫자/불리언만 추가 허용
+    "typescript/switch-exhaustiveness-check": "warn", // union/enum switch에서 모든 케이스 처리 유도
+    "typescript/ban-ts-comment": "error", // @ts-ignore 등 억제 주석 금지
+    "typescript/no-dynamic-delete": "error", // 동적 키 delete obj[key] 금지
+    "typescript/no-unsafe-member-access": "error", // any 타입 멤버 참조 금지
+    "typescript/prefer-optional-chain": ["error"], // a && a.b 대신 a?.b
+    "typescript/await-thenable": "error", // Promise 아닌 값에 await 금지
+    "typescript/no-misused-spread": "error", // 펼치면 안 되는 값 전개 금지
+    "typescript/no-unsafe-enum-comparison": "error", // enum을 생값과 비교 금지 (status === Status.Active로)
+    "typescript/no-unsafe-unary-minus": "error", // number/bigint 아닌 값에 -x 금지
+    "typescript/no-duplicate-type-constituents": "error", // string | string 등 중복 금지
+    "typescript/no-redundant-type-constituents": "error", // 무의미한 구성요소 금지
+    "typescript/prefer-promise-reject-errors": "error", // reject/throw는 Error만
+    "typescript/no-array-delete": "error", // delete arr[i] 금지, splice 사용
+    "typescript/no-base-to-string": "error", // [object Object] 방지: toString 없는 객체 문자열화 검사
+    "typescript/no-for-in-array": "error", // 배열에 for-in 금지
+    "typescript/no-implied-eval": "error", // 숨은 eval 금지
+    "typescript/only-throw-error": "error", // throw는 Error 객체만 (문자열 throw 금지)
+    "typescript/restrict-plus-operands": "error", // + 는 같은 계열끼리만
+    "typescript/require-await": "error", // await 없는 async 함수 금지
+    "typescript/return-await": "error", // async 함수 내 불필요/위험한 return await 제어
+    "typescript/explicit-function-return-type": [
+      "error",
+      { "allowExpressions": true, "allowTypedFunctionExpressions": true }
+    ], // 함수 반환 타입 명시, 표현식/타입 지정된 함수는 예외
+    "typescript/dot-notation": "error", // obj['a'] 대신 obj.a
+    "typescript/non-nullable-type-assertion-style": "error", // null/undefined 제거가 전부면 as T 대신 !
+    "typescript/prefer-find": "error", // filter()[0] 대신 find()
+    "typescript/prefer-includes": "error", // indexOf() !== -1 대신 includes()
+    "typescript/prefer-nullish-coalescing": "error", // || 대신 ?? (null/undefined만 fallback)
+    "typescript/prefer-regexp-exec": "error", // String.match 대신 RegExp.exec (비전역 패턴)
+    "typescript/prefer-string-starts-ends-with": "error", // indexOf 비교 대신 startsWith/endsWith
+    "typescript/array-type": "error", // 배열 타입 표기 일관성 (T[] 형태)
+    "typescript/ban-tslint-comment": "error", // tslint:disable 등 옛 주석 금지
+    "typescript/class-literal-property-style": "error", // 클래스 상수 표현 방식 일관성
+    "typescript/consistent-generic-constructors": "error", // 제네릭 생성자 표기 위치 일관성 (new Map<K, V>())
+    "typescript/consistent-indexed-object-style": "error", // 인덱스 시그니처 대신 Record<K, V> 권장
+    "typescript/consistent-type-assertions": [
+      "error",
+      { "assertionStyle": "as", "objectLiteralTypeAssertions": "allow" }
+    ], // 타입 단언은 as 스타일로, 객체 리터럴 단언은 허용
+    "typescript/consistent-type-definitions": "error", // type/interface 표기 일관성
+    "typescript/no-inferrable-types": "error", // const x: number = 5 처럼 추론 가능한 타입 명시 제거
+    "typescript/prefer-function-type": "error", // 함수 타입은 interface 대신 타입 별칭으로
+    "typescript/no-confusing-non-null-assertion": "error", // a! == b 처럼 혼동되는 ! 위치 금지
+    "typescript/no-require-imports": "error", // require() 대신 import 사용
+    "typescript/no-unnecessary-type-constraint": "error", // 불필요한 extends any 제약 제거
+    "typescript/no-namespace": "error", // namespace 대신 ES 모듈 사용
+    "typescript/no-unsafe-function-type": "error", // 광범위한 Function 타입 사용 금지
+    "typescript/unbound-method": ["error", { "ignoreStatic": true }], // 바인딩 없이 메서드 참조 금지 (.forEach(m => logger.log(m))), static은 예외
+    "typescript/no-useless-default-assignment": "off", // 의미 없는 기본값 할당 검사 (현재 끔)
+    "typescript/adjacent-overload-signatures": "error", // 오버로드 시그니처는 인접하게 모아 선언
+
+    // === unicorn ===
+    "unicorn/prefer-node-protocol": "error", // import 'fs' 대신 import 'node:fs'
+
+    // === react ===
+    "react/jsx-key": "error", // 리스트 렌더링 요소에 key 강제
+    "react/jsx-no-duplicate-props": "error", // JSX에서 중복 prop 금지
+    "react/jsx-boolean-value": "error", // boolean prop 표기 일관성 (checked vs checked={true})
+    "react/jsx-curly-brace-presence": "error", // 불필요한 {} 중괄호 제거
+    "react/jsx-fragments": ["error", "syntax"], // Fragment는 <>...</> 단축 문법 사용
+    "react/jsx-pascal-case": "error", // 컴포넌트 이름은 PascalCase
+    "react/self-closing-comp": "error", // 자식 없는 컴포넌트는 self-closing 태그로
+    "react/exhaustive-deps": "warn", // useEffect 등 의존성 배열 누락 검사
+    "react/rules-of-hooks": "error", // 훅 호출 규칙(최상위/조건문 밖) 강제
+
+    // === import ===
+    "import/no-cycle": "warn", // 모듈 간 순환 참조 감지
+    "import/no-default-export": "warn", // named export 선호 (default 지양)
+    "import/no-duplicates": "error", // 같은 모듈의 import 문 하나로 합치기
+    "import/no-self-import": "error", // 모듈이 자기 자신을 import 하는 실수 금지
+    "import/no-relative-parent-imports": "warn", // ../ 상위 상대경로 import 자제 (alias 권장)
+    "import/first": "error", // import 문은 파일 최상단에 위치
+    "import/newline-after-import": "error", // import 블록 뒤에 빈 줄 강제
+    "import/namespace": "off" // 성능을 위해 TS에 위임하고 끔
+  },
+  "overrides": [
+    {
+      // Next.js 규약 파일(page/layout/route/error 등), Storybook story,
+      // 설정 파일은 default export가 강제되므로 no-default-export 예외 처리
+      "files": ["src/app/**", "**/*.stories.{ts,tsx}", "*.config.{ts,js,mjs}"],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    }
+  ],
   "env": {
     "builtin": true
   }
