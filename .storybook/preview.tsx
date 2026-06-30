@@ -1,5 +1,8 @@
 import type { Preview } from '@storybook/nextjs-vite';
 
+// oxlint-disable-next-line import/no-relative-parent-imports
+import '../src/app/style/globals.css';
+
 const preview: Preview = {
   parameters: {
     controls: {
