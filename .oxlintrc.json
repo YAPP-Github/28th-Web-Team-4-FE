@@ -108,7 +108,7 @@
       "error",
       { "assertionStyle": "as", "objectLiteralTypeAssertions": "allow" }
     ], // 타입 단언은 as 스타일로, 객체 리터럴 단언은 허용
-    "typescript/consistent-type-definitions": "error", // type/interface 표기 일관성
+    "typescript/consistent-type-definitions": ["error", "type"], // type/interface 표기 일관성
     "typescript/no-inferrable-types": "error", // const x: number = 5 처럼 추론 가능한 타입 명시 제거
     "typescript/prefer-function-type": "error", // 함수 타입은 interface 대신 타입 별칭으로
     "typescript/no-confusing-non-null-assertion": "error", // a! == b 처럼 혼동되는 ! 위치 금지
@@ -148,12 +148,7 @@
     {
       // Next.js 규약 파일(page/layout/route/error 등), Storybook story,
       // 설정 파일은 default export가 강제되므로 no-default-export 예외 처리
-      "files": [
-        "src/app/**",
-        "**/*.stories.{ts,tsx}",
-        ".storybook/**",
-        "*.config.{ts,js,mjs}"
-      ],
+      "files": ["src/app/**", "**/*.stories.{ts,tsx}", ".storybook/**", "*.config.{ts,js,mjs}"],
       "rules": {
         "import/no-default-export": "off"
       }
