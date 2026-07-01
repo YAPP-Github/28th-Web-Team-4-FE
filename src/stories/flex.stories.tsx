@@ -8,7 +8,7 @@ import { JustifyEnd as JustifyEndComponent } from '@/shared/ui/layout/justify-en
 const meta = {
   title: 'components/Flex',
   tags: ['autodocs'],
-} satisfies Meta<typeof Text>;
+} satisfies Meta<typeof Flex>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

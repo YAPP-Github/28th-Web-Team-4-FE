@@ -7,7 +7,7 @@ import { VStack as VStackComponent } from '@/shared/ui/layout/v-stack';
 const meta = {
   title: 'components/Stack',
   tags: ['autodocs'],
-} satisfies Meta<typeof Text>;
+} satisfies Meta<typeof Stack>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
