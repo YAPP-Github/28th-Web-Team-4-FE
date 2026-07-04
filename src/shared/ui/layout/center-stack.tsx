@@ -11,6 +11,9 @@ export const CenterStack: <C extends ElementType = 'div'>(
   const typesRest = rest as BoxProps<C>;
 
   return (
-    <Box className={`flex flex-col items-center justify-center ${className}`} {...typesRest} />
+    <Box
+      className={`flex flex-col items-center justify-center ${className ?? ''}`}
+      {...typesRest}
+    />
   );
 };

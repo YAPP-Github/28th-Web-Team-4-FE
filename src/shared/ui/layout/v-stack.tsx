@@ -10,5 +10,5 @@ export const VStack: <C extends ElementType = 'div'>(
 }: PropsWithChildren<BoxProps<C>>) => {
   const typesRest = rest as BoxProps<C>;
 
-  return <Box className={`flex flex-col items-center ${className}`} {...typesRest} />;
+  return <Box className={`flex flex-col items-center ${className ?? ''}`} {...typesRest} />;
 };

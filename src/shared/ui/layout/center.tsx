@@ -10,5 +10,5 @@ export const Center: <C extends ElementType = 'div'>(
 }: PropsWithChildren<BoxProps<C>>) => {
   const typesRest = rest as BoxProps<C>;
 
-  return <Box className={`flex items-center justify-center ${className}`} {...typesRest} />;
+  return <Box className={`flex items-center justify-center ${className ?? ''}`} {...typesRest} />;
 };
