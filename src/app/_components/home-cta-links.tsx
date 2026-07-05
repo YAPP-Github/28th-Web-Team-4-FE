@@ -1,15 +1,18 @@
 'use client';
 
+import { sendGAEvent } from '@next/third-parties/google';
 import Image from 'next/image';
 import posthog from 'posthog-js';
 
 export function HomeCTALinks() {
   const handleDeployNowClick = () => {
     posthog.capture('deploy_now_clicked');
+    sendGAEvent('event', 'deploy_now_clicked');
   };
 
   const handleDocumentationClick = () => {
     posthog.capture('documentation_clicked');
+    sendGAEvent('event', 'documentation_clicked');
   };
 
   return (
