@@ -10,5 +10,5 @@ export function trackClientEvent(
   properties?: Record<string, string | number | boolean>,
 ) {
   posthog.capture(event, properties);
-  sendGAEvent('event', event, properties);
+  sendGAEvent('event', event, properties ?? {});
 }
