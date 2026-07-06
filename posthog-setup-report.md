@@ -1,7 +1,7 @@
 <wizard-report>
 # PostHog post-wizard report
 
-The wizard has completed a deep integration of PostHog analytics into this Next.js 16.2.6 App Router project. PostHog is initialised on the client side via `src/instrumentation-client.ts` (alongside the existing Sentry setup) using the Next.js 15.3+ `instrumentation-client` pattern. A reverse proxy is configured in `next.config.ts` so that PostHog requests are routed through `/ingest/*`, avoiding ad-blockers. A server-side PostHog singleton (`src/lib/posthog-server.ts`) is used to capture events from API route handlers. Environment variables for the project token and host are written to `.env.local`.
+The wizard has completed a deep integration of PostHog analytics into this Next.js 16.2.6 App Router project. PostHog is initialised on the client side via `src/instrumentation-client.ts` (alongside the existing Sentry setup) using the Next.js 15.3+ `instrumentation-client` pattern. A reverse proxy is configured in `next.config.ts` so that PostHog requests are routed through `/ingest/*`, avoiding ad-blockers. A server-side PostHog singleton (`src/shared/lib/posthog-server.ts`) is used to capture events from API route handlers. GA is mounted via `src/_app/providers/google-analytics-provider.tsx` inside `AppProviders`. Environment variables for the project token and host are written to `.env.local`.
 
 | Event name               | Description                                   | File                                |
 | ------------------------ | --------------------------------------------- | ----------------------------------- |

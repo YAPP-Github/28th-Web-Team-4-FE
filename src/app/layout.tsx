@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-// In Next.js, this file would be called: app/layout.tsx
-import Providers from '@/_app/providers/query-provider';
-import { GoogleAnalyticsProvider } from './_components/google-analytics';
+import { AppProviders } from '@/_app/providers/app-providers';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -28,8 +26,7 @@ export default function RootLayout({
   return (
     <html lang="ko" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        <Providers>{children}</Providers>
-        <GoogleAnalyticsProvider />
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );
