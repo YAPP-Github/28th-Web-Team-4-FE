@@ -14,6 +14,7 @@
     "build-storybook": "storybook build",
     "test": "vitest",
     "test:ci": "vitest --run",
+    "test:coverage": "vitest --run --coverage --project unit",
     "test:ui": "vitest --ui"
   },
   "dependencies": {
