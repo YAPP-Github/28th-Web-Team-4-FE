@@ -27,7 +27,7 @@ jobs:
       - name: build
         env:
           ASSET_PREFIX: ${{ vars.CDN_BASE_URL }}/${{ github.sha }}
-        run: pnpm build
+        run: node --run build
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.3.1

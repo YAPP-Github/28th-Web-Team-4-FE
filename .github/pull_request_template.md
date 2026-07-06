@@ -11,9 +11,9 @@
 
 ### 필수 확인
 
-- [ ] `pnpm build` 통과
-- [ ] `pnpm lint` 통과
-- [ ] `pnpm test` 통과 또는 관련 테스트 확인
+- [ ] `node --run build` 통과
+- [ ] `node --run lint` 통과
+- [ ] `node --run test` 통과 또는 관련 테스트 확인
 - [ ] 관련 이슈를 연결했습니다. 예: `Closes #123`
 
 ### 기능 검증
