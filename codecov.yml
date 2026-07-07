@@ -1,0 +1,29 @@
+coverage:
+  precision: 2
+  round: down
+  range: '60...100'
+
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+        informational: true
+    patch:
+      default:
+        target: auto
+        threshold: 0%
+        informational: true
+
+comment:
+  layout: 'condensed_header, condensed_files, condensed_footer'
+  behavior: default
+  require_changes: false
+  require_head: true
+  hide_project_coverage: true
+
+ignore:
+  - 'src/stories/**'
+  - 'src/instrumentation.ts'
+  - 'src/instrumentation-client.ts'
+  - 'src/sentry.*.config.ts'
