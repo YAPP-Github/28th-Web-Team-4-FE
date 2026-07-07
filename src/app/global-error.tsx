@@ -3,9 +3,13 @@ import * as Sentry from '@sentry/nextjs';
 import NextError from 'next/error';
 import { useEffect } from 'react';
 
+import { isProduction } from '@/lib/is-production';
+
 export default function GlobalError({ error }: { error: Error & { digest?: string } }) {
   useEffect(() => {
-    Sentry.captureException(error);
+    if (isProduction) {
+      Sentry.captureException(error);
+    }
   }, [error]);
 
   return (

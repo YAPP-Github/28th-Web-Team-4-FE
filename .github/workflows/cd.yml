@@ -24,10 +24,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@v4
+
       - name: build
         env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
           ASSET_PREFIX: ${{ vars.CDN_BASE_URL }}/${{ github.sha }}
-        run: node --run build
+        run: doppler run -- node --run build
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.3.1
