@@ -70,7 +70,7 @@
     "vite": "npm:rolldown-vite@latest"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,mjs,cjs}": "node --run lint",
+    "*.{js,jsx,ts,tsx,mjs,cjs}": "node --run lint --",
     "*": "oxfmt --no-error-on-unmatched-pattern"
   },
   "packageManager": "pnpm@11.4.0"
