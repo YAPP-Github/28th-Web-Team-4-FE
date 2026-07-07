@@ -148,7 +148,13 @@
     {
       // Next.js 규약 파일(page/layout/route/error 등), Storybook story,
       // 설정 파일은 default export가 강제되므로 no-default-export 예외 처리
-      "files": ["src/app/**", "src/_app/**", "**/*.stories.{ts,tsx}", ".storybook/**", "*.config.{ts,js,mjs}"],
+      "files": [
+        "src/app/**",
+        "src/_app/**",
+        "**/*.stories.{ts,tsx}",
+        ".storybook/**",
+        "*.config.{ts,js,mjs}"
+      ],
       "rules": {
         "import/no-default-export": "off"
       }

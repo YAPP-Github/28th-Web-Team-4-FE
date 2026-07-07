@@ -31,7 +31,7 @@ jobs:
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
           ASSET_PREFIX: ${{ vars.CDN_BASE_URL }}/${{ github.sha }}
-        run: doppler run -- pnpm build
+        run: doppler run -- node --run build
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.3.1

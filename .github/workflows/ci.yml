@@ -35,4 +35,4 @@ jobs:
           files: ./coverage/lcov.info
 
       - name: build
-        run: pnpm build
+        run: node --run build
