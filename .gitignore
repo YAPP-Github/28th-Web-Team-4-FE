@@ -50,3 +50,4 @@ node_modules/
 /playwright/.auth/
 *storybook.log
 storybook-static
+.env.local

@@ -7,6 +7,23 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
   output: 'standalone',
+  rewrites() {
+    return [
+      {
+        source: '/ingest/static/:path*',
+        destination: 'https://us-assets.i.posthog.com/static/:path*',
+      },
+      {
+        source: '/ingest/array/:path*',
+        destination: 'https://us-assets.i.posthog.com/array/:path*',
+      },
+      {
+        source: '/ingest/:path*',
+        destination: 'https://us.i.posthog.com/:path*',
+      },
+    ];
+  },
+  skipTrailingSlashRedirect: true,
   // 빈 문자열("")도 undefined로 처리해야 하므로 ??가 아닌 ||가 의도된 동작
   // oxlint-disable-next-line typescript/prefer-nullish-coalescing
   assetPrefix: process.env.ASSET_PREFIX || undefined,
