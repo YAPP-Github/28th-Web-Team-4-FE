@@ -1,10 +1,12 @@
 addReviewers: true
 
-addAssignees: true
+addAssignees: author
 
 reviewers:
   - DongjaJ
   - yereong
+
+numberOfReviewers: 0
 
 # PR 타이틀이나 본문에 해당 지정한 skip-reivew이라는 키워드가 포함되면 자동으로 리뷰어를 매칭해주는걸 스킵한다는 소리
 skipKeywords:
