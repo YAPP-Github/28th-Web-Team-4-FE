@@ -14,6 +14,7 @@
     "build-storybook": "storybook build",
     "test": "vitest",
     "test:ci": "vitest --run",
+    "test:coverage": "vitest --run --coverage --project unit",
     "test:ui": "vitest --ui"
   },
   "dependencies": {
@@ -21,6 +22,8 @@
     "@next/third-parties": "16.2.6",
     "@sentry/nextjs": "^10.57.0",
     "@tanstack/react-query": "^5.100.14",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "ky": "^2.0.2",
     "motion": "^12.40.0",
     "next": "16.2.6",
@@ -30,6 +33,8 @@
     "react-dom": "19.2.4",
     "react-error-boundary": "^6.1.2",
     "react-hook-form": "^7.76.1",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss-animated": "^2.1.0",
     "zod": "^4.4.3",
     "zustand": "^5.0.13"
   },
