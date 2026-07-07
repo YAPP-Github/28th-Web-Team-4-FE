@@ -1,7 +1,7 @@
 import posthog from 'posthog-js';
 import * as Sentry from '@sentry/nextjs';
 
-import { isSentryEnabled } from '@/lib/sentry-enabled';
+import { isProduction } from '@/lib/is-production';
 
 posthog.init(process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN ?? '', {
   api_host: '/ingest',
@@ -13,7 +13,7 @@ posthog.init(process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN ?? '', {
 
 Sentry.init({
   dsn: 'https://396366f523bc72a71dc4e6270037f332@o4511552841711616.ingest.us.sentry.io/4511562876911616',
-  enabled: isSentryEnabled,
+  enabled: isProduction,
   tracesSampleRate: 0.1,
   // Enable logs to be sent to Sentry
   enableLogs: true,
@@ -30,7 +30,7 @@ Sentry.init({
   ],
 });
 
-if (isSentryEnabled) {
+if (isProduction) {
   void import('@sentry/nextjs').then((lazyLoadedSentry) => {
     Sentry.addIntegration(lazyLoadedSentry.replayIntegration());
   });
