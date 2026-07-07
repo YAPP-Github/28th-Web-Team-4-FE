@@ -221,7 +221,7 @@ bun add posthog-node
 
 ## App router
 
-For the app router, we can initialize the `posthog-node` SDK once with a `PostHogClient` function, and import it into files.
+For the app router, we can initialize the `posthog-node` SDK once with a module-scoped `getPostHogClient` helper, and import it into files.
 
 This enables us to send events and fetch data from PostHog on the server – without making client-side requests.
 
@@ -230,15 +230,24 @@ JavaScript
 PostHog AI
 
 ```javascript
-// app/posthog.js
+// src/lib/posthog-server.ts
 import { PostHog } from 'posthog-node'
-export default function PostHogClient() {
-  const posthogClient = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN, {
+
+let posthogClient = null
+
+export function getPostHogClient() {
+  posthogClient ??= new PostHog(process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN ?? '', {
     host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
     flushAt: 1,
-    flushInterval: 0
+    flushInterval: 0,
   })
   return posthogClient
+}
+
+export async function shutdownPostHog() {
+  if (posthogClient) {
+    await posthogClient.shutdown()
+  }
 }
 ```
 
@@ -247,7 +256,7 @@ export default function PostHogClient() {
 > -   `flushAt` sets how many capture calls we should flush the queue (in one batch).
 > -   `flushInterval` sets how many milliseconds we should wait before flushing the queue. Setting them to the lowest number ensures events are sent immediately and not batched. We also need to call `await posthog.shutdown()` once done.
 
-To use this client, we import it into our pages and call it with the `PostHogClient` function:
+To use this client, we import it into our pages and call it with the `getPostHogClient` function:
 
 JavaScript
 
@@ -255,9 +264,9 @@ PostHog AI
 
 ```javascript
 import Link from 'next/link'
-import PostHogClient from '../posthog'
+import { getPostHogClient } from '@/lib/posthog-server'
 export default async function About() {
-  const posthog = PostHogClient()
+  const posthog = getPostHogClient()
   const flags = await posthog.getAllFlags(
     'user_distinct_id' // replace with a user's distinct ID
   );
