@@ -2,7 +2,7 @@ pre-commit:
   parallel: true
   commands:
     lint:
-      run: node --run lint -- {staged_files} && git add {staged_files}
+      run: ./node_modules/.bin/oxlint --type-aware {staged_files} && git add {staged_files}
       glob: '*.{js,jsx,ts,tsx,mjs,cjs}'
     format:
-      run: node --run fmt:check -- --no-error-on-unmatched-pattern {staged_files} && git add {staged_files}
+      run: ./node_modules/.bin/oxfmt --check --no-error-on-unmatched-pattern {staged_files} && git add {staged_files}

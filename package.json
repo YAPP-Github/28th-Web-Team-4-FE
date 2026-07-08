@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:no-msw": "NEXT_PUBLIC_MSW_ENABLED=false next dev",
     "build": "next build",
     "start": "next start",
     "lint": "oxlint --type-aware",
@@ -63,6 +64,7 @@
     "chromatic": "^17.4.1",
     "jsdom": "^29.1.1",
     "lefthook": "^2.1.8",
+    "msw": "^2.14.6",
     "oxfmt": "^0.52.0",
     "oxlint": "^1.67.0",
     "oxlint-tsgolint": "^0.23.0",
@@ -81,5 +83,10 @@
     "*.{js,jsx,ts,tsx,mjs,cjs}": "node --run lint --",
     "*": "oxfmt --no-error-on-unmatched-pattern"
   },
-  "packageManager": "pnpm@11.4.0"
+  "packageManager": "pnpm@11.4.0",
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
+  }
 }
