@@ -1,3 +1,5 @@
+import MSWBootstrap from '@/_app/providers/msw-bootstrap';
+
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
@@ -32,7 +34,9 @@ export default function RootLayout({
   return (
     <html lang="ko" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        <AppProviders>{children}</AppProviders>
+        <MSWBootstrap>
+          <AppProviders>{children}</AppProviders>
+        </MSWBootstrap>
       </body>
     </html>
   );
