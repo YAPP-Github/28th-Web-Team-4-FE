@@ -1,0 +1,34 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ * spacing and radius
+ */
+@theme {
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 16px;
+  --radius-max: 99px;
+  --radius-xxs: 4px;
+  --radius-xs: 6px;
+  --radius-xl: 24px;
+  --opacity-50: 0.5;
+  --opacity-80: 0.8;
+  --spacing-120: 120px;
+  --spacing-002: 2px;
+  --spacing-004: 4px;
+  --spacing-008: 8px;
+  --spacing-012: 12px;
+  --spacing-014: 14px;
+  --spacing-016: 16px;
+  --spacing-018: 18px;
+  --spacing-020: 20px;
+  --spacing-024: 24px;
+  --spacing-026: 26px;
+  --spacing-030: 30px;
+  --spacing-032: 32px;
+  --spacing-036: 36px;
+  --spacing-040: 40px;
+  --spacing-010: 10px;
+  --spacing-022: 22px;
+  --spacing-006: 6px;
+  --spacing-072: 72px;
+}

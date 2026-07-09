@@ -146,6 +146,12 @@
   },
   "overrides": [
     {
+      "files": ["design-tokens/**/*.mjs"],
+      "rules": {
+        "typescript/no-unsafe-member-access": "off"
+      }
+    },
+    {
       // Next.js 규약 파일(page/layout/route/error 등), Storybook story,
       // 설정 파일은 default export가 강제되므로 no-default-export 예외 처리
       "files": [

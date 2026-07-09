@@ -1,0 +1,115 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ * typography primitives and text styles
+ */
+
+@theme {
+  --font-pre: Pretendard, ui-sans-serif, system-ui, sans-serif;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --tracking-spacing-md: 0px;
+  --tracking-spacing-sm: -0.5px;
+  --leading-016: 16px;
+  --leading-018: 18px;
+  --leading-020: 20px;
+  --leading-022: 22px;
+  --leading-024: 24px;
+  --leading-026: 26px;
+  --leading-032: 32px;
+  --leading-036: 36px;
+  --leading-050: 50px;
+  --text-10: 10px;
+  --text-11: 11px;
+  --text-12: 12px;
+  --text-13: 13px;
+  --text-14: 14px;
+  --text-15: 15px;
+  --text-16: 16px;
+  --text-17: 17px;
+  --text-18: 18px;
+  --text-22: 22px;
+  --text-24: 24px;
+  --text-32: 32px;
+}
+
+@utility typo-body-lg {
+  @apply text-13 leading-020 font-regular tracking-spacing-sm font-pre;
+}
+
+@utility typo-body-md {
+  @apply text-12 leading-018 tracking-spacing-sm font-pre font-bold;
+}
+
+@utility typo-body-sm {
+  @apply text-12 leading-018 tracking-spacing-sm font-pre font-medium;
+}
+
+@utility typo-body-xl {
+  @apply text-13 leading-020 tracking-spacing-sm font-pre font-medium;
+}
+
+@utility typo-body-xs {
+  @apply text-12 leading-018 font-regular tracking-spacing-sm font-pre;
+}
+
+@utility typo-caption-lg {
+  @apply text-11 leading-016 tracking-spacing-sm font-pre font-medium;
+}
+
+@utility typo-caption-md {
+  @apply text-10 leading-016 tracking-spacing-sm font-pre font-bold;
+}
+
+@utility typo-caption-sm {
+  @apply text-10 leading-016 tracking-spacing-sm font-pre font-medium;
+}
+
+@utility typo-display-lg {
+  @apply text-24 leading-032 tracking-spacing-sm font-pre font-bold;
+}
+
+@utility typo-display-xl {
+  @apply text-32 leading-050 tracking-spacing-md font-pre font-bold;
+}
+
+@utility typo-heading-lg {
+  @apply text-18 leading-026 tracking-spacing-sm font-pre font-bold;
+}
+
+@utility typo-heading-md {
+  @apply text-17 leading-024 tracking-spacing-sm font-pre font-semibold;
+}
+
+@utility typo-heading-sm {
+  @apply text-17 leading-026 tracking-spacing-sm font-pre font-medium;
+}
+
+@utility typo-heading-xl {
+  @apply text-22 leading-032 tracking-spacing-sm font-pre font-semibold;
+}
+
+@utility typo-subtitle-lg {
+  @apply text-15 leading-022 tracking-spacing-sm font-pre font-bold;
+}
+
+@utility typo-subtitle-md {
+  @apply text-15 leading-022 tracking-spacing-sm font-pre font-semibold;
+}
+
+@utility typo-subtitle-sm {
+  @apply text-14 leading-020 tracking-spacing-sm font-pre font-bold;
+}
+
+@utility typo-subtitle-xl {
+  @apply text-16 leading-024 tracking-spacing-sm font-pre font-medium;
+}
+
+@utility typo-subtitle-xs {
+  @apply text-14 leading-020 tracking-spacing-md font-pre font-semibold;
+}
+
+@utility typo-subtitle-xxs {
+  @apply text-14 leading-020 tracking-spacing-sm font-pre font-medium;
+}

@@ -14,6 +14,11 @@
 # testing
 /coverage
 
+# style dictionary
+design-tokens/.tokens.filtered.json
+design-tokens/.validate.css
+design-tokens/.validate.out.css
+
 # next.js
 /.next/
 /out/
@@ -51,3 +56,4 @@ node_modules/
 *storybook.log
 storybook-static
 .env.local
+tmp/
