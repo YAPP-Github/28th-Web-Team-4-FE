@@ -40,7 +40,7 @@ export function formatTokenValue(token) {
     return `${value}px`;
   }
 
-  if (type === 'fontFamily' || type === 'content') {
+  if (type === 'fontFamily' || (path[0] === 'typography' && path[1] === 'fontFamily')) {
     return `${value}, ${FONT_FALLBACK}`;
   }
 

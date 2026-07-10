@@ -30,17 +30,22 @@ export function isLayoutToken(token) {
 }
 
 export function isTypographyPrimitiveToken(token) {
-  const [group] = token.path;
+  const [group, category] = token.path;
   const type = getTokenType(token);
 
   if (isCompositeTypographyLeaf(token)) {
     return false;
   }
 
-  return (
-    group === 'typography' &&
-    ['fontFamily', 'content', 'fontWeight', 'number', 'dimension', 'letterSpacing'].includes(type)
-  );
+  if (group !== 'typography') {
+    return false;
+  }
+
+  if (category === 'fontFamily') {
+    return true;
+  }
+
+  return ['fontWeight', 'number', 'dimension', 'letterSpacing'].includes(type);
 }
 
 export function isShadowToken(token) {
