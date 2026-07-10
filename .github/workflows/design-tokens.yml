@@ -1,0 +1,68 @@
+name: Create PR from design-system to main
+
+# design-system 브랜치의 tokens.json push 감지 → Tailwind CSS 변환 후 PR 생성
+on:
+  push:
+    branches:
+      - design-system
+    paths:
+      - 'design-tokens/tokens.json'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: design-tokens-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  createPullRequest:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Setup pnpm and Node.js
+        uses: ./.github/actions/pnpm-setup-node
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and validate Tailwind tokens
+        run: node --run tokens
+
+      - name: Format generated files
+        run: pnpm exec oxfmt src/styles/tokens/
+
+      - name: Commit and push generated CSS
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if [ -z "$(git status --porcelain src/styles/tokens/)" ]; then
+            echo "생성된 Tailwind 토큰 파일에 변경이 없습니다."
+            exit 0
+          fi
+
+          git add src/styles/tokens/
+          git commit -m "chore: 디자인 토큰 Tailwind CSS 변환"
+          git push
+
+      - name: Create pull request
+        run: |
+          if gh pr view --base main --head design-system >/dev/null 2>&1; then
+            echo "이미 design-system → main PR이 존재합니다."
+            gh pr view --base main --head design-system
+            exit 0
+          fi
+
+          gh pr create \
+            --base main \
+            --head design-system \
+            --title "💄 디자인 토큰 업데이트" \
+            --body-file .github/workflows/design-tokens-pr-body.md
+        env:
+          GH_TOKEN: ${{ github.token }}
