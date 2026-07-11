@@ -30,7 +30,7 @@ jobs:
           if [[ "$latest_sha" != "$EXPECTED_SHA" ]]; then
             echo "Newer commit detected on $REF_NAME ($latest_sha), cancelling run"
             gh run cancel "$RUN_ID"
-            sleep 5
+            exit 1
           fi
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -101,7 +101,7 @@ jobs:
           if [[ "$latest_sha" != "$EXPECTED_SHA" ]]; then
             echo "Newer commit detected on $REF_NAME ($latest_sha), cancelling run"
             gh run cancel "$RUN_ID"
-            sleep 5
+            exit 1
           fi
 
       - name: Deploy Amazon ECS task definition
