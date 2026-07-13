@@ -76,6 +76,7 @@ design-tokens/
 - `spacing`, `radius`, `opacity`, `boxShadow`
 - `typography` primitive + composite
 
-## 후속 작업
+## 폰트
 
-- Pretendard 폰트 파일 추가 및 `layout.tsx` 연동 (`globals.css`의 `--font-pre` override 제거)
+Pretendard Variable은 `src/shared/fonts`에서 `next/font/local`로 로드합니다.
+`--font-pretendard` → `globals.css`에서 토큰 `--font-pre`로 매핑됩니다.
