@@ -9,7 +9,12 @@
 }
 
 body {
+  position: relative;
   background: var(--color-surface-background-default);
   color: var(--color-text-default);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+.root {
+  isolation: isolate;
 }
