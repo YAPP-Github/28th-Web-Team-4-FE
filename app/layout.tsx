@@ -1,9 +1,10 @@
-import MSWBootstrap from '@/_app/providers/msw-bootstrap';
+import MSWBootstrap from '@/app/providers/msw-bootstrap';
+import { AppProviders } from '@/app/providers/app-providers';
 
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import './globals.css';
-import { AppProviders } from '@/_app/providers/app-providers';
+
+import '@/app/styles/globals.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

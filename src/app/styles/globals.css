@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@import '../styles/tokens/index.css';
+@import '../../styles/tokens/index.css';
 
 @theme inline {
   /* Pretendard 파일 추가 전까지 Geist를 fallback으로 사용 */

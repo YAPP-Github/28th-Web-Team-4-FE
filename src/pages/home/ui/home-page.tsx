@@ -1,6 +1,6 @@
 import Image from 'next/image';
 
-export default function Home() {
+export function HomePage() {
   return (
     <div className="bg-surface-background-default flex flex-1 flex-col items-center justify-center font-sans">
       <main className="bg-surface-lower px-016 py-032 shadow-drop-shadow-01 flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-10 sm:items-start">
