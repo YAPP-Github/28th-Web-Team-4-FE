@@ -21,6 +21,9 @@
     "yarn.lock",
     "bun.lock",
     "bun.lockb",
+    // design tokens (source + generated CSS)
+    "design-tokens/**",
+    "src/styles/tokens/**",
     // AI harness (skills / rules / agent docs)
     ".agents/**",
     ".claude/**",

@@ -6,6 +6,8 @@
     "yarn.lock",
     "bun.lock",
     "bun.lockb",
+    "design-tokens/**",
+    "src/styles/tokens/**",
     ".agents/**",
     ".claude/**",
     ".cursor/skills/**",
@@ -163,7 +165,7 @@
   },
   "overrides": [
     {
-      "files": ["design-tokens/**/*.mjs", "scripts/sync-rules.mjs"],
+      "files": ["scripts/sync-rules.mjs"],
       "rules": {
         "typescript/no-unsafe-member-access": "off",
         "eslint/no-console": "off"
