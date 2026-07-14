@@ -15,6 +15,6 @@ export default defineConfig({
       name: toKebabCase,
       suffix: '.gen',
     },
-    postProcess: ['oxfmt', 'oxlint'],
+    postProcess: ['oxfmt'],
   },
 });

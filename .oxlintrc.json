@@ -11,6 +11,7 @@
     "promise",
     "nextjs"
   ],
+  "ignorePatterns": ["src/shared/api/generated/**"],
   "categories": {
     "correctness": "error"
   },
