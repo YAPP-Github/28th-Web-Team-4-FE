@@ -80,6 +80,10 @@ src/shared/          # ui / lib / (추후 api)
 
 | 스킬                            | 이럴 때 사용 (트리거 예시)                                                                      |
 | ------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `create-fsd-slice`              | `src/pages` / `src/features` 슬라이스 추가. “FSD 슬라이스”, “새 페이지”, “피처 만들어”          |
+| `add-shared-ui-storybook`       | `shared/ui` + Storybook. “공유 컴포넌트”, “스토리 추가”, “디자인 시스템 UI”                      |
+| `design-handoff`                | 구현 **전** 핸드오프 검수. “스펙 리뷰”, “디자인 빠진 거”, “핸드오프 체크”                        |
+| `figma-bridge`                  | Figma MCP로 구현·토큰 매핑. “Figma대로”, “이 노드 구현”, “토큰 매핑”                             |
 | `github-workflow`               | 이슈·브랜치·커밋·푸시·draft PR. “커밋할까?”, “PR 만들어”, “이슈 먼저”                           |
 | `vercel-react-best-practices`   | React/Next 작성·리뷰·성능. “페이지 최적화”, “데이터 페칭”, “번들 줄여”                          |
 | `vercel-composition-patterns`   | 컴포넌트 API·합성. “boolean props 많음”, “compound component”, “shared/ui API”                  |
