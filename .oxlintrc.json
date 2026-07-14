@@ -11,6 +11,7 @@
     ".cursor/skills/**",
     ".cursor/rules/**",
     "shared/skills/**",
+    "shared/rules/**",
     "AGENTS.md",
     "CLAUDE.md",
     "docs/**",
@@ -162,9 +163,10 @@
   },
   "overrides": [
     {
-      "files": ["design-tokens/**/*.mjs"],
+      "files": ["design-tokens/**/*.mjs", "scripts/sync-rules.mjs"],
       "rules": {
-        "typescript/no-unsafe-member-access": "off"
+        "typescript/no-unsafe-member-access": "off",
+        "eslint/no-console": "off"
       }
     },
     {

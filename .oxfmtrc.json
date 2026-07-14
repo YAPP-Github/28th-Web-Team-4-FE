@@ -27,6 +27,7 @@
     ".cursor/skills/**",
     ".cursor/rules/**",
     "shared/skills/**",
+    "shared/rules/**",
     "AGENTS.md",
     "CLAUDE.md",
     "docs/**",

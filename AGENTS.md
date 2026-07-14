@@ -59,8 +59,10 @@ src/shared/          # ui / lib / (추후 api)
 | `node --run storybook`        | Storybook                                          |
 | `node --run tokens`           | 디자인 토큰 빌드·검증                              |
 | `node --run skills:sync`      | `shared/skills` → Cursor/Claude/Agents 심볼릭 링크 |
+| `node --run rules:sync`       | `shared/rules` → Cursor `.mdc` / Claude rules 생성 |
 
-프로젝트 스킬 원본은 **`shared/skills/`** (FSD `src/shared/`와 별개). 수정 후 `node --run skills:sync`로 링크를 맞춘다. Claude 전용 스킬(예: PostHog)은 sync 대상이 아니다.
+프로젝트 스킬·rules 원본은 **`shared/skills/`** · **`shared/rules/`** (FSD `src/shared/`와 별개).  
+수정 후 각각 `skills:sync` / `rules:sync`. Claude 전용 스킬(예: PostHog)은 sync 대상이 아니다.
 
 ## 4. UI
 
@@ -77,6 +79,17 @@ src/shared/          # ui / lib / (추후 api)
 원본: `shared/skills/` (수정 후 `node --run skills:sync`).  
 `.agents` / `.cursor` / `.claude`의 skills는 여기로 가는 심볼릭 링크다.  
 매칭이 애매하면 **스킬 이름을 말해** 수동 호출한다.
+
+### 충돌 시 우선순위
+
+겹치는 지침이 있으면 위 → 아래 순으로 따른다.
+
+1. **FSD·프로젝트 rules** (`docs/architecture.md`, `shared/rules` → Cursor/Claude rules)
+2. **프로젝트 스킬** (`create-fsd-slice`, `add-shared-ui-storybook`, `figma-bridge` 등)
+3. **Vercel** 성능·합성·View Transition 스킬
+4. **Emil / Apple** 모션·폴리시 스킬
+
+구조·레이어를 Emil/Vercel 패턴 때문에 깨지 않는다.
 
 | 스킬                            | 이럴 때 사용 (트리거 예시)                                                                      |
 | ------------------------------- | ----------------------------------------------------------------------------------------------- |

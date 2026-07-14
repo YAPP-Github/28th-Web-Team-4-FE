@@ -20,7 +20,8 @@
     "test:ci": "vitest --run",
     "test:coverage": "vitest --run --coverage --project unit",
     "test:ui": "vitest --ui",
-    "skills:sync": "bash scripts/sync-skills.sh"
+    "skills:sync": "bash scripts/sync-skills.sh",
+    "rules:sync": "node scripts/sync-rules.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

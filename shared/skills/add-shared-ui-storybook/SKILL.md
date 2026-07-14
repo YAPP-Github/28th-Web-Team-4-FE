@@ -10,7 +10,7 @@ description: >-
 
 # shared UI + Storybook 추가
 
-[`docs/architecture.md`](../../docs/architecture.md) · `.cursor/rules/shared-ui.mdc`를 따른다.
+[`docs/architecture.md`](../../docs/architecture.md) · `shared/rules/shared-ui.md`(sync → Cursor/Claude rules)를 따른다.
 
 ## 필수 문서 (구현 전 읽기)
 
