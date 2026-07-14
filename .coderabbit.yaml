@@ -7,8 +7,13 @@ reviews:
   poem: false
   review_status: true
   collapse_walkthrough: false
+  path_filters:
+    - '!design-tokens/**'
+    - '!src/styles/tokens/**'
   auto_review:
     enabled: true
     drafts: false
+    ignore_title_keywords:
+      - '디자인 토큰'
 chat:
   auto_reply: true
