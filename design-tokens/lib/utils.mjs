@@ -32,12 +32,15 @@ export function formatTokenValue(token) {
     return value;
   }
 
-  if (path[0] === 'opacity' && typeof value === 'number') {
-    return value > 1 ? value / 100 : value;
+  if (path[0] === 'opacity') {
+    const n = typeof value === 'number' ? value : Number(value);
+    if (!Number.isNaN(n)) {
+      return n > 1 ? n / 100 : n;
+    }
   }
 
-  if (type === 'number' && typeof value === 'number') {
-    return `${value}px`;
+  if (type === 'number') {
+    return formatPx(value);
   }
 
   if (type === 'fontFamily' || (path[0] === 'typography' && path[1] === 'fontFamily')) {
