@@ -7,7 +7,7 @@ const toKebabCase = (name: string) =>
     .toLowerCase();
 
 export default defineConfig({
-  input: '...',
+  input: 'http://43.200.117.165/v3/api-docs',
   output: {
     path: 'src/shared/api/generated',
     fileName: {
@@ -17,4 +17,16 @@ export default defineConfig({
     },
     postProcess: ['oxfmt'],
   },
+  plugins: [
+    {
+      name: '@hey-api/typescript',
+      enums: 'javascript',
+    },
+    {
+      name: '@hey-api/client-next',
+      runtimeConfigPath: './src/shared/api/hey-api.ts',
+    },
+    '@hey-api/sdk',
+    '@tanstack/react-query',
+  ],
 });
