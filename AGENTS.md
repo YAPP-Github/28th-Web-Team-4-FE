@@ -71,3 +71,24 @@ src/shared/          # ui / lib / (추후 api)
 ## 5. 시크릿·환경 변수
 
 시크릿·환경 변수는 **Doppler**로 관리한다. 레포/클라이언트에 키를 넣지 말고, 없는 값은 추측하지 말고 확인한다.
+
+## 6. 스킬·트리거
+
+원본: `.agents/skills/` (수정 후 `node --run skills:sync`).  
+매칭이 애매하면 **스킬 이름을 말해** 수동 호출한다.
+
+| 스킬                            | 이럴 때 사용 (트리거 예시)                                                                      |
+| ------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `github-workflow`               | 이슈·브랜치·커밋·푸시·draft PR. “커밋할까?”, “PR 만들어”, “이슈 먼저”                           |
+| `vercel-react-best-practices`   | React/Next 작성·리뷰·성능. “페이지 최적화”, “데이터 페칭”, “번들 줄여”                          |
+| `vercel-composition-patterns`   | 컴포넌트 API·합성. “boolean props 많음”, “compound component”, “shared/ui API”                  |
+| `web-design-guidelines`         | UI/a11y/UX 가이드 리뷰. “UI 리뷰”, “접근성 체크”, “디자인 감사”                                 |
+| `vercel-react-view-transitions` | View Transition API·라우트 전환. “페이지 전환 애니”, `ViewTransition`, “공유 요소 모션”         |
+| `emil-design-eng`               | UI 폴리시·버튼/모달/토스트 디테일. “이 인터랙션 다듬어”, “애니메이션 넣을까?”                   |
+| `apple-design`                  | 제스처·시트·드래그·스프링. “바텀시트”, “애플처럼 물리적 모션”                                   |
+| `animation-vocabulary`          | 효과 이름. “뭐라고 불러?”, “저 튕기는 스크롤 용어”                                              |
+| `improve-animations`            | 레포 모션 **감사·로드맵** (코드 미수정). “모션 감사”, “애니 개선 계획”                          |
+| `review-animations`             | 애니 **디프 리뷰**. **자동 호출 거의 안 됨** → `review-animations로 리뷰해`처럼 **이름을 명시** |
+| `integration-nextjs-app-router` | PostHog **신규** 연동만 (이미 연동됨 → 사용 금지)                                               |
+
+모션: 한 파일/디프 → `review-animations` / 전체 점검·계획 → `improve-animations` / 네이티브 VT·라우트 전환 → `vercel-react-view-transitions` / Emil 폴리시 → `emil-design-eng`.

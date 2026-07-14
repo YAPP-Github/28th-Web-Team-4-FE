@@ -14,5 +14,11 @@
   "jsxSingleQuote": false, // JSX 속성은 쌍따옴표 사용
   "bracketSameLine": false, // 여러 줄 JSX 닫는 >를 마지막 속성 줄에 붙이지 않고 다음 줄로
   "singleAttributePerLine": false, // JSX 속성을 한 줄에 하나씩 강제하지 않음
-  "ignorePatterns": [".claude", ".github/workflows/**"]
+  "ignorePatterns": [
+    ".claude",
+    ".github/workflows/**",
+    ".agents/skills/**",
+    ".cursor/skills/**",
+    "shared/skills/**"
+  ]
 }
