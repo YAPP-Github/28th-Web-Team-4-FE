@@ -66,7 +66,6 @@ const badgeVariants = cva('inline-flex items-center justify-center shrink-0 whit
     {
       frame: 'badge',
       tone: 'deep-gray',
-      // Figma deep-gray fill(#ebeae9)는 토큰 미매핑 → 가까운 surface-low로 임시 처리
       class: 'bg-surface-low text-text-medium',
     },
     {
