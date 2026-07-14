@@ -6,12 +6,12 @@ Token Studio에서 export한 `tokens.json`을 Style Dictionary로 변환해 Tail
 
 ### 자동 (GitHub Actions)
 
-1. Figma Token Studio에서 export한 `tokens.json`을 `design-system` 브랜치에 push합니다.
+1. Figma Token Studio에서 export한 `tokens.json`을 `design-tokens` 브랜치에 push합니다.
 2. [design-tokens workflow](.github/workflows/design-tokens.yml)가 `node --run tokens`로 CSS를 생성하고 커밋한 뒤 `main`으로 PR을 엽니다.
 
 `main`만 직접 push가 막혀 있으면 기본 `GITHUB_TOKEN`으로 동작합니다. 별도 secret은 필요 없습니다.
 
-> **선행 조건:** Style Dictionary 파이프라인(`design-tokens/build.mjs` 등)이 `main`에 머지된 뒤, `design-system` 브랜치를 `main`과 동기화해야 합니다.
+> **선행 조건:** Style Dictionary 파이프라인(`design-tokens/build.mjs` 등)이 `main`에 머지된 뒤, `design-tokens` 브랜치를 `main`과 동기화해야 합니다.
 
 ### 수동
 
