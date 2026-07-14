@@ -1,10 +1,10 @@
-name: Create PR from design-system to main
+name: Create PR from design-tokens to main
 
-# design-system 브랜치의 tokens.json push 감지 → Tailwind CSS 변환 후 PR 생성
+# design-tokens 브랜치의 tokens.json push 감지 → Tailwind CSS 변환 후 PR 생성
 on:
   push:
     branches:
-      - design-system
+      - design-tokens
     paths:
       - 'design-tokens/tokens.json'
 
@@ -53,15 +53,15 @@ jobs:
 
       - name: Create pull request
         run: |
-          if gh pr view --base main --head design-system >/dev/null 2>&1; then
-            echo "이미 design-system → main PR이 존재합니다."
-            gh pr view --base main --head design-system
+          if gh pr view --base main --head design-tokens >/dev/null 2>&1; then
+            echo "이미 design-tokens → main PR이 존재합니다."
+            gh pr view --base main --head design-tokens
             exit 0
           fi
 
           gh pr create \
             --base main \
-            --head design-system \
+            --head design-tokens \
             --title "💄 디자인 토큰 업데이트" \
             --body-file .github/workflows/design-tokens-pr-body.md
         env:
