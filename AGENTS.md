@@ -50,17 +50,17 @@ src/shared/          # ui / lib / (추후 api)
 
 스크립트는 **`node --run <script>`** 로 실행한다 (`npm run` / `pnpm run`으로 안내하지 않음).
 
-| 명령                          | 용도                                         |
-| ----------------------------- | -------------------------------------------- |
-| `node --run dev`              | 개발 서버                                    |
-| `node --run build`            | 토큰 빌드 + Next build                       |
-| `node --run lint` / `fmt`     | oxlint / oxfmt                               |
-| `node --run test` / `test:ci` | Vitest                                       |
-| `node --run storybook`        | Storybook                                    |
-| `node --run tokens`           | 디자인 토큰 빌드·검증                        |
-| `node --run skills:sync`      | `.agents/skills` → Cursor/Claude 스킬 동기화 |
+| 명령                          | 용도                                               |
+| ----------------------------- | -------------------------------------------------- |
+| `node --run dev`              | 개발 서버                                          |
+| `node --run build`            | 토큰 빌드 + Next build                             |
+| `node --run lint` / `fmt`     | oxlint / oxfmt                                     |
+| `node --run test` / `test:ci` | Vitest                                             |
+| `node --run storybook`        | Storybook                                          |
+| `node --run tokens`           | 디자인 토큰 빌드·검증                              |
+| `node --run skills:sync`      | `shared/skills` → Cursor/Claude/Agents 심볼릭 링크 |
 
-프로젝트 스킬은 **`.agents/skills/`만 수정**한 뒤 `node --run skills:sync`로 맞춘다. Claude 전용 스킬(예: PostHog)은 sync 대상이 아니다.
+프로젝트 스킬 원본은 **`shared/skills/`** (FSD `src/shared/`와 별개). 수정 후 `node --run skills:sync`로 링크를 맞춘다. Claude 전용 스킬(예: PostHog)은 sync 대상이 아니다.
 
 ## 4. UI
 
@@ -74,7 +74,8 @@ src/shared/          # ui / lib / (추후 api)
 
 ## 6. 스킬·트리거
 
-원본: `.agents/skills/` (수정 후 `node --run skills:sync`).  
+원본: `shared/skills/` (수정 후 `node --run skills:sync`).  
+`.agents` / `.cursor` / `.claude`의 skills는 여기로 가는 심볼릭 링크다.  
 매칭이 애매하면 **스킬 이름을 말해** 수동 호출한다.
 
 | 스킬                            | 이럴 때 사용 (트리거 예시)                                                                      |

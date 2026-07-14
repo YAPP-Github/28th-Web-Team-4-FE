@@ -1,5 +1,21 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "ignorePatterns": [
+    "pnpm-lock.yaml",
+    "package-lock.json",
+    "yarn.lock",
+    "bun.lock",
+    "bun.lockb",
+    ".agents/**",
+    ".claude/**",
+    ".cursor/skills/**",
+    ".cursor/rules/**",
+    "shared/skills/**",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/**",
+    ".github/**"
+  ],
   "plugins": [
     "eslint",
     "typescript",

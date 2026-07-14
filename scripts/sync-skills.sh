@@ -1,19 +1,17 @@
 #!/usr/bin/env bash
-# Sync project skills from canonical .agents/skills/ → Cursor & Claude paths.
-# Edit skills only under .agents/skills/, then run this script before committing.
-#
-# Claude-only skills (e.g. integration-nextjs-app-router) are left untouched.
+# Recreate symlinks from shared/skills/ (SSOT) → tool skill dirs.
+# Edit skills only under shared/skills/. Claude-only skills in .claude/skills are left alone.
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
-src="${root}/.agents/skills"
+src="${root}/shared/skills"
 
 if [[ ! -d "$src" ]]; then
-  echo "error: missing canonical skills dir: $src" >&2
+  echo "error: missing SSOT skills dir: $src" >&2
   exit 1
 fi
 
-sync_one() {
+link_one() {
   local dest_root="$1"
   mkdir -p "$dest_root"
 
@@ -23,15 +21,16 @@ sync_one() {
     local name
     name="$(basename "$skill_dir")"
     local dest="${dest_root}/${name}"
+    local target="../../shared/skills/${name}"
 
     rm -rf "$dest"
-    mkdir -p "$dest"
-    cp -R "$skill_dir"/. "$dest"/
-    echo "synced: ${name} → ${dest_root#"$root"/}/"
+    ln -s "$target" "$dest"
+    echo "linked: ${dest_root#"$root"/}/${name} → ${target}"
   done
 }
 
-sync_one "${root}/.cursor/skills"
-sync_one "${root}/.claude/skills"
+link_one "${root}/.agents/skills"
+link_one "${root}/.cursor/skills"
+link_one "${root}/.claude/skills"
 
-echo "done. (Claude-only skills outside .agents/skills were not modified.)"
+echo "done. (Claude-only skills that are not under shared/skills were not modified.)"
