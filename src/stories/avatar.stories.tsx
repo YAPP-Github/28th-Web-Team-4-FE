@@ -32,7 +32,7 @@ export const Default: Story = {
 };
 
 export const Hover: Story = {
-  render: (args) => <Avatar {...args} className="shadow-[0_0_0_4px_var(--color-outline-low)]" />,
+  render: (args) => <Avatar {...args} className="ring-outline-low ring-4" />,
 };
 
 export const CustomSize: Story = {

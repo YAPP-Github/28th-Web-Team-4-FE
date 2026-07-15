@@ -22,7 +22,7 @@ export const Avatar = ({ className, src, alt = DEFAULT_ALT }: AvatarProps): JSX.
     <BaseAvatar.Root
       className={cn(
         'relative inline-flex size-9 shrink-0 overflow-hidden rounded-full',
-        'transition-shadow duration-150 hover:shadow-[0_0_0_4px_var(--color-outline-low)]',
+        'transition-shadow duration-150 hover:ring-4 hover:ring-outline-low',
         className,
       )}
       {...(isDecorative ? { 'aria-hidden': true } : { role: 'img', 'aria-label': alt })}
