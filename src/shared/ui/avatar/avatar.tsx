@@ -9,11 +9,13 @@ const DEFAULT_ALT = '프로필';
 
 export type AvatarProps = {
   className?: string;
+  /** 아바타 이미지 URL */
+  src?: string;
   /** 접근성 대체 텍스트. 기본 '프로필'. 빈 문자열이면 decorative */
   alt?: string;
 };
 
-export const Avatar = ({ className, alt = DEFAULT_ALT }: AvatarProps): JSX.Element => {
+export const Avatar = ({ className, src, alt = DEFAULT_ALT }: AvatarProps): JSX.Element => {
   const isDecorative = alt === '';
 
   return (
@@ -25,6 +27,7 @@ export const Avatar = ({ className, alt = DEFAULT_ALT }: AvatarProps): JSX.Eleme
       )}
       {...(isDecorative ? { 'aria-hidden': true } : { role: 'img', 'aria-label': alt })}
     >
+      {src && <BaseAvatar.Image src={src} alt="" className="size-full object-cover" />}
       {/* TODO: AvatarPlaceholder는 브랜드 이미지로 교체 예정 */}
       <BaseAvatar.Fallback className="flex size-full items-center justify-center">
         <AvatarPlaceholder className="size-full" />
