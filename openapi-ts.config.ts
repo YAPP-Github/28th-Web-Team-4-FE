@@ -25,7 +25,7 @@ export default defineConfig({
     {
       name: '@hey-api/client-next',
       baseUrl: false,
-      runtimeConfigPath: './src/shared/api/hey-api.ts',
+      runtimeConfigPath: './src/shared/api/hey-api',
     },
     '@hey-api/sdk',
     '@tanstack/react-query',
