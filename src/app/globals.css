@@ -2,14 +2,21 @@
 @import '../styles/tokens/index.css';
 
 @theme inline {
-  /* Pretendard 파일 추가 전까지 Geist를 fallback으로 사용 */
-  --font-pre: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  /* next/font가 주입한 값을 토큰 `--font-pre`에 연결 (typography.css의 문자열 값 override) */
+  --font-pre: var(--font-pretendard), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-pre);
-  --font-mono: var(--font-geist-mono);
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
 }
 
 body {
+  position: relative;
   background: var(--color-surface-background-default);
   color: var(--color-text-default);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+.root {
+  isolation: isolate;
 }

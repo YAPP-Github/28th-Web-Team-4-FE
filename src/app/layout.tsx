@@ -1,19 +1,9 @@
 import MSWBootstrap from '@/_app/providers/msw-bootstrap';
 
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { AppProviders } from '@/_app/providers/app-providers';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
+import { pretendard } from '@/shared/fonts';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
@@ -32,11 +22,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang="ko" className={`${pretendard.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        <MSWBootstrap>
-          <AppProviders>{children}</AppProviders>
-        </MSWBootstrap>
+        <div className="root flex min-h-full flex-1 flex-col">
+          <MSWBootstrap>
+            <AppProviders>{children}</AppProviders>
+          </MSWBootstrap>
+        </div>
       </body>
     </html>
   );
