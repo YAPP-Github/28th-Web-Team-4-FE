@@ -42,15 +42,20 @@ export const UserBubble = (props: UserBubbleProps): JSX.Element => {
     <VStack className={cn('gap-006', className)}>
       <BubbleShell frame="user">{children}</BubbleShell>
       {canEdit && (
-        <button
-          type="button"
-          onClick={props.onEdit}
-          className="w-full text-right underline decoration-from-font"
-        >
-          <Text variant="subtitle-xxs" className="text-text-medium">
-            {editLabel}
-          </Text>
-        </button>
+        <div className="flex w-full justify-end">
+          <button
+            type="button"
+            onClick={props.onEdit}
+            className="group underline decoration-from-font outline-none"
+          >
+            <Text
+              variant="subtitle-xxs"
+              className="text-text-medium group-focus-visible:text-text-highest"
+            >
+              {editLabel}
+            </Text>
+          </button>
+        </div>
       )}
     </VStack>
   );
