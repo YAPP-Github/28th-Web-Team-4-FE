@@ -25,7 +25,7 @@ export const Avatar = ({ className, alt = DEFAULT_ALT }: AvatarProps): JSX.Eleme
       )}
       {...(isDecorative ? { 'aria-hidden': true } : { role: 'img', 'aria-label': alt })}
     >
-      {/* TODO: AvatarPlaceholder는 lucide 등 아이콘 라이브러리로 교체 예정 */}
+      {/* TODO: AvatarPlaceholder는 브랜드 이미지로 교체 예정 */}
       <BaseAvatar.Fallback className="flex size-full items-center justify-center">
         <AvatarPlaceholder className="size-full" />
       </BaseAvatar.Fallback>

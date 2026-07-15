@@ -4,7 +4,7 @@ export type AvatarPlaceholderProps = SVGProps<SVGSVGElement>;
 
 /**
  * Figma profile 기본 플레이스홀더 (36×36 viewBox).
- * TODO: lucide 등 아이콘 라이브러리로 교체 예정 — 임시 구현.
+ * TODO: 브랜드 이미지로 교체 예정 — 임시 구현.
  */
 export const AvatarPlaceholder = ({ className, ...props }: AvatarPlaceholderProps) => {
   const clipId = useId();
