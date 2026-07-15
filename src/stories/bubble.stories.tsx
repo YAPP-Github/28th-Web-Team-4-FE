@@ -2,18 +2,18 @@ import type { ComponentType } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
-import { Bubble } from '@/shared/ui/bubble';
+import { Bubble, BUBBLE_FRAMES } from '@/shared/ui/bubble';
 
 const SAMPLE = '텍스트';
 const LONG_TEXT =
   'YAPP님께 딱 맞는 광고 채널을 추천해 드려요. 긴 문장이 들어갈 때 줄바꿈이 자연스럽게 되는지 확인합니다.';
 
 /**
- * BubbleProps는 type별로 canEdit/onEdit/editLabel이 다른 discriminated union이라
+ * BubbleProps는 frame별로 canEdit/onEdit/editLabel이 다른 discriminated union이라
  * Meta<typeof Bubble>로는 args가 never로 붕괴한다.
  */
 type BubbleStoryArgs = {
-  type: 'bot' | 'user';
+  frame: 'bot' | 'user';
   children: string;
   className?: string;
   canEdit?: boolean;
@@ -27,12 +27,12 @@ const meta = {
   tags: ['autodocs'],
   args: {
     children: SAMPLE,
-    type: 'bot',
+    frame: 'bot',
   },
   argTypes: {
-    type: {
+    frame: {
       control: 'radio',
-      options: ['bot', 'user'],
+      options: BUBBLE_FRAMES,
     },
     children: { control: 'text' },
     className: { control: 'text' },
@@ -53,19 +53,33 @@ export default meta;
 type Story = StoryObj<BubbleStoryArgs>;
 
 const renderBubble = ({
-  type,
+  frame,
   children,
   className,
   canEdit,
   onEdit,
   editLabel,
 }: BubbleStoryArgs) => {
-  if (type === 'user') {
+  if (frame === 'user') {
+    if (canEdit) {
+      return (
+        <Bubble
+          frame="user"
+          className={className}
+          canEdit
+          onEdit={onEdit ?? (() => undefined)}
+          editLabel={editLabel}
+        >
+          {children}
+        </Bubble>
+      );
+    }
+
     return (
       <Bubble
-        type="user"
+        frame="user"
         className={className}
-        canEdit={canEdit}
+        canEdit={false}
         onEdit={onEdit}
         editLabel={editLabel}
       >
@@ -75,7 +89,7 @@ const renderBubble = ({
   }
 
   return (
-    <Bubble type="bot" className={className}>
+    <Bubble frame="bot" className={className}>
       {children}
     </Bubble>
   );
@@ -83,7 +97,7 @@ const renderBubble = ({
 
 export const Bot: Story = {
   args: {
-    type: 'bot',
+    frame: 'bot',
     className: 'w-[246px]',
   },
   render: renderBubble,
@@ -96,7 +110,7 @@ export const Bot: Story = {
 
 export const User: Story = {
   args: {
-    type: 'user',
+    frame: 'user',
     className: 'w-[246px]',
     canEdit: true,
     onEdit: fn(),
@@ -114,7 +128,7 @@ export const User: Story = {
 
 export const Editing: Story = {
   args: {
-    type: 'user',
+    frame: 'user',
     className: 'w-[246px]',
     canEdit: false,
     onEdit: fn(),
@@ -128,9 +142,9 @@ export const Editing: Story = {
   },
 };
 
-export const AllTypes: Story = {
+export const AllFrames: Story = {
   argTypes: {
-    type: { control: false },
+    frame: { control: false },
     children: { control: false },
     className: { control: false },
     canEdit: { control: false },
@@ -139,25 +153,27 @@ export const AllTypes: Story = {
   },
   render: () => (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <span className="typo-caption-sm text-text-medium">bot</span>
-        <Bubble type="bot" className="w-[246px]">
-          {SAMPLE}
-        </Bubble>
-      </div>
-      <div className="flex flex-col gap-2">
-        <span className="typo-caption-sm text-text-medium">user</span>
-        <Bubble type="user" className="w-[246px]" canEdit onEdit={fn()}>
-          {SAMPLE}
-        </Bubble>
-      </div>
+      {BUBBLE_FRAMES.map((frame) => (
+        <div key={frame} className="flex flex-col gap-2">
+          <span className="typo-caption-sm text-text-medium">{frame}</span>
+          {frame === 'bot' ? (
+            <Bubble frame="bot" className="w-[246px]">
+              {SAMPLE}
+            </Bubble>
+          ) : (
+            <Bubble frame="user" className="w-[246px]" canEdit onEdit={fn()}>
+              {SAMPLE}
+            </Bubble>
+          )}
+        </div>
+      ))}
     </div>
   ),
 };
 
 export const LongText: Story = {
   args: {
-    type: 'bot',
+    frame: 'bot',
     children: LONG_TEXT,
     className: 'w-[246px]',
   },
@@ -166,7 +182,7 @@ export const LongText: Story = {
 
 export const CustomClassName: Story = {
   args: {
-    type: 'bot',
+    frame: 'bot',
     className: 'w-[246px] opacity-50',
   },
   render: renderBubble,
