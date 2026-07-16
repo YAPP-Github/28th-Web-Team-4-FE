@@ -16,57 +16,51 @@ export type ButtonFrame = keyof typeof FRAME_MAP;
 
 export const BUTTON_FRAMES = keys(FRAME_MAP);
 
-type ButtonToneByFrame = {
-  button: 'primary' | 'secondary' | 'stroke' | 'social';
-  cta: 'primary' | 'secondary' | 'third' | 'login';
-};
-
+type StandardButtonTone = 'primary' | 'secondary' | 'stroke' | 'social';
+type CtaButtonTone = 'primary' | 'secondary' | 'third' | 'login';
 type ButtonSize = 's' | 'm' | 'l';
+type ContentSize = 's' | 'm' | 'l' | 'ctaSecondaryM' | 'social' | 'plain';
+type BaseButtonProps = ComponentProps<typeof BaseButton>;
+type BaseButtonPassthroughProps = Omit<BaseButtonProps, 'className' | 'children' | 'type'>;
 
-const DEFAULT_TONE = {
-  button: 'primary',
-  cta: 'primary',
-} as const satisfies { button: ButtonToneByFrame['button']; cta: ButtonToneByFrame['cta'] };
-
-const DEFAULT_SIZE = {
-  button: 'm',
-  cta: 'm',
-} as const satisfies Record<ButtonFrame, ButtonSize>;
-
-type SharedButtonProps = Omit<ComponentProps<typeof BaseButton>, 'className' | 'children'> & {
+type SharedButtonProps = Omit<BaseButtonProps, 'className' | 'children'> & {
   children: ReactNode;
   className?: string;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
 };
 
-export type ButtonProps =
+type StandardButtonProps =
   | (SharedButtonProps & {
       frame: 'button';
-      tone?: 'primary' | 'secondary';
+      tone?: Extract<StandardButtonTone, 'primary' | 'secondary'>;
       size?: 's' | 'm' | 'l';
     })
   | (SharedButtonProps & {
       frame: 'button';
-      tone: 'stroke';
+      tone: Extract<StandardButtonTone, 'stroke'>;
       size?: never;
       badge?: ReactNode;
     })
   | (SharedButtonProps & {
       frame: 'button';
-      tone: 'social';
+      tone: Extract<StandardButtonTone, 'social'>;
+      size?: never;
+    });
+
+type CtaButtonProps =
+  | (SharedButtonProps & {
+      frame: 'cta';
+      tone?: Extract<CtaButtonTone, 'primary' | 'third' | 'login'>;
       size?: never;
     })
   | (SharedButtonProps & {
       frame: 'cta';
-      tone?: 'primary' | 'third' | 'login';
-      size?: never;
-    })
-  | (SharedButtonProps & {
-      frame: 'cta';
-      tone: 'secondary';
+      tone: Extract<CtaButtonTone, 'secondary'>;
       size?: 's' | 'm';
     });
+
+export type ButtonProps = StandardButtonProps | CtaButtonProps;
 
 const buttonVariants = cva(
   [
@@ -174,123 +168,72 @@ const contentVariants = cva('inline-flex items-center justify-center', {
   },
 });
 
-const resolveTone = <F extends ButtonFrame>(
-  frame: F,
-  tone: ButtonToneByFrame[F] | undefined,
-): ButtonToneByFrame[F] => tone ?? DEFAULT_TONE[frame];
-
-const resolveSize = (props: ButtonProps): ButtonSize | 'none' => {
-  if (props.frame === 'button' && (props.tone === 'stroke' || props.tone === 'social')) {
-    return 'none';
-  }
-
-  if (props.frame === 'cta' && props.tone !== 'secondary') {
-    return 'none';
-  }
-
-  if (props.frame === 'cta' && props.tone === 'secondary') {
-    return props.size ?? 'm';
-  }
-
-  if (props.frame === 'button') {
-    return props.size ?? DEFAULT_SIZE.button;
-  }
-
-  return 'none';
+type ButtonBaseProps = BaseButtonPassthroughProps & {
+  className?: string;
+  contentClassName: string;
+  textVariant: TextVariant;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
+  badge?: ReactNode;
+  children: ReactNode;
+  type?: BaseButtonProps['type'];
 };
 
-const resolveTextVariant = (
-  frame: ButtonFrame,
-  tone: ButtonToneByFrame[ButtonFrame],
-  size: ButtonSize | 'none',
-): TextVariant => {
-  if (frame === 'button' && tone === 'social') {
-    return 'heading-sm';
+const getButtonTextVariant = (size: ButtonSize): TextVariant => {
+  if (size === 's') {
+    return 'subtitle-xs';
   }
 
-  if (frame === 'cta' && tone === 'login') {
-    return 'heading-md';
-  }
-
-  if (frame === 'button' && (tone === 'primary' || tone === 'secondary')) {
-    if (size === 's') {
-      return 'subtitle-xs';
-    }
-
-    if (size === 'l') {
-      return 'subtitle-lg';
-    }
-
-    return 'subtitle-md';
+  if (size === 'l') {
+    return 'subtitle-lg';
   }
 
   return 'subtitle-md';
 };
 
-const resolveCvaTone = (
-  frame: ButtonFrame,
-  tone: ButtonToneByFrame[ButtonFrame],
-): 'primary' | 'secondary' | 'stroke' | 'social' | 'third' | 'login' => {
-  if (frame === 'cta' && tone === 'primary') {
-    return 'primary';
+const getStandardTextVariant = (
+  tone: StandardButtonTone,
+  resolvedSize: ButtonSize | 'none',
+): TextVariant => {
+  if (tone === 'social') {
+    return 'heading-sm';
   }
 
-  if (frame === 'cta' && tone === 'secondary') {
-    return 'secondary';
+  if (resolvedSize === 'none') {
+    return 'subtitle-md';
   }
 
-  if (frame === 'cta' && tone === 'third') {
-    return 'third';
-  }
+  return getButtonTextVariant(resolvedSize);
+};
 
-  if (frame === 'cta' && tone === 'login') {
-    return 'login';
-  }
-
-  if (tone === 'stroke') {
-    return 'stroke';
-  }
-
+const getStandardContentSize = (
+  tone: StandardButtonTone,
+  resolvedSize: ButtonSize | 'none',
+): ContentSize => {
   if (tone === 'social') {
     return 'social';
   }
 
-  if (tone === 'secondary') {
-    return 'secondary';
-  }
-
-  return 'primary';
-};
-
-const resolveContentSize = (
-  frame: ButtonFrame,
-  tone: ButtonToneByFrame[ButtonFrame],
-  size: ButtonSize | 'none',
-): 's' | 'm' | 'l' | 'ctaSecondaryM' | 'social' | 'plain' => {
-  if (frame === 'button' && tone === 'social') {
-    return 'social';
-  }
-
-  if (frame === 'cta' && tone === 'secondary' && size === 'm') {
-    return 'ctaSecondaryM';
-  }
-
-  if (frame === 'button' && (tone === 'primary' || tone === 'secondary') && size !== 'none') {
-    return size;
-  }
-
-  if (frame === 'cta' && tone === 'secondary' && size === 's') {
-    return 's';
-  }
-
-  if (frame === 'button' && tone === 'stroke') {
+  if (resolvedSize === 'none') {
     return 'm';
   }
 
-  return 'plain';
+  return resolvedSize;
 };
 
-const getBaseButtonProps = (props: ButtonProps): ComponentProps<typeof BaseButton> => {
+const getCtaContentSize = (tone: CtaButtonTone, resolvedSize: ButtonSize | 'none'): ContentSize => {
+  if (tone !== 'secondary') {
+    return 'plain';
+  }
+
+  if (resolvedSize === 'm') {
+    return 'ctaSecondaryM';
+  }
+
+  return 's';
+};
+
+const getStandardBaseProps = (props: StandardButtonProps): BaseButtonPassthroughProps => {
   if (props.frame === 'button' && props.tone === 'stroke') {
     const {
       frame: _frame,
@@ -323,30 +266,36 @@ const getBaseButtonProps = (props: ButtonProps): ComponentProps<typeof BaseButto
   return rest;
 };
 
-export const Button = (props: ButtonProps): JSX.Element => {
-  const { frame, tone, size, leftIcon, rightIcon, className, children, type = 'button' } = props;
-  const badge = props.frame === 'button' && props.tone === 'stroke' ? props.badge : undefined;
-  const resolvedTone = resolveTone(frame, tone);
-  const resolvedSize = resolveSize({ frame, tone, size } as ButtonProps);
-  const cvaTone = resolveCvaTone(frame, resolvedTone);
-  const textVariant = resolveTextVariant(frame, resolvedTone, resolvedSize);
-  const contentSize = resolveContentSize(frame, resolvedTone, resolvedSize);
-  const rest = getBaseButtonProps(props);
+const getCtaBaseProps = (props: CtaButtonProps): BaseButtonPassthroughProps => {
+  const {
+    frame: _frame,
+    tone: _tone,
+    size: _size,
+    leftIcon: _leftIcon,
+    rightIcon: _rightIcon,
+    className: _className,
+    children: _children,
+    type: _type,
+    ...rest
+  } = props;
 
+  return rest;
+};
+
+const ButtonBase = ({
+  className,
+  contentClassName,
+  textVariant,
+  leftIcon,
+  rightIcon,
+  badge,
+  children,
+  type = 'button',
+  ...rest
+}: ButtonBaseProps): JSX.Element => {
   return (
-    <BaseButton
-      type={type}
-      className={cn(
-        buttonVariants({
-          frame,
-          tone: cvaTone,
-          size: resolvedSize === 'none' ? 'none' : resolvedSize,
-        }),
-        className,
-      )}
-      {...rest}
-    >
-      <Box as="span" className={contentVariants({ size: contentSize })}>
+    <BaseButton type={type} className={className} {...rest}>
+      <Box as="span" className={contentClassName}>
         {leftIcon ? (
           <Box as="span" className="size-016 inline-flex shrink-0 items-center justify-center">
             {leftIcon}
@@ -366,4 +315,68 @@ export const Button = (props: ButtonProps): JSX.Element => {
       ) : null}
     </BaseButton>
   );
+};
+
+const StandardButton = (props: StandardButtonProps): JSX.Element => {
+  const { frame, tone = 'primary', size, leftIcon, rightIcon, className, children, type } = props;
+  const classNameValue = typeof className === 'string' ? className : undefined;
+  const resolvedSize = tone === 'primary' || tone === 'secondary' ? (size ?? 'm') : 'none';
+  const textVariant = getStandardTextVariant(tone, resolvedSize);
+  const contentSize = getStandardContentSize(tone, resolvedSize);
+  const badge = props.tone === 'stroke' ? props.badge : undefined;
+  const rest = getStandardBaseProps(props);
+  const rootClassName: string = cn(
+    buttonVariants({ frame, tone, size: resolvedSize }),
+    classNameValue,
+  );
+
+  return (
+    <ButtonBase
+      className={rootClassName}
+      contentClassName={contentVariants({ size: contentSize })}
+      textVariant={textVariant}
+      leftIcon={leftIcon}
+      rightIcon={rightIcon}
+      badge={badge}
+      type={type}
+      {...rest}
+    >
+      {children}
+    </ButtonBase>
+  );
+};
+
+const CtaButton = (props: CtaButtonProps): JSX.Element => {
+  const { frame, tone = 'primary', size, leftIcon, rightIcon, className, children, type } = props;
+  const classNameValue = typeof className === 'string' ? className : undefined;
+  const resolvedSize = tone === 'secondary' ? (size ?? 'm') : 'none';
+  const textVariant = tone === 'login' ? 'heading-md' : 'subtitle-md';
+  const contentSize = getCtaContentSize(tone, resolvedSize);
+  const rest = getCtaBaseProps(props);
+  const rootClassName: string = cn(
+    buttonVariants({ frame, tone, size: resolvedSize }),
+    classNameValue,
+  );
+
+  return (
+    <ButtonBase
+      className={rootClassName}
+      contentClassName={contentVariants({ size: contentSize })}
+      textVariant={textVariant}
+      leftIcon={leftIcon}
+      rightIcon={rightIcon}
+      type={type}
+      {...rest}
+    >
+      {children}
+    </ButtonBase>
+  );
+};
+
+export const Button = (props: ButtonProps): JSX.Element => {
+  if (props.frame === 'cta') {
+    return <CtaButton {...props} />;
+  }
+
+  return <StandardButton {...props} />;
 };
