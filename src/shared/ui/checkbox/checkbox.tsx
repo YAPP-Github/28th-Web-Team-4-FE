@@ -1,6 +1,6 @@
 'use client';
 
-import type { ComponentPropsWithoutRef, JSX } from 'react';
+import type { ComponentProps, JSX } from 'react';
 import { Checkbox as CheckboxPrimitive } from '@base-ui/react/checkbox';
 import { cva, type VariantProps } from 'class-variance-authority';
 
@@ -26,7 +26,7 @@ const checkboxVariants = cva(
   },
 );
 
-type CheckboxPrimitiveProps = ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>;
+type CheckboxPrimitiveProps = ComponentProps<typeof CheckboxPrimitive.Root>;
 
 export type CheckboxProps = Omit<
   CheckboxPrimitiveProps,
