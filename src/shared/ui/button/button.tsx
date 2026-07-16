@@ -45,7 +45,6 @@ export type ButtonProps =
       frame: 'button';
       tone?: 'primary' | 'secondary';
       size?: 's' | 'm' | 'l';
-      badge?: never;
     })
   | (SharedButtonProps & {
       frame: 'button';
@@ -57,19 +56,16 @@ export type ButtonProps =
       frame: 'button';
       tone: 'social';
       size?: never;
-      badge?: never;
     })
   | (SharedButtonProps & {
       frame: 'cta';
       tone?: 'primary' | 'third' | 'login';
       size?: never;
-      badge?: never;
     })
   | (SharedButtonProps & {
       frame: 'cta';
       tone: 'secondary';
       size?: 's' | 'm';
-      badge?: never;
     });
 
 const buttonVariants = cva(
@@ -92,11 +88,11 @@ const buttonVariants = cva(
         secondary:
           'bg-btn-secondary text-text-lowest hover:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-secondary-selected active:not-data-disabled:opacity-100',
         stroke:
-          'bg-btn-sub-low text-text-high border border-btn-sub-selected gap-006 h-[44px] px-020 py-010 hover:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-sub active:not-data-disabled:opacity-100',
+          'bg-btn-sub-low text-text-high border border-btn-sub-selected gap-006 h-11 px-020 py-010 hover:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-sub active:not-data-disabled:opacity-100',
         social:
           'bg-btn-sub-low text-text-high border border-outline-default w-full h-[50px] gap-012 hover:not-data-disabled:bg-btn-sub hover:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-sub-selected active:not-data-disabled:opacity-100 data-disabled:bg-btn-sub',
         third:
-          'bg-btn-sub text-text-default h-[48px] w-[100px] hover:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-sub-selected active:not-data-disabled:opacity-100',
+          'bg-btn-sub text-text-default h-12 w-25 hover:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-sub-selected active:not-data-disabled:opacity-100',
         login:
           'bg-btn-primary text-text-lowest w-full py-[13px] hover:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-primary-selected active:not-data-disabled:opacity-100',
       },
@@ -118,7 +114,7 @@ const buttonVariants = cva(
         frame: 'button',
         tone: 'primary',
         size: 'm',
-        class: 'gap-008 h-[44px] px-020 py-010',
+        class: 'gap-008 h-11 px-020 py-010',
       },
       {
         frame: 'button',
@@ -136,7 +132,7 @@ const buttonVariants = cva(
         frame: 'button',
         tone: 'secondary',
         size: 'm',
-        class: 'h-[44px] px-020 py-010',
+        class: 'h-11 px-020 py-010',
       },
       {
         frame: 'button',
@@ -147,13 +143,13 @@ const buttonVariants = cva(
       {
         frame: 'cta',
         tone: 'primary',
-        class: 'h-[48px] w-full',
+        class: 'h-12 w-full',
       },
       {
         frame: 'cta',
         tone: 'secondary',
         size: 's',
-        class: 'flex-col h-[44px] w-full px-020 py-010',
+        class: 'flex-col h-11 w-full px-020 py-010',
       },
       {
         frame: 'cta',
@@ -294,23 +290,48 @@ const resolveContentSize = (
   return 'plain';
 };
 
-export const Button = ({
-  frame,
-  tone,
-  size,
-  badge,
-  leftIcon,
-  rightIcon,
-  className,
-  children,
-  type = 'button',
-  ...rest
-}: ButtonProps): JSX.Element => {
+const getBaseButtonProps = (props: ButtonProps): ComponentProps<typeof BaseButton> => {
+  if (props.frame === 'button' && props.tone === 'stroke') {
+    const {
+      frame: _frame,
+      tone: _tone,
+      size: _size,
+      badge: _badge,
+      leftIcon: _leftIcon,
+      rightIcon: _rightIcon,
+      className: _className,
+      children: _children,
+      type: _type,
+      ...rest
+    } = props;
+
+    return rest;
+  }
+
+  const {
+    frame: _frame,
+    tone: _tone,
+    size: _size,
+    leftIcon: _leftIcon,
+    rightIcon: _rightIcon,
+    className: _className,
+    children: _children,
+    type: _type,
+    ...rest
+  } = props;
+
+  return rest;
+};
+
+export const Button = (props: ButtonProps): JSX.Element => {
+  const { frame, tone, size, leftIcon, rightIcon, className, children, type = 'button' } = props;
+  const badge = props.frame === 'button' && props.tone === 'stroke' ? props.badge : undefined;
   const resolvedTone = resolveTone(frame, tone);
   const resolvedSize = resolveSize({ frame, tone, size } as ButtonProps);
   const cvaTone = resolveCvaTone(frame, resolvedTone);
   const textVariant = resolveTextVariant(frame, resolvedTone, resolvedSize);
   const contentSize = resolveContentSize(frame, resolvedTone, resolvedSize);
+  const rest = getBaseButtonProps(props);
 
   return (
     <BaseButton
