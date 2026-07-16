@@ -17,7 +17,8 @@
     "AGENTS.md",
     "CLAUDE.md",
     "docs/**",
-    ".github/**"
+    ".github/**",
+    "src/shared/api/generated/**"
   ],
   "plugins": [
     "eslint",

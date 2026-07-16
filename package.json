@@ -21,7 +21,8 @@
     "test:coverage": "vitest --run --coverage --project unit",
     "test:ui": "vitest --ui",
     "skills:sync": "bash scripts/sync-skills.sh",
-    "rules:sync": "node scripts/sync-rules.mjs"
+    "rules:sync": "node scripts/sync-rules.mjs",
+    "openapi-ts": "openapi-ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -47,6 +48,7 @@
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.2.1",
+    "@hey-api/openapi-ts": "0.99.0",
     "@playwright/test": "^1.60.0",
     "@storybook/addon-a11y": "^10.4.1",
     "@storybook/addon-docs": "^10.4.1",
