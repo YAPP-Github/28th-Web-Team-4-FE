@@ -12,6 +12,13 @@ description: >-
 
 Figma: [`docs/architecture.md`](../../docs/architecture.md) 참고 링크.
 
+## MCP 설정·트러블슈팅
+
+- Figma MCP가 없으면 Codex CLI에서 설정한다: `codex mcp add figma --url https://mcp.figma.com/mcp` 후 `codex mcp login figma`.
+- 설정 확인은 `codex mcp list` / `codex mcp get figma`를 쓴다. `figma`가 `enabled`이고 `Auth`가 `OAuth`여야 한다.
+- 이미 떠 있는 Conductor/Codex 세션은 새 MCP OAuth 상태를 못 물고 있을 수 있다. `token_revoked` / `USER_NOT_LOGGED_IN` / handshaking 401이 계속되면 `codex mcp logout figma && codex mcp login figma` 후 새 Codex 세션에서 다시 시도한다.
+- Figma 링크는 `https://www.figma.com/design/...?...node-id=...` 형태의 selection link를 받는다. `node-id` 없는 파일 링크나 `figma://` 앱 링크만 있으면 노드별 링크를 요청한다.
+
 ## 토큰·게이트
 
 - 매핑 SSOT: 생성된 **`src/styles/tokens/`** (`colors`, `typography`, `layout`, `effects`, `index`). `design-tokens/`는 빌드 원본.

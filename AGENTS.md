@@ -49,6 +49,8 @@ src/shared/          # ui / lib / (추후 api)
 ## 3. 스크립트
 
 스크립트는 **`node --run <script>`** 로 실행한다 (`npm run` / `pnpm run`으로 안내하지 않음).
+Conductor/비대화형 셸에서 기본 `node`가 `mise.toml`과 다르면 **`mise exec -- node --run <script>`** 로 실행한다.
+예: `node --run`이 `bad option: --run`을 내면 Node 24가 아니므로 `mise exec -- node --run test`처럼 재시도한다.
 
 | 명령                          | 용도                                               |
 | ----------------------------- | -------------------------------------------------- |
