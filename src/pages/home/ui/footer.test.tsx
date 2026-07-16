@@ -8,7 +8,7 @@ const FOOTER_PROPS = {
     '채소집 설명 어쩌고저쩌고 채소집 설명 어쩌고저쩌고',
     '채소집 설명 어쩌고저쩌고',
   ],
-} as const;
+};
 
 describe('Footer', () => {
   it('renders the footer landmark and copy', () => {

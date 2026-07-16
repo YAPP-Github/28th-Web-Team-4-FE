@@ -11,7 +11,7 @@ const FOOTER_ARGS = {
     '채소집 설명 어쩌고저쩌고 채소집 설명 어쩌고저쩌고',
     '채소집 설명 어쩌고저쩌고',
   ],
-} as const;
+};
 
 const meta = {
   title: 'pages/home/Footer',

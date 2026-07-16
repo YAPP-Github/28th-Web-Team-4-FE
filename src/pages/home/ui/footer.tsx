@@ -2,9 +2,9 @@ import { Text } from '@/shared/ui/text';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 
-type FooterProps = {
+export type FooterProps = {
   title: string;
-  descriptionLines: readonly string[];
+  descriptionLines: string[];
 };
 
 export function Footer({ title, descriptionLines }: FooterProps) {
