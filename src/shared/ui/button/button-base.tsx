@@ -1,4 +1,4 @@
-import type { ComponentProps, JSX, ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 import { Button as BaseButton } from '@base-ui/react/button';
 
 import { Box } from '@/shared/ui/layout/box';
@@ -12,7 +12,7 @@ export const buttonBaseClassName = [
   'data-disabled:cursor-not-allowed data-disabled:opacity-50',
 ].join(' ');
 
-export type BaseButtonProps = ComponentProps<typeof BaseButton>;
+export type BaseButtonProps = BaseButton.Props;
 export type BaseButtonPassthroughProps = Omit<BaseButtonProps, 'className' | 'children' | 'type'>;
 
 type ButtonBaseProps = BaseButtonPassthroughProps & {
