@@ -90,7 +90,7 @@ const buttonVariants = cva(
         stroke:
           'bg-btn-sub-low text-text-high border border-btn-sub-selected gap-006 h-11 px-020 py-010 hover:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-sub active:not-data-disabled:opacity-100',
         social:
-          'bg-btn-sub-low text-text-high border border-outline-default w-full h-[50px] gap-012 hover:not-data-disabled:bg-btn-sub hover:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-sub-selected active:not-data-disabled:opacity-100 data-disabled:bg-btn-sub',
+          'bg-btn-sub-low text-text-high border border-outline-default w-full h-[50px] gap-012 hover:not-data-disabled:bg-btn-sub hover:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-sub-selected active:not-data-disabled:opacity-100',
         third:
           'bg-btn-sub text-text-default h-12 w-25 hover:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-sub-selected active:not-data-disabled:opacity-100',
         login:
