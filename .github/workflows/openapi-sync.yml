@@ -1,0 +1,130 @@
+name: Sync OpenAPI generated code
+
+on:
+  repository_dispatch:
+    types: [openapi-updated]
+  schedule:
+    # Every day at 09:00 KST (00:00 UTC)
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: openapi-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.OPENAPI_SYNC_TOKEN }}
+
+      - name: Setup pnpm and Node.js
+        uses: ./.github/actions/pnpm-setup-node
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate API code
+        run: node --run openapi-ts
+
+      - name: Find existing pull request
+        id: existing_pr
+        env:
+          GH_TOKEN: ${{ secrets.OPENAPI_SYNC_TOKEN }}
+          BRANCH: automation/openapi-sync
+        run: |
+          pr_number=$(gh pr list \
+            --base main \
+            --head "$BRANCH" \
+            --state open \
+            --json number \
+            --jq '.[0].number')
+
+          echo "number=$pr_number" >> "$GITHUB_OUTPUT"
+
+      - name: Detect generated changes
+        id: changes
+        run: |
+          if [ -z "$(git status --porcelain -- src/shared/api/generated/)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "OpenAPI generated code is already up to date."
+            exit 0
+          fi
+
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          git status --short -- src/shared/api/generated/
+
+      - name: Close stale pull request
+        if: steps.changes.outputs.changed == 'false' && steps.existing_pr.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ secrets.OPENAPI_SYNC_TOKEN }}
+          PR_NUMBER: ${{ steps.existing_pr.outputs.number }}
+        run: |
+          gh pr close "$PR_NUMBER" \
+            --delete-branch \
+            --comment "현재 OpenAPI 생성 결과가 main과 동일하여 자동으로 종료합니다."
+
+      - name: Commit and push generated changes
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          BRANCH: automation/openapi-sync
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$BRANCH"
+          git add src/shared/api/generated/
+          git commit -m "chore: OpenAPI 생성 코드 동기화"
+          git push --force origin "$BRANCH"
+
+      - name: Create or update pull request
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.OPENAPI_SYNC_TOKEN }}
+          BRANCH: automation/openapi-sync
+          PR_NUMBER: ${{ steps.existing_pr.outputs.number }}
+          BACKEND_SHA: ${{ github.event.client_payload.backend_sha }}
+          BACKEND_REF: ${{ github.event.client_payload.backend_ref }}
+        run: |
+          body=$(cat <<EOF
+          ## 변경 내용
+
+          백엔드 OpenAPI 명세를 기준으로 Hey API 생성 코드를 갱신했습니다.
+
+          - 실행 원인: ${{ github.event_name }}
+          - 백엔드 ref: ${BACKEND_REF:-정보 없음}
+          - 백엔드 commit: ${BACKEND_SHA:-정보 없음}
+
+          ## 확인 사항
+
+          - API 함수 추가/삭제/이름 변경
+          - 요청 body, path, query 타입 변경
+          - 성공 및 에러 응답 타입 변경
+          - query key/options 및 mutation options 변경
+
+          이 PR은 자동 생성되었으며, API 계약 변경 내용을 확인한 후 병합해야 합니다.
+          EOF
+          )
+
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr edit "$PR_NUMBER" \
+              --title "chore: OpenAPI 생성 코드 동기화" \
+              --body "$body"
+
+            echo "Updated pull request #$PR_NUMBER."
+            exit 0
+          fi
+
+          gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "chore: OpenAPI 생성 코드 동기화" \
+            --body "$body"
