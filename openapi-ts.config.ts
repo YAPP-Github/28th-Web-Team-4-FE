@@ -7,7 +7,7 @@ const toKebabCase = (name: string) =>
     .toLowerCase();
 
 export default defineConfig({
-  input: 'http://43.200.117.165/v3/api-docs',
+  input: 'https://api.chaeso-zip.com/v3/api-docs',
   output: {
     path: 'src/shared/api/generated',
     fileName: {
