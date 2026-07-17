@@ -1,0 +1,19 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g id="g-search">
+    <path id="Subtract" d="M64 10L82 28V86C82 89.3137 79.3137 92 76 92H24C20.6863 92 18 89.3137 18 86V16C18 12.6863 20.6863 10 24 10H64Z" fill="var(--fill-0, #E8E8ED)" />
+    <path id="Vector" d="M64 10L82 28H64V10Z" fill="var(--fill-0, #D5D5DD)" />
+    <path id="Vector_2" d="M63 38H33C31.3431 38 30 39.3431 30 41C30 42.6569 31.3431 44 33 44H63C64.6569 44 66 42.6569 66 41C66 39.3431 64.6569 38 63 38Z" fill="var(--fill-0, #D5D5DD)" />
+    <path id="Vector_3" d="M57 52H33C31.3431 52 30 53.3431 30 55C30 56.6569 31.3431 58 33 58H57C58.6569 58 60 56.6569 60 55C60 53.3431 58.6569 52 57 52Z" fill="var(--fill-0, #D5D5DD)" />
+    <path id="Vector_4" d="M49 66H33C31.3431 66 30 67.3431 30 69C30 70.6569 31.3431 72 33 72H49C50.6569 72 52 70.6569 52 69C52 67.3431 50.6569 66 49 66Z" fill="var(--fill-0, #D5D5DD)" />
+    <foreignObject x="50.5" y="58.5" width="47" height="47">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(1px);clip-path:url(#bgblur_0_0_32_clip_path);height:100%;width:100%"></div>
+    </foreignObject>
+    <path id="Vector_5" data-figma-bg-blur-radius="2" d="M74 100C83.9411 100 92 91.9411 92 82C92 72.0589 83.9411 64 74 64C64.0589 64 56 72.0589 56 82C56 91.9411 64.0589 100 74 100Z" fill="var(--fill-0, #F1F1F5)" fill-opacity="0.6" stroke="var(--stroke-0, #95959E)" stroke-width="7" />
+    <path id="Vector_6" d="M87 95L100 108" stroke="var(--stroke-0, #95959E)" stroke-width="7" stroke-linecap="round" />
+  </g>
+  <defs>
+    <clipPath id="bgblur_0_0_32_clip_path" transform="translate(-50.5 -58.5)">
+      <path d="M74 100C83.9411 100 92 91.9411 92 82C92 72.0589 83.9411 64 74 64C64.0589 64 56 72.0589 56 82C56 91.9411 64.0589 100 74 100Z" />
+    </clipPath>
+  </defs>
+</svg>
