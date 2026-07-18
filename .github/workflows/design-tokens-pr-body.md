@@ -5,4 +5,5 @@
 ## Test plan
 
 - [ ] `node --run tokens` 통과
+- [ ] `node --run fmt:check` 통과
 - [ ] `node --run build` 성공
