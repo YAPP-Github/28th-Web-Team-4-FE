@@ -21,9 +21,10 @@
     "yarn.lock",
     "bun.lock",
     "bun.lockb",
-    // design tokens (source + generated CSS)
+    // generated service worker
+    "public/mockServiceWorker.js",
+    // design token source
     "design-tokens/**",
-    "src/styles/tokens/**",
     // AI harness (skills / rules / agent docs)
     ".agents/**",
     ".claude/**",

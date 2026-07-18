@@ -6,6 +6,7 @@
     "yarn.lock",
     "bun.lock",
     "bun.lockb",
+    "public/mockServiceWorker.js",
     "design-tokens/**",
     "src/styles/tokens/**",
     ".agents/**",
