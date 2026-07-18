@@ -3,7 +3,18 @@
 import { queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { createSample, getAllSamples, getSampleById, type Options } from '../sdk.gen';
+import {
+  createSample,
+  getAllSamples,
+  getSampleById,
+  login,
+  logout,
+  type Options,
+  refresh,
+  sendSignupCode,
+  signup,
+  verifySignupCode,
+} from '../sdk.gen';
 import type {
   CreateSampleData,
   CreateSampleError,
@@ -14,6 +25,24 @@ import type {
   GetSampleByIdData,
   GetSampleByIdError,
   GetSampleByIdResponse,
+  LoginData,
+  LoginError,
+  LoginResponse,
+  LogoutData,
+  LogoutError,
+  LogoutResponse,
+  RefreshData,
+  RefreshError,
+  RefreshResponse,
+  SendSignupCodeData,
+  SendSignupCodeError,
+  SendSignupCodeResponse,
+  SignupData,
+  SignupError,
+  SignupResponse,
+  VerifySignupCodeData,
+  VerifySignupCodeError,
+  VerifySignupCodeResponse,
 } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
@@ -97,6 +126,144 @@ export const createSampleMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await createSample({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * 회원가입 최종 제출
+ *
+ * 이메일 인증 완료 후 로컬 계정을 생성한다. 인증 미완료 시 400, 이메일 중복 시 409.
+ */
+export const signupMutation = (
+  options?: Partial<Options<SignupData>>,
+): UseMutationOptions<SignupResponse, SignupError, Options<SignupData>> => {
+  const mutationOptions: UseMutationOptions<SignupResponse, SignupError, Options<SignupData>> = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await signup({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * 회원가입 이메일 인증코드 발송
+ *
+ * 가입할 이메일로 6자리 인증코드를 발송한다. 이미 가입된 이메일이면 409.
+ */
+export const sendSignupCodeMutation = (
+  options?: Partial<Options<SendSignupCodeData>>,
+): UseMutationOptions<SendSignupCodeResponse, SendSignupCodeError, Options<SendSignupCodeData>> => {
+  const mutationOptions: UseMutationOptions<
+    SendSignupCodeResponse,
+    SendSignupCodeError,
+    Options<SendSignupCodeData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await sendSignupCode({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * 회원가입 이메일 인증코드 확인
+ *
+ * 발송된 코드를 검증하고 인증완료 상태로 전환한다.
+ */
+export const verifySignupCodeMutation = (
+  options?: Partial<Options<VerifySignupCodeData>>,
+): UseMutationOptions<
+  VerifySignupCodeResponse,
+  VerifySignupCodeError,
+  Options<VerifySignupCodeData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    VerifySignupCodeResponse,
+    VerifySignupCodeError,
+    Options<VerifySignupCodeData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await verifySignupCode({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * 토큰 재발급
+ *
+ * Refresh Token 을 회전시켜 새 access/refresh 토큰 쌍을 발급한다. 기존 Refresh Token 은 즉시 폐기된다. 이미 회전된 토큰을 다시 제출하면 재사용으로 보고 해당 세션(family) 전체를 폐기하므로, 동시에 여러 번 호출하지 말고 한 번만 보낸다. Access Token 이 만료된 상태에서 호출하므로 인증이 필요 없다. refreshTokenExpiresIn 은 로그인 후 90일에 가까워질수록 짧아진다.
+ */
+export const refreshMutation = (
+  options?: Partial<Options<RefreshData>>,
+): UseMutationOptions<RefreshResponse, RefreshError, Options<RefreshData>> => {
+  const mutationOptions: UseMutationOptions<RefreshResponse, RefreshError, Options<RefreshData>> = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await refresh({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * 로그아웃
+ *
+ * 제출한 Refresh Token 의 세션(family)을 폐기한다. 인증된 사용자만 호출할 수 있고, 토큰 소유자가 인증 사용자와 다르면 401. 이미 폐기된 세션이어도 200 을 반환한다(멱등).
+ */
+export const logoutMutation = (
+  options?: Partial<Options<LogoutData>>,
+): UseMutationOptions<LogoutResponse, LogoutError, Options<LogoutData>> => {
+  const mutationOptions: UseMutationOptions<LogoutResponse, LogoutError, Options<LogoutData>> = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await logout({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * 로컬 로그인
+ *
+ * 이메일/비밀번호로 로그인하고 access/refresh 토큰을 발급한다. 자격증명이 올바르지 않으면 401. refreshTokenExpiresIn 은 고정값이 아니므로 응답값을 그대로 쓴다.
+ */
+export const loginMutation = (
+  options?: Partial<Options<LoginData>>,
+): UseMutationOptions<LoginResponse, LoginError, Options<LoginData>> => {
+  const mutationOptions: UseMutationOptions<LoginResponse, LoginError, Options<LoginData>> = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await login({
         ...options,
         ...fnOptions,
         throwOnError: true,

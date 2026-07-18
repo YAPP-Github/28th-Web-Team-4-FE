@@ -12,6 +12,24 @@ import type {
   GetSampleByIdData,
   GetSampleByIdErrors,
   GetSampleByIdResponses,
+  LoginData,
+  LoginErrors,
+  LoginResponses,
+  LogoutData,
+  LogoutErrors,
+  LogoutResponses,
+  RefreshData,
+  RefreshErrors,
+  RefreshResponses,
+  SendSignupCodeData,
+  SendSignupCodeErrors,
+  SendSignupCodeResponses,
+  SignupData,
+  SignupErrors,
+  SignupResponses,
+  VerifySignupCodeData,
+  VerifySignupCodeErrors,
+  VerifySignupCodeResponses,
 } from './types.gen';
 
 export type Options<
@@ -41,6 +59,7 @@ export const getAllSamples = <ThrowOnError extends boolean = false>(
   options?: Options<GetAllSamplesData, ThrowOnError>,
 ): RequestResult<GetAllSamplesResponses, GetAllSamplesErrors, ThrowOnError> =>
   (options?.client ?? client).get<GetAllSamplesResponses, GetAllSamplesErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/samples',
     ...options,
   });
@@ -54,7 +73,116 @@ export const createSample = <ThrowOnError extends boolean = false>(
   options: Options<CreateSampleData, ThrowOnError>,
 ): RequestResult<CreateSampleResponses, CreateSampleErrors, ThrowOnError> =>
   (options.client ?? client).post<CreateSampleResponses, CreateSampleErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/samples',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * 회원가입 최종 제출
+ *
+ * 이메일 인증 완료 후 로컬 계정을 생성한다. 인증 미완료 시 400, 이메일 중복 시 409.
+ */
+export const signup = <ThrowOnError extends boolean = false>(
+  options: Options<SignupData, ThrowOnError>,
+): RequestResult<SignupResponses, SignupErrors, ThrowOnError> =>
+  (options.client ?? client).post<SignupResponses, SignupErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/auth/signup',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * 회원가입 이메일 인증코드 발송
+ *
+ * 가입할 이메일로 6자리 인증코드를 발송한다. 이미 가입된 이메일이면 409.
+ */
+export const sendSignupCode = <ThrowOnError extends boolean = false>(
+  options: Options<SendSignupCodeData, ThrowOnError>,
+): RequestResult<SendSignupCodeResponses, SendSignupCodeErrors, ThrowOnError> =>
+  (options.client ?? client).post<SendSignupCodeResponses, SendSignupCodeErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/auth/signup/email-code',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * 회원가입 이메일 인증코드 확인
+ *
+ * 발송된 코드를 검증하고 인증완료 상태로 전환한다.
+ */
+export const verifySignupCode = <ThrowOnError extends boolean = false>(
+  options: Options<VerifySignupCodeData, ThrowOnError>,
+): RequestResult<VerifySignupCodeResponses, VerifySignupCodeErrors, ThrowOnError> =>
+  (options.client ?? client).post<VerifySignupCodeResponses, VerifySignupCodeErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/auth/signup/email-code/verify',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * 토큰 재발급
+ *
+ * Refresh Token 을 회전시켜 새 access/refresh 토큰 쌍을 발급한다. 기존 Refresh Token 은 즉시 폐기된다. 이미 회전된 토큰을 다시 제출하면 재사용으로 보고 해당 세션(family) 전체를 폐기하므로, 동시에 여러 번 호출하지 말고 한 번만 보낸다. Access Token 이 만료된 상태에서 호출하므로 인증이 필요 없다. refreshTokenExpiresIn 은 로그인 후 90일에 가까워질수록 짧아진다.
+ */
+export const refresh = <ThrowOnError extends boolean = false>(
+  options: Options<RefreshData, ThrowOnError>,
+): RequestResult<RefreshResponses, RefreshErrors, ThrowOnError> =>
+  (options.client ?? client).post<RefreshResponses, RefreshErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/auth/refresh',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * 로그아웃
+ *
+ * 제출한 Refresh Token 의 세션(family)을 폐기한다. 인증된 사용자만 호출할 수 있고, 토큰 소유자가 인증 사용자와 다르면 401. 이미 폐기된 세션이어도 200 을 반환한다(멱등).
+ */
+export const logout = <ThrowOnError extends boolean = false>(
+  options: Options<LogoutData, ThrowOnError>,
+): RequestResult<LogoutResponses, LogoutErrors, ThrowOnError> =>
+  (options.client ?? client).post<LogoutResponses, LogoutErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/auth/logout',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * 로컬 로그인
+ *
+ * 이메일/비밀번호로 로그인하고 access/refresh 토큰을 발급한다. 자격증명이 올바르지 않으면 401. refreshTokenExpiresIn 은 고정값이 아니므로 응답값을 그대로 쓴다.
+ */
+export const login = <ThrowOnError extends boolean = false>(
+  options: Options<LoginData, ThrowOnError>,
+): RequestResult<LoginResponses, LoginErrors, ThrowOnError> =>
+  (options.client ?? client).post<LoginResponses, LoginErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/auth/login',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -71,6 +199,7 @@ export const getSampleById = <ThrowOnError extends boolean = false>(
   options: Options<GetSampleByIdData, ThrowOnError>,
 ): RequestResult<GetSampleByIdResponses, GetSampleByIdErrors, ThrowOnError> =>
   (options.client ?? client).get<GetSampleByIdResponses, GetSampleByIdErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/samples/{id}',
     ...options,
   });
