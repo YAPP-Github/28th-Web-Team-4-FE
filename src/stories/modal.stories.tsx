@@ -7,7 +7,6 @@ import { Modal } from '@/shared/ui/modal';
 
 const meta = {
   title: 'components/Modal',
-  component: Modal.Root,
   tags: ['autodocs'],
   args: {
     onPrimaryClick: fn(),
