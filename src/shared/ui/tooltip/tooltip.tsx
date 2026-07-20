@@ -20,7 +20,6 @@ import {
   type JSX,
   type MutableRefObject,
   type PropsWithChildren,
-  type ReactNode,
 } from 'react';
 
 import { cn } from '@/shared/ui/cn';
@@ -39,8 +38,7 @@ export type TooltipRootProps = PropsWithChildren<{
 
 export type TooltipAnchorProps = ComponentPropsWithoutRef<'span'>;
 
-export type TooltipContentProps = Omit<ComponentPropsWithoutRef<'div'>, 'children'> & {
-  children: ReactNode;
+export type TooltipContentProps = ComponentPropsWithoutRef<'div'> & {
   showArrow?: boolean;
 };
 
