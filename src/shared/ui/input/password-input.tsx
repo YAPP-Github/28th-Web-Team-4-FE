@@ -14,7 +14,7 @@ export function PasswordInput({
   disabled,
   ...props
 }: PasswordInputProps): JSX.Element {
-  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   return (
     <InputBase
