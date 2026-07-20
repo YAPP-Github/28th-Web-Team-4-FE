@@ -42,7 +42,7 @@ export type TooltipContentProps = ComponentPropsWithoutRef<'div'> & {
   showArrow?: boolean;
 };
 
-export type TooltipArrowProps = ComponentPropsWithoutRef<'span'>;
+type TooltipArrowProps = ComponentPropsWithoutRef<'span'>;
 
 type TooltipContextValue = ReturnType<typeof useFloating> & {
   arrowRef: MutableRefObject<HTMLSpanElement | null>;
@@ -170,5 +170,4 @@ export const Tooltip = {
   Root,
   Anchor,
   Content,
-  Arrow,
 };
