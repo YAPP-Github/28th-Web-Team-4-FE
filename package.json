@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "dev:no-msw": "NEXT_PUBLIC_MSW_ENABLED=false next dev",
-    "tokens:build": "node design-tokens/build.mjs",
+    "tokens:build": "node design-tokens/build.mjs && node --run tokens:format",
+    "tokens:format": "oxfmt --no-error-on-unmatched-pattern src/styles/tokens/*.css",
     "tokens:validate": "node design-tokens/validate.mjs",
     "tokens": "node --run tokens:build && node --run tokens:validate",
     "build": "node --run tokens:build && next build",

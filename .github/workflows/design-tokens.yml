@@ -31,11 +31,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build and validate Tailwind tokens
+      - name: Build, format, and validate Tailwind tokens
         run: node --run tokens
-
-      - name: Format generated files
-        run: pnpm exec oxfmt src/styles/tokens/
 
       - name: Commit and push generated CSS
         run: |
