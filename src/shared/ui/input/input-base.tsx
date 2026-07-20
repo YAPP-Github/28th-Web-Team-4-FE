@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, type ComponentPropsWithoutRef, type JSX, type ReactNode } from 'react';
+import type { ComponentPropsWithoutRef, JSX, ReactNode } from 'react';
 import { Input as BaseInput } from '@base-ui/react/input';
 import { cva, type VariantProps } from 'class-variance-authority';
 
@@ -42,20 +42,18 @@ export type InputBaseProps = Omit<BaseInputProps, 'className' | 'type'> &
     type?: ComponentPropsWithoutRef<'input'>['type'];
   };
 
-export const InputBase = forwardRef<HTMLInputElement, InputBaseProps>(function InputBase(
-  {
-    className,
-    error,
-    size,
-    rightAddon,
-    rightElement,
-    type = 'text',
-    disabled,
-    'aria-invalid': ariaInvalid,
-    ...props
-  },
+export function InputBase({
+  className,
+  error,
+  size,
+  rightAddon,
+  rightElement,
+  type = 'text',
+  disabled,
   ref,
-): JSX.Element {
+  'aria-invalid': ariaInvalid,
+  ...props
+}: InputBaseProps): JSX.Element {
   const resolvedInvalid = error ?? (ariaInvalid === true || ariaInvalid === 'true');
 
   return (
@@ -81,4 +79,4 @@ export const InputBase = forwardRef<HTMLInputElement, InputBaseProps>(function I
       {rightElement}
     </Box>
   );
-});
+}

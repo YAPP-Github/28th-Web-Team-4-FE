@@ -1,4 +1,4 @@
-import { forwardRef, type JSX } from 'react';
+import type { JSX } from 'react';
 
 import { keys } from '@/shared/lib/object';
 
@@ -17,16 +17,14 @@ export type InputProps = StandardInputProps | PasswordInputProps | FilterInputPr
 
 export const INPUT_FRAMES = keys(FRAME_MAP);
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(
-  function Input(props, ref): JSX.Element {
-    if (props.frame === 'filter') {
-      return <FilterInput ref={ref} {...props} />;
-    }
+export function Input(props: InputProps): JSX.Element {
+  if (props.frame === 'filter') {
+    return <FilterInput {...props} />;
+  }
 
-    if (props.frame === 'password') {
-      return <PasswordInput ref={ref} {...props} />;
-    }
+  if (props.frame === 'password') {
+    return <PasswordInput {...props} />;
+  }
 
-    return <StandardInput ref={ref} {...props} />;
-  },
-);
+  return <StandardInput {...props} />;
+}

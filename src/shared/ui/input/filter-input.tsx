@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, type ComponentPropsWithoutRef, type JSX, type ReactNode } from 'react';
+import type { ComponentPropsWithoutRef, JSX, ReactNode } from 'react';
 import { Input as BaseInput } from '@base-ui/react/input';
 
 import { cn } from '@/shared/ui/cn';
@@ -15,10 +15,15 @@ export type FilterInputProps = Omit<BaseInputProps, 'className' | 'type'> & {
   type?: ComponentPropsWithoutRef<'input'>['type'];
 };
 
-export const FilterInput = forwardRef<HTMLInputElement, FilterInputProps>(function FilterInput(
-  { className, frame: _frame, rightAddon = '원', type = 'text', disabled, ...props },
+export function FilterInput({
+  className,
+  frame: _frame,
+  rightAddon = '원',
+  type = 'text',
+  disabled,
   ref,
-): JSX.Element {
+  ...props
+}: FilterInputProps): JSX.Element {
   return (
     <Box
       className={cn(
@@ -47,4 +52,4 @@ export const FilterInput = forwardRef<HTMLInputElement, FilterInputProps>(functi
       ) : null}
     </Box>
   );
-});
+}
