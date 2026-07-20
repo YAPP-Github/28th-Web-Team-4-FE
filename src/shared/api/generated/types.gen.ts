@@ -27,6 +27,10 @@ export type ApiResponse = {
    * 실패 시 에러 정보. 성공 시 null
    */
   error?: ErrorResponse;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   */
+  code?: string;
 };
 
 /**
@@ -78,6 +82,10 @@ export type ApiResponseSampleResponse = {
    * 실패 시 에러 정보. 성공 시 null
    */
   error?: ErrorResponse;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   */
+  code?: string;
 };
 
 /**
@@ -99,7 +107,7 @@ export type SampleResponse = {
   /**
    * 수정 시각
    */
-  updatedAt: string;
+  updatedAt?: string;
 };
 
 /**
@@ -157,6 +165,10 @@ export type ApiResponseUserResponse = {
    * 실패 시 에러 정보. 성공 시 null
    */
   error?: ErrorResponse;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   */
+  code?: string;
 };
 
 /**
@@ -178,6 +190,44 @@ export type UserResponse = {
 };
 
 /**
+ * 구글 최종 회원가입 요청 (signupToken + 로컬 가입과 동일 필드, password 제외)
+ */
+export type GoogleSignupRequest = {
+  /**
+   * 구글 인증 진입에서 받은 일회성 가입 티켓
+   */
+  signupToken: string;
+  /**
+   * 닉네임(이름)
+   */
+  nickname: string;
+  /**
+   * 회사명(필수, 50자 이하)
+   */
+  companyName: string;
+  /**
+   * 직무 대분류(선택)
+   */
+  occupation?:
+    | 'DEVELOPMENT'
+    | 'DESIGN'
+    | 'MARKETING'
+    | 'PLANNING'
+    | 'SALES'
+    | 'DATA'
+    | 'MANAGEMENT'
+    | 'ETC';
+  /**
+   * 필수 약관 동의 여부
+   */
+  termsAgreed: boolean;
+  /**
+   * 마케팅 수신 동의 여부(선택)
+   */
+  marketingAgreed?: boolean;
+};
+
+/**
  * 이메일 인증 코드 발송 요청
  */
 export type SendVerificationCodeRequest = {
@@ -185,6 +235,20 @@ export type SendVerificationCodeRequest = {
    * 이메일
    */
   email: string;
+};
+
+/**
+ * 이메일 인증 코드 확인 요청
+ */
+export type VerifyEmailCodeRequest = {
+  /**
+   * 이메일
+   */
+  email: string;
+  /**
+   * 6자리 인증 코드
+   */
+  code: string;
 };
 
 export type ApiResponseVoid = {
@@ -200,20 +264,10 @@ export type ApiResponseVoid = {
    * 실패 시 에러 정보. 성공 시 null
    */
   error?: ErrorResponse;
-};
-
-/**
- * 이메일 인증 코드 확인 요청
- */
-export type VerifyEmailCodeRequest = {
   /**
-   * 이메일
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
    */
-  email: string;
-  /**
-   * 6자리 인증 코드
-   */
-  code: string;
+  code?: string;
 };
 
 /**
@@ -239,6 +293,10 @@ export type ApiResponseTokenResponse = {
    * 실패 시 에러 정보. 성공 시 null
    */
   error?: ErrorResponse;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   */
+  code?: string;
 };
 
 /**
@@ -277,6 +335,16 @@ export type LoginRequest = {
   password: string;
 };
 
+/**
+ * 구글 idToken 요청
+ */
+export type GoogleAuthRequest = {
+  /**
+   * Google Identity Services 로 받은 idToken
+   */
+  idToken: string;
+};
+
 export type ApiResponseListSampleResponse = {
   /**
    * 요청 성공 여부
@@ -290,6 +358,10 @@ export type ApiResponseListSampleResponse = {
    * 실패 시 에러 정보. 성공 시 null
    */
   error?: ErrorResponse;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   */
+  code?: string;
 };
 
 export type GetAllSamplesData = {
@@ -379,6 +451,43 @@ export type SignupResponses = {
 
 export type SignupResponse = SignupResponses[keyof SignupResponses];
 
+export type SignupGoogleData = {
+  body: GoogleSignupRequest;
+  path?: never;
+  query?: never;
+  url: '/api/v1/auth/signup/google';
+};
+
+export type SignupGoogleErrors = {
+  /**
+   * 입력값 검증 실패(C-001) 또는 signupToken 만료/무효(AUTH-011)
+   */
+  400: ApiResponse;
+  /**
+   * 구글 sub 가 이미 다른 활성 계정에 연결돼 있는 에러 상태(AUTH-009)
+   */
+  401: ApiResponse;
+  /**
+   * 가입 처리 중 타인이 먼저 같은 이메일로 가입함(AUTH-002)
+   */
+  409: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type SignupGoogleError = SignupGoogleErrors[keyof SignupGoogleErrors];
+
+export type SignupGoogleResponses = {
+  /**
+   * 가입 성공, 토큰 발급
+   */
+  201: ApiResponse;
+};
+
+export type SignupGoogleResponse = SignupGoogleResponses[keyof SignupGoogleResponses];
+
 export type SendSignupCodeData = {
   body: SendVerificationCodeRequest;
   path?: never;
@@ -409,9 +518,9 @@ export type SendSignupCodeError = SendSignupCodeErrors[keyof SendSignupCodeError
 
 export type SendSignupCodeResponses = {
   /**
-   * 발송 성공
+   * 발송 성공. 구글로만 가입된 이메일이면 안내 코드가 함께 실린다
    */
-  200: ApiResponseVoid;
+  200: ApiResponse;
 };
 
 export type SendSignupCodeResponse = SendSignupCodeResponses[keyof SendSignupCodeResponses];
@@ -524,7 +633,7 @@ export type LoginErrors = {
    */
   400: ApiResponse;
   /**
-   * 이메일 또는 비밀번호 불일치(AUTH-003)
+   * 이메일 또는 비밀번호 불일치(AUTH-003), 또는 구글로만 가입된 계정(AUTH-010)
    */
   401: ApiResponse;
   /**
@@ -543,6 +652,72 @@ export type LoginResponses = {
 };
 
 export type LoginResponse = LoginResponses[keyof LoginResponses];
+
+export type GoogleAuthData = {
+  body: GoogleAuthRequest;
+  path?: never;
+  query?: never;
+  url: '/api/v1/auth/google';
+};
+
+export type GoogleAuthErrors = {
+  /**
+   * 입력값 검증 실패(C-001)
+   */
+  400: ApiResponse;
+  /**
+   * idToken 만료/위조/aud 불일치 또는 미검증 이메일(AUTH-009)
+   */
+  401: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type GoogleAuthError = GoogleAuthErrors[keyof GoogleAuthErrors];
+
+export type GoogleAuthResponses = {
+  /**
+   * 로그인 성공 / 연결 확인 필요 / 가입 필요
+   */
+  200: ApiResponse;
+};
+
+export type GoogleAuthResponse = GoogleAuthResponses[keyof GoogleAuthResponses];
+
+export type LinkGoogleData = {
+  body: GoogleAuthRequest;
+  path?: never;
+  query?: never;
+  url: '/api/v1/auth/google/link';
+};
+
+export type LinkGoogleErrors = {
+  /**
+   * 입력값 검증 실패(C-001)
+   */
+  400: ApiResponse;
+  /**
+   * idToken 만료/위조 또는 연결할 계정 없음(AUTH-009)
+   */
+  401: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type LinkGoogleError = LinkGoogleErrors[keyof LinkGoogleErrors];
+
+export type LinkGoogleResponses = {
+  /**
+   * 연결 완료(code: GOOGLE_ACCOUNT_LINKED) 및 토큰 발급
+   */
+  200: ApiResponse;
+};
+
+export type LinkGoogleResponse = LinkGoogleResponses[keyof LinkGoogleResponses];
 
 export type GetSampleByIdData = {
   body?: never;
