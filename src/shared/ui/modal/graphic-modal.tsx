@@ -1,10 +1,13 @@
 'use client';
 
-import type { JSX, ReactNode } from 'react';
+import type { ComponentProps, JSX, ReactNode } from 'react';
 
+import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 
 import { Modal } from './modal';
+
+export type GraphicModalGraphicProps = ComponentProps<typeof Box<'div'>>;
 
 export type GraphicModalProps = {
   title: ReactNode;
@@ -14,11 +17,21 @@ export type GraphicModalProps = {
   className?: string;
 };
 
+const graphicClassName =
+  'min-h-[150px] w-[147px] shrink-0 rounded-[var(--radius-l)] bg-surface-low';
+
+export const GraphicModalGraphic = ({
+  className,
+  ...props
+}: GraphicModalGraphicProps): JSX.Element => {
+  return <Box className={cn(graphicClassName, className)} {...props} />;
+};
+
 export const GraphicModal = ({
   title,
   description,
   actions,
-  graphic = <Modal.Graphic aria-hidden />,
+  graphic = <GraphicModalGraphic aria-hidden />,
   className,
 }: GraphicModalProps): JSX.Element => {
   return (

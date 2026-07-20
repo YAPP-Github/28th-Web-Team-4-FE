@@ -1,12 +1,10 @@
 'use client';
 
-import type { ComponentProps, JSX } from 'react';
+import type { JSX } from 'react';
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
-import { cva, type VariantProps } from 'class-variance-authority';
 
 import { Button, type ButtonProps } from '@/shared/ui/button';
 import { cn } from '@/shared/ui/cn';
-import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
 type ModalRootProps = DialogPrimitive.Root.Props;
@@ -35,19 +33,6 @@ const contentClassName = [
   'data-starting-style:scale-[0.98] data-starting-style:opacity-0',
   'motion-reduce:transition-none',
 ].join(' ');
-
-const graphicVariants = cva('shrink-0 rounded-[var(--radius-l)] bg-surface-low', {
-  variants: {
-    size: {
-      default: 'h-[150px] w-[147px]',
-    },
-  },
-  defaultVariants: {
-    size: 'default',
-  },
-});
-
-type ModalGraphicProps = ComponentProps<typeof Box<'div'>> & VariantProps<typeof graphicVariants>;
 
 export type ModalCloseButtonProps = ButtonProps;
 
@@ -125,10 +110,6 @@ const ModalDescription = ({
   );
 };
 
-const ModalGraphic = ({ className, size, ...props }: ModalGraphicProps): JSX.Element => {
-  return <Box className={cn(graphicVariants({ size }), className)} {...props} />;
-};
-
 const ModalClose = (props: ModalCloseProps): JSX.Element => {
   return <DialogPrimitive.Close {...props} />;
 };
@@ -166,7 +147,6 @@ export const Modal = {
   Popup: ModalPopup,
   Title: ModalTitle,
   Description: ModalDescription,
-  Graphic: ModalGraphic,
   Close: ModalClose,
   CloseButton: ModalCloseButton,
   CloseText: ModalCloseText,
