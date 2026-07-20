@@ -5,15 +5,9 @@ import { Eye, EyeOff } from 'lucide-react';
 
 import { InputBase, type InputBaseProps } from './input-base';
 
-export type PasswordInputProps = Omit<InputBaseProps, 'rightAddon' | 'rightElement' | 'type'> & {
-  frame: 'password';
-};
+export type PasswordInputProps = Omit<InputBaseProps, 'rightAddon' | 'rightElement' | 'type'>;
 
-export function PasswordInput({
-  frame: _frame,
-  disabled,
-  ...props
-}: PasswordInputProps): JSX.Element {
+export function PasswordInput({ disabled, ...props }: PasswordInputProps): JSX.Element {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   return (

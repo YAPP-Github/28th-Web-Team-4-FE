@@ -13,18 +13,26 @@ const FRAME_MAP = {
 } as const;
 
 export type InputFrame = keyof typeof FRAME_MAP;
-export type InputProps = StandardInputProps | PasswordInputProps | FilterInputProps;
+
+type StandardInputFrameProps = StandardInputProps & { frame?: 'input' };
+type PasswordInputFrameProps = PasswordInputProps & { frame: 'password' };
+type FilterInputFrameProps = FilterInputProps & { frame: 'filter' };
+
+export type InputProps = StandardInputFrameProps | PasswordInputFrameProps | FilterInputFrameProps;
 
 export const INPUT_FRAMES = keys(FRAME_MAP);
 
 export function Input(props: InputProps): JSX.Element {
   if (props.frame === 'filter') {
-    return <FilterInput {...props} />;
+    const { frame: _frame, ...filterProps } = props;
+    return <FilterInput {...filterProps} />;
   }
 
   if (props.frame === 'password') {
-    return <PasswordInput {...props} />;
+    const { frame: _frame, ...passwordProps } = props;
+    return <PasswordInput {...passwordProps} />;
   }
 
-  return <StandardInput {...props} />;
+  const { frame: _frame, ...standardProps } = props;
+  return <StandardInput {...standardProps} />;
 }

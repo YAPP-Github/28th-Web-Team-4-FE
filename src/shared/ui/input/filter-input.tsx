@@ -10,14 +10,12 @@ type BaseInputProps = BaseInput.Props;
 
 export type FilterInputProps = Omit<BaseInputProps, 'className' | 'type'> & {
   className?: string;
-  frame: 'filter';
   rightAddon?: ReactNode;
   type?: BaseInputProps['type'];
 };
 
 export function FilterInput({
   className,
-  frame: _frame,
   rightAddon = '원',
   type = 'text',
   ...props
