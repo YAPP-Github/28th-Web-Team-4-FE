@@ -6,7 +6,7 @@ import { Text, type TextVariant } from '@/shared/ui/text';
 
 export const buttonBaseClassName = [
   'inline-flex items-center justify-center shrink-0 whitespace-nowrap',
-  'rounded-[var(--radius-s)] select-none transition',
+  'cursor-pointer rounded-[var(--radius-s)] select-none transition',
   'active:not-data-disabled:scale-[0.97]',
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sys-primary-default',
   'data-disabled:cursor-not-allowed data-disabled:opacity-50',
