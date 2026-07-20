@@ -20,8 +20,6 @@ export function FilterInput({
   frame: _frame,
   rightAddon = '원',
   type = 'text',
-  disabled,
-  ref,
   ...props
 }: FilterInputProps): JSX.Element {
   return (
@@ -35,9 +33,7 @@ export function FilterInput({
       )}
     >
       <BaseInput
-        ref={ref}
         type={type}
-        disabled={disabled}
         className={cn([
           'typo-subtitle-xxs min-w-0 flex-1 bg-transparent text-text-high outline-none',
           'placeholder:typo-body-xs placeholder:text-text-low',
