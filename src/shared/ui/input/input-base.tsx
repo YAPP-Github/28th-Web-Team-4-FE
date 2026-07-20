@@ -1,6 +1,6 @@
 'use client';
 
-import type { ComponentPropsWithoutRef, JSX, ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 import { Input as BaseInput } from '@base-ui/react/input';
 import { cva, type VariantProps } from 'class-variance-authority';
 
@@ -39,7 +39,7 @@ export type InputBaseProps = Omit<BaseInputProps, 'className' | 'type'> &
     error?: boolean;
     rightAddon?: ReactNode;
     rightElement?: ReactNode;
-    type?: ComponentPropsWithoutRef<'input'>['type'];
+    type?: BaseInputProps['type'];
   };
 
 export function InputBase({

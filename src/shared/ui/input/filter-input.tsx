@@ -1,6 +1,6 @@
 'use client';
 
-import type { ComponentPropsWithoutRef, JSX, ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 import { Input as BaseInput } from '@base-ui/react/input';
 
 import { cn } from '@/shared/ui/cn';
@@ -12,7 +12,7 @@ export type FilterInputProps = Omit<BaseInputProps, 'className' | 'type'> & {
   className?: string;
   frame: 'filter';
   rightAddon?: ReactNode;
-  type?: ComponentPropsWithoutRef<'input'>['type'];
+  type?: BaseInputProps['type'];
 };
 
 export function FilterInput({
