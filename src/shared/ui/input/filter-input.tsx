@@ -34,8 +34,8 @@ export const FilterInput = forwardRef<HTMLInputElement, FilterInputProps>(functi
         type={type}
         disabled={disabled}
         className={cn([
-          'min-w-0 flex-1 bg-transparent font-pre text-14 leading-022 font-medium tracking-spacing-sm text-text-high outline-none',
-          'placeholder:font-pre placeholder:text-12 placeholder:leading-018 placeholder:font-regular placeholder:tracking-spacing-sm placeholder:text-text-low',
+          'typo-subtitle-xxs min-w-0 flex-1 bg-transparent text-text-high outline-none',
+          'placeholder:typo-body-xs placeholder:text-text-low',
           'disabled:cursor-not-allowed',
         ])}
         {...props}
