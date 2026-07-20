@@ -1,6 +1,6 @@
 'use client';
 
-import type { ComponentProps, JSX, ReactNode } from 'react';
+import type { ComponentProps, JSX } from 'react';
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
 
@@ -11,12 +11,11 @@ import { Text } from '@/shared/ui/text';
 
 type ModalRootProps = DialogPrimitive.Root.Props;
 type ModalTriggerProps = DialogPrimitive.Trigger.Props;
-type ModalTitleProps = Omit<DialogPrimitive.Title.Props, 'className' | 'render'> & {
-  className?: string;
-};
-type ModalDescriptionProps = Omit<DialogPrimitive.Description.Props, 'className' | 'render'> & {
-  className?: string;
-};
+type ModalPortalProps = DialogPrimitive.Portal.Props;
+type ModalBackdropProps = ComponentProps<typeof DialogPrimitive.Backdrop>;
+type ModalPopupProps = ComponentProps<typeof DialogPrimitive.Popup>;
+type ModalTitleProps = DialogPrimitive.Title.Props;
+type ModalDescriptionProps = DialogPrimitive.Description.Props;
 type ModalCloseProps = DialogPrimitive.Close.Props;
 
 const backdropClassName = [
@@ -30,14 +29,14 @@ const backdropClassName = [
 const contentClassName = [
   'fixed left-1/2 top-1/2 z-50 flex w-[428px] max-w-[calc(100vw-32px)]',
   '-translate-x-1/2 -translate-y-1/2 flex-col bg-surface-lowest shadow-drop-shadow-01',
-  'rounded-l outline-none',
+  'rounded-[var(--radius-l)] outline-none',
   'transition-[scale,opacity] duration-150 ease-out',
   'data-ending-style:scale-[0.98] data-ending-style:opacity-0',
   'data-starting-style:scale-[0.98] data-starting-style:opacity-0',
   'motion-reduce:transition-none',
 ].join(' ');
 
-const graphicVariants = cva('shrink-0 rounded-l bg-surface-low', {
+const graphicVariants = cva('shrink-0 rounded-[var(--radius-l)] bg-surface-low', {
   variants: {
     size: {
       default: 'h-[150px] w-[147px]',
@@ -48,26 +47,11 @@ const graphicVariants = cva('shrink-0 rounded-l bg-surface-low', {
   },
 });
 
-export type ModalContentProps = Omit<ComponentProps<typeof DialogPrimitive.Popup>, 'className'> & {
-  className?: string;
-  backdropClassName?: string;
-  portalProps?: Omit<DialogPrimitive.Portal.Props, 'children'>;
-};
-
 type ModalGraphicProps = ComponentProps<typeof Box<'div'>> & VariantProps<typeof graphicVariants>;
-
-type ModalBodyProps = ComponentProps<typeof Box<'div'>>;
-
-type ModalHeaderProps = ComponentProps<typeof Box<'div'>>;
-
-type ModalActionsProps = ComponentProps<typeof Box<'div'>>;
 
 export type ModalCloseButtonProps = ButtonProps;
 
-export type ModalCloseTextProps = Omit<DialogPrimitive.Close.Props, 'className' | 'render'> & {
-  className?: string;
-  children: ReactNode;
-};
+export type ModalCloseTextProps = DialogPrimitive.Close.Props;
 
 const ModalRoot = (props: ModalRootProps): JSX.Element => {
   return <DialogPrimitive.Root {...props} />;
@@ -77,47 +61,64 @@ const ModalTrigger = (props: ModalTriggerProps): JSX.Element => {
   return <DialogPrimitive.Trigger {...props} />;
 };
 
-const ModalContent = ({
-  className,
-  backdropClassName: customBackdropClassName,
-  portalProps,
-  children,
-  ...props
-}: ModalContentProps): JSX.Element => {
-  return (
-    <DialogPrimitive.Portal {...portalProps}>
-      <DialogPrimitive.Backdrop className={cn(backdropClassName, customBackdropClassName)} />
-      <DialogPrimitive.Popup className={cn(contentClassName, className)} {...props}>
-        {children}
-      </DialogPrimitive.Popup>
-    </DialogPrimitive.Portal>
-  );
+const ModalPortal = (props: ModalPortalProps): JSX.Element => {
+  return <DialogPrimitive.Portal {...props} />;
 };
 
-const ModalTitle = ({ className, ...props }: ModalTitleProps): JSX.Element => {
+const ModalBackdrop = ({ className, ...props }: ModalBackdropProps): JSX.Element => {
   return (
-    <DialogPrimitive.Title
-      render={
-        <Text
-          as="h2"
-          variant="heading-xl"
-          className={cn('m-0 text-center text-text-high', className)}
-        />
+    <DialogPrimitive.Backdrop
+      className={(state) =>
+        cn(backdropClassName, typeof className === 'function' ? className(state) : className)
       }
       {...props}
     />
   );
 };
 
-const ModalDescription = ({ className, ...props }: ModalDescriptionProps): JSX.Element => {
+const ModalPopup = ({ className, ...props }: ModalPopupProps): JSX.Element => {
+  return (
+    <DialogPrimitive.Popup
+      className={(state) =>
+        cn(contentClassName, typeof className === 'function' ? className(state) : className)
+      }
+      {...props}
+    />
+  );
+};
+
+const ModalTitle = ({
+  className,
+  render = <Text as="h2" variant="heading-xl" />,
+  ...props
+}: ModalTitleProps): JSX.Element => {
+  return (
+    <DialogPrimitive.Title
+      render={render}
+      className={(state) =>
+        cn(
+          'm-0 text-center text-text-high',
+          typeof className === 'function' ? className(state) : className,
+        )
+      }
+      {...props}
+    />
+  );
+};
+
+const ModalDescription = ({
+  className,
+  render = <Text as="p" variant="heading-sm" />,
+  ...props
+}: ModalDescriptionProps): JSX.Element => {
   return (
     <DialogPrimitive.Description
-      render={
-        <Text
-          as="p"
-          variant="heading-sm"
-          className={cn('m-0 text-center text-text-medium', className)}
-        />
+      render={render}
+      className={(state) =>
+        cn(
+          'm-0 text-center text-text-medium',
+          typeof className === 'function' ? className(state) : className,
+        )
       }
       {...props}
     />
@@ -126,20 +127,6 @@ const ModalDescription = ({ className, ...props }: ModalDescriptionProps): JSX.E
 
 const ModalGraphic = ({ className, size, ...props }: ModalGraphicProps): JSX.Element => {
   return <Box className={cn(graphicVariants({ size }), className)} {...props} />;
-};
-
-const ModalBody = ({ className, ...props }: ModalBodyProps): JSX.Element => {
-  return <Box className={cn('flex w-full flex-col items-center', className)} {...props} />;
-};
-
-const ModalHeader = ({ className, ...props }: ModalHeaderProps): JSX.Element => {
-  return (
-    <Box className={cn('flex w-full flex-col items-center text-center', className)} {...props} />
-  );
-};
-
-const ModalActions = ({ className, ...props }: ModalActionsProps): JSX.Element => {
-  return <Box className={cn('flex w-full', className)} {...props} />;
 };
 
 const ModalClose = (props: ModalCloseProps): JSX.Element => {
@@ -153,15 +140,17 @@ const ModalCloseButton = (props: ModalCloseButtonProps): JSX.Element => {
 const ModalCloseText = ({ className, children, ...props }: ModalCloseTextProps): JSX.Element => {
   return (
     <DialogPrimitive.Close
-      className={cn(
-        [
-          'inline-flex h-[22px] items-center justify-center self-center px-002',
-          'text-text-medium transition-colors hover:not-data-disabled:text-text-high',
-          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sys-primary-default',
-          'data-disabled:cursor-not-allowed data-disabled:opacity-50',
-        ],
-        className,
-      )}
+      className={(state) =>
+        cn(
+          [
+            'inline-flex h-[22px] items-center justify-center self-center px-002',
+            'cursor-pointer text-text-medium transition-colors hover:not-data-disabled:text-text-high',
+            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sys-primary-default',
+            'data-disabled:cursor-not-allowed data-disabled:opacity-50',
+          ],
+          typeof className === 'function' ? className(state) : className,
+        )
+      }
       {...props}
     >
       <Text variant="subtitle-xxs">{children}</Text>
@@ -172,13 +161,12 @@ const ModalCloseText = ({ className, children, ...props }: ModalCloseTextProps):
 export const Modal = {
   Root: ModalRoot,
   Trigger: ModalTrigger,
-  Content: ModalContent,
-  Body: ModalBody,
-  Header: ModalHeader,
+  Portal: ModalPortal,
+  Backdrop: ModalBackdrop,
+  Popup: ModalPopup,
   Title: ModalTitle,
   Description: ModalDescription,
   Graphic: ModalGraphic,
-  Actions: ModalActions,
   Close: ModalClose,
   CloseButton: ModalCloseButton,
   CloseText: ModalCloseText,
