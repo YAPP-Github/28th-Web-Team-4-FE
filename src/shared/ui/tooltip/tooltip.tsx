@@ -27,6 +27,11 @@ import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
+const ARROW_SIZE_PX = 8;
+const ARROW_STATIC_OFFSET = `-${ARROW_SIZE_PX / 2}px`;
+const ARROW_MIDDLEWARE_PADDING = 6;
+const SHIFT_PADDING = 8;
+
 export type TooltipRootProps = PropsWithChildren<{
   placement?: Placement;
   offset?: OffsetOptions;
@@ -63,8 +68,8 @@ const Root = ({ placement = 'top', offset = 8, children }: TooltipRootProps): JS
     () => [
       offsetMiddleware(offset),
       flipMiddleware(),
-      shiftMiddleware({ padding: 8 }),
-      arrowMiddleware({ element: arrowRef, padding: 6 }),
+      shiftMiddleware({ padding: SHIFT_PADDING }),
+      arrowMiddleware({ element: arrowRef, padding: ARROW_MIDDLEWARE_PADDING }),
     ],
     [offset],
   );
@@ -147,7 +152,7 @@ const Arrow = ({ className, style, ...props }: TooltipArrowProps): JSX.Element =
     top: resolveArrowPosition(arrowData?.y),
     right: '',
     bottom: '',
-    [staticSide]: '-4px',
+    [staticSide]: ARROW_STATIC_OFFSET,
     ...style,
   } satisfies CSSProperties;
 
