@@ -22,14 +22,14 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           <button
             type="button"
             className="size-020 text-icon-low hover:not-disabled:text-icon-low inline-flex shrink-0 items-center justify-center transition-colors disabled:cursor-not-allowed"
-            aria-label={passwordVisible ? '비밀번호 보기' : '비밀번호 숨기기'}
+            aria-label={passwordVisible ? '비밀번호 숨기기' : '비밀번호 보기'}
             disabled={disabled}
             onClick={() => setPasswordVisible((current) => !current)}
           >
             {passwordVisible ? (
-              <Eye className="size-020" aria-hidden />
-            ) : (
               <EyeOff className="size-020" aria-hidden />
+            ) : (
+              <Eye className="size-020" aria-hidden />
             )}
           </button>
         }

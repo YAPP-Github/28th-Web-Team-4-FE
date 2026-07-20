@@ -39,16 +39,28 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<InputStoryArgs>;
+type PlayContext = Parameters<NonNullable<Story['play']>>[0];
+
+const expectDefaultVisible = async ({ canvasElement }: PlayContext) => {
+  const canvas = within(canvasElement);
+
+  await expect(canvas.getByPlaceholderText('이메일을 입력해 주세요')).toBeVisible();
+};
+
+const togglePasswordVisibility = async ({ canvasElement }: PlayContext) => {
+  const canvas = within(canvasElement);
+  const input = canvas.getByPlaceholderText('비밀번호를 입력해 주세요');
+
+  await expect(input).toHaveAttribute('type', 'password');
+  await userEvent.click(canvas.getByRole('button', { name: '비밀번호 보기' }));
+  await expect(input).toHaveAttribute('type', 'text');
+};
 
 export const Default: Story = {
   args: {
     placeholder: '이메일을 입력해 주세요',
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    await expect(canvas.getByPlaceholderText('이메일을 입력해 주세요')).toBeVisible();
-  },
+  play: expectDefaultVisible,
 };
 
 export const Filled: Story = {
@@ -72,19 +84,27 @@ export const WithRightAddon: Story = {
   },
 };
 
+export const Filter: Story = {
+  args: {
+    frame: 'filter',
+    placeholder: '최소',
+  },
+};
+
+export const FilterFilled: Story = {
+  args: {
+    frame: 'filter',
+    defaultValue: '1,000,000',
+    placeholder: '최소',
+  },
+};
+
 export const Password: Story = {
   args: {
     frame: 'password',
     placeholder: '비밀번호를 입력해 주세요',
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const input = canvas.getByPlaceholderText('비밀번호를 입력해 주세요');
-
-    await expect(input).toHaveAttribute('type', 'password');
-    await userEvent.click(canvas.getByRole('button', { name: '비밀번호 보기' }));
-    await expect(input).toHaveAttribute('type', 'text');
-  },
+  play: togglePasswordVisibility,
 };
 
 export const Disabled: Story = {
