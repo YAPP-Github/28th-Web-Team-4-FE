@@ -18,17 +18,17 @@ export function PasswordInput({
 
   return (
     <InputBase
-      type={passwordVisible ? 'text' : 'password'}
+      type={isPasswordVisible ? 'text' : 'password'}
       disabled={disabled}
       rightElement={
         <button
           type="button"
           className="size-020 text-icon-low hover:not-disabled:text-icon-low inline-flex shrink-0 items-center justify-center transition-colors disabled:cursor-not-allowed"
-          aria-label={passwordVisible ? '비밀번호 숨기기' : '비밀번호 보기'}
+          aria-label={isPasswordVisible ? '비밀번호 숨기기' : '비밀번호 보기'}
           disabled={disabled}
-          onClick={() => setPasswordVisible((current) => !current)}
+          onClick={() => setIsPasswordVisible((current) => !current)}
         >
-          {passwordVisible ? (
+          {isPasswordVisible ? (
             <EyeOff className="size-020" aria-hidden />
           ) : (
             <Eye className="size-020" aria-hidden />
