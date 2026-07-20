@@ -24,6 +24,18 @@ node --run tokens
 
 3. 생성된 `src/styles/tokens/` diff를 확인하고 PR을 생성합니다.
 
+```bash
+node --run fmt:check
+git diff -- src/styles/tokens
+```
+
+빌드까지 확인해야 하는 변경이라면 아래 명령 후 토큰 diff가 다시 생기지 않는지 확인합니다.
+
+```bash
+node --run build
+git diff -- src/styles/tokens
+```
+
 ## 출력 파일
 
 | 파일                               | 내용                                                          |

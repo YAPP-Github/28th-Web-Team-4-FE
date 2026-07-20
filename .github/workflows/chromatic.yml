@@ -2,6 +2,25 @@ name: 'Chromatic'
 
 on:
   push:
+    paths:
+      - '.github/workflows/chromatic.yml'
+      - '.github/actions/pnpm-setup-node/**'
+      - '.storybook/**'
+      - 'src/stories/**'
+      - 'src/**/*.stories.*'
+      - 'src/**/*.mdx'
+      - 'src/shared/ui/**'
+      - 'src/shared/fonts/**'
+      - 'src/app/styles/**'
+      - 'src/styles/tokens/**'
+      - 'design-tokens/**'
+      - 'public/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'mise.toml'
+      - 'tsconfig.json'
+      - 'next.config.ts'
+      - 'postcss.config.mjs'
   workflow_dispatch:
 
 permissions:
