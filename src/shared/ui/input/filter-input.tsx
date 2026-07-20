@@ -16,7 +16,7 @@ export type FilterInputProps = Omit<BaseInputProps, 'className' | 'type'> & {
 };
 
 export const FilterInput = forwardRef<HTMLInputElement, FilterInputProps>(function FilterInput(
-  { className, rightAddon = '원', type = 'text', disabled, ...props },
+  { className, frame: _frame, rightAddon = '원', type = 'text', disabled, ...props },
   ref,
 ): JSX.Element {
   return (
