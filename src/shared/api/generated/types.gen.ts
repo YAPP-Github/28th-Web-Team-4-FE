@@ -336,6 +336,16 @@ export type LoginRequest = {
 };
 
 /**
+ * 로그인 수단 조회 요청
+ */
+export type LoginMethodsRequest = {
+  /**
+   * 조회할 이메일
+   */
+  email: string;
+};
+
+/**
  * 구글 idToken 요청
  */
 export type GoogleAuthRequest = {
@@ -362,6 +372,102 @@ export type ApiResponseListSampleResponse = {
    * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
    */
   code?: string;
+};
+
+export type ApiResponsePageResponseChannelListItemResponse = {
+  /**
+   * 요청 성공 여부
+   */
+  success: boolean;
+  /**
+   * 성공 시 응답 본문. 실패 시 null
+   */
+  data?: PageResponseChannelListItemResponse;
+  /**
+   * 실패 시 에러 정보. 성공 시 null
+   */
+  error?: ErrorResponse;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   */
+  code?: string;
+};
+
+/**
+ * 채널 목록 요약
+ */
+export type ChannelListItemResponse = {
+  /**
+   * 채널 식별자
+   */
+  id: string;
+  /**
+   * 채널명
+   */
+  name: string;
+  /**
+   * 로고 이미지 URL
+   */
+  logoUrl?: string;
+  /**
+   * 채널 핵심 요약
+   */
+  description?: string;
+  /**
+   * 대표 업종 코드값
+   */
+  primaryCategory:
+    | 'GAME'
+    | 'ENTERTAINMENT'
+    | 'EDUCATION'
+    | 'SOCIAL_COMMUNITY'
+    | 'LIFESTYLE'
+    | 'HEALTH_FITNESS'
+    | 'FOOD_BEVERAGE'
+    | 'SHOPPING_COMMERCE'
+    | 'FINANCE_FINTECH'
+    | 'BUSINESS_B2B'
+    | 'MEDICAL_HEALTHCARE'
+    | 'TRAVEL_ACCOMMODATION'
+    | 'MUSIC_MEDIA'
+    | 'PRODUCTIVITY_UTILITY'
+    | 'SPORTS'
+    | 'NEWS_INFORMATION'
+    | 'OTHERS';
+};
+
+/**
+ * 페이지네이션 응답
+ */
+export type PageResponseChannelListItemResponse = {
+  /**
+   * 현재 페이지 항목
+   */
+  content: Array<ChannelListItemResponse>;
+  /**
+   * 현재 페이지 번호(0-base)
+   */
+  number: number;
+  /**
+   * 페이지 크기
+   */
+  size: number;
+  /**
+   * 전체 항목 수
+   */
+  totalElements: number;
+  /**
+   * 전체 페이지 수
+   */
+  totalPages: number;
+  /**
+   * 첫 페이지 여부
+   */
+  first: boolean;
+  /**
+   * 마지막 페이지 여부
+   */
+  last: boolean;
 };
 
 export type GetAllSamplesData = {
@@ -483,7 +589,7 @@ export type SignupGoogleResponses = {
   /**
    * 가입 성공, 토큰 발급
    */
-  201: ApiResponse;
+  200: ApiResponse;
 };
 
 export type SignupGoogleResponse = SignupGoogleResponses[keyof SignupGoogleResponses];
@@ -518,7 +624,7 @@ export type SendSignupCodeError = SendSignupCodeErrors[keyof SendSignupCodeError
 
 export type SendSignupCodeResponses = {
   /**
-   * 발송 성공. 구글로만 가입된 이메일이면 안내 코드가 함께 실린다
+   * 발송 성공. 구글로만 가입된 이메일이면 발송 없이 안내 코드만 실린다
    */
   200: ApiResponse;
 };
@@ -653,6 +759,39 @@ export type LoginResponses = {
 
 export type LoginResponse = LoginResponses[keyof LoginResponses];
 
+export type LoginMethodsData = {
+  body: LoginMethodsRequest;
+  path?: never;
+  query?: never;
+  url: '/api/v1/auth/login/methods';
+};
+
+export type LoginMethodsErrors = {
+  /**
+   * 입력값 검증 실패(C-001)
+   */
+  400: ApiResponse;
+  /**
+   * IP 단위 조회 한도 초과(AUTH-012)
+   */
+  429: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type LoginMethodsError = LoginMethodsErrors[keyof LoginMethodsErrors];
+
+export type LoginMethodsResponses = {
+  /**
+   * 조회 성공
+   */
+  200: ApiResponse;
+};
+
+export type LoginMethodsResponse = LoginMethodsResponses[keyof LoginMethodsResponses];
+
 export type GoogleAuthData = {
   body: GoogleAuthRequest;
   path?: never;
@@ -752,3 +891,41 @@ export type GetSampleByIdResponses = {
 };
 
 export type GetSampleByIdResponse = GetSampleByIdResponses[keyof GetSampleByIdResponses];
+
+export type GetChannelsData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Zero-based page index (0..N)
+     */
+    page?: number;
+    /**
+     * The size of the page to be returned
+     */
+    size?: number;
+    /**
+     * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+     */
+    sort?: Array<string>;
+  };
+  url: '/api/v1/channels';
+};
+
+export type GetChannelsErrors = {
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type GetChannelsError = GetChannelsErrors[keyof GetChannelsErrors];
+
+export type GetChannelsResponses = {
+  /**
+   * 조회 성공
+   */
+  200: ApiResponsePageResponseChannelListItemResponse;
+};
+
+export type GetChannelsResponse = GetChannelsResponses[keyof GetChannelsResponses];
