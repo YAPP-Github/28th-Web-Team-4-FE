@@ -1,16 +1,14 @@
 'use client';
 
 import { useState, type FormEvent, type JSX } from 'react';
-import Image from 'next/image';
 import { CircleAlert } from 'lucide-react';
 
 import { Button } from '@/shared/ui/button';
 import { FormPanelHeader } from '@/shared/ui/form-panel';
+import { GoogleLogo } from '@/shared/ui/google-logo';
 import { Input } from '@/shared/ui/input';
 import { Symbol } from '@/shared/ui/symbol';
 import { authEntrySchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
-
-const GOOGLE_LOGO_SRC = '/images/auth/google-logo.png';
 
 function AuthHeader({ title }: { title: string }): JSX.Element {
   return (
@@ -71,20 +69,7 @@ export function AuthEntryForm(): JSX.Element {
           <Button frame="cta" tone="login" type="submit">
             이메일로 시작하기
           </Button>
-          <Button
-            frame="button"
-            tone="social"
-            type="button"
-            leftIcon={
-              <Image
-                src={GOOGLE_LOGO_SRC}
-                alt=""
-                width={21}
-                height={21}
-                className="size-[21px] max-w-none"
-              />
-            }
-          >
+          <Button frame="button" tone="social" type="button" leftIcon={<GoogleLogo alt="" />}>
             Google로 시작하기
           </Button>
         </div>
