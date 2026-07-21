@@ -7,12 +7,15 @@ import {
   createSample,
   getAllSamples,
   getSampleById,
+  googleAuth,
+  linkGoogle,
   login,
   logout,
   type Options,
   refresh,
   sendSignupCode,
   signup,
+  signupGoogle,
   verifySignupCode,
 } from '../sdk.gen';
 import type {
@@ -25,6 +28,12 @@ import type {
   GetSampleByIdData,
   GetSampleByIdError,
   GetSampleByIdResponse,
+  GoogleAuthData,
+  GoogleAuthError,
+  GoogleAuthResponse,
+  LinkGoogleData,
+  LinkGoogleError,
+  LinkGoogleResponse,
   LoginData,
   LoginError,
   LoginResponse,
@@ -39,6 +48,9 @@ import type {
   SendSignupCodeResponse,
   SignupData,
   SignupError,
+  SignupGoogleData,
+  SignupGoogleError,
+  SignupGoogleResponse,
   SignupResponse,
   VerifySignupCodeData,
   VerifySignupCodeError,
@@ -158,9 +170,34 @@ export const signupMutation = (
 };
 
 /**
+ * 구글 최종 회원가입
+ *
+ * POST /auth/google 이 내려준 signupToken 과 추가 프로필(닉네임/회사명/직무/약관 동의)로 신규 회원가입을 완료하고 토큰을 발급한다. 가입에 성공하면 signupToken 은 즉시 폐기되어 재사용 불가능.
+ */
+export const signupGoogleMutation = (
+  options?: Partial<Options<SignupGoogleData>>,
+): UseMutationOptions<SignupGoogleResponse, SignupGoogleError, Options<SignupGoogleData>> => {
+  const mutationOptions: UseMutationOptions<
+    SignupGoogleResponse,
+    SignupGoogleError,
+    Options<SignupGoogleData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await signupGoogle({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
  * 회원가입 이메일 인증코드 발송
  *
- * 가입할 이메일로 6자리 인증코드를 발송한다. 이미 가입된 이메일이면 409.
+ * 가입할 이메일로 6자리 인증코드를 발송한다. 로컬로 이미 가입된 이메일이면 409. 구글로만 가입된 이메일(로컬 미연결)이면 연결 대상이므로 코드는 그대로 발송하고 200과 함께 code: EMAIL_ALREADY_USED_WITH_GOOGLE 을 내려준다.
  */
 export const sendSignupCodeMutation = (
   options?: Partial<Options<SendSignupCodeData>>,
@@ -256,7 +293,7 @@ export const logoutMutation = (
 /**
  * 로컬 로그인
  *
- * 이메일/비밀번호로 로그인하고 access/refresh 토큰을 발급한다. 자격증명이 올바르지 않으면 401. refreshTokenExpiresIn 은 고정값이 아니므로 응답값을 그대로 쓴다.
+ * 이메일/비밀번호로 로그인하고 access/refresh 토큰을 발급한다. 자격증명이 올바르지 않으면 401. 구글로만 가입되어 로컬 인증정보가 없는 이메일이면 AUTH-010 으로 별도 응답한다.
  */
 export const loginMutation = (
   options?: Partial<Options<LoginData>>,
@@ -264,6 +301,56 @@ export const loginMutation = (
   const mutationOptions: UseMutationOptions<LoginResponse, LoginError, Options<LoginData>> = {
     mutationFn: async (fnOptions) => {
       const { data } = await login({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * 구글 인증 진입
+ *
+ * 브라우저에서 받은 구글 idToken 을 검증하고 계정 상태에 따라 세 분기로 응답한다. 분기는 LOGIN/LINK_REQUIRED/SIGNUP_REQUIRED 로 판별. (1) 구글 계정이 연결돼 있으면 토큰을 발급. (2) 같은 이메일의 로컬 계정만 있으면 linkRequired:true 와 email 을 내려준다 - 사용자 확인을 받은 후 POST /auth/google/link 를 호출. (3) 가입 이력이 없으면 signupRequired:true 와 일회성 signupToken, 프리필 값을 내려준다.
+ */
+export const googleAuthMutation = (
+  options?: Partial<Options<GoogleAuthData>>,
+): UseMutationOptions<GoogleAuthResponse, GoogleAuthError, Options<GoogleAuthData>> => {
+  const mutationOptions: UseMutationOptions<
+    GoogleAuthResponse,
+    GoogleAuthError,
+    Options<GoogleAuthData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await googleAuth({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * 구글 계정 연결 확인
+ *
+ * linkRequired:true 응답을 받고 사용자가 확인 UI 에서 '예'를 선택했을 때만 호출한다. 진입 때 보냈던 idToken 을 그대로 재전송하면 서버가 재검증한 뒤 같은 이메일의 로컬 계정에 구글 로그인을 연결하고 토큰을 발급한다. '아니오'는 이 API 를 호출하지 않는다. 확인 모달을 띄우는 사이 idToken 이 만료되면 401 응답.
+ */
+export const linkGoogleMutation = (
+  options?: Partial<Options<LinkGoogleData>>,
+): UseMutationOptions<LinkGoogleResponse, LinkGoogleError, Options<LinkGoogleData>> => {
+  const mutationOptions: UseMutationOptions<
+    LinkGoogleResponse,
+    LinkGoogleError,
+    Options<LinkGoogleData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await linkGoogle({
         ...options,
         ...fnOptions,
         throwOnError: true,

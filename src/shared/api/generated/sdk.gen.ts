@@ -12,6 +12,12 @@ import type {
   GetSampleByIdData,
   GetSampleByIdErrors,
   GetSampleByIdResponses,
+  GoogleAuthData,
+  GoogleAuthErrors,
+  GoogleAuthResponses,
+  LinkGoogleData,
+  LinkGoogleErrors,
+  LinkGoogleResponses,
   LoginData,
   LoginErrors,
   LoginResponses,
@@ -26,6 +32,9 @@ import type {
   SendSignupCodeResponses,
   SignupData,
   SignupErrors,
+  SignupGoogleData,
+  SignupGoogleErrors,
+  SignupGoogleResponses,
   SignupResponses,
   VerifySignupCodeData,
   VerifySignupCodeErrors,
@@ -91,8 +100,24 @@ export const signup = <ThrowOnError extends boolean = false>(
   options: Options<SignupData, ThrowOnError>,
 ): RequestResult<SignupResponses, SignupErrors, ThrowOnError> =>
   (options.client ?? client).post<SignupResponses, SignupErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/auth/signup',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * 구글 최종 회원가입
+ *
+ * POST /auth/google 이 내려준 signupToken 과 추가 프로필(닉네임/회사명/직무/약관 동의)로 신규 회원가입을 완료하고 토큰을 발급한다. 가입에 성공하면 signupToken 은 즉시 폐기되어 재사용 불가능.
+ */
+export const signupGoogle = <ThrowOnError extends boolean = false>(
+  options: Options<SignupGoogleData, ThrowOnError>,
+): RequestResult<SignupGoogleResponses, SignupGoogleErrors, ThrowOnError> =>
+  (options.client ?? client).post<SignupGoogleResponses, SignupGoogleErrors, ThrowOnError>({
+    url: '/api/v1/auth/signup/google',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -103,13 +128,12 @@ export const signup = <ThrowOnError extends boolean = false>(
 /**
  * 회원가입 이메일 인증코드 발송
  *
- * 가입할 이메일로 6자리 인증코드를 발송한다. 이미 가입된 이메일이면 409.
+ * 가입할 이메일로 6자리 인증코드를 발송한다. 로컬로 이미 가입된 이메일이면 409. 구글로만 가입된 이메일(로컬 미연결)이면 연결 대상이므로 코드는 그대로 발송하고 200과 함께 code: EMAIL_ALREADY_USED_WITH_GOOGLE 을 내려준다.
  */
 export const sendSignupCode = <ThrowOnError extends boolean = false>(
   options: Options<SendSignupCodeData, ThrowOnError>,
 ): RequestResult<SendSignupCodeResponses, SendSignupCodeErrors, ThrowOnError> =>
   (options.client ?? client).post<SendSignupCodeResponses, SendSignupCodeErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/auth/signup/email-code',
     ...options,
     headers: {
@@ -127,7 +151,6 @@ export const verifySignupCode = <ThrowOnError extends boolean = false>(
   options: Options<VerifySignupCodeData, ThrowOnError>,
 ): RequestResult<VerifySignupCodeResponses, VerifySignupCodeErrors, ThrowOnError> =>
   (options.client ?? client).post<VerifySignupCodeResponses, VerifySignupCodeErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/auth/signup/email-code/verify',
     ...options,
     headers: {
@@ -145,7 +168,6 @@ export const refresh = <ThrowOnError extends boolean = false>(
   options: Options<RefreshData, ThrowOnError>,
 ): RequestResult<RefreshResponses, RefreshErrors, ThrowOnError> =>
   (options.client ?? client).post<RefreshResponses, RefreshErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/auth/refresh',
     ...options,
     headers: {
@@ -175,14 +197,47 @@ export const logout = <ThrowOnError extends boolean = false>(
 /**
  * 로컬 로그인
  *
- * 이메일/비밀번호로 로그인하고 access/refresh 토큰을 발급한다. 자격증명이 올바르지 않으면 401. refreshTokenExpiresIn 은 고정값이 아니므로 응답값을 그대로 쓴다.
+ * 이메일/비밀번호로 로그인하고 access/refresh 토큰을 발급한다. 자격증명이 올바르지 않으면 401. 구글로만 가입되어 로컬 인증정보가 없는 이메일이면 AUTH-010 으로 별도 응답한다.
  */
 export const login = <ThrowOnError extends boolean = false>(
   options: Options<LoginData, ThrowOnError>,
 ): RequestResult<LoginResponses, LoginErrors, ThrowOnError> =>
   (options.client ?? client).post<LoginResponses, LoginErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/auth/login',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * 구글 인증 진입
+ *
+ * 브라우저에서 받은 구글 idToken 을 검증하고 계정 상태에 따라 세 분기로 응답한다. 분기는 LOGIN/LINK_REQUIRED/SIGNUP_REQUIRED 로 판별. (1) 구글 계정이 연결돼 있으면 토큰을 발급. (2) 같은 이메일의 로컬 계정만 있으면 linkRequired:true 와 email 을 내려준다 - 사용자 확인을 받은 후 POST /auth/google/link 를 호출. (3) 가입 이력이 없으면 signupRequired:true 와 일회성 signupToken, 프리필 값을 내려준다.
+ */
+export const googleAuth = <ThrowOnError extends boolean = false>(
+  options: Options<GoogleAuthData, ThrowOnError>,
+): RequestResult<GoogleAuthResponses, GoogleAuthErrors, ThrowOnError> =>
+  (options.client ?? client).post<GoogleAuthResponses, GoogleAuthErrors, ThrowOnError>({
+    url: '/api/v1/auth/google',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * 구글 계정 연결 확인
+ *
+ * linkRequired:true 응답을 받고 사용자가 확인 UI 에서 '예'를 선택했을 때만 호출한다. 진입 때 보냈던 idToken 을 그대로 재전송하면 서버가 재검증한 뒤 같은 이메일의 로컬 계정에 구글 로그인을 연결하고 토큰을 발급한다. '아니오'는 이 API 를 호출하지 않는다. 확인 모달을 띄우는 사이 idToken 이 만료되면 401 응답.
+ */
+export const linkGoogle = <ThrowOnError extends boolean = false>(
+  options: Options<LinkGoogleData, ThrowOnError>,
+): RequestResult<LinkGoogleResponses, LinkGoogleErrors, ThrowOnError> =>
+  (options.client ?? client).post<LinkGoogleResponses, LinkGoogleErrors, ThrowOnError>({
+    url: '/api/v1/auth/google/link',
     ...options,
     headers: {
       'Content-Type': 'application/json',
