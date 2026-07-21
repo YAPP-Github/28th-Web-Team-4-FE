@@ -2,21 +2,23 @@
 
 import type { JSX, ReactNode } from 'react';
 import { Field as BaseField } from '@base-ui/react/field';
-import { Check, CircleAlert } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { cva } from 'class-variance-authority';
 
 import { cn } from '@/shared/ui/cn';
+import { InfoFillIcon, WarningErrorIcon } from '@/shared/ui/icon';
 
 const feedbackVariants = cva('typo-body-sm gap-006 pr-012 flex w-full items-center pl-[2px]', {
   variants: {
     tone: {
       error: 'text-sys-error-default',
+      info: 'text-text-low',
       success: 'text-sys-success-default',
     },
   },
 });
 
-export type FieldFeedbackTone = 'error' | 'success';
+export type FieldFeedbackTone = 'error' | 'info' | 'success';
 
 export type FieldFeedbackProps = {
   tone: FieldFeedbackTone;
@@ -26,7 +28,11 @@ export type FieldFeedbackProps = {
 
 function FeedbackIcon({ tone }: { tone: FieldFeedbackTone }): JSX.Element {
   if (tone === 'error') {
-    return <CircleAlert className="size-012 shrink-0" aria-hidden />;
+    return <WarningErrorIcon />;
+  }
+
+  if (tone === 'info') {
+    return <InfoFillIcon />;
   }
 
   return (
@@ -56,9 +62,11 @@ export function FieldFeedback({ tone, children, className }: FieldFeedbackProps)
     );
   }
 
-  return (
+  return tone === 'success' ? (
     <BaseField.Description className={feedbackClassName} role="status">
       {content}
     </BaseField.Description>
+  ) : (
+    <BaseField.Description className={feedbackClassName}>{content}</BaseField.Description>
   );
 }

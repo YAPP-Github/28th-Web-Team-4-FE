@@ -53,6 +53,28 @@ export const Error: Story = {
   },
 };
 
+export const Info: Story = {
+  args: {
+    frame: 'password',
+    placeholder: '비밀번호를 입력해 주세요',
+    feedback: {
+      tone: 'info',
+      message: '비밀번호는 8자 이상으로, 영어·숫자·특수문자를 포함해야 해요',
+    },
+  },
+  play: async ({ canvasElement }: PlayContext) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByPlaceholderText('비밀번호를 입력해 주세요');
+
+    await expect(input).not.toHaveAttribute('aria-invalid');
+    await expect(input).toHaveAccessibleDescription(
+      '비밀번호는 8자 이상으로, 영어·숫자·특수문자를 포함해야 해요',
+    );
+    await expect(canvas.queryByRole('alert')).not.toBeInTheDocument();
+    await expect(canvas.queryByRole('status')).not.toBeInTheDocument();
+  },
+};
+
 export const Success: Story = {
   args: {
     defaultValue: '123456',
