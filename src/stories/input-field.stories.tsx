@@ -1,0 +1,72 @@
+import type { ComponentType } from 'react';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { expect, within } from 'storybook/test';
+
+import { InputField, type InputFieldProps } from '@/shared/ui/input-field';
+import { Box } from '@/shared/ui/layout/box';
+
+const meta = {
+  title: 'components/InputField',
+  component: InputField as ComponentType<InputFieldProps>,
+  tags: ['autodocs'],
+  args: {
+    placeholder: '이메일을 입력해 주세요',
+  },
+  argTypes: {
+    className: { control: 'text' },
+    fieldClassName: { control: 'text' },
+    feedback: { control: false },
+    frame: { control: false },
+  },
+  decorators: [
+    (Story) => (
+      <Box className="bg-surface-high rounded-m flex min-h-40 w-full items-center justify-center p-6">
+        <Box className="w-full max-w-[440px]">
+          <Story />
+        </Box>
+      </Box>
+    ),
+  ],
+} satisfies Meta<InputFieldProps>;
+
+export default meta;
+type Story = StoryObj<InputFieldProps>;
+type PlayContext = Parameters<NonNullable<Story['play']>>[0];
+
+export const Default: Story = {};
+
+export const Error: Story = {
+  args: {
+    feedback: {
+      tone: 'error',
+      message: '이메일을 입력해 주세요.',
+    },
+  },
+  play: async ({ canvasElement }: PlayContext) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByPlaceholderText('이메일을 입력해 주세요');
+    const feedback = canvas.getByRole('alert');
+
+    await expect(input).toHaveAttribute('aria-invalid', 'true');
+    await expect(input).toHaveAccessibleDescription('이메일을 입력해 주세요.');
+    await expect(feedback).toBeVisible();
+  },
+};
+
+export const Success: Story = {
+  args: {
+    defaultValue: '123456',
+    feedback: {
+      tone: 'success',
+      message: '인증이 완료됐어요.',
+    },
+  },
+  play: async ({ canvasElement }: PlayContext) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByPlaceholderText('이메일을 입력해 주세요');
+
+    await expect(input).not.toHaveAttribute('aria-invalid');
+    await expect(input).toHaveAccessibleDescription('인증이 완료됐어요.');
+    await expect(canvas.getByRole('status')).toBeVisible();
+  },
+};
