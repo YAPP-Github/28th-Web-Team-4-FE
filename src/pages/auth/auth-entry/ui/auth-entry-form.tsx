@@ -7,15 +7,15 @@ import { CircleAlert } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { FormPanelHeader } from '@/shared/ui/form-panel';
 import { Input } from '@/shared/ui/input';
+import { Symbol } from '@/shared/ui/symbol';
 import { authEntrySchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
 
-const AUTH_SYMBOL_SRC = '/images/auth/auth-symbol.svg';
 const GOOGLE_LOGO_SRC = '/images/auth/google-logo.png';
 
 function AuthHeader({ title }: { title: string }): JSX.Element {
   return (
     <FormPanelHeader
-      graphic={<Image src={AUTH_SYMBOL_SRC} alt="" width={24} height={29} priority />}
+      graphic={<Symbol className="h-[29px] w-6" alt="" />}
       title={title}
       titleId="auth-entry-title"
     />
