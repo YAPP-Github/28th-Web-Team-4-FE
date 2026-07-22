@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, within } from 'storybook/test';
 
-import { Symbol } from '@/shared/ui/symbol';
+import { BrandSymbol } from '@/shared/ui/symbol';
 
 const meta = {
   title: 'components/Symbol',
-  component: Symbol,
+  component: BrandSymbol,
   tags: ['autodocs'],
   argTypes: {
     alt: { control: 'text' },
@@ -18,7 +18,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof Symbol>;
+} satisfies Meta<typeof BrandSymbol>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

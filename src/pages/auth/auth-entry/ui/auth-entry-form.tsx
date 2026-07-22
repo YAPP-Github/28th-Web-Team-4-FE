@@ -6,13 +6,13 @@ import { Button } from '@/shared/ui/button';
 import { FormPanelHeader } from '@/shared/ui/form-panel';
 import { GoogleLogo } from '@/shared/ui/google-logo';
 import { InputField } from '@/shared/ui/input-field';
-import { Symbol } from '@/shared/ui/symbol';
+import { BrandSymbol } from '@/shared/ui/symbol';
 import { authEntrySchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
 
 function AuthHeader({ title }: { title: string }): JSX.Element {
   return (
     <FormPanelHeader
-      graphic={<Symbol className="h-[29px] w-6" alt="" />}
+      graphic={<BrandSymbol className="h-[29px] w-6" alt="" />}
       title={title}
       titleId="auth-entry-title"
     />

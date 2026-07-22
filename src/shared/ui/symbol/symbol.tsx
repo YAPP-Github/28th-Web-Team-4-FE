@@ -12,7 +12,7 @@ export type SymbolProps = {
   alt?: string;
 };
 
-export function Symbol({ className, alt = DEFAULT_ALT }: SymbolProps): JSX.Element {
+export function BrandSymbol({ className, alt = DEFAULT_ALT }: SymbolProps): JSX.Element {
   const isDecorative = alt === '';
 
   return (
