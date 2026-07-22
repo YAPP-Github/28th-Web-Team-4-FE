@@ -9,6 +9,9 @@ import type {
   GetAllSamplesData,
   GetAllSamplesErrors,
   GetAllSamplesResponses,
+  GetChannelsData,
+  GetChannelsErrors,
+  GetChannelsResponses,
   GetSampleByIdData,
   GetSampleByIdErrors,
   GetSampleByIdResponses,
@@ -20,6 +23,9 @@ import type {
   LinkGoogleResponses,
   LoginData,
   LoginErrors,
+  LoginMethodsData,
+  LoginMethodsErrors,
+  LoginMethodsResponses,
   LoginResponses,
   LogoutData,
   LogoutErrors,
@@ -128,7 +134,7 @@ export const signupGoogle = <ThrowOnError extends boolean = false>(
 /**
  * 회원가입 이메일 인증코드 발송
  *
- * 가입할 이메일로 6자리 인증코드를 발송한다. 로컬로 이미 가입된 이메일이면 409. 구글로만 가입된 이메일(로컬 미연결)이면 연결 대상이므로 코드는 그대로 발송하고 200과 함께 code: EMAIL_ALREADY_USED_WITH_GOOGLE 을 내려준다.
+ * 가입할 이메일로 6자리 인증코드를 발송한다. 로컬로 이미 가입된 이메일: 409. 구글로만 가입된 이메일: 발송하지 않고 200 과 code: EMAIL_ALREADY_USED_WITH_GOOGLE. 그 외: 발송 후 200.
  */
 export const sendSignupCode = <ThrowOnError extends boolean = false>(
   options: Options<SendSignupCodeData, ThrowOnError>,
@@ -212,9 +218,26 @@ export const login = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * 로그인 수단 조회
+ *
+ * 이메일로 사용 가능한 로그인 수단을 조회한다. 비밀번호 입력 전 화면 분기용. methods [LOCAL]: 비밀번호 입력창. [LOCAL, GOOGLE]: 비밀번호 입력창과 구글 버튼. [GOOGLE]: 구글로 가입된 계정 안내. []: 미가입 -> 회원가입 화면.
+ */
+export const loginMethods = <ThrowOnError extends boolean = false>(
+  options: Options<LoginMethodsData, ThrowOnError>,
+): RequestResult<LoginMethodsResponses, LoginMethodsErrors, ThrowOnError> =>
+  (options.client ?? client).post<LoginMethodsResponses, LoginMethodsErrors, ThrowOnError>({
+    url: '/api/v1/auth/login/methods',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
  * 구글 인증 진입
  *
- * 브라우저에서 받은 구글 idToken 을 검증하고 계정 상태에 따라 세 분기로 응답한다. 분기는 LOGIN/LINK_REQUIRED/SIGNUP_REQUIRED 로 판별. (1) 구글 계정이 연결돼 있으면 토큰을 발급. (2) 같은 이메일의 로컬 계정만 있으면 linkRequired:true 와 email 을 내려준다 - 사용자 확인을 받은 후 POST /auth/google/link 를 호출. (3) 가입 이력이 없으면 signupRequired:true 와 일회성 signupToken, 프리필 값을 내려준다.
+ * 구글 idToken 을 검증하고 계정 상태에 따라 status 로 분기한다. LOGIN: 토큰 발급. LINK_REQUIRED: linkRequired 와 email 을 내려주며, 사용자 확인 후 POST /auth/google/link 호출. SIGNUP_REQUIRED: signupRequired 와 일회성 signupToken, 프리필 값을 내려준다.
  */
 export const googleAuth = <ThrowOnError extends boolean = false>(
   options: Options<GoogleAuthData, ThrowOnError>,
@@ -231,7 +254,7 @@ export const googleAuth = <ThrowOnError extends boolean = false>(
 /**
  * 구글 계정 연결 확인
  *
- * linkRequired:true 응답을 받고 사용자가 확인 UI 에서 '예'를 선택했을 때만 호출한다. 진입 때 보냈던 idToken 을 그대로 재전송하면 서버가 재검증한 뒤 같은 이메일의 로컬 계정에 구글 로그인을 연결하고 토큰을 발급한다. '아니오'는 이 API 를 호출하지 않는다. 확인 모달을 띄우는 사이 idToken 이 만료되면 401 응답.
+ * linkRequired:true 응답을 받고 사용자가 '예'를 선택했을 때만 호출한다. 진입 때 보낸 idToken 을 재전송하면 재검증 후 같은 이메일의 로컬 계정에 구글 로그인을 연결하고 토큰을 발급한다.
  */
 export const linkGoogle = <ThrowOnError extends boolean = false>(
   options: Options<LinkGoogleData, ThrowOnError>,
@@ -256,5 +279,18 @@ export const getSampleById = <ThrowOnError extends boolean = false>(
   (options.client ?? client).get<GetSampleByIdResponses, GetSampleByIdErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/samples/{id}',
+    ...options,
+  });
+
+/**
+ * 채널 목록 조회
+ *
+ * 전체 채널을 페이지 단위로 조회한다. 인증 없이 접근 가능하며, 미지정 시 이름순 12개.
+ */
+export const getChannels = <ThrowOnError extends boolean = false>(
+  options?: Options<GetChannelsData, ThrowOnError>,
+): RequestResult<GetChannelsResponses, GetChannelsErrors, ThrowOnError> =>
+  (options?.client ?? client).get<GetChannelsResponses, GetChannelsErrors, ThrowOnError>({
+    url: '/api/v1/channels',
     ...options,
   });
