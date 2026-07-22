@@ -33,19 +33,26 @@ Base UI 주의 (Radix와 다름):
 4. **텍스트** — `src/shared/ui`에 **Text**가 있으면 사용. 없으면 `src/styles/tokens/typography.css`의 **`typo-*`** + 토큰 색(`text-text-high` 등).
 5. **컴포넌트 추가** — kebab-case. 예: `src/shared/ui/button/button.tsx` (Base UI + `cn`으로 스타일).
 6. **import** — `@/shared/ui/button/button`처럼 모듈 경로. `shared/ui` 거대 배럴을 새로 만들지 않음.
-7. **Storybook** — `src/stories/<name>.stories.tsx`에 **기존 스토리 패턴을 우선** 따른다. CSF가 애매할 때만 https://storybook.js.org/llms.txt (필요 시 관련 `.md`)를 연다.
-8. **디자인** — Figma 맞춤·토큰 매핑·스펙 공백은 `design-handoff` / `figma-bridge`에 맡긴다.
-9. 확인: `node --run storybook` (요청 시).
+7. **합성 책임 분리** — Base UI `render` prop으로 `HStack`/`Box` 등 layout 컴포넌트를 합성할 수 있으면, Base UI Root는 접근성·상태를 맡기고 layout class는 합성된 layout 컴포넌트에 둔다.
+8. **Storybook** — `src/stories/<name>.stories.tsx`에 **기존 스토리 패턴을 우선** 따른다. 컴포넌트 API·파트·사용 맥락 설명이 필요하면 `src/stories/<Name>.mdx`도 추가한다. CSF/MDX가 애매할 때만 https://storybook.js.org/llms.txt (필요 시 관련 `.md`)를 연다.
+9. **테스트** — `data-testid`와 `querySelector`는 최후 수단이다. 먼저 role/name/label/aria 등 접근 가능한 public contract와 사용자 관찰 결과를 검증한다. 구현 내부 DOM 구조나 class는 꼭 필요한 경우에만 테스트한다.
+10. **Storybook browser test 안정화** — 새 browser dependency가 Vite re-optimize/reload로 Storybook Vitest를 깨뜨리면, `vitest.config.ts`의 storybook project `optimizeDeps.include`에 해당 import specifier를 추가한다.
+11. **디자인** — Figma 맞춤·토큰 매핑·스펙 공백은 `design-handoff` / `figma-bridge`에 맡긴다.
+12. 확인: `node --run storybook` (요청 시).
 
 ## 체크리스트
 
 - [ ] Base UI `llms.txt`(및 해당 컴포넌트 `.md`) 확인. Radix API 추측 금지
 - [ ] 적합한 Base UI 프리미티브가 있으면 사용함
+- [ ] Base UI `render` prop 합성 시 접근성 Root와 layout class 책임이 분리됨
 - [ ] 스토리는 로컬 `src/stories` 패턴을 따름 (`Meta` / `StoryObj` / `tags: ['autodocs']` 등)
+- [ ] 필요 시 MDX 문서에 API·파트·사용 맥락을 설명함
 - [ ] `cn` / layout(`Flex`, `Stack`, `Box` 등) 재사용
 - [ ] 텍스트는 Text 또는 `typo-*` (+ 토큰 색)
 - [ ] `shared`에 비즈니스·엔티티 네이밍 없음
 - [ ] 스토리에 기본 상태(+ 필요 시 disabled 등)
+- [ ] 테스트는 접근 가능한 public contract 우선 (`data-testid`/`querySelector` 남용 금지)
+- [ ] Storybook browser test가 dependency re-optimize로 깨지면 `optimizeDeps.include` 보강
 - [ ] Figma 프레임이 있으면 맞춤; 공백이면 추측하지 말고 질문
 
 ## 스토리 스케치
