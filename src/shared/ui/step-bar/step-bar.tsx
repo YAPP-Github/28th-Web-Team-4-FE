@@ -52,6 +52,10 @@ function normalizeStep(currentStep: number, totalSteps: number): number {
 }
 
 function StepBarSegment({ index, isActive }: { index: number; isActive: boolean }) {
+  const segmentStyle: StepBarSegmentStyle = {
+    '--step-index': index,
+  } satisfies StepBarSegmentStyle;
+
   return (
     <Box
       data-active={isActive ? 'true' : 'false'}
@@ -59,7 +63,7 @@ function StepBarSegment({ index, isActive }: { index: number; isActive: boolean 
     >
       <Box
         className="bg-sys-primary-default h-full w-full origin-left scale-x-[clamp(0,calc(var(--step-progress)-var(--step-index)),1)] will-change-transform"
-        style={{ '--step-index': index } satisfies StepBarSegmentStyle}
+        style={segmentStyle}
       />
     </Box>
   );
