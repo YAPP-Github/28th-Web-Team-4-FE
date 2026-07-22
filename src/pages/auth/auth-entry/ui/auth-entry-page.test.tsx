@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { AuthEntryPage } from './auth-entry-page';
@@ -23,5 +23,34 @@ describe('AuthEntryPage', () => {
 
     expect(screen.getByRole('alert')).toHaveTextContent('이메일 형식을 확인해 주세요.');
     expect(screen.getByRole('textbox', { name: '이메일' })).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  it('validates the email after the user stops typing', async () => {
+    vi.useFakeTimers();
+    try {
+      render(<AuthEntryPage />);
+
+      fireEvent.change(screen.getByRole('textbox', { name: '이메일' }), {
+        target: { value: 'invalid-email' },
+      });
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+      await act(() => vi.advanceTimersByTimeAsync(400));
+
+      expect(screen.getByRole('alert')).toHaveTextContent('이메일 형식을 확인해 주세요.');
+
+      fireEvent.change(screen.getByRole('textbox', { name: '이메일' }), {
+        target: { value: 'user@example.com' },
+      });
+
+      expect(screen.getByRole('alert')).toHaveTextContent('이메일 형식을 확인해 주세요.');
+
+      await act(() => vi.advanceTimersByTimeAsync(400));
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

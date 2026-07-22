@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent, type JSX } from 'react';
+import { useEffect, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
 
 import { Button } from '@/shared/ui/button';
 import { FormPanelHeader } from '@/shared/ui/form-panel';
@@ -8,6 +8,14 @@ import { GoogleLogo } from '@/shared/ui/google-logo';
 import { InputField } from '@/shared/ui/input-field';
 import { BrandSymbol } from '@/shared/ui/symbol';
 import { authEntrySchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
+
+const EMAIL_VALIDATION_DEBOUNCE_MS = 400;
+
+function getEmailErrorMessage(email: string): string | undefined {
+  const result = authEntrySchema.safeParse({ email });
+
+  return result.success ? undefined : result.error.issues[0]?.message;
+}
 
 function AuthHeader({ title }: { title: string }): JSX.Element {
   return (
@@ -20,16 +28,30 @@ function AuthHeader({ title }: { title: string }): JSX.Element {
 }
 
 export function AuthEntryForm(): JSX.Element {
+  const [email, setEmail] = useState('');
+  const [hasEditedEmail, setHasEditedEmail] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
+
+  useEffect(() => {
+    if (!hasEditedEmail) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setErrorMessage(getEmailErrorMessage(email));
+    }, EMAIL_VALIDATION_DEBOUNCE_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [email, hasEditedEmail]);
+
+  const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.currentTarget.value);
+    setHasEditedEmail(true);
+  };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const emailEntry = new FormData(event.currentTarget).get('email');
-    const email = typeof emailEntry === 'string' ? emailEntry : '';
-    const result = authEntrySchema.safeParse({ email });
-
-    setErrorMessage(result.success ? undefined : result.error.issues[0]?.message);
+    setErrorMessage(getEmailErrorMessage(email));
   };
 
   return (
@@ -42,6 +64,8 @@ export function AuthEntryForm(): JSX.Element {
           autoComplete="email"
           placeholder="이메일을 입력해 주세요"
           aria-label="이메일"
+          value={email}
+          onChange={handleEmailChange}
           feedback={
             errorMessage
               ? {
