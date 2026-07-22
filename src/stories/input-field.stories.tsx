@@ -12,8 +12,6 @@ const meta = {
     placeholder: '이메일을 입력해 주세요',
   },
   argTypes: {
-    className: { control: 'text' },
-    fieldClassName: { control: 'text' },
     feedback: { control: false },
     frame: { control: false },
   },
