@@ -35,6 +35,18 @@ type PlayContext = Parameters<NonNullable<Story['play']>>[0];
 
 export const Default: Story = {};
 
+export const ExternallyInvalid: Story = {
+  args: {
+    'aria-invalid': true,
+  },
+  play: async ({ canvasElement }: PlayContext) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByPlaceholderText('이메일을 입력해 주세요');
+
+    await expect(input).toHaveAttribute('aria-invalid', 'true');
+  },
+};
+
 export const Error: Story = {
   args: {
     feedback: {

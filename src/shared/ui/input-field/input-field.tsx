@@ -34,7 +34,7 @@ export function InputField({
       className={cn('gap-008 flex w-full flex-col items-start', fieldClassName)}
       invalid={isInvalid}
     >
-      <Input {...inputProps} error={isInvalid} />
+      <Input {...inputProps} error={isInvalid || undefined} />
       {feedback ? <FieldFeedback tone={feedback.tone}>{feedback.message}</FieldFeedback> : null}
     </BaseField.Root>
   );
