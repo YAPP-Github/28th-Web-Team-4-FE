@@ -6,7 +6,7 @@ import { Check } from 'lucide-react';
 import { cva } from 'class-variance-authority';
 
 import { cn } from '@/shared/ui/cn';
-import { InfoFillIcon, WarningErrorIcon } from '@/shared/ui/icon';
+import { WarningErrorIcon } from '@/shared/ui/icon';
 
 const feedbackVariants = cva('typo-body-sm gap-006 pr-012 flex w-full items-center pl-[2px]', {
   variants: {
@@ -32,7 +32,7 @@ function FeedbackIcon({ tone }: { tone: FieldFeedbackTone }): JSX.Element {
   }
 
   if (tone === 'info') {
-    return <InfoFillIcon />;
+    return <span aria-hidden>*</span>;
   }
 
   return (
