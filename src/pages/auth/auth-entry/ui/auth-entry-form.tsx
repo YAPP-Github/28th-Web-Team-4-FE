@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, type FormEvent, type JSX } from 'react';
-import { CircleAlert } from 'lucide-react';
 
 import { Button } from '@/shared/ui/button';
 import { FormPanelHeader } from '@/shared/ui/form-panel';
 import { GoogleLogo } from '@/shared/ui/google-logo';
-import { Input } from '@/shared/ui/input';
+import { InputField } from '@/shared/ui/input-field';
 import { Symbol } from '@/shared/ui/symbol';
 import { authEntrySchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
 
@@ -37,27 +36,21 @@ export function AuthEntryForm(): JSX.Element {
     <>
       <AuthHeader title="이메일로 시작하기" />
       <form className="flex w-full flex-col gap-12" noValidate onSubmit={handleSubmit}>
-        <div className="gap-008 flex flex-col">
-          <Input
-            name="email"
-            type="email"
-            autoComplete="email"
-            placeholder="이메일을 입력해 주세요"
-            aria-label="이메일"
-            aria-describedby={errorMessage ? 'email-entry-message' : undefined}
-            aria-invalid={errorMessage ? true : undefined}
-          />
-          {errorMessage ? (
-            <div
-              id="email-entry-message"
-              className="text-sys-error-default gap-006 pr-012 flex w-full items-center pl-[2px]"
-              role="alert"
-            >
-              <CircleAlert className="size-012 shrink-0" aria-hidden />
-              <p className="typo-body-sm">{errorMessage}</p>
-            </div>
-          ) : null}
-        </div>
+        <InputField
+          name="email"
+          type="email"
+          autoComplete="email"
+          placeholder="이메일을 입력해 주세요"
+          aria-label="이메일"
+          feedback={
+            errorMessage
+              ? {
+                  tone: 'error',
+                  message: errorMessage,
+                }
+              : undefined
+          }
+        />
 
         <div className="gap-012 flex w-full flex-col">
           <button
