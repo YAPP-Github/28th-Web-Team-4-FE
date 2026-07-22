@@ -16,10 +16,11 @@ export type InputFieldFeedback = {
   message: ReactNode;
 };
 
-export type InputFieldProps = WithoutError<FeedbackInputProps> & {
-  feedback?: InputFieldFeedback;
-  fieldClassName?: string;
-};
+export type InputFieldProps = WithoutError<FeedbackInputProps> &
+  Partial<{
+    feedback: InputFieldFeedback;
+    fieldClassName: string;
+  }>;
 
 export function InputField({
   feedback,
