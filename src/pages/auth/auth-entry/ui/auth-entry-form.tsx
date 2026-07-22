@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
 
+import { useDebounce } from '@/shared/lib/use-debounce';
 import { Button } from '@/shared/ui/button';
 import { FormPanelHeader } from '@/shared/ui/form-panel';
 import { GoogleLogo } from '@/shared/ui/google-logo';
@@ -29,24 +30,21 @@ function AuthHeader({ title }: { title: string }): JSX.Element {
 
 export function AuthEntryForm(): JSX.Element {
   const [email, setEmail] = useState('');
-  const [hasEditedEmail, setHasEditedEmail] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
+  const hasEditedEmailRef = useRef(false);
+  const debouncedEmail = useDebounce(email, EMAIL_VALIDATION_DEBOUNCE_MS);
 
   useEffect(() => {
-    if (!hasEditedEmail) {
+    if (!hasEditedEmailRef.current) {
       return;
     }
 
-    const timeoutId = window.setTimeout(() => {
-      setErrorMessage(getEmailErrorMessage(email));
-    }, EMAIL_VALIDATION_DEBOUNCE_MS);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [email, hasEditedEmail]);
+    setErrorMessage(getEmailErrorMessage(debouncedEmail));
+  }, [debouncedEmail]);
 
   const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
     setEmail(event.currentTarget.value);
-    setHasEditedEmail(true);
+    hasEditedEmailRef.current = true;
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
