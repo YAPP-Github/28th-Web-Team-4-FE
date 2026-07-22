@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { AuthEntryPage } from './auth-entry-page';
@@ -26,31 +26,25 @@ describe('AuthEntryPage', () => {
   });
 
   it('validates the email after the user stops typing', async () => {
-    vi.useFakeTimers();
-    try {
-      render(<AuthEntryPage />);
+    const user = userEvent.setup();
+    render(<AuthEntryPage />);
+    const emailInput = screen.getByRole('textbox', { name: '이메일' });
 
-      fireEvent.change(screen.getByRole('textbox', { name: '이메일' }), {
-        target: { value: 'invalid-email' },
-      });
+    await user.type(emailInput, 'invalid-email');
 
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
-      await act(() => vi.advanceTimersByTimeAsync(400));
-
+    await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent('이메일 형식을 확인해 주세요.');
+    });
 
-      fireEvent.change(screen.getByRole('textbox', { name: '이메일' }), {
-        target: { value: 'user@example.com' },
-      });
+    await user.clear(emailInput);
+    await user.type(emailInput, 'user@example.com');
 
-      expect(screen.getByRole('alert')).toHaveTextContent('이메일 형식을 확인해 주세요.');
+    expect(screen.getByRole('alert')).toHaveTextContent('이메일 형식을 확인해 주세요.');
 
-      await act(() => vi.advanceTimersByTimeAsync(400));
-
+    await waitFor(() => {
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    } finally {
-      vi.useRealTimers();
-    }
+    });
   });
 });
