@@ -34,7 +34,7 @@ export default defineConfig({
       {
         extends: true,
         optimizeDeps: {
-          include: ['@base-ui/react/**'],
+          include: ['@base-ui/react/field', '@base-ui/react/input'],
         },
         plugins: [
           // The plugin will run tests for the stories defined in your Storybook config
