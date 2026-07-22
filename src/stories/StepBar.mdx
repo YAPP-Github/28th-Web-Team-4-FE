@@ -1,0 +1,83 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+
+import * as StepBarStories from './step-bar.stories';
+
+<Meta of={StepBarStories} />
+
+# StepBar
+
+단계 기반 진행 상태를 segmented bar로 보여주는 shared UI 컴포넌트입니다.
+온보딩처럼 정해진 단계가 있는 흐름과 예산 시뮬레이터처럼 단계별 진행률을 보여주는 화면에서 사용합니다.
+
+```tsx
+import { StepBar } from '@/shared/ui/step-bar';
+
+const labels = [0, 12, 25, 37, 50, 62, 75, 87, 100];
+
+<StepBar currentStep={3} totalSteps={8} labels={labels} />;
+```
+
+## StepBar
+
+`StepBar`는 Base UI `Progress.Root`를 기반으로 합니다.
+루트는 `role="progressbar"`, `aria-valuenow`, `aria-valuetext`를 제공하고, 시각 표현은 segmented bar와 숫자 라벨로 나뉩니다.
+
+필수 props:
+
+- `currentStep`: 현재 단계입니다. 렌더링 시 `0 ~ totalSteps` 범위로 정규화됩니다.
+- `totalSteps`: 전체 단계 수입니다. `1` 이상이어야 합니다.
+- `labels`: 각 단계에 표시할 숫자 라벨입니다. `labels.length`는 `totalSteps + 1`이어야 합니다.
+
+선택 props:
+
+- `showLabel`: 오른쪽 숫자 라벨 표시 여부입니다. 기본값은 `true`입니다.
+- `ariaLabel`: progressbar 접근성 이름입니다. 기본값은 `진행률`입니다.
+- `className`: StepBar 루트 `HStack`에 적용되는 배치 보정용 class입니다.
+
+<Canvas of={StepBarStories.Default} />
+<Controls of={StepBarStories.Default} />
+
+## Segments
+
+Segment는 회색 track과 주황 fill로 구성됩니다.
+각 fill은 `scaleX` transform만 움직이므로 layout을 다시 계산하지 않고 채움 상태를 표현합니다.
+
+진행 애니메이션은 하나의 Motion CSS 변수 `--step-progress`를 spring으로 움직이고,
+각 segment가 자기 index를 빼서 채움 비율을 계산하는 방식입니다.
+
+```css
+scaleX(clamp(0, calc(var(--step-progress) - var(--step-index)), 1))
+```
+
+예를 들어 `--step-progress`가 `2.35`이면 앞의 두 칸은 100%, 세 번째 칸은 35%, 나머지는 0%로 보입니다.
+감소할 때도 같은 계산이 반대로 적용되어 오른쪽부터 자연스럽게 줄어듭니다.
+
+<Canvas of={StepBarStories.AllSteps} />
+
+## Label
+
+라벨은 숫자만 받습니다.
+표시에는 `@number-flow/react`의 `NumberFlow`를 사용하며, 컴포넌트가 `%` suffix를 붙입니다.
+
+`labels`가 숫자 배열인 이유는 라벨 애니메이션과 접근성 값을 일관되게 다루기 위해서입니다.
+문자 라벨이 필요한 경우에는 StepBar 외부에서 별도 텍스트를 조합합니다.
+
+```tsx
+<StepBar currentStep={2} totalSteps={3} labels={[0, 35, 70, 100]} />
+```
+
+<Canvas of={StepBarStories.CustomLabels} />
+
+## Without Label
+
+좁은 영역이나 별도 상태 텍스트가 이미 있는 화면에서는 `showLabel={false}`로 숫자 라벨을 숨길 수 있습니다.
+라벨을 숨겨도 `aria-valuetext`는 유지됩니다.
+
+<Canvas of={StepBarStories.WithoutLabel} />
+
+## Simulator Sub Header
+
+Figma의 예산 시뮬레이터 sub-header 예시입니다.
+`Badge`, `Text`, `StepBar`를 조합해 화면 맥락 안에서 StepBar가 어떻게 쓰이는지 보여줍니다.
+
+<Canvas of={StepBarStories.SimulatorSubHeader} />
