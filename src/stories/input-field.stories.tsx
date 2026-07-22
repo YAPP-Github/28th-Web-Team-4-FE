@@ -1,4 +1,3 @@
-import type { ComponentType } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, within } from 'storybook/test';
 
@@ -7,7 +6,7 @@ import { Box } from '@/shared/ui/layout/box';
 
 const meta = {
   title: 'components/InputField',
-  component: InputField as ComponentType<InputFieldProps>,
+  component: InputField,
   tags: ['autodocs'],
   args: {
     placeholder: '이메일을 입력해 주세요',
