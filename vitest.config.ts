@@ -39,6 +39,7 @@ export default defineConfig({
             '@base-ui/react/input',
             'motion/react',
             '@number-flow/react',
+            'next/link',
           ],
         },
         plugins: [
