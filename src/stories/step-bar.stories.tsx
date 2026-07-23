@@ -20,9 +20,9 @@ const meta = {
     labels: ONBOARDING_LABELS,
   },
   argTypes: {
-    currentStep: { control: { type: 'number', min: 0, step: 1 } },
-    totalSteps: { control: { type: 'number', min: 1, step: 1 } },
-    labels: { control: 'object' },
+    currentStep: { control: { type: 'number', min: 0, max: 8, step: 1 } },
+    totalSteps: { control: false },
+    labels: { control: false },
     showLabel: { control: 'boolean' },
     ariaLabel: { control: 'text' },
     className: { control: 'text' },
@@ -80,6 +80,9 @@ export const CustomLabels: Story = {
     totalSteps: 3,
     labels: BUDGET_LABELS,
     ariaLabel: '예산 시뮬레이터 진행률',
+  },
+  argTypes: {
+    currentStep: { control: { type: 'number', min: 0, max: 3, step: 1 } },
   },
 };
 
