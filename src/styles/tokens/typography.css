@@ -90,6 +90,10 @@
   @apply text-22 leading-032 tracking-spacing-sm font-pre font-semibold;
 }
 
+@utility typo-heading-xxl {
+  @apply text-22 leading-032 tracking-spacing-sm font-pre font-bold;
+}
+
 @utility typo-subtitle-lg {
   @apply text-15 leading-022 tracking-spacing-sm font-pre font-bold;
 }
@@ -108,6 +112,10 @@
 
 @utility typo-subtitle-xs {
   @apply text-14 leading-020 tracking-spacing-md font-pre font-semibold;
+}
+
+@utility typo-subtitle-xxl {
+  @apply text-16 leading-024 tracking-spacing-sm font-pre font-semibold;
 }
 
 @utility typo-subtitle-xxs {
