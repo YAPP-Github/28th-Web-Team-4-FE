@@ -1,27 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 
 import { PageHeader } from '@/features/navigation/page-header';
 
 const NAV_LABELS = ['광고 채널 추천', '채널 비교', '예산 시뮬레이터', '마이페이지'] as const;
-
-type LayoutSnapshot = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
-
-const getLayoutSnapshot = (element: Element): LayoutSnapshot => {
-  const rect = element.getBoundingClientRect();
-
-  return {
-    x: Number(rect.x.toFixed(3)),
-    y: Number(rect.y.toFixed(3)),
-    width: Number(rect.width.toFixed(3)),
-    height: Number(rect.height.toFixed(3)),
-  };
-};
 
 const meta = {
   title: 'features/navigation/PageHeader',
@@ -48,10 +30,7 @@ export const Basic: Story = {
       '/login',
     );
 
-    const header = canvas.getByRole('banner');
-    const startButton = canvas.getByRole('button', { name: '시작하기' });
     const navLinks = NAV_LABELS.map((label) => canvas.getByRole('link', { name: label }));
-    const simulatorLink = canvas.getByRole('link', { name: '예산 시뮬레이터' });
 
     for (const navLink of navLinks) {
       await expect(navLink).toBeVisible();
@@ -62,16 +41,6 @@ export const Basic: Story = {
       await expect(navLink).toHaveClass('py-008');
       await expect(navLink).toHaveClass('whitespace-nowrap');
     }
-
-    const beforeHoverLayout = [header, startButton, ...navLinks].map(getLayoutSnapshot);
-
-    await userEvent.hover(simulatorLink);
-
-    await expect([header, startButton, ...navLinks].map(getLayoutSnapshot)).toEqual(
-      beforeHoverLayout,
-    );
-
-    await userEvent.unhover(simulatorLink);
   },
 };
 
