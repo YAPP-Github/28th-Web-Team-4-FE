@@ -65,4 +65,4 @@ jobs:
             --title "💄 디자인 토큰 업데이트" \
             --body-file .github/workflows/design-tokens-pr-body.md
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.OPENAPI_SYNC_TOKEN }}
