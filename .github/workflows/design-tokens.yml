@@ -2,6 +2,7 @@ name: Create PR from design-tokens to main
 
 # design-tokens 브랜치의 tokens.json push 감지 → Tailwind CSS 변환 후 PR 생성
 on:
+  workflow_dispatch:
   push:
     branches:
       - design-tokens
@@ -23,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ github.ref_name }}
+          ref: design-tokens
 
       - name: Setup pnpm and Node.js
         uses: ./.github/actions/pnpm-setup-node
@@ -49,7 +50,7 @@ jobs:
 
           git add src/styles/tokens/
           git commit -m "chore: 디자인 토큰 Tailwind CSS 변환"
-          git push
+          git push origin HEAD:design-tokens
 
       - name: Create pull request
         run: |
