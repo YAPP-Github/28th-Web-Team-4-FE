@@ -24,6 +24,10 @@ describe('PageHeader', () => {
     expect(screen.getByRole('link', { name: '광고 채널 추천' })).toBeVisible();
     expect(screen.getByRole('link', { name: '광고 채널 추천' })).toHaveClass(
       'hover:text-text-highest',
+      'hover:bg-surface-low',
+      'rounded-[var(--radius-xs)]',
+      'px-012',
+      'py-008',
     );
     expect(screen.getByRole('link', { name: '채널 비교' })).toBeVisible();
     expect(screen.getByRole('link', { name: '예산 시뮬레이터' })).toBeVisible();

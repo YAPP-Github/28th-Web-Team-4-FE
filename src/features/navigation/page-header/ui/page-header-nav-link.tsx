@@ -20,7 +20,7 @@ export function PageHeaderNavLink({ segment, children }: PageHeaderNavLinkProps)
       href={`/${segment}`}
       aria-current={isActive ? 'page' : undefined}
       className={cn(
-        'typo-subtitle-sm hover:text-text-highest flex h-036 shrink-0 items-center justify-center py-008 whitespace-nowrap',
+        'typo-subtitle-sm hover:text-text-highest hover:bg-surface-low flex h-036 shrink-0 items-center justify-center rounded-[var(--radius-xs)] px-012 py-008 whitespace-nowrap',
         isActive ? 'text-text-highest' : 'text-text-low',
       )}
     >
