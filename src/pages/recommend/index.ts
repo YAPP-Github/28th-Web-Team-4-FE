@@ -1,1 +1,1 @@
-export { RecommendPage } from './ui/recommend-page';
+export { RecommendOnboardingPage } from './ui/recommend-onboarding-page';
