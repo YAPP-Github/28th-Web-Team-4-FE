@@ -7,7 +7,7 @@
 
 import { create } from 'zustand';
 
-import type { OnboardingAnswer } from '@/pages/recommend/model/recommend-onboarding-options';
+import type { OnboardingAnswer } from './recommend-onboarding-options';
 
 /** 추천 결과 페이지에서 읽는 온보딩 완료 답변 store. */
 export type OnboardingStore = {

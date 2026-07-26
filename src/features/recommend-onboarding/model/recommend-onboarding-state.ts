@@ -3,15 +3,15 @@
  * step 순서는 STEP_LIST 배열 index를 단일 기준으로 사용한다.
  */
 
-import type {
-  CustomBudgetAmount,
-  AdExperienceType,
-  BudgetPresetId,
-  OnboardingAnswer,
-  PerformanceChannelId,
-  PerformanceMode,
-  UploadedPerformanceFile,
-} from '@/pages/recommend/model/recommend-onboarding-options';
+import {
+  type AdExperienceType,
+  type BudgetPresetId,
+  type CustomBudgetAmount,
+  type OnboardingAnswer,
+  type PerformanceChannelId,
+  type PerformanceMode,
+  type UploadedPerformanceFile,
+} from './recommend-onboarding-options';
 
 /** StepBar에 전달하는 표시 퍼센트 label. */
 export const STEP_LABEL_LIST = [0, 12, 25, 37, 50, 62, 75, 87, 100] as const;
