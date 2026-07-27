@@ -49,10 +49,12 @@ function SelectCardLayout({
         [
           'group flex min-h-[58px] w-full cursor-pointer items-center gap-014',
           'rounded-[var(--radius-s)] border border-primitive-gray-250 px-014 py-010',
-          'transition-colors has-[[data-checked]]:border-outline-selected',
+          'transition-colors hover:bg-surface-lower',
+          'has-[[data-checked]]:border-outline-selected',
           'has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2',
           'has-[:focus-visible]:outline-outline-high',
           'has-[[data-disabled]]:cursor-not-allowed has-[[data-disabled]]:opacity-50',
+          'has-[[data-disabled]]:hover:bg-transparent',
         ],
         className,
       )}
@@ -90,7 +92,7 @@ export function SelectCard(props: SelectCardProps): JSX.Element {
         selectionControl={
           <RadioGroupItem
             renderMode="label-control"
-            className="focus-visible:outline-none"
+            className="focus-within:outline-none"
             {...radioProps}
           />
         }
@@ -108,7 +110,7 @@ export function SelectCard(props: SelectCardProps): JSX.Element {
       selectionControl={
         <Checkbox
           renderMode="label-control"
-          className="focus-visible:outline-none"
+          className="focus-within:outline-none"
           {...checkboxProps}
         />
       }
