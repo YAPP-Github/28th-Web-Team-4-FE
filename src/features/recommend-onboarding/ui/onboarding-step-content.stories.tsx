@@ -7,8 +7,25 @@ import { FormProvider } from 'react-hook-form';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
+import {
+  INITIAL_ONBOARDING_DRAFT,
+  type OnboardingDraft,
+} from '@/features/recommend-onboarding/model/recommend-onboarding-state';
 import { useOnboardingForm } from '@/features/recommend-onboarding/model/use-onboarding-form';
 import { OnboardingStepContent } from '@/features/recommend-onboarding/ui/onboarding-step-content';
+
+const ONBOARDING_DRAFT_PARAMETER_KEY = 'onboardingDraft';
+const EMPTY_BUDGET_DRAFT = {
+  ...INITIAL_ONBOARDING_DRAFT,
+  budget: {
+    minAmount: 0,
+    maxAmount: 0,
+  },
+  budgetInputRange: {
+    minInputValue: 0,
+    maxInputValue: 0,
+  },
+} satisfies OnboardingDraft;
 
 const meta = {
   title: 'features/RecommendOnboarding/OnboardingStepContent',
@@ -19,8 +36,12 @@ const meta = {
     onAction: fn(),
   },
   decorators: [
-    (Story) => (
-      <OnboardingStoryForm>
+    (Story, context) => (
+      <OnboardingStoryForm
+        initialDraft={
+          context.parameters[ONBOARDING_DRAFT_PARAMETER_KEY] as OnboardingDraft | undefined
+        }
+      >
         <div className="w-full max-w-[510px]">
           <Story />
         </div>
@@ -32,11 +53,13 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-type OnboardingStoryFormProps = PropsWithChildren;
+type OnboardingStoryFormProps = PropsWithChildren<{
+  initialDraft?: OnboardingDraft;
+}>;
 
 /** 각 story가 독립적인 온보딩 draft를 사용하도록 폼 컨텍스트를 제공한다. */
-function OnboardingStoryForm({ children }: OnboardingStoryFormProps): JSX.Element {
-  const form = useOnboardingForm();
+function OnboardingStoryForm({ children, initialDraft }: OnboardingStoryFormProps): JSX.Element {
+  const form = useOnboardingForm({ initialDraft });
 
   return <FormProvider {...form}>{children}</FormProvider>;
 }
@@ -128,12 +151,104 @@ export const Budget: Story = {
   args: {
     stepId: 'budget',
   },
+};
+
+export const BudgetError: Story = {
+  args: {
+    stepId: 'budget',
+  },
+  parameters: {
+    [ONBOARDING_DRAFT_PARAMETER_KEY]: EMPTY_BUDGET_DRAFT,
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getByRole('spinbutton', { name: '최소 예산' })).toHaveValue(0);
-    await expect(canvas.getByRole('spinbutton', { name: '최대 예산' })).toHaveValue(1000);
-    await expect(canvas.getByRole('button', { name: '다음' })).toBeEnabled();
+    await expect(canvas.getByRole('alert')).toHaveTextContent('예산을 입력해 주세요');
+    await expect(canvas.getByRole('button', { name: '다음' })).toBeDisabled();
+  },
+};
+
+export const BudgetInteraction: Story = {
+  tags: ['!dev'],
+  args: {
+    stepId: 'budget',
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const actionButton = canvas.getByRole('button', { name: '다음' });
+    await expect(actionButton).toBeEnabled();
+
+    const minBudgetInput = canvas.getByRole('spinbutton', { name: '최소 예산' });
+    const maxBudgetInput = canvas.getByRole('spinbutton', { name: '최대 예산' });
+    const minBudgetSlider = canvas.getByRole('slider', { name: '최소 예산 슬라이더' });
+    const maxBudgetSlider = canvas.getByRole('slider', { name: '최대 예산 슬라이더' });
+
+    await expect(minBudgetInput).toHaveValue(0);
+    await expect(maxBudgetInput).toHaveValue(1000);
+    await expect(minBudgetSlider).toHaveValue('0');
+    await expect(maxBudgetSlider).toHaveValue('4');
+
+    await userEvent.clear(minBudgetInput);
+    await userEvent.type(minBudgetInput, '35.5');
+    await expect(minBudgetInput).toHaveValue(35.5);
+    await expect(minBudgetSlider).toHaveValue('0');
+
+    await userEvent.keyboard('{Enter}');
+    await expect(minBudgetInput).toHaveValue(50);
+    await expect(minBudgetSlider).toHaveValue('1');
+    await expect(args.onAction).not.toHaveBeenCalled();
+
+    await userEvent.clear(maxBudgetInput);
+    await userEvent.type(maxBudgetInput, '300');
+    await expect(maxBudgetInput).toHaveValue(300);
+    await expect(maxBudgetSlider).toHaveValue('4');
+
+    await userEvent.tab();
+    await expect(maxBudgetInput).toHaveValue(200);
+    await expect(maxBudgetSlider).toHaveValue('2');
+
+    await userEvent.clear(minBudgetInput);
+    await userEvent.type(minBudgetInput, '500');
+    await expect(minBudgetInput).toHaveValue(500);
+    await expect(minBudgetSlider).toHaveValue('1');
+
+    await userEvent.tab();
+    await expect(minBudgetInput).toHaveValue(200);
+    await expect(minBudgetSlider).toHaveValue('2');
+
+    maxBudgetSlider.focus();
+    await userEvent.keyboard('{End}');
+    await expect(maxBudgetSlider).toHaveValue('4');
+    await expect(maxBudgetInput).toHaveValue(1000);
+
+    await userEvent.clear(minBudgetInput);
+    await userEvent.tab();
+    await expect(minBudgetInput).toHaveValue(0);
+    await expect(minBudgetSlider).toHaveValue('0');
+
+    await userEvent.clear(minBudgetInput);
+    await userEvent.type(minBudgetInput, '200');
+    await userEvent.tab();
+    await expect(minBudgetInput).toHaveValue(200);
+    await expect(minBudgetSlider).toHaveValue('2');
+
+    await userEvent.clear(maxBudgetInput);
+    await userEvent.tab();
+    await expect(minBudgetInput).toHaveValue(0);
+    await expect(maxBudgetInput).toHaveValue(0);
+    await expect(minBudgetSlider).toHaveValue('0');
+    await expect(maxBudgetSlider).toHaveValue('0');
+    await expect(minBudgetInput).toHaveAttribute('aria-invalid', 'true');
+    await expect(maxBudgetInput).toHaveAttribute('aria-invalid', 'true');
+    await expect(canvas.getByRole('alert')).toHaveTextContent('예산을 입력해 주세요');
+    await expect(actionButton).toBeDisabled();
+
+    maxBudgetSlider.focus();
+    await userEvent.keyboard('{End}');
+    await expect(minBudgetInput).toHaveValue(0);
+    await expect(maxBudgetInput).toHaveValue(1000);
+    await expect(canvas.queryByRole('alert')).not.toBeInTheDocument();
+    await expect(actionButton).toBeEnabled();
   },
 };
 
