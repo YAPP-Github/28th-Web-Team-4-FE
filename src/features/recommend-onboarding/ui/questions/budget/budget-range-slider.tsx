@@ -28,7 +28,6 @@ import { cn } from '@/shared/ui/cn';
 import { Text } from '@/shared/ui/text';
 
 const DRAG_STEP_INTERVAL = 0.1;
-const STEP_POSITION_INTERVAL = 100 / BUDGET_SLIDER_MAX;
 const BUDGET_THUMB_CLASS_NAME = [
   'bg-surface-lowest border-outline-default shadow-drop-shadow-01',
   'size-022 rounded-[var(--radius-max)] border',
@@ -36,15 +35,18 @@ const BUDGET_THUMB_CLASS_NAME = [
   'motion-reduce:transition-none',
   'has-[:focus-visible]:border-sys-primary-default',
 ].join(' ');
+const BUDGET_STEP_LABEL_POSITION_CLASS_NAME_LIST = [
+  'left-0',
+  'left-[calc(25%+5.5px)] -translate-x-1/2',
+  'left-1/2 -translate-x-1/2',
+  'left-[calc(75%-5.5px)] -translate-x-1/2',
+  'right-0',
+] as const satisfies readonly string[];
 
 export type BudgetRangeSliderProps = {
   range: BudgetRange;
   onRangePreviewChange: (range: BudgetRange) => void;
   onRangeChange: (range: BudgetRange) => void;
-};
-
-type BudgetStepLabelStyle = {
-  left: `${number}%`;
 };
 
 /**
@@ -60,7 +62,7 @@ export function BudgetRangeSlider({
   const sliderValue = dragValue ?? getBudgetSliderValue(range);
 
   return (
-    <div className="bg-surface-lowest shadow-drop-shadow-01 px-016 pt-014 pb-012 sm:px-036 h-[75px] w-full rounded-[var(--radius-l)]">
+    <div className="bg-surface-lowest shadow-drop-shadow-01 w-full rounded-[var(--radius-l)]">
       <Slider.Root
         min={BUDGET_SLIDER_MIN}
         max={BUDGET_SLIDER_MAX}
@@ -109,7 +111,7 @@ export function BudgetRangeSlider({
           setDragValue(null);
         }}
       >
-        <Slider.Control className="h-022 flex w-full touch-none items-center select-none">
+        <Slider.Control className="h-022 mx-[11px] flex w-[calc(100%-22px)] touch-none items-center select-none">
           <Slider.Track className="bg-outline-default h-006 relative w-full rounded-[var(--radius-max)]">
             <Slider.Indicator
               className={cn(
@@ -143,9 +145,11 @@ export function BudgetRangeSlider({
         {BUDGET_STEP_LIST.map((step, index) => (
           <Text
             key={step.amount}
-            variant="body-md"
-            className="text-text-default absolute top-0 -translate-x-1/2 whitespace-nowrap"
-            style={getBudgetStepLabelStyle(index)}
+            variant="body-xs"
+            className={cn(
+              'text-text-low absolute top-0 whitespace-nowrap',
+              BUDGET_STEP_LABEL_POSITION_CLASS_NAME_LIST[index],
+            )}
           >
             {formatBudgetAmount(step.amount)}
           </Text>
@@ -153,13 +157,4 @@ export function BudgetRangeSlider({
       </div>
     </div>
   );
-}
-
-/**
- * 각 예산 label을 0/25/50/75/100% 위치에 배치한다.
- */
-function getBudgetStepLabelStyle(index: number): BudgetStepLabelStyle {
-  return {
-    left: `${index * STEP_POSITION_INTERVAL}%`,
-  };
 }

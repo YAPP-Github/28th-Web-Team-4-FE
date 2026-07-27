@@ -47,13 +47,14 @@ export function OnboardingStepContent({
     compute: (draft) => isStepComplete(stepId, draft),
   });
   const step = getStepDefinition(stepId);
-  const widthClassName = stepId === 'category' ? 'max-w-[510px]' : 'max-w-[410px]';
+  const widthClassName = getQuestionWidthClassName(stepId);
 
   return (
     <OnboardingQuestion
       title={step.question}
       description={step.description}
       className={widthClassName}
+      contentClassName={stepId === 'budget' ? 'gap-024' : undefined}
     >
       {renderStepQuestion(stepId)}
       <StepActionButton disabled={!isComplete} onClick={onAction}>
@@ -61,6 +62,19 @@ export function OnboardingStepContent({
       </StepActionButton>
     </OnboardingQuestion>
   );
+}
+
+/** Figma에서 단계별 입력 컨트롤에 배정된 질문 Bubble 폭을 반환한다. */
+function getQuestionWidthClassName(stepId: OnboardingStepId): string {
+  if (stepId === 'category') {
+    return 'max-w-[510px]';
+  }
+
+  if (stepId === 'budget') {
+    return 'max-w-[482px]';
+  }
+
+  return 'max-w-[410px]';
 }
 
 /** 안정적인 step id로 질문 메타데이터를 찾는다. */

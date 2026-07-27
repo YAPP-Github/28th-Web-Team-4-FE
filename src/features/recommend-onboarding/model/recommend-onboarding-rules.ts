@@ -2,12 +2,14 @@
  * 추천 온보딩 draft를 검증하고 최종 답변/표시 label로 변환하는 도메인 규칙을 정의한다.
  */
 
-import { formatBudgetAmount } from '@/features/recommend-onboarding/lib/budget-snap';
+import {
+  formatBudgetRange,
+  isBudgetRangeEmpty,
+} from '@/features/recommend-onboarding/lib/budget-snap';
 import {
   AD_EXPERIENCE_OPTION_LIST,
   AD_GOAL_OPTION_LIST,
   AGE_RANGE_OPTION_LIST,
-  BUDGET_PRESET_OPTION_LIST,
   CAMPAIGN_PERIOD_OPTION_LIST,
   CATEGORY_OPTION_LIST,
   PERFORMANCE_CHANNEL_OPTION_LIST,
@@ -44,7 +46,7 @@ export function isStepComplete(stepId: OnboardingStepId, draft: OnboardingDraft)
     case 'ad-goal':
       return Boolean(draft.adGoal);
     case 'budget':
-      return Boolean(draft.budgetPreset);
+      return !isBudgetRangeEmpty(draft.budget) && draft.budget.minAmount <= draft.budget.maxAmount;
     case 'campaign-period':
       return Boolean(draft.campaignPeriod);
     case 'ad-experience':
@@ -105,7 +107,7 @@ export function buildOnboardingAnswer(draft: OnboardingDraft): OnboardingAnswer 
     serviceType: draft.serviceType,
     ageRangeList: draft.ageRangeList,
     adGoal: draft.adGoal,
-    budget: buildBudgetAnswer(draft),
+    budget: draft.budget,
     campaignPeriod: draft.campaignPeriod,
     adExperience: buildAdExperienceAnswer(draft),
   };
@@ -154,7 +156,6 @@ function assertOnboardingDraftComplete(draft: OnboardingDraft): asserts draft is
   category: NonNullable<OnboardingDraft['category']>;
   serviceType: NonNullable<OnboardingDraft['serviceType']>;
   adGoal: NonNullable<OnboardingDraft['adGoal']>;
-  budgetPreset: NonNullable<OnboardingDraft['budgetPreset']>;
   campaignPeriod: NonNullable<OnboardingDraft['campaignPeriod']>;
   adExperienceType: NonNullable<OnboardingDraft['adExperienceType']>;
 } {
@@ -163,29 +164,6 @@ function assertOnboardingDraftComplete(draft: OnboardingDraft): asserts draft is
   if (incompleteStep) {
     throw new Error(`Recommend onboarding draft is incomplete: ${incompleteStep.id}`);
   }
-}
-
-/**
- * 예산 draft 필드를 최종 답변의 preset/custom union으로 접는다.
- *
- * @param draft 현재 온보딩 입력 상태
- * @returns 최종 답변의 예산 필드
- */
-function buildBudgetAnswer(draft: OnboardingDraft): OnboardingAnswer['budget'] {
-  const { budgetPreset } = draft;
-
-  if (!budgetPreset) {
-    throw new Error('Recommend onboarding draft is incomplete: budget');
-  }
-
-  if (budgetPreset === 'CUSTOM') {
-    return { type: 'CUSTOM', amount: draft.customBudgetAmount };
-  }
-
-  return {
-    type: 'PRESET',
-    value: budgetPreset,
-  };
 }
 
 /**
@@ -233,17 +211,13 @@ function getPerformanceInput(draft: OnboardingDraft): PerformanceInput | undefin
 }
 
 /**
- * 예산 답변을 preset label 또는 직접 입력 금액 label로 변환한다.
+ * 최소·최대 예산 답변을 범위 label로 변환한다.
  *
  * @param draft 현재 온보딩 입력 상태
  * @returns 예산 답변 표시 문자열
  */
 function getBudgetAnswerLabel(draft: OnboardingDraft): string {
-  if (draft.budgetPreset === 'CUSTOM') {
-    return formatBudgetAmount(draft.customBudgetAmount);
-  }
-
-  return getOptionLabel(BUDGET_PRESET_OPTION_LIST, draft.budgetPreset);
+  return formatBudgetRange(draft.budget);
 }
 
 /**

@@ -15,7 +15,6 @@ function createCompleteDraft(overrides: Partial<OnboardingDraft> = {}): Onboardi
     serviceType: 'WEB_SERVICE',
     ageRangeList: ['TWENTIES'],
     adGoal: 'PURCHASE_CONVERSION',
-    budgetPreset: 'RANGE_2M_5M',
     campaignPeriod: 'TWO_TO_THREE_MONTHS',
     adExperienceType: 'FIRST_TIME',
     ...overrides,
@@ -40,10 +39,35 @@ describe('recommend onboarding rules', () => {
       );
     });
 
-    it('예산과 광고 집행 경험은 선택값이 있어야 완료된다', () => {
-      expect(isStepComplete('budget', createCompleteDraft({ budgetPreset: undefined }))).toBe(
-        false,
-      );
+    it('예산 범위는 최소값이 최대값보다 크면 완료되지 않는다', () => {
+      expect(
+        isStepComplete(
+          'budget',
+          createCompleteDraft({
+            budget: {
+              minAmount: 5000000,
+              maxAmount: 2000000,
+            },
+          }),
+        ),
+      ).toBe(false);
+    });
+
+    it('최소·최대 예산이 모두 0원이면 완료되지 않는다', () => {
+      expect(
+        isStepComplete(
+          'budget',
+          createCompleteDraft({
+            budget: {
+              minAmount: 0,
+              maxAmount: 0,
+            },
+          }),
+        ),
+      ).toBe(false);
+    });
+
+    it('광고 집행 경험은 선택값이 있어야 완료된다', () => {
       expect(
         isStepComplete('ad-experience', createCompleteDraft({ adExperienceType: undefined })),
       ).toBe(false);
@@ -80,18 +104,23 @@ describe('recommend onboarding rules', () => {
         serviceType: 'WEB_SERVICE',
         ageRangeList: ['TWENTIES'],
         adGoal: 'PURCHASE_CONVERSION',
-        budget: { type: 'PRESET', value: 'RANGE_2M_5M' },
+        budget: { minAmount: 0, maxAmount: 10000000 },
         campaignPeriod: 'TWO_TO_THREE_MONTHS',
         adExperience: { type: 'FIRST_TIME' },
       });
     });
 
-    it('직접 입력 예산은 확정 금액으로 변환한다', () => {
+    it('예산은 확정된 최소·최대 범위로 변환한다', () => {
       expect(
         buildOnboardingAnswer(
-          createCompleteDraft({ budgetPreset: 'CUSTOM', customBudgetAmount: 5000000 }),
+          createCompleteDraft({
+            budget: {
+              minAmount: 2000000,
+              maxAmount: 5000000,
+            },
+          }),
         ).budget,
-      ).toEqual({ type: 'CUSTOM', amount: 5000000 });
+      ).toEqual({ minAmount: 2000000, maxAmount: 5000000 });
     });
 
     it('운영 경험 파일 업로드 정보를 최종 답변에 포함한다', () => {
@@ -135,16 +164,18 @@ describe('recommend onboarding rules', () => {
       expect(getAnswerLabel('age-ranges', draft)).toBe('20대');
     });
 
-    it('직접 입력 예산과 운영 경험 요약 label을 만든다', () => {
+    it('범위 예산과 운영 경험 요약 label을 만든다', () => {
       const draft = createCompleteDraft({
-        budgetPreset: 'CUSTOM',
-        customBudgetAmount: 10000000,
+        budget: {
+          minAmount: 500000,
+          maxAmount: 10000000,
+        },
         adExperienceType: 'EXPERIENCED',
         performanceMode: 'MANUAL',
         performanceChannel: 'META_ADS',
       });
 
-      expect(getAnswerLabel('budget', draft)).toBe('1,000만 원');
+      expect(getAnswerLabel('budget', draft)).toBe('50만 원~1,000만 원');
       expect(getAnswerLabel('ad-experience', draft)).toBe('광고를 운영해 봤어요 · 메타 광고');
     });
   });

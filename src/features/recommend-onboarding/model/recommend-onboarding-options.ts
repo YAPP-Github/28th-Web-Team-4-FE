@@ -135,9 +135,7 @@ export type OnboardingAnswer = {
   serviceType: ServiceTypeId;
   ageRangeList: AgeRangeId[];
   adGoal: AdGoalId;
-  budget:
-    | { type: 'PRESET'; value: BudgetFixedPresetId }
-    | { type: 'CUSTOM'; amount: CustomBudgetAmount };
+  budget: BudgetRange;
   campaignPeriod: CampaignPeriodId;
   adExperience:
     | { type: 'FIRST_TIME' }

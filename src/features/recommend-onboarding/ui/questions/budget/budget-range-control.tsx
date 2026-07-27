@@ -51,6 +51,7 @@ export function BudgetRangeControl({
         <div className="gap-006 flex items-center">
           <Input
             id={minInputId}
+            className="min-w-0 flex-1"
             aria-label="최소 예산"
             aria-describedby={error ? errorMessageId : undefined}
             type="number"
@@ -75,6 +76,7 @@ export function BudgetRangeControl({
 
           <Input
             id={maxInputId}
+            className="min-w-0 flex-1"
             aria-label="최대 예산"
             aria-describedby={error ? errorMessageId : undefined}
             type="number"

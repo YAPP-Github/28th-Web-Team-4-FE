@@ -52,6 +52,7 @@ export {
   type ServiceTypeId,
   type UploadedPerformanceFile,
 } from './model/recommend-onboarding-options';
+export type { BudgetInputRange } from './model/budget-range-input';
 export {
   buildOnboardingAnswer,
   getAnswerLabel,

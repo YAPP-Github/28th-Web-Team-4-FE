@@ -14,6 +14,7 @@ export type OnboardingQuestionProps = {
   description?: string;
   children?: ReactNode;
   className?: string;
+  contentClassName?: string;
 };
 
 export function OnboardingQuestion({
@@ -21,6 +22,7 @@ export function OnboardingQuestion({
   description,
   children,
   className,
+  contentClassName,
 }: OnboardingQuestionProps): JSX.Element {
   return (
     <Bubble
@@ -34,7 +36,7 @@ export function OnboardingQuestion({
         className,
       )}
     >
-      <VStack className="gap-020 items-start">
+      <VStack className={cn('gap-020 items-start', contentClassName)}>
         <VStack className="gap-002 items-start">
           <Text as="h2" variant="heading-lg" className="text-text-highest">
             {title}

@@ -5,13 +5,13 @@
 
 import {
   type AdExperienceType,
-  type BudgetPresetId,
-  type CustomBudgetAmount,
+  type BudgetRange,
   type OnboardingAnswer,
   type PerformanceChannelId,
   type PerformanceMode,
   type UploadedPerformanceFile,
 } from './recommend-onboarding-options';
+import type { BudgetInputRange } from './budget-range-input';
 
 /** StepBar에 전달하는 표시 퍼센트 label. */
 export const STEP_LABEL_LIST = [0, 12, 25, 37, 50, 62, 75, 87, 100] as const;
@@ -43,17 +43,18 @@ export type OptionalDraftAnswer = Partial<
   Pick<OnboardingAnswer, 'category' | 'serviceType' | 'adGoal' | 'campaignPeriod'>
 >;
 
-/** 빈 문자열/빈 배열 초기값으로 항상 안전하게 유지하는 draft 필드. */
-export type InitializedDraftAnswer = Pick<OnboardingAnswer, 'serviceName' | 'ageRangeList'>;
+/** 입력 시작 시 초기값을 가지고 항상 안전하게 유지하는 draft 필드. */
+export type InitializedDraftAnswer = Pick<
+  OnboardingAnswer,
+  'serviceName' | 'ageRangeList' | 'budget'
+>;
 
 /** 온보딩 입력 중에 사용하는 임시 답변 상태. */
 export type OnboardingDraft = OptionalDraftAnswer &
   InitializedDraftAnswer & {
-    // budget/adExperience는 최종 답변의 union 구조와 입력 중 UI 상태가 달라서
-    // draft에서 선택값, 입력값, 업로드 상태를 별도 필드로 관리한다.
-    budgetPreset?: BudgetPresetId;
-    customBudgetAmount: CustomBudgetAmount;
-    customBudgetInputValue: number | null;
+    // 예산 input의 보정 전 값과 광고 경험의 선택·업로드 상태는 최종 답변 구조에
+    // 포함되지 않는 UI 상태이므로 draft에서 별도 필드로 관리한다.
+    budgetInputRange: BudgetInputRange;
     adExperienceType?: AdExperienceType;
     performanceMode: PerformanceMode;
     performanceFileList: UploadedPerformanceFile[];
@@ -67,7 +68,7 @@ export type StepRequiredDraftFieldMap = {
   'service-type': 'serviceType';
   'age-ranges': 'ageRangeList';
   'ad-goal': 'adGoal';
-  budget: 'budgetPreset';
+  budget: 'budget';
   'campaign-period': 'campaignPeriod';
   'ad-experience': 'adExperienceType';
 };
@@ -113,7 +114,7 @@ export const STEP_LIST = [
   {
     id: 'budget',
     title: '예산',
-    question: '광고 예산은 어느 정도인가요?',
+    question: '광고에 사용할 수 있는 총 예산은 얼마인가요?',
   },
   {
     id: 'campaign-period',
@@ -131,8 +132,14 @@ export const STEP_LIST = [
 export const INITIAL_ONBOARDING_DRAFT = {
   serviceName: '',
   ageRangeList: [],
-  customBudgetAmount: 0,
-  customBudgetInputValue: 0,
+  budget: {
+    minAmount: 0,
+    maxAmount: 10000000,
+  } satisfies BudgetRange,
+  budgetInputRange: {
+    minInputValue: 0,
+    maxInputValue: 1000,
+  },
   performanceMode: 'UPLOAD',
   performanceFileList: [],
 } satisfies OnboardingDraft;

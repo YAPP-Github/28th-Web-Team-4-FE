@@ -130,10 +130,9 @@ export const Budget: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const customBudget = canvas.getByRole('radio', { name: '직접 입력' });
 
-    await userEvent.click(canvas.getByText('직접 입력'));
-    await expect(customBudget).toBeChecked();
+    await expect(canvas.getByRole('spinbutton', { name: '최소 예산' })).toHaveValue(0);
+    await expect(canvas.getByRole('spinbutton', { name: '최대 예산' })).toHaveValue(1000);
     await expect(canvas.getByRole('button', { name: '다음' })).toBeEnabled();
   },
 };
