@@ -64,7 +64,12 @@ export {
   type StepRequiredDraftFieldMap,
 } from './model/recommend-onboarding-state';
 export { useOnboardingStore, type OnboardingStore } from './model/recommend-onboarding-store';
+export { useOnboardingForm, type UseOnboardingFormOptions } from './model/use-onboarding-form';
 export { OnboardingQuestion, type OnboardingQuestionProps } from './ui/onboarding-question';
+export {
+  OnboardingStepContent,
+  type OnboardingStepContentProps,
+} from './ui/onboarding-step-content';
 export {
   SelectCard,
   type CheckboxSelectCardProps,

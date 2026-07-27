@@ -40,6 +40,7 @@ export default defineConfig({
             'motion/react',
             '@number-flow/react',
             'next/link',
+            'react-hook-form',
           ],
         },
         plugins: [
