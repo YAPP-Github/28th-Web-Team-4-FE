@@ -5,13 +5,8 @@ import {
   sendSignupCodeResponseSchema,
 } from '@/pages/auth/auth-entry/model/auth-entry-schema';
 
-export type AuthEmailResolution =
-  | { type: 'login'; email: string }
-  | { type: 'google'; email: string }
-  | { type: 'signup'; email: string };
-
 export type AuthMethod = 'LOCAL' | 'GOOGLE';
-export type SignupCodeResolution = AuthEmailResolution['type'];
+export type SignupCodeResolution = 'login' | 'google' | 'signup';
 
 export async function getAuthEmailMethods(email: string): Promise<AuthMethod[]> {
   const { data: response } = await loginMethods({

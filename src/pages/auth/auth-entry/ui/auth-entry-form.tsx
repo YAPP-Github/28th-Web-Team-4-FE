@@ -97,6 +97,8 @@ export function AuthEntryForm(): JSX.Element {
   const [errorMessage, setErrorMessage] = useState<string>();
   const [existingAccountEmail, setExistingAccountEmail] = useState<string>();
   const hasEditedEmailRef = useRef(false);
+  const resolveEmailMutation = useResolveAuthEmail();
+
   useDebounce(email, EMAIL_VALIDATION_DEBOUNCE_MS, (debouncedEmail) => {
     if (!hasEditedEmailRef.current) {
       return;
@@ -104,7 +106,6 @@ export function AuthEntryForm(): JSX.Element {
 
     setErrorMessage(getEmailErrorMessage(debouncedEmail));
   });
-  const resolveEmailMutation = useResolveAuthEmail();
 
   const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
     setEmail(event.currentTarget.value);
