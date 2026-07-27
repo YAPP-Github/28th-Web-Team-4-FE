@@ -2,7 +2,7 @@
 
 import { type ReactNode, useEffect, useState } from 'react';
 
-import { isMswEnabled } from '@/mocks/msw-enabled';
+import { isMswEnabled } from '@/shared/api/mocks/msw-enabled';
 
 export default function MSWBootstrap({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(() => !isMswEnabled());
@@ -13,7 +13,7 @@ export default function MSWBootstrap({ children }: { children: ReactNode }) {
       return;
     }
 
-    void import('@/mocks/start-msw')
+    void import('@/shared/api/mocks/start-msw')
       .then(({ startMsw }) => startMsw())
       .catch(() => undefined)
       .finally(() => setReady(true));
