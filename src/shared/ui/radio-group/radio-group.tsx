@@ -47,7 +47,7 @@ export const RadioGroupItem = ({
         [
           'inline-flex size-016 shrink-0 items-center justify-center rounded-max border border-outline-low',
           'transition-colors',
-          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-outline-high',
+          'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-outline-high',
           'data-[checked]:border-sys-primary-default',
         ],
         className,

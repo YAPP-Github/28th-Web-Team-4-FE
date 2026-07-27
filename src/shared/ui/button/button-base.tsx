@@ -8,7 +8,7 @@ export const buttonBaseClassName = [
   'inline-flex items-center justify-center shrink-0 whitespace-nowrap',
   'cursor-pointer rounded-[var(--radius-s)] select-none transition',
   'active:not-data-disabled:scale-[0.97]',
-  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sys-primary-default',
+  'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-sys-primary-default',
   'data-disabled:cursor-not-allowed data-disabled:opacity-50',
 ].join(' ');
 
