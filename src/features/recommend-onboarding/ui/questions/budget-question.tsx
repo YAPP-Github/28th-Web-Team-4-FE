@@ -49,12 +49,16 @@ export function BudgetQuestion(_props: BudgetQuestionProps): JSX.Element {
       }}
       onMinInputValueCommit={(inputValue) => {
         const committedValue = commitBudgetInputValue(inputValue);
-        const nextRange = {
-          ...budgetField.value,
-          minAmount: clampBudgetMinAmount(committedValue.amount, budgetField.value.maxAmount),
-        };
+        const minAmount = clampBudgetMinAmount(committedValue.amount, budgetField.value.maxAmount);
 
-        commitBudgetRangeChange(nextRange, budgetField.onChange, budgetInputRangeField.onChange);
+        commitBudgetRangeChange(
+          {
+            ...budgetField.value,
+            minAmount,
+          },
+          budgetField.onChange,
+          budgetInputRangeField.onChange,
+        );
         budgetInputRangeField.onBlur();
       }}
       onMaxInputValueCommit={(inputValue) => {

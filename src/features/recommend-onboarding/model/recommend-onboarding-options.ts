@@ -61,18 +61,6 @@ export type AdGoalId =
   | 'LEAD_GENERATION'
   | 'PURCHASE_CONVERSION';
 
-/** 사용자가 선택하는 예산 프리셋. CUSTOM은 직접 입력 UI를 연다. */
-export type BudgetPresetId =
-  | 'UNDER_500K'
-  | 'RANGE_500K_2M'
-  | 'RANGE_2M_5M'
-  | 'RANGE_5M_10M'
-  | 'OVER_10M'
-  | 'CUSTOM';
-
-/** 최종 답변에서 preset budget으로 저장 가능한 값. */
-export type BudgetFixedPresetId = Exclude<BudgetPresetId, 'CUSTOM'>;
-
 /** 희망 광고 집행 기간. */
 export type CampaignPeriodId =
   | 'UNDER_1_WEEK'
@@ -95,14 +83,8 @@ export type PerformanceChannelId =
   | 'YOUTUBE_VIDEO_ADS'
   | 'KAKAO_BIZBOARD';
 
-/** 직접 입력 예산에서 허용하는 원 단위 확정 금액. */
-export type CustomBudgetAmount = 0 | 500000 | 2000000 | 5000000 | 10000000;
-
-/**
- * 범위형 예산 UI에서 허용하는 원 단위 확정 금액.
- * 기존 직접 입력 예산과 같은 단계 목록을 공유하는 동안 타입도 재사용한다.
- */
-export type BudgetAmount = CustomBudgetAmount;
+/** 예산 Slider와 입력에서 허용하는 원 단위 확정 금액. */
+export type BudgetAmount = 0 | 500000 | 2000000 | 5000000 | 10000000;
 
 /** 사용자가 확정한 최소·최대 원 단위 예산 범위. */
 export type BudgetRange = {
@@ -190,15 +172,6 @@ export const AD_GOAL_GROUP_LIST = [
   { value: 'AWARENESS', label: '더 많은 사람에게 알리기' },
   { value: 'ACTION', label: '고객의 행동 유도하기' },
 ] as const satisfies readonly OnboardingOption<AdGoalGroupId>[];
-
-export const BUDGET_PRESET_OPTION_LIST = [
-  { value: 'UNDER_500K', label: '50만 미만' },
-  { value: 'RANGE_500K_2M', label: '50~200만' },
-  { value: 'RANGE_2M_5M', label: '200~500만' },
-  { value: 'RANGE_5M_10M', label: '500~1,000만' },
-  { value: 'OVER_10M', label: '1,000만 이상' },
-  { value: 'CUSTOM', label: '직접 입력' },
-] as const satisfies readonly OnboardingOption<BudgetPresetId>[];
 
 export const CAMPAIGN_PERIOD_OPTION_LIST = [
   { value: 'UNDER_1_WEEK', label: '1주 이하' },
