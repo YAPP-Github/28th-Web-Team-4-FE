@@ -4,7 +4,7 @@
 
 import { useState, type JSX } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 
 import {
   clampBudgetMaxAmount,
@@ -34,6 +34,19 @@ const meta = {
   title: 'features/RecommendOnboarding/BudgetRangeControl',
   component: BudgetRangeControl,
   tags: ['autodocs'],
+  args: {
+    range: DEFAULT_BUDGET_RANGE,
+    inputRange: {
+      minInputValue: 0,
+      maxInputValue: 1000,
+    },
+    onMinInputValueChange: fn(),
+    onMaxInputValueChange: fn(),
+    onMinInputValueCommit: fn(),
+    onMaxInputValueCommit: fn(),
+    onSliderRangePreviewChange: fn(),
+    onSliderRangeChange: fn(),
+  },
   parameters: {
     layout: 'centered',
   },

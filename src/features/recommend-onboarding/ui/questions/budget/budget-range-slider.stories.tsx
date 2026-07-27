@@ -4,7 +4,7 @@
 
 import { useState, type JSX } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { formatBudgetRange } from '@/features/recommend-onboarding/lib/budget-snap';
 import type { BudgetRange } from '@/features/recommend-onboarding/model/recommend-onboarding-options';
@@ -26,6 +26,11 @@ const meta = {
   title: 'features/RecommendOnboarding/BudgetRangeSlider',
   component: BudgetRangeSlider,
   tags: ['autodocs'],
+  args: {
+    range: DEFAULT_BUDGET_RANGE,
+    onRangePreviewChange: fn(),
+    onRangeChange: fn(),
+  },
   parameters: {
     layout: 'centered',
   },
