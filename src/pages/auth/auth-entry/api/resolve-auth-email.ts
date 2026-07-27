@@ -1,11 +1,9 @@
-import { z } from 'zod';
-
 import { loginMethods, sendSignupCode } from '@/shared/api/generated';
 import { getApiErrorCode } from '@/shared/api/api-error';
-
-const loginMethodsSchema = z.object({
-  methods: z.array(z.enum(['LOCAL', 'GOOGLE'])),
-});
+import {
+  loginMethodsSchema,
+  sendSignupCodeResponseSchema,
+} from '@/pages/auth/auth-entry/model/auth-entry-schema';
 
 export type AuthEmailResolution =
   | { type: 'login'; email: string }
@@ -36,8 +34,13 @@ export async function resolveAuthEmail(email: string): Promise<AuthEmailResoluti
       body: { email },
       throwOnError: true,
     });
+    const result = sendSignupCodeResponseSchema.safeParse(data);
 
-    return data.code === 'EMAIL_ALREADY_USED_WITH_GOOGLE'
+    if (!result.success) {
+      throw new Error('인증 코드 발송 응답 형식이 올바르지 않습니다.');
+    }
+
+    return result.data.code === 'EMAIL_ALREADY_USED_WITH_GOOGLE'
       ? { type: 'google', email }
       : { type: 'signup', email };
   } catch (error) {

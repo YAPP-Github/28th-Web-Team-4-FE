@@ -72,6 +72,18 @@ describe('resolveAuthEmail', () => {
     });
   });
 
+  it('rejects an unexpected signup code response', async () => {
+    loginMethodsMock.mockResolvedValue(loginMethodsResponse([]));
+    sendSignupCodeMock.mockResolvedValue({
+      data: { success: true, code: 'UNKNOWN_CODE' },
+      response: new Response(null, { status: 200 }),
+    });
+
+    await expect(resolveAuthEmail('new@example.com')).rejects.toThrow(
+      '인증 코드 발송 응답 형식이 올바르지 않습니다.',
+    );
+  });
+
   it('handles an account created between lookup and code delivery', async () => {
     loginMethodsMock.mockResolvedValue(loginMethodsResponse([]));
     sendSignupCodeMock.mockRejectedValue({
