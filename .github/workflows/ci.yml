@@ -37,7 +37,18 @@ jobs:
         if: matrix.command == 'test:coverage:storybook'
         run: pnpm exec playwright install --with-deps chromium
 
+      - name: Install Doppler CLI
+        if: matrix.command == 'build'
+        uses: dopplerhq/cli-action@v4
+
+      - name: Run build
+        if: matrix.command == 'build'
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        run: doppler run -- node --run build
+
       - name: Run ${{ matrix.command }}
+        if: matrix.command != 'build'
         run: node --run ${{ matrix.command }}
 
       - name: Upload unit coverage to Codecov
