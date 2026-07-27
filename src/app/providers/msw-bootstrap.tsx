@@ -13,7 +13,10 @@ export default function MSWBootstrap({ children }: { children: ReactNode }) {
       return;
     }
 
-    void import('@/mocks/start-msw').then(({ startMsw }) => startMsw()).then(() => setReady(true));
+    void import('@/mocks/start-msw')
+      .then(({ startMsw }) => startMsw())
+      .catch(() => undefined)
+      .finally(() => setReady(true));
   }, []);
 
   // Worker 시작 전까지 children 렌더링을 지연해 API 호출 레이스를 방지합니다.
