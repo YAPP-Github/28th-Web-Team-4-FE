@@ -95,6 +95,22 @@ describe('AuthEntryPage', () => {
     expect(screen.getByPlaceholderText('비밀번호를 입력해 주세요')).toBeInTheDocument();
   });
 
+  it('returns to email entry when the readonly account email is clicked', async () => {
+    const user = userEvent.setup();
+    resolveAuthEmailMock.mockResolvedValue({ type: 'login', email: 'member@example.com' });
+    renderAuthEntryPage();
+
+    await user.type(screen.getByRole('textbox', { name: '이메일' }), 'member@example.com');
+    await user.click(screen.getByRole('button', { name: '이메일로 시작하기' }));
+
+    const readonlyEmailInput = await screen.findByDisplayValue('member@example.com');
+    await user.click(readonlyEmailInput);
+
+    expect(screen.getByRole('heading', { name: '이메일로 시작하기' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: '이메일' })).not.toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: '이메일' })).toHaveValue('member@example.com');
+  });
+
   it('moves a new account to email verification after sending the code', async () => {
     const user = userEvent.setup();
     resolveAuthEmailMock.mockResolvedValue({ type: 'signup', email: 'new@example.com' });

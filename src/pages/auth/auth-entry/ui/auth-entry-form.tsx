@@ -11,6 +11,7 @@ import { FormPanelHeader } from '@/shared/ui/form-panel';
 import { GoogleLogo } from '@/shared/ui/google-logo';
 import { InputField } from '@/shared/ui/input-field';
 import { BrandSymbol } from '@/shared/ui/symbol';
+import { Text } from '@/shared/ui/text';
 import { resolveAuthEmail } from '@/pages/auth/auth-entry/api/resolve-auth-email';
 import { authEntrySchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
 
@@ -32,7 +33,13 @@ function AuthHeader({ title }: { title: string }): JSX.Element {
   );
 }
 
-function ExistingAccountForm({ email }: { email: string }): JSX.Element {
+function ExistingAccountForm({
+  email,
+  onBack,
+}: {
+  email: string;
+  onBack: () => void;
+}): JSX.Element {
   const [password, setPassword] = useState('');
 
   return (
@@ -41,11 +48,23 @@ function ExistingAccountForm({ email }: { email: string }): JSX.Element {
       <form className="flex w-full flex-col gap-12" onSubmit={(event) => event.preventDefault()}>
         <div className="gap-024 flex flex-col">
           <label className="gap-008 flex flex-col">
-            <span className="typo-body-xl text-text-medium">아이디</span>
-            <InputField name="email" type="email" autoComplete="email" value={email} readOnly />
+            <Text variant="body-xl" className="text-text-medium">
+              아이디
+            </Text>
+            <InputField
+              name="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              readOnly
+              className="cursor-pointer"
+              onClick={onBack}
+            />
           </label>
           <label className="gap-008 flex flex-col">
-            <span className="typo-body-xl text-text-medium">비밀번호</span>
+            <Text variant="body-xl" className="text-text-medium">
+              비밀번호
+            </Text>
             <InputField
               frame="password"
               name="password"
@@ -127,7 +146,12 @@ export function AuthEntryForm(): JSX.Element {
   };
 
   if (existingAccountEmail) {
-    return <ExistingAccountForm email={existingAccountEmail} />;
+    return (
+      <ExistingAccountForm
+        email={existingAccountEmail}
+        onBack={() => setExistingAccountEmail(undefined)}
+      />
+    );
   }
 
   return (
