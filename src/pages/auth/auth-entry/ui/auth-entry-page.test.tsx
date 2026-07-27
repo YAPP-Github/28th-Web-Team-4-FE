@@ -1,11 +1,50 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import {
+  getAuthEmailMethods,
+  sendAuthSignupCode,
+} from '@/pages/auth/auth-entry/api/resolve-auth-email';
+
 import { AuthEntryPage } from './auth-entry-page';
 
+const { pushMock } = vi.hoisted(() => ({ pushMock: vi.fn<(href: string) => void>() }));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: pushMock }),
+}));
+
+vi.mock('@/pages/auth/auth-entry/api/resolve-auth-email', () => ({
+  getAuthEmailMethods: vi.fn<typeof getAuthEmailMethods>(),
+  sendAuthSignupCode: vi.fn<typeof sendAuthSignupCode>(),
+}));
+
+const getAuthEmailMethodsMock = vi.mocked(getAuthEmailMethods);
+const sendAuthSignupCodeMock = vi.mocked(sendAuthSignupCode);
+
+function renderAuthEntryPage() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      mutations: { retry: false },
+      queries: { retry: false },
+    },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <AuthEntryPage />
+    </QueryClientProvider>,
+  );
+}
+
 describe('AuthEntryPage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('renders the email and social authentication entry points', () => {
-    render(<AuthEntryPage />);
+    renderAuthEntryPage();
 
     expect(screen.getByRole('heading', { name: '이메일로 시작하기' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: '이메일' })).toHaveAttribute('type', 'email');
@@ -16,7 +55,7 @@ describe('AuthEntryPage', () => {
 
   it('shows the email format error using the designed helper text', async () => {
     const user = userEvent.setup();
-    render(<AuthEntryPage />);
+    renderAuthEntryPage();
 
     await user.type(screen.getByRole('textbox', { name: '이메일' }), 'invalid-email');
     await user.click(screen.getByRole('button', { name: '이메일로 시작하기' }));
@@ -27,7 +66,7 @@ describe('AuthEntryPage', () => {
 
   it('validates the email after the user stops typing', async () => {
     const user = userEvent.setup();
-    render(<AuthEntryPage />);
+    renderAuthEntryPage();
     const emailInput = screen.getByRole('textbox', { name: '이메일' });
 
     await user.type(emailInput, 'invalid-email');
@@ -46,5 +85,75 @@ describe('AuthEntryPage', () => {
     await waitFor(() => {
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
+  });
+
+  it('shows the password form for an existing local account', async () => {
+    const user = userEvent.setup();
+    getAuthEmailMethodsMock.mockResolvedValue(['LOCAL']);
+    renderAuthEntryPage();
+
+    await user.type(screen.getByRole('textbox', { name: '이메일' }), 'member@example.com');
+    await user.click(screen.getByRole('button', { name: '이메일로 시작하기' }));
+
+    expect(await screen.findByRole('heading', { name: '로그인하기' })).toBeInTheDocument();
+    expect(screen.getByDisplayValue('member@example.com')).toHaveAttribute('readonly');
+    expect(screen.getByPlaceholderText('비밀번호를 입력해 주세요')).toBeInTheDocument();
+  });
+
+  it('returns to email entry when the readonly account email is clicked', async () => {
+    const user = userEvent.setup();
+    getAuthEmailMethodsMock.mockResolvedValue(['LOCAL']);
+    renderAuthEntryPage();
+
+    await user.type(screen.getByRole('textbox', { name: '이메일' }), 'member@example.com');
+    await user.click(screen.getByRole('button', { name: '이메일로 시작하기' }));
+
+    const readonlyEmailInput = await screen.findByDisplayValue('member@example.com');
+    await user.click(readonlyEmailInput);
+
+    expect(screen.getByRole('heading', { name: '이메일로 시작하기' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: '이메일' })).not.toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: '이메일' })).toHaveValue('member@example.com');
+  });
+
+  it('moves a new account to email verification after sending the code', async () => {
+    const user = userEvent.setup();
+    getAuthEmailMethodsMock.mockResolvedValue([]);
+    sendAuthSignupCodeMock.mockResolvedValue('signup');
+    renderAuthEntryPage();
+
+    await user.type(screen.getByRole('textbox', { name: '이메일' }), 'new@example.com');
+    await user.click(screen.getByRole('button', { name: '이메일로 시작하기' }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith('/signup?email=new%40example.com');
+    });
+  });
+
+  it('guides a Google-only account to Google login', async () => {
+    const user = userEvent.setup();
+    getAuthEmailMethodsMock.mockResolvedValue(['GOOGLE']);
+    renderAuthEntryPage();
+
+    await user.type(screen.getByRole('textbox', { name: '이메일' }), 'google@example.com');
+    await user.click(screen.getByRole('button', { name: '이메일로 시작하기' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Google 계정으로 가입된 이메일이에요. Google 로그인을 이용해 주세요.',
+    );
+  });
+
+  it('guides to Google login when code delivery finds a Google-only account', async () => {
+    const user = userEvent.setup();
+    getAuthEmailMethodsMock.mockResolvedValue([]);
+    sendAuthSignupCodeMock.mockResolvedValue('google');
+    renderAuthEntryPage();
+
+    await user.type(screen.getByRole('textbox', { name: '이메일' }), 'google@example.com');
+    await user.click(screen.getByRole('button', { name: '이메일로 시작하기' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Google 계정으로 가입된 이메일이에요. Google 로그인을 이용해 주세요.',
+    );
   });
 });
