@@ -25,13 +25,22 @@ export type RadioGroupItemProps = Omit<
   'children' | 'className' | 'nativeButton' | 'render'
 > & {
   className?: string;
+  renderMode?: RadioGroupItemRenderMode;
 };
+
+export type RadioGroupItemRenderMode = 'button' | 'label-control';
 
 export const RadioGroup = ({ className, ...props }: RadioGroupProps): JSX.Element => {
   return <RadioGroupPrimitive className={cn('grid gap-2', className)} {...props} />;
 };
 
-export const RadioGroupItem = ({ className, ...props }: RadioGroupItemProps): JSX.Element => {
+export const RadioGroupItem = ({
+  className,
+  renderMode = 'button',
+  ...props
+}: RadioGroupItemProps): JSX.Element => {
+  const isButton = renderMode === 'button';
+
   return (
     <Radio.Root
       className={cn(
@@ -43,8 +52,8 @@ export const RadioGroupItem = ({ className, ...props }: RadioGroupItemProps): JS
         ],
         className,
       )}
-      nativeButton
-      render={<button type="button" />}
+      nativeButton={isButton}
+      render={isButton ? <button type="button" /> : undefined}
       {...props}
     >
       <Radio.Indicator className="size-008 rounded-max bg-sys-primary-default" />

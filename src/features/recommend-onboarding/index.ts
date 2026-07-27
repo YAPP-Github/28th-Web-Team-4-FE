@@ -64,3 +64,12 @@ export {
   type StepRequiredDraftFieldMap,
 } from './model/recommend-onboarding-state';
 export { useOnboardingStore, type OnboardingStore } from './model/recommend-onboarding-store';
+export { OnboardingQuestion, type OnboardingQuestionProps } from './ui/onboarding-question';
+export {
+  SelectCard,
+  type CheckboxSelectCardProps,
+  type RadioSelectCardProps,
+  type SelectCardProps,
+} from './ui/select-card';
+export { SelectChip, type SelectChipProps } from './ui/select-chip';
+export { StepActionButton, type StepActionButtonProps } from './ui/step-action-button';
