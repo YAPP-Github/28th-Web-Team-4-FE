@@ -10,7 +10,10 @@ export type AuthEmailResolution =
   | { type: 'google'; email: string }
   | { type: 'signup'; email: string };
 
-export async function resolveAuthEmail(email: string): Promise<AuthEmailResolution> {
+export type AuthMethod = 'LOCAL' | 'GOOGLE';
+export type SignupCodeResolution = AuthEmailResolution['type'];
+
+export async function getAuthEmailMethods(email: string): Promise<AuthMethod[]> {
   const { data: response } = await loginMethods({
     body: { email },
     throwOnError: true,
@@ -21,14 +24,10 @@ export async function resolveAuthEmail(email: string): Promise<AuthEmailResoluti
     throw new Error('로그인 수단 응답 형식이 올바르지 않습니다.');
   }
 
-  if (result.data.methods.includes('LOCAL')) {
-    return { type: 'login', email };
-  }
+  return result.data.methods;
+}
 
-  if (result.data.methods.includes('GOOGLE')) {
-    return { type: 'google', email };
-  }
-
+export async function sendAuthSignupCode(email: string): Promise<SignupCodeResolution> {
   try {
     const { data } = await sendSignupCode({
       body: { email },
@@ -40,12 +39,10 @@ export async function resolveAuthEmail(email: string): Promise<AuthEmailResoluti
       throw new Error('인증 코드 발송 응답 형식이 올바르지 않습니다.');
     }
 
-    return result.data.code === 'EMAIL_ALREADY_USED_WITH_GOOGLE'
-      ? { type: 'google', email }
-      : { type: 'signup', email };
+    return result.data.code === 'EMAIL_ALREADY_USED_WITH_GOOGLE' ? 'google' : 'signup';
   } catch (error) {
     if (getApiErrorCode(error) === 'AUTH-002') {
-      return { type: 'login', email };
+      return 'login';
     }
 
     throw error;

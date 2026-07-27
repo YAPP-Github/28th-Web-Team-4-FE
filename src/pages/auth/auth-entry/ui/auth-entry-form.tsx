@@ -2,7 +2,6 @@
 
 import { useRef, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
 
 import { getApiErrorMessage } from '@/shared/api/api-error';
 import { useDebounce } from '@/shared/lib/use-debounce';
@@ -12,8 +11,8 @@ import { GoogleLogo } from '@/shared/ui/google-logo';
 import { InputField } from '@/shared/ui/input-field';
 import { BrandSymbol } from '@/shared/ui/symbol';
 import { Text } from '@/shared/ui/text';
-import { resolveAuthEmail } from '@/pages/auth/auth-entry/api/resolve-auth-email';
 import { authEntrySchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
+import { useResolveAuthEmail } from '@/pages/auth/auth-entry/model/use-resolve-auth-email';
 
 const EMAIL_VALIDATION_DEBOUNCE_MS = 400;
 
@@ -105,7 +104,7 @@ export function AuthEntryForm(): JSX.Element {
 
     setErrorMessage(getEmailErrorMessage(debouncedEmail));
   });
-  const resolveEmailMutation = useMutation({ mutationFn: resolveAuthEmail });
+  const resolveEmailMutation = useResolveAuthEmail();
 
   const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
     setEmail(event.currentTarget.value);
@@ -122,9 +121,8 @@ export function AuthEntryForm(): JSX.Element {
     }
 
     setErrorMessage(undefined);
-    void resolveEmailMutation
-      .mutateAsync(result.data.email)
-      .then((resolution) => {
+    resolveEmailMutation.mutate(result.data.email, {
+      onSuccess: (resolution) => {
         if (resolution.type === 'login') {
           setExistingAccountEmail(resolution.email);
           return;
@@ -137,10 +135,11 @@ export function AuthEntryForm(): JSX.Element {
 
         const searchParams = new URLSearchParams({ email: resolution.email });
         router.push(`/signup?${searchParams.toString()}`);
-      })
-      .catch((error: unknown) => {
+      },
+      onError: (error: unknown) => {
         setErrorMessage(getApiErrorMessage(error, '이메일을 확인하는 중 문제가 발생했습니다.'));
-      });
+      },
+    });
   };
 
   if (existingAccountEmail) {

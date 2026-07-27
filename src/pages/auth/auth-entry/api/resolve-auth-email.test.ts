@@ -1,6 +1,6 @@
 import { loginMethods, sendSignupCode } from '@/shared/api/generated';
 
-import { resolveAuthEmail } from './resolve-auth-email';
+import { getAuthEmailMethods, sendAuthSignupCode } from './resolve-auth-email';
 
 vi.mock('@/shared/api/generated', () => ({
   loginMethods: vi.fn<typeof loginMethods>(),
@@ -17,42 +17,25 @@ function loginMethodsResponse(methods: ('LOCAL' | 'GOOGLE')[]) {
   };
 }
 
-describe('resolveAuthEmail', () => {
+describe('auth email API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('returns the password login branch for a local account', async () => {
+  it('returns the available login methods for an account', async () => {
     loginMethodsMock.mockResolvedValue(loginMethodsResponse(['LOCAL']));
 
-    await expect(resolveAuthEmail('member@example.com')).resolves.toEqual({
-      type: 'login',
-      email: 'member@example.com',
-    });
-    expect(sendSignupCodeMock).not.toHaveBeenCalled();
-  });
-
-  it('returns the Google guidance branch for a Google-only account', async () => {
-    loginMethodsMock.mockResolvedValue(loginMethodsResponse(['GOOGLE']));
-
-    await expect(resolveAuthEmail('google@example.com')).resolves.toEqual({
-      type: 'google',
-      email: 'google@example.com',
-    });
+    await expect(getAuthEmailMethods('member@example.com')).resolves.toEqual(['LOCAL']);
     expect(sendSignupCodeMock).not.toHaveBeenCalled();
   });
 
   it('sends a signup code for an unregistered email', async () => {
-    loginMethodsMock.mockResolvedValue(loginMethodsResponse([]));
     sendSignupCodeMock.mockResolvedValue({
       data: { success: true },
       response: new Response(null, { status: 200 }),
     });
 
-    await expect(resolveAuthEmail('new@example.com')).resolves.toEqual({
-      type: 'signup',
-      email: 'new@example.com',
-    });
+    await expect(sendAuthSignupCode('new@example.com')).resolves.toBe('signup');
     expect(sendSignupCodeMock).toHaveBeenCalledWith({
       body: { email: 'new@example.com' },
       throwOnError: true,
@@ -60,40 +43,31 @@ describe('resolveAuthEmail', () => {
   });
 
   it('returns the Google branch when code delivery finds a Google-only account', async () => {
-    loginMethodsMock.mockResolvedValue(loginMethodsResponse([]));
     sendSignupCodeMock.mockResolvedValue({
       data: { success: true, code: 'EMAIL_ALREADY_USED_WITH_GOOGLE' },
       response: new Response(null, { status: 200 }),
     });
 
-    await expect(resolveAuthEmail('google@example.com')).resolves.toEqual({
-      type: 'google',
-      email: 'google@example.com',
-    });
+    await expect(sendAuthSignupCode('google@example.com')).resolves.toBe('google');
   });
 
   it('rejects an unexpected signup code response', async () => {
-    loginMethodsMock.mockResolvedValue(loginMethodsResponse([]));
     sendSignupCodeMock.mockResolvedValue({
       data: { success: true, code: 'UNKNOWN_CODE' },
       response: new Response(null, { status: 200 }),
     });
 
-    await expect(resolveAuthEmail('new@example.com')).rejects.toThrow(
+    await expect(sendAuthSignupCode('new@example.com')).rejects.toThrow(
       '인증 코드 발송 응답 형식이 올바르지 않습니다.',
     );
   });
 
   it('handles an account created between lookup and code delivery', async () => {
-    loginMethodsMock.mockResolvedValue(loginMethodsResponse([]));
     sendSignupCodeMock.mockRejectedValue({
       success: false,
       error: { code: 'AUTH-002', message: '이미 사용 중인 이메일입니다.' },
     });
 
-    await expect(resolveAuthEmail('raced@example.com')).resolves.toEqual({
-      type: 'login',
-      email: 'raced@example.com',
-    });
+    await expect(sendAuthSignupCode('raced@example.com')).resolves.toBe('login');
   });
 });
