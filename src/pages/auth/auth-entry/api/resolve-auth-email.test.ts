@@ -59,6 +59,19 @@ describe('resolveAuthEmail', () => {
     });
   });
 
+  it('returns the Google branch when code delivery finds a Google-only account', async () => {
+    loginMethodsMock.mockResolvedValue(loginMethodsResponse([]));
+    sendSignupCodeMock.mockResolvedValue({
+      data: { success: true, code: 'EMAIL_ALREADY_USED_WITH_GOOGLE' },
+      response: new Response(null, { status: 200 }),
+    });
+
+    await expect(resolveAuthEmail('google@example.com')).resolves.toEqual({
+      type: 'google',
+      email: 'google@example.com',
+    });
+  });
+
   it('handles an account created between lookup and code delivery', async () => {
     loginMethodsMock.mockResolvedValue(loginMethodsResponse([]));
     sendSignupCodeMock.mockRejectedValue({
