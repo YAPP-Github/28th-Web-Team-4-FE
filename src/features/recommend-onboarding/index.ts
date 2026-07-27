@@ -8,6 +8,7 @@ export {
   type PerformanceFileValidationResult,
 } from './lib/file-upload';
 export {
+  BUDGET_STEP_LIST,
   commitCustomBudgetInputValue,
   CUSTOM_BUDGET_STEP_LIST,
   formatBudgetAmount,
@@ -29,8 +30,10 @@ export {
   type AdGoalId,
   type AdGoalOption,
   type AgeRangeId,
+  type BudgetAmount,
   type BudgetFixedPresetId,
   type BudgetPresetId,
+  type BudgetRange,
   type CampaignPeriodId,
   type CategoryId,
   type CustomBudgetAmount,

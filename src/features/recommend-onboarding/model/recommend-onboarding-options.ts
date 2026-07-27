@@ -98,6 +98,18 @@ export type PerformanceChannelId =
 /** 직접 입력 예산에서 허용하는 원 단위 확정 금액. */
 export type CustomBudgetAmount = 0 | 500000 | 2000000 | 5000000 | 10000000;
 
+/**
+ * 범위형 예산 UI에서 허용하는 원 단위 확정 금액.
+ * 기존 직접 입력 예산과 같은 단계 목록을 공유하는 동안 타입도 재사용한다.
+ */
+export type BudgetAmount = CustomBudgetAmount;
+
+/** 사용자가 확정한 최소·최대 원 단위 예산 범위. */
+export type BudgetRange = {
+  minAmount: BudgetAmount;
+  maxAmount: BudgetAmount;
+};
+
 /** 파일 파싱 전 UI에 표시하고 결과 답변에 넘길 업로드 파일 메타데이터. */
 export type UploadedPerformanceFile = {
   id: string;

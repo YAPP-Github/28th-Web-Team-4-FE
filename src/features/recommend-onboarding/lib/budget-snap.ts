@@ -11,6 +11,12 @@ export const CUSTOM_BUDGET_STEP_LIST = [
   amount: CustomBudgetAmount;
 }[];
 
+/**
+ * 범위형 예산 UI에서도 같은 5개 확정 단계를 사용한다.
+ * 기존 직접 입력 UI가 제거되기 전까지 배열을 복제하지 않고 별칭으로 공유한다.
+ */
+export const BUDGET_STEP_LIST = CUSTOM_BUDGET_STEP_LIST;
+
 type CustomBudgetStep = (typeof CUSTOM_BUDGET_STEP_LIST)[number];
 
 /**
