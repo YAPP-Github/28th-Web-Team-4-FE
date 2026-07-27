@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
+import { useRef, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 
@@ -98,16 +98,14 @@ export function AuthEntryForm(): JSX.Element {
   const [errorMessage, setErrorMessage] = useState<string>();
   const [existingAccountEmail, setExistingAccountEmail] = useState<string>();
   const hasEditedEmailRef = useRef(false);
-  const debouncedEmail = useDebounce(email, EMAIL_VALIDATION_DEBOUNCE_MS);
-  const resolveEmailMutation = useMutation({ mutationFn: resolveAuthEmail });
-
-  useEffect(() => {
+  useDebounce(email, EMAIL_VALIDATION_DEBOUNCE_MS, (debouncedEmail) => {
     if (!hasEditedEmailRef.current) {
       return;
     }
 
     setErrorMessage(getEmailErrorMessage(debouncedEmail));
-  }, [debouncedEmail]);
+  });
+  const resolveEmailMutation = useMutation({ mutationFn: resolveAuthEmail });
 
   const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
     setEmail(event.currentTarget.value);
