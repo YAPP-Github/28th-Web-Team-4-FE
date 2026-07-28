@@ -42,6 +42,7 @@ export default defineConfig({
             '@number-flow/react',
             'next/link',
             'react-hook-form',
+            '@base-ui/react/select',
           ],
         },
         plugins: [
