@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
 import { useRouter } from 'next/navigation';
+import { useShallow } from 'zustand/react/shallow';
 
 import { SignupStepActions, useSignupDraftStore } from '@/features/auth/signup-flow';
 import { FormPanelHeader } from '@/shared/ui/form-panel';
@@ -12,11 +13,21 @@ import { signupNameSchema } from '@/pages/auth/signup-name/model/signup-name-sch
 
 export function SignupNameForm(): JSX.Element | null {
   const router = useRouter();
-  const email = useSignupDraftStore((state) => state.email);
-  const emailVerified = useSignupDraftStore((state) => state.emailVerified);
-  const password = useSignupDraftStore((state) => state.password);
-  const savedNickname = useSignupDraftStore((state) => state.nickname);
-  const hasHydrated = useSignupDraftStore((state) => state.hasHydrated);
+  const {
+    email,
+    emailVerified,
+    password,
+    nickname: savedNickname,
+    hasHydrated,
+  } = useSignupDraftStore(
+    useShallow((state) => ({
+      email: state.email,
+      emailVerified: state.emailVerified,
+      password: state.password,
+      nickname: state.nickname,
+      hasHydrated: state.hasHydrated,
+    })),
+  );
 
   useEffect(() => {
     if (!hasHydrated) {

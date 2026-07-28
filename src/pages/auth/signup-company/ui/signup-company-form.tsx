@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
 import { useRouter } from 'next/navigation';
+import { useShallow } from 'zustand/react/shallow';
 
 import { SignupStepActions, useSignupDraftStore } from '@/features/auth/signup-flow';
 import { FormPanelHeader } from '@/shared/ui/form-panel';
@@ -12,12 +13,23 @@ import { signupCompanySchema } from '@/pages/auth/signup-company/model/signup-co
 
 export function SignupCompanyForm(): JSX.Element | null {
   const router = useRouter();
-  const email = useSignupDraftStore((state) => state.email);
-  const emailVerified = useSignupDraftStore((state) => state.emailVerified);
-  const password = useSignupDraftStore((state) => state.password);
-  const nickname = useSignupDraftStore((state) => state.nickname);
-  const savedCompanyName = useSignupDraftStore((state) => state.companyName);
-  const hasHydrated = useSignupDraftStore((state) => state.hasHydrated);
+  const {
+    email,
+    emailVerified,
+    password,
+    nickname,
+    companyName: savedCompanyName,
+    hasHydrated,
+  } = useSignupDraftStore(
+    useShallow((state) => ({
+      email: state.email,
+      emailVerified: state.emailVerified,
+      password: state.password,
+      nickname: state.nickname,
+      companyName: state.companyName,
+      hasHydrated: state.hasHydrated,
+    })),
+  );
 
   useEffect(() => {
     if (!hasHydrated) {

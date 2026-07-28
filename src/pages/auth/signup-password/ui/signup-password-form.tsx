@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
 import { useRouter } from 'next/navigation';
+import { useShallow } from 'zustand/react/shallow';
 
 import { SignupStepActions, useSignupDraftStore } from '@/features/auth/signup-flow';
 import { FormPanelHeader } from '@/shared/ui/form-panel';
@@ -35,10 +36,19 @@ function getPasswordFeedback(password: string, passwordConfirmation: string): Pa
 
 export function SignupPasswordForm(): JSX.Element | null {
   const router = useRouter();
-  const email = useSignupDraftStore((state) => state.email);
-  const emailVerified = useSignupDraftStore((state) => state.emailVerified);
-  const savedPassword = useSignupDraftStore((state) => state.password);
-  const hasHydrated = useSignupDraftStore((state) => state.hasHydrated);
+  const {
+    email,
+    emailVerified,
+    password: savedPassword,
+    hasHydrated,
+  } = useSignupDraftStore(
+    useShallow((state) => ({
+      email: state.email,
+      emailVerified: state.emailVerified,
+      password: state.password,
+      hasHydrated: state.hasHydrated,
+    })),
+  );
 
   useEffect(() => {
     if (hasHydrated && (!email || !emailVerified)) {
