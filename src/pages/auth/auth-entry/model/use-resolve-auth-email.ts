@@ -1,9 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
-import {
-  getAuthEmailMethods,
-  sendAuthSignupCode,
-} from '@/pages/auth/auth-entry/api/resolve-auth-email';
+import { getAuthEmailMethods } from '@/pages/auth/auth-entry/api/resolve-auth-email';
 
 export type AuthEmailResolution =
   | { type: 'login'; email: string }
@@ -12,7 +9,6 @@ export type AuthEmailResolution =
 
 export function useResolveAuthEmail() {
   const loginMethodsMutation = useMutation({ mutationFn: getAuthEmailMethods });
-  const signupCodeMutation = useMutation({ mutationFn: sendAuthSignupCode });
 
   return useMutation({
     mutationFn: async (email: string): Promise<AuthEmailResolution> => {
@@ -26,9 +22,7 @@ export function useResolveAuthEmail() {
         return { type: 'google', email };
       }
 
-      const type = await signupCodeMutation.mutateAsync(email);
-
-      return { type, email };
+      return { type: 'signup', email };
     },
   });
 }
