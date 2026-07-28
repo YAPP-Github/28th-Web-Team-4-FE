@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { useSignupDraftStore } from '@/features/auth/signup-flow';
 import {
   sendSignupEmailVerificationCode,
   verifySignupEmailCode,
@@ -17,6 +18,13 @@ vi.mock('@/pages/auth/signup-email-verification/api/signup-email-verification', 
 
 const sendSignupEmailVerificationCodeMock = vi.mocked(sendSignupEmailVerificationCode);
 const verifySignupEmailCodeMock = vi.mocked(verifySignupEmailCode);
+const pushMock = vi.fn<(href: string) => void>();
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: pushMock }),
+}));
+
+const initialStore = useSignupDraftStore.getState();
 
 function createDeferred() {
   let resolve!: () => void;
@@ -46,6 +54,11 @@ function renderVerificationForm({ strict = false }: { strict?: boolean } = {}) {
 describe('SignupEmailVerificationForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    sendSignupEmailVerificationCodeMock.mockReset();
+    verifySignupEmailCodeMock.mockReset();
+    sessionStorage.clear();
+    useSignupDraftStore.setState(initialStore, true);
+    useSignupDraftStore.getState().setHasHydrated(true);
   });
 
   it('renders the email verification form', () => {
@@ -127,6 +140,16 @@ describe('SignupEmailVerificationForm', () => {
       },
       expect.anything(),
     );
+    expect(useSignupDraftStore.getState()).toMatchObject({
+      email: 'new@example.com',
+      emailVerified: true,
+    });
+    expect(screen.getByRole('button', { name: '다음' })).toBeEnabled();
+
+    await user.click(screen.getByRole('button', { name: '다음' }));
+
+    expect(pushMock).toHaveBeenCalledWith('/signup/password');
+    expect(verifySignupEmailCodeMock).toHaveBeenCalledTimes(1);
   });
 
   it('shows the designed message for an invalid or expired code', async () => {
