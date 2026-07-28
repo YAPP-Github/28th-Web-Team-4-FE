@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 
+import { useSignupDraftStore } from '@/features/auth/signup-flow';
 import { getApiErrorCode, getApiErrorMessage } from '@/shared/api/api-error';
 import { Button } from '@/shared/ui/button';
 import { FormPanelHeader } from '@/shared/ui/form-panel';
@@ -18,9 +20,15 @@ const INVALID_OR_EXPIRED_CODE_MESSAGE =
   '인증 코드가 올바르지 않거나 만료되었어요. 다시 확인해 주세요.';
 
 export function SignupEmailVerificationForm({ email }: { email: string }): JSX.Element {
+  const router = useRouter();
   const [code, setCode] = useState('');
   const [feedback, setFeedback] = useState<InputFieldFeedback>();
-  const initiallySentEmailRef = useRef<string>();
+  const initiallySentEmailRef = useRef<string | undefined>(undefined);
+  const storedEmail = useSignupDraftStore((state) => state.email);
+  const emailVerified = useSignupDraftStore((state) => state.emailVerified);
+  const hasHydrated = useSignupDraftStore((state) => state.hasHydrated);
+  const startEmailSignup = useSignupDraftStore((state) => state.startEmailSignup);
+  const completeEmailVerification = useSignupDraftStore((state) => state.completeEmailVerification);
   const initialSendMutation = useMutation({
     mutationFn: sendSignupEmailVerificationCode,
     onError: (error) => {
@@ -33,6 +41,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
   const verifyMutation = useMutation({
     mutationFn: verifySignupEmailCode,
     onSuccess: () => {
+      completeEmailVerification(email);
       setFeedback({ tone: 'success', message: '인증이 완료됐어요.' });
     },
     onError: (error) => {
@@ -58,18 +67,24 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
       });
     },
   });
-  const isVerified = feedback?.tone === 'success';
+  const isVerified = feedback?.tone === 'success' || (storedEmail === email && emailVerified);
   const isSendingCode = initialSendMutation.isPending || resendMutation.isPending;
   const { mutate: sendInitialCode } = initialSendMutation;
 
   useEffect(() => {
-    if (initiallySentEmailRef.current === email) {
+    if (!hasHydrated) {
+      return;
+    }
+
+    startEmailSignup(email);
+
+    if ((storedEmail === email && emailVerified) || initiallySentEmailRef.current === email) {
       return;
     }
 
     initiallySentEmailRef.current = email;
     sendInitialCode(email);
-  }, [email, sendInitialCode]);
+  }, [email, emailVerified, hasHydrated, sendInitialCode, startEmailSignup, storedEmail]);
 
   const handleCodeChange = (event: ChangeEvent<HTMLInputElement>) => {
     setCode(event.currentTarget.value.replace(/\D/g, '').slice(0, 6));
@@ -89,9 +104,12 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!isVerified) {
-      verifyCode();
+    if (isVerified) {
+      router.push('/signup/password');
+      return;
     }
+
+    verifyCode();
   };
 
   const handleResend = () => {
@@ -144,7 +162,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
             frame="cta"
             tone="login"
             type="submit"
-            disabled={code.length === 0 || verifyMutation.isPending || isVerified}
+            disabled={(!isVerified && code.length === 0) || verifyMutation.isPending}
           >
             다음
           </Button>
