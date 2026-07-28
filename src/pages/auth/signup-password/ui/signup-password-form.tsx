@@ -3,11 +3,9 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { useSignupDraftStore } from '@/features/auth/signup-flow';
-import { Button } from '@/shared/ui/button';
+import { SignupStepActions, useSignupDraftStore } from '@/features/auth/signup-flow';
 import { FormPanelHeader } from '@/shared/ui/form-panel';
 import { InputField, type InputFieldFeedback } from '@/shared/ui/input-field';
-import { HStack } from '@/shared/ui/layout/h-stack';
 import { VStack } from '@/shared/ui/layout/v-stack';
 import { BrandSymbol } from '@/shared/ui/symbol';
 import { signupPasswordSchema } from '@/pages/auth/signup-password/model/signup-password-schema';
@@ -167,21 +165,7 @@ function HydratedSignupPasswordForm({
           </VStack>
         </VStack>
 
-        <HStack className="gap-012">
-          <Button
-            frame="cta"
-            tone="secondary"
-            size="m"
-            type="button"
-            className="flex-1"
-            onClick={handlePrevious}
-          >
-            이전
-          </Button>
-          <Button frame="cta" tone="login" type="submit" className="flex-1">
-            다음
-          </Button>
-        </HStack>
+        <SignupStepActions onPrevious={handlePrevious} />
       </VStack>
     </>
   );
