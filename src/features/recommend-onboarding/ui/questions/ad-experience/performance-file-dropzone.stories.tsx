@@ -4,7 +4,7 @@
 
 import { useState, type JSX } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { expect, fireEvent, fn, userEvent, within } from 'storybook/test';
+import { expect, fireEvent, fn, userEvent, waitFor, within } from 'storybook/test';
 
 import type { UploadedPerformanceFile } from '@/features/recommend-onboarding/model/recommend-onboarding-options';
 import {
@@ -93,7 +93,7 @@ export const DragActive: Story = {
 
     await fireEvent(dropzone, createFileDragEvent('dragenter', file));
 
-    await expect(dropzone).toHaveClass('bg-sys-primary-lower');
+    await waitFor(() => expect(dropzone).toHaveClass('bg-sys-primary-lower'));
     await expect(canvas.getByText('여기에 파일을 놓아 주세요')).toBeVisible();
     await expect(canvas.queryByText('파일을 드래그하거나 클릭해서 업로드')).not.toBeInTheDocument();
   },
@@ -108,7 +108,7 @@ export const DragCancel: Story = {
     });
 
     await fireEvent(dropzone, createFileDragEvent('dragenter', file));
-    await expect(canvas.getByText('여기에 파일을 놓아 주세요')).toBeVisible();
+    await waitFor(() => expect(canvas.getByText('여기에 파일을 놓아 주세요')).toBeVisible());
 
     await fireEvent(
       dropzone,
@@ -118,7 +118,9 @@ export const DragCancel: Story = {
       }),
     );
 
-    await expect(canvas.getByText('파일을 드래그하거나 클릭해서 업로드')).toBeVisible();
+    await waitFor(() =>
+      expect(canvas.getByText('파일을 드래그하거나 클릭해서 업로드')).toBeVisible(),
+    );
     await expect(canvas.queryByText('여기에 파일을 놓아 주세요')).not.toBeInTheDocument();
   },
 };
@@ -136,16 +138,18 @@ export const DragAndDropValidation: Story = {
     });
 
     await fireEvent(dropzone, createFileDragEvent('dragenter', validFile));
-    await expect(dropzone).toHaveClass('bg-sys-primary-lower');
+    await waitFor(() => expect(dropzone).toHaveClass('bg-sys-primary-lower'));
     await expect(canvas.getByText('여기에 파일을 놓아 주세요')).toBeVisible();
 
     await fireEvent(dropzone, createFileDragEvent('drop', invalidFile));
-    await expect(canvas.getByRole('alert')).toHaveTextContent(
-      '.csv 또는 .xlsx 파일만 업로드할 수 있어요.',
+    await waitFor(() =>
+      expect(canvas.getByRole('alert')).toHaveTextContent(
+        '.csv 또는 .xlsx 파일만 업로드할 수 있어요.',
+      ),
     );
 
     await fireEvent(dropzone, createFileDragEvent('drop', validFile));
-    await expect(canvas.getByText('performance.xlsx')).toBeVisible();
+    await waitFor(() => expect(canvas.getByText('performance.xlsx')).toBeVisible());
     await expect(canvas.queryByRole('alert')).not.toBeInTheDocument();
   },
 };
