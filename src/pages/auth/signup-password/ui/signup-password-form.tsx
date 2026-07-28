@@ -1,10 +1,14 @@
 'use client';
 
-import { useEffect, useState, type ChangeEvent, type FormEventHandler, type JSX } from 'react';
+import { useState, type ChangeEvent, type FormEventHandler, type JSX } from 'react';
 import { useRouter } from 'next/navigation';
 import { useShallow } from 'zustand/react/shallow';
 
-import { SignupStepActions, useSignupDraftStore } from '@/features/auth/signup-flow';
+import {
+  SignupStepActions,
+  useSignupDraftStore,
+  useSignupStepGuard,
+} from '@/features/auth/signup-flow';
 import { FormPanelHeader } from '@/shared/ui/form-panel';
 import { InputField, type InputFieldFeedback } from '@/shared/ui/input-field';
 import { VStack } from '@/shared/ui/layout/v-stack';
@@ -35,28 +39,15 @@ function getPasswordFeedback(password: string, passwordConfirmation: string): Pa
 }
 
 export function SignupPasswordForm(): JSX.Element | null {
-  const router = useRouter();
-  const {
-    email,
-    emailVerified,
-    password: savedPassword,
-    hasHydrated,
-  } = useSignupDraftStore(
+  const canAccessStep = useSignupStepGuard('password');
+  const { email, password: savedPassword } = useSignupDraftStore(
     useShallow((state) => ({
       email: state.email,
-      emailVerified: state.emailVerified,
       password: state.password,
-      hasHydrated: state.hasHydrated,
     })),
   );
 
-  useEffect(() => {
-    if (hasHydrated && (!email || !emailVerified)) {
-      router.replace('/login');
-    }
-  }, [email, emailVerified, hasHydrated, router]);
-
-  if (!hasHydrated || !email || !emailVerified) {
+  if (!canAccessStep) {
     return null;
   }
 

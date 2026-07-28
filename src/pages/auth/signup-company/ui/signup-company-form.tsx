@@ -1,10 +1,13 @@
 'use client';
 
-import { useEffect, useState, type ChangeEvent, type FormEventHandler, type JSX } from 'react';
+import { useState, type ChangeEvent, type FormEventHandler, type JSX } from 'react';
 import { useRouter } from 'next/navigation';
-import { useShallow } from 'zustand/react/shallow';
 
-import { SignupStepActions, useSignupDraftStore } from '@/features/auth/signup-flow';
+import {
+  SignupStepActions,
+  useSignupDraftStore,
+  useSignupStepGuard,
+} from '@/features/auth/signup-flow';
 import { FormPanelHeader } from '@/shared/ui/form-panel';
 import { InputField, type InputFieldFeedback } from '@/shared/ui/input-field';
 import { VStack } from '@/shared/ui/layout/v-stack';
@@ -12,46 +15,10 @@ import { BrandSymbol } from '@/shared/ui/symbol';
 import { signupCompanySchema } from '@/pages/auth/signup-company/model/signup-company-schema';
 
 export function SignupCompanyForm(): JSX.Element | null {
-  const router = useRouter();
-  const {
-    email,
-    emailVerified,
-    password,
-    nickname,
-    companyName: savedCompanyName,
-    hasHydrated,
-  } = useSignupDraftStore(
-    useShallow((state) => ({
-      email: state.email,
-      emailVerified: state.emailVerified,
-      password: state.password,
-      nickname: state.nickname,
-      companyName: state.companyName,
-      hasHydrated: state.hasHydrated,
-    })),
-  );
+  const canAccessStep = useSignupStepGuard('company');
+  const savedCompanyName = useSignupDraftStore((state) => state.companyName);
 
-  useEffect(() => {
-    if (!hasHydrated) {
-      return;
-    }
-
-    if (!email || !emailVerified) {
-      router.replace('/login');
-      return;
-    }
-
-    if (!password) {
-      router.replace('/signup/password');
-      return;
-    }
-
-    if (!nickname) {
-      router.replace('/signup/name');
-    }
-  }, [email, emailVerified, hasHydrated, nickname, password, router]);
-
-  if (!hasHydrated || !email || !emailVerified || !password || !nickname) {
+  if (!canAccessStep) {
     return null;
   }
 
