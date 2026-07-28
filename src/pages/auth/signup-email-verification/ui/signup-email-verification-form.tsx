@@ -20,7 +20,7 @@ const INVALID_OR_EXPIRED_CODE_MESSAGE =
 export function SignupEmailVerificationForm({ email }: { email: string }): JSX.Element {
   const [code, setCode] = useState('');
   const [feedback, setFeedback] = useState<InputFieldFeedback>();
-  const initiallySentEmailRef = useRef<string>();
+  const initiallySentEmailRef = useRef<string | undefined>(undefined);
   const initialSendMutation = useMutation({
     mutationFn: sendSignupEmailVerificationCode,
     onError: (error) => {
