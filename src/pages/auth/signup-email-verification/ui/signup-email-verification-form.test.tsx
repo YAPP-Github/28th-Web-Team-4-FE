@@ -20,11 +20,13 @@ const verifySignupEmailCodeMock = vi.mocked(verifySignupEmailCode);
 
 function createDeferred() {
   let resolve!: () => void;
-  const promise = new Promise<void>((resolvePromise) => {
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<void>((resolvePromise, rejectPromise) => {
     resolve = resolvePromise;
+    reject = rejectPromise;
   });
 
-  return { promise, resolve };
+  return { promise, resolve, reject };
 }
 
 function renderVerificationForm({ strict = false }: { strict?: boolean } = {}) {
@@ -100,6 +102,28 @@ describe('SignupEmailVerificationForm', () => {
     expect(codeInput).toHaveValue('123456');
   });
 
+  it('preserves verification success when the initial send fails later', async () => {
+    const user = userEvent.setup();
+    const initialSend = createDeferred();
+    sendSignupEmailVerificationCodeMock.mockReturnValue(initialSend.promise);
+    verifySignupEmailCodeMock.mockResolvedValue();
+    renderVerificationForm();
+
+    const codeInput = screen.getByRole('textbox', { name: '인증 코드' });
+    await user.type(codeInput, '123456');
+    await user.click(screen.getByRole('button', { name: '다음' }));
+
+    expect(await screen.findByRole('status')).toHaveTextContent('인증이 완료됐어요.');
+
+    await act(async () => {
+      initialSend.reject(new Error('send failed'));
+      await initialSend.promise.catch(() => undefined);
+    });
+
+    expect(screen.getByRole('status')).toHaveTextContent('인증이 완료됐어요.');
+    expect(codeInput).toHaveValue('123456');
+  });
+
   it('shows a format error before calling the verification API', async () => {
     const user = userEvent.setup();
     renderVerificationForm();
@@ -165,6 +189,32 @@ describe('SignupEmailVerificationForm', () => {
     await waitFor(() => {
       expect(codeInput).toHaveValue('');
     });
+  });
+
+  it('preserves verification success when a resend finishes later', async () => {
+    const user = userEvent.setup();
+    const resend = createDeferred();
+    sendSignupEmailVerificationCodeMock.mockResolvedValueOnce().mockReturnValueOnce(resend.promise);
+    verifySignupEmailCodeMock.mockResolvedValue();
+    renderVerificationForm();
+
+    const codeInput = screen.getByRole('textbox', { name: '인증 코드' });
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: '인증 코드 다시 보내기' })).toBeEnabled();
+    });
+    await user.type(codeInput, '123456');
+    await user.click(screen.getByRole('button', { name: '인증 코드 다시 보내기' }));
+    await user.click(screen.getByRole('button', { name: '다음' }));
+
+    expect(await screen.findByRole('status')).toHaveTextContent('인증이 완료됐어요.');
+
+    await act(() => {
+      resend.resolve();
+      return resend.promise;
+    });
+
+    expect(screen.getByRole('status')).toHaveTextContent('인증이 완료됐어요.');
+    expect(codeInput).toHaveValue('123456');
   });
 
   it('disables code actions only while verification is pending', async () => {

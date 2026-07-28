@@ -21,9 +21,14 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
   const [code, setCode] = useState('');
   const [feedback, setFeedback] = useState<InputFieldFeedback>();
   const initiallySentEmailRef = useRef<string | undefined>(undefined);
+  const isVerifiedRef = useRef(false);
   const initialSendMutation = useMutation({
     mutationFn: sendSignupEmailVerificationCode,
     onError: (error) => {
+      if (isVerifiedRef.current) {
+        return;
+      }
+
       setFeedback({
         tone: 'error',
         message: getApiErrorMessage(error, '인증 코드를 보내는 중 문제가 발생했습니다.'),
@@ -33,6 +38,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
   const verifyMutation = useMutation({
     mutationFn: verifySignupEmailCode,
     onSuccess: () => {
+      isVerifiedRef.current = true;
       setFeedback({ tone: 'success', message: '인증이 완료됐어요.' });
     },
     onError: (error) => {
@@ -48,10 +54,18 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
   const resendMutation = useMutation({
     mutationFn: sendSignupEmailVerificationCode,
     onSuccess: () => {
+      if (isVerifiedRef.current) {
+        return;
+      }
+
       setCode('');
       setFeedback(undefined);
     },
     onError: (error) => {
+      if (isVerifiedRef.current) {
+        return;
+      }
+
       setFeedback({
         tone: 'error',
         message: getApiErrorMessage(error, '인증 코드를 다시 보내는 중 문제가 발생했습니다.'),
