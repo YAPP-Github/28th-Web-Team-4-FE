@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
+import { useEffect, useState, type ChangeEvent, type FormEventHandler, type JSX } from 'react';
 import { useRouter } from 'next/navigation';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -80,7 +80,7 @@ function HydratedSignupNameForm({ initialNickname }: { initialNickname: string }
     updateNicknameFeedback(validateNickname());
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
     setIsTouched(true);
 

@@ -1,6 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type FormEventHandler,
+  type JSX,
+} from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
@@ -202,7 +209,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
     verifyMutation.mutate({ email, code: result.data.code });
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
 
     if (isVerified) {
