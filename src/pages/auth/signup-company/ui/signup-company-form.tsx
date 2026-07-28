@@ -69,13 +69,13 @@ function HydratedSignupCompanyForm({
   const [feedback, setFeedback] = useState<InputFieldFeedback>();
   const [isTouched, setIsTouched] = useState(false);
 
-  const validateCompanyName = (value = companyName) => {
-    const result = signupCompanySchema.safeParse({ companyName: value });
+  const validateCompanyName = (value = companyName) =>
+    signupCompanySchema.safeParse({ companyName: value });
+
+  const updateCompanyNameFeedback = (result: ReturnType<typeof validateCompanyName>) => {
     setFeedback(
       result.success ? undefined : { tone: 'error', message: result.error.issues[0]?.message },
     );
-
-    return result;
   };
 
   const handleCompanyNameChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -83,8 +83,13 @@ function HydratedSignupCompanyForm({
     setCompanyName(nextCompanyName);
 
     if (isTouched || feedback) {
-      validateCompanyName(nextCompanyName);
+      updateCompanyNameFeedback(validateCompanyName(nextCompanyName));
     }
+  };
+
+  const handleCompanyNameBlur = () => {
+    setIsTouched(true);
+    updateCompanyNameFeedback(validateCompanyName());
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -92,6 +97,7 @@ function HydratedSignupCompanyForm({
     setIsTouched(true);
 
     const result = validateCompanyName();
+    updateCompanyNameFeedback(result);
 
     if (!result.success) {
       return;
@@ -118,10 +124,7 @@ function HydratedSignupCompanyForm({
           placeholder="회사명을 입력해 주세요"
           value={companyName}
           onChange={handleCompanyNameChange}
-          onBlur={() => {
-            setIsTouched(true);
-            validateCompanyName();
-          }}
+          onBlur={handleCompanyNameBlur}
           feedback={feedback}
         />
 

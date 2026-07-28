@@ -58,13 +58,12 @@ function HydratedSignupNameForm({ initialNickname }: { initialNickname: string }
   const [feedback, setFeedback] = useState<InputFieldFeedback>();
   const [isTouched, setIsTouched] = useState(false);
 
-  const validateNickname = (value = nickname) => {
-    const result = signupNameSchema.safeParse({ nickname: value });
+  const validateNickname = (value = nickname) => signupNameSchema.safeParse({ nickname: value });
+
+  const updateNicknameFeedback = (result: ReturnType<typeof validateNickname>) => {
     setFeedback(
       result.success ? undefined : { tone: 'error', message: result.error.issues[0]?.message },
     );
-
-    return result;
   };
 
   const handleNicknameChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -72,8 +71,13 @@ function HydratedSignupNameForm({ initialNickname }: { initialNickname: string }
     setNickname(nextNickname);
 
     if (isTouched || feedback) {
-      validateNickname(nextNickname);
+      updateNicknameFeedback(validateNickname(nextNickname));
     }
+  };
+
+  const handleNicknameBlur = () => {
+    setIsTouched(true);
+    updateNicknameFeedback(validateNickname());
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -81,6 +85,7 @@ function HydratedSignupNameForm({ initialNickname }: { initialNickname: string }
     setIsTouched(true);
 
     const result = validateNickname();
+    updateNicknameFeedback(result);
 
     if (!result.success) {
       return;
@@ -107,10 +112,7 @@ function HydratedSignupNameForm({ initialNickname }: { initialNickname: string }
           placeholder="이름을 입력해 주세요"
           value={nickname}
           onChange={handleNicknameChange}
-          onBlur={() => {
-            setIsTouched(true);
-            validateNickname();
-          }}
+          onBlur={handleNicknameBlur}
           feedback={feedback}
         />
 
