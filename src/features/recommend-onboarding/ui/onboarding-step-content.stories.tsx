@@ -42,7 +42,7 @@ const meta = {
           context.parameters[ONBOARDING_DRAFT_PARAMETER_KEY] as OnboardingDraft | undefined
         }
       >
-        <div className="w-full max-w-[510px]">
+        <div className="w-full max-w-[518px]">
           <Story />
         </div>
       </OnboardingStoryForm>
@@ -271,12 +271,54 @@ export const AdExperience: Story = {
   args: {
     stepId: 'ad-experience',
   },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const firstTime = canvas.getByRole('radio', { name: '집행은 처음이에요' });
+
+    await userEvent.click(canvas.getByText('집행은 처음이에요'));
+    await expect(firstTime).toBeChecked();
+    await userEvent.click(canvas.getByRole('button', { name: '다음' }));
+    await expect(args.onAction).toHaveBeenCalledOnce();
+  },
+};
+
+export const AdExperienceDetails: Story = {
+  tags: ['!dev'],
+  args: {
+    stepId: 'ad-experience',
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const experienced = canvas.getByRole('radio', { name: '광고를 운영해 봤어요' });
+    const body = within(canvasElement.ownerDocument.body);
 
     await userEvent.click(canvas.getByText('광고를 운영해 봤어요'));
-    await expect(experienced).toBeChecked();
+    await userEvent.click(canvas.getByRole('button', { name: '다음' }));
+
+    await expect(
+      canvas.getByRole('heading', { name: '진행했던 광고 성과들을 알려 주세요' }),
+    ).toBeVisible();
+    await expect(canvas.getByRole('button', { name: '건너뛰기' })).toBeEnabled();
+    await expect(canvas.getByRole('button', { name: '다음' })).toBeDisabled();
+
+    const fileInput = canvas.getByLabelText('광고 성과 파일');
+    const file = new File(['performance'], 'meta-performance.csv', {
+      type: 'text/csv',
+      lastModified: 1,
+    });
+
+    await userEvent.upload(fileInput, file);
+    await expect(canvas.getByText('meta-performance.csv')).toBeVisible();
+    await expect(canvas.getByRole('button', { name: '다음' })).toBeEnabled();
+
+    await userEvent.click(canvas.getByRole('button', { name: 'meta-performance.csv 삭제' }));
+    await expect(canvas.getByRole('button', { name: '다음' })).toBeDisabled();
+
+    await userEvent.click(canvas.getByRole('tab', { name: '직접 입력' }));
+    const channelCombobox = canvas.getByRole('combobox', { name: '광고 채널' });
+    await userEvent.click(channelCombobox);
+    await userEvent.click(body.getByRole('option', { name: '메타 광고' }));
+
+    await expect(channelCombobox).toHaveValue('메타 광고');
     await expect(canvas.getByRole('button', { name: '다음' })).toBeEnabled();
   },
 };

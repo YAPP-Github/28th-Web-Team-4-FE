@@ -82,6 +82,19 @@ describe('file upload validation', () => {
     expect(result.acceptedFileList[0]?.id).not.toBe(result.acceptedFileList[1]?.id);
   });
 
+  it('파일 삭제 후 같은 파일을 다시 추가해도 기존 id와 충돌하지 않는다', () => {
+    const duplicateFile = createFile('same.csv');
+    const initialResult = validatePerformanceFileList(
+      [duplicateFile, duplicateFile, duplicateFile],
+      [],
+    );
+    const remainingFileList = initialResult.acceptedFileList.filter((_, index) => index !== 1);
+    const nextResult = validatePerformanceFileList([duplicateFile], remainingFileList);
+
+    expect(nextResult.acceptedFileList[0]?.id).not.toBe(remainingFileList[0]?.id);
+    expect(nextResult.acceptedFileList[0]?.id).not.toBe(remainingFileList[1]?.id);
+  });
+
   it('파일 크기를 표시용 문자열로 포맷한다', () => {
     expect(formatFileSize(900)).toBe('900B');
     expect(formatFileSize(2048)).toBe('2KB');

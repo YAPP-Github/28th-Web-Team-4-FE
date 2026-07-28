@@ -14,7 +14,7 @@ import {
   type OnboardingStepDefinition,
   type OnboardingStepId,
 } from '@/features/recommend-onboarding/model/recommend-onboarding-state';
-import { AdExperienceQuestion } from '@/features/recommend-onboarding/ui/questions/ad-experience-question';
+import { AdExperienceStepContent } from '@/features/recommend-onboarding/ui/ad-experience-step-content';
 import { AdGoalQuestion } from '@/features/recommend-onboarding/ui/questions/ad-goal-question';
 import { AgeRangeQuestion } from '@/features/recommend-onboarding/ui/questions/age-range-question';
 import { BudgetQuestion } from '@/features/recommend-onboarding/ui/questions/budget-question';
@@ -46,6 +46,11 @@ export function OnboardingStepContent({
     control,
     compute: (draft) => isStepComplete(stepId, draft),
   });
+
+  if (stepId === 'ad-experience') {
+    return <AdExperienceStepContent actionLabel={actionLabel} onAction={onAction} />;
+  }
+
   const step = getStepDefinition(stepId);
   const widthClassName = getQuestionWidthClassName(stepId);
 
@@ -106,6 +111,6 @@ function renderStepQuestion(stepId: OnboardingStepId): JSX.Element {
     case 'campaign-period':
       return <CampaignPeriodQuestion />;
     case 'ad-experience':
-      return <AdExperienceQuestion />;
+      throw new Error('Ad experience step uses AdExperienceStepContent.');
   }
 }

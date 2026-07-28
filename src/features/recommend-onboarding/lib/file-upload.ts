@@ -119,10 +119,7 @@ function createPerformanceFileReducer(
       ...result,
       acceptedFileList: [
         ...result.acceptedFileList,
-        createUploadedPerformanceFile(
-          file,
-          currentFileList.length + result.acceptedFileList.length,
-        ),
+        createUploadedPerformanceFile(file, [...currentFileList, ...result.acceptedFileList]),
       ],
     };
   };
@@ -132,12 +129,23 @@ function createPerformanceFileReducer(
  * 브라우저 File 객체에서 UI와 최종 답변에 저장할 최소 메타데이터를 만든다.
  *
  * @param file 메타데이터로 변환할 브라우저 File 객체
- * @param index 현재 업로드 목록에서의 순번
+ * @param currentFileList id 충돌을 피하기 위해 확인할 현재 업로드 목록
  * @returns UI와 최종 답변에 저장할 파일 메타데이터
  */
-function createUploadedPerformanceFile(file: File, index: number): UploadedPerformanceFile {
+function createUploadedPerformanceFile(
+  file: File,
+  currentFileList: UploadedPerformanceFile[],
+): UploadedPerformanceFile {
+  const usedFileIdSet = new Set(currentFileList.map((currentFile) => currentFile.id));
+  const id =
+    Array.from(
+      { length: MAX_PERFORMANCE_FILE_COUNT },
+      (_, index) => `${index}-${file.name}-${file.size}-${file.lastModified}`,
+    ).find((candidateId) => !usedFileIdSet.has(candidateId)) ??
+    `${currentFileList.length}-${file.name}-${file.size}-${file.lastModified}`;
+
   return {
-    id: `${index}-${file.name}-${file.size}-${file.lastModified}`,
+    id,
     name: file.name,
     size: file.size,
   };

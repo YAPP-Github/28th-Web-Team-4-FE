@@ -186,6 +186,11 @@ export const AD_EXPERIENCE_OPTION_LIST = [
   { value: 'EXPERIENCED', label: '광고를 운영해 봤어요' },
 ] as const satisfies readonly OnboardingOption<AdExperienceType>[];
 
+export const PERFORMANCE_MODE_OPTION_LIST = [
+  { value: 'UPLOAD', label: '파일 업로드' },
+  { value: 'MANUAL', label: '직접 입력' },
+] as const satisfies readonly OnboardingOption<PerformanceMode>[];
+
 export const PERFORMANCE_CHANNEL_OPTION_LIST = [
   { value: 'GOOGLE_SEARCH_ADS', label: '구글 검색 광고' },
   { value: 'NAVER_SA', label: '네이버 SA' },
