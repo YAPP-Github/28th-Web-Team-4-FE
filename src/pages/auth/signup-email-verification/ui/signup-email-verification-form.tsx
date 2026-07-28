@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
 import { getApiErrorCode, getApiErrorMessage } from '@/shared/api/api-error';
@@ -9,7 +9,7 @@ import { FormPanelHeader } from '@/shared/ui/form-panel';
 import { InputField, type InputFieldFeedback } from '@/shared/ui/input-field';
 import { BrandSymbol } from '@/shared/ui/symbol';
 import {
-  resendSignupEmailCode,
+  sendSignupEmailVerificationCode,
   verifySignupEmailCode,
 } from '@/pages/auth/signup-email-verification/api/signup-email-verification';
 import { signupEmailVerificationSchema } from '@/pages/auth/signup-email-verification/model/signup-email-verification-schema';
@@ -20,6 +20,16 @@ const INVALID_OR_EXPIRED_CODE_MESSAGE =
 export function SignupEmailVerificationForm({ email }: { email: string }): JSX.Element {
   const [code, setCode] = useState('');
   const [feedback, setFeedback] = useState<InputFieldFeedback>();
+  const initiallySentEmailRef = useRef<string>();
+  const initialSendMutation = useMutation({
+    mutationFn: sendSignupEmailVerificationCode,
+    onError: (error) => {
+      setFeedback({
+        tone: 'error',
+        message: getApiErrorMessage(error, '인증 코드를 보내는 중 문제가 발생했습니다.'),
+      });
+    },
+  });
   const verifyMutation = useMutation({
     mutationFn: verifySignupEmailCode,
     onSuccess: () => {
@@ -36,7 +46,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
     },
   });
   const resendMutation = useMutation({
-    mutationFn: resendSignupEmailCode,
+    mutationFn: sendSignupEmailVerificationCode,
     onSuccess: () => {
       setCode('');
       setFeedback(undefined);
@@ -49,7 +59,17 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
     },
   });
   const isVerified = feedback?.tone === 'success';
-  const isPending = verifyMutation.isPending || resendMutation.isPending;
+  const isSendingCode = initialSendMutation.isPending || resendMutation.isPending;
+  const { mutate: sendInitialCode } = initialSendMutation;
+
+  useEffect(() => {
+    if (initiallySentEmailRef.current === email) {
+      return;
+    }
+
+    initiallySentEmailRef.current = email;
+    sendInitialCode(email);
+  }, [email, sendInitialCode]);
 
   const handleCodeChange = (event: ChangeEvent<HTMLInputElement>) => {
     setCode(event.currentTarget.value.replace(/\D/g, '').slice(0, 6));
@@ -105,7 +125,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
             placeholder="인증 코드를 입력해 주세요"
             value={code}
             readOnly={isVerified}
-            disabled={isPending}
+            disabled={verifyMutation.isPending}
             onChange={handleCodeChange}
             feedback={feedback}
           />
@@ -115,7 +135,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
           <button
             type="button"
             className="typo-subtitle-xxs text-text-medium self-center underline underline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={isPending || isVerified}
+            disabled={isSendingCode || verifyMutation.isPending || isVerified}
             onClick={handleResend}
           >
             인증 코드 다시 보내기
@@ -124,7 +144,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
             frame="cta"
             tone="login"
             type="submit"
-            disabled={code.length === 0 || isPending || isVerified}
+            disabled={code.length === 0 || verifyMutation.isPending || isVerified}
           >
             다음
           </Button>

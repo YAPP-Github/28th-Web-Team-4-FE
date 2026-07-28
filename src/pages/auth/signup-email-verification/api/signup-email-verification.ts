@@ -1,6 +1,6 @@
 import { sendSignupCode, verifySignupCode } from '@/shared/api/generated';
 
-export async function resendSignupEmailCode(email: string): Promise<void> {
+export async function sendSignupEmailVerificationCode(email: string): Promise<void> {
   await sendSignupCode({
     body: { email },
     throwOnError: true,

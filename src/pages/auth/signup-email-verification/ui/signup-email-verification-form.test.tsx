@@ -1,33 +1,44 @@
+import { StrictMode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import {
-  resendSignupEmailCode,
+  sendSignupEmailVerificationCode,
   verifySignupEmailCode,
 } from '@/pages/auth/signup-email-verification/api/signup-email-verification';
 
 import { SignupEmailVerificationForm } from './signup-email-verification-form';
 
 vi.mock('@/pages/auth/signup-email-verification/api/signup-email-verification', () => ({
-  resendSignupEmailCode: vi.fn<typeof resendSignupEmailCode>(),
+  sendSignupEmailVerificationCode: vi.fn<typeof sendSignupEmailVerificationCode>(),
   verifySignupEmailCode: vi.fn<typeof verifySignupEmailCode>(),
 }));
 
-const resendSignupEmailCodeMock = vi.mocked(resendSignupEmailCode);
+const sendSignupEmailVerificationCodeMock = vi.mocked(sendSignupEmailVerificationCode);
 const verifySignupEmailCodeMock = vi.mocked(verifySignupEmailCode);
 
-function renderVerificationForm() {
+function createDeferred() {
+  let resolve!: () => void;
+  const promise = new Promise<void>((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+
+  return { promise, resolve };
+}
+
+function renderVerificationForm({ strict = false }: { strict?: boolean } = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
       mutations: { retry: false },
       queries: { retry: false },
     },
   });
+  const form = <SignupEmailVerificationForm email="new@example.com" />;
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <SignupEmailVerificationForm email="new@example.com" />
+      {strict ? <StrictMode>{form}</StrictMode> : form}
     </QueryClientProvider>,
   );
 }
@@ -44,6 +55,49 @@ describe('SignupEmailVerificationForm', () => {
     expect(screen.getByText('new@example.com')).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: '인증 코드' })).toHaveAttribute('maxLength', '6');
     expect(screen.getByRole('button', { name: '다음' })).toBeDisabled();
+  });
+
+  it('sends the signup code once when the form opens', async () => {
+    renderVerificationForm({ strict: true });
+
+    await waitFor(() => {
+      expect(sendSignupEmailVerificationCodeMock).toHaveBeenCalledTimes(1);
+    });
+    expect(sendSignupEmailVerificationCodeMock).toHaveBeenCalledWith(
+      'new@example.com',
+      expect.anything(),
+    );
+  });
+
+  it('allows code entry and submission while the initial send is pending', async () => {
+    const user = userEvent.setup();
+    const initialSend = createDeferred();
+    sendSignupEmailVerificationCodeMock.mockReturnValue(initialSend.promise);
+    verifySignupEmailCodeMock.mockResolvedValue();
+    renderVerificationForm();
+
+    await waitFor(() => {
+      expect(sendSignupEmailVerificationCodeMock).toHaveBeenCalledTimes(1);
+    });
+
+    const codeInput = screen.getByRole('textbox', { name: '인증 코드' });
+    await user.type(codeInput, '123456');
+    await user.click(screen.getByRole('button', { name: '다음' }));
+
+    expect(codeInput).toHaveValue('123456');
+    expect(verifySignupEmailCodeMock).toHaveBeenCalledWith(
+      {
+        email: 'new@example.com',
+        code: '123456',
+      },
+      expect.anything(),
+    );
+
+    await act(() => {
+      initialSend.resolve();
+      return initialSend.promise;
+    });
+    expect(codeInput).toHaveValue('123456');
   });
 
   it('shows a format error before calling the verification API', async () => {
@@ -93,14 +147,46 @@ describe('SignupEmailVerificationForm', () => {
 
   it('resends the code and clears the previous input', async () => {
     const user = userEvent.setup();
-    resendSignupEmailCodeMock.mockResolvedValue();
+    sendSignupEmailVerificationCodeMock.mockResolvedValue();
+    renderVerificationForm();
+
+    const codeInput = screen.getByRole('textbox', { name: '인증 코드' });
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: '인증 코드 다시 보내기' })).toBeEnabled();
+    });
+    await user.type(codeInput, '123456');
+    await user.click(screen.getByRole('button', { name: '인증 코드 다시 보내기' }));
+
+    expect(sendSignupEmailVerificationCodeMock).toHaveBeenNthCalledWith(
+      2,
+      'new@example.com',
+      expect.anything(),
+    );
+    await waitFor(() => {
+      expect(codeInput).toHaveValue('');
+    });
+  });
+
+  it('disables code actions only while verification is pending', async () => {
+    const user = userEvent.setup();
+    const verification = createDeferred();
+    sendSignupEmailVerificationCodeMock.mockResolvedValue();
+    verifySignupEmailCodeMock.mockReturnValue(verification.promise);
     renderVerificationForm();
 
     const codeInput = screen.getByRole('textbox', { name: '인증 코드' });
     await user.type(codeInput, '123456');
-    await user.click(screen.getByRole('button', { name: '인증 코드 다시 보내기' }));
+    await user.click(screen.getByRole('button', { name: '다음' }));
 
-    expect(resendSignupEmailCodeMock).toHaveBeenCalledWith('new@example.com', expect.anything());
-    expect(codeInput).toHaveValue('');
+    await waitFor(() => {
+      expect(codeInput).toBeDisabled();
+      expect(screen.getByRole('button', { name: '다음' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: '인증 코드 다시 보내기' })).toBeDisabled();
+    });
+
+    await act(() => {
+      verification.resolve();
+      return verification.promise;
+    });
   });
 });
