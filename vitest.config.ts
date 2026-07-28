@@ -40,6 +40,7 @@ export default defineConfig({
             'motion/react',
             '@number-flow/react',
             'next/link',
+            '@base-ui/react/select',
           ],
         },
         plugins: [
