@@ -9,6 +9,9 @@ import type {
   GetAllSamplesData,
   GetAllSamplesErrors,
   GetAllSamplesResponses,
+  GetChannelData,
+  GetChannelErrors,
+  GetChannelResponses,
   GetChannelsData,
   GetChannelsErrors,
   GetChannelsResponses,
@@ -30,6 +33,9 @@ import type {
   LogoutData,
   LogoutErrors,
   LogoutResponses,
+  PresignOnboardingPerformanceFilesData,
+  PresignOnboardingPerformanceFilesErrors,
+  PresignOnboardingPerformanceFilesResponses,
   RefreshData,
   RefreshErrors,
   RefreshResponses,
@@ -42,6 +48,9 @@ import type {
   SignupGoogleErrors,
   SignupGoogleResponses,
   SignupResponses,
+  SubmitOnboardingData,
+  SubmitOnboardingErrors,
+  SubmitOnboardingResponses,
   VerifySignupCodeData,
   VerifySignupCodeErrors,
   VerifySignupCodeResponses,
@@ -90,6 +99,48 @@ export const createSample = <ThrowOnError extends boolean = false>(
   (options.client ?? client).post<CreateSampleResponses, CreateSampleErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/samples',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * 온보딩 제출
+ *
+ * 로그인 여부와 관계없이 제출할 수 있다. 로그인 상태에서 다시 제출하면 이전 제출을 대체하고, 비로그인은 대체 없이 각각 저장된다.
+ */
+export const submitOnboarding = <ThrowOnError extends boolean = false>(
+  options: Options<SubmitOnboardingData, ThrowOnError>,
+): RequestResult<SubmitOnboardingResponses, SubmitOnboardingErrors, ThrowOnError> =>
+  (options.client ?? client).post<SubmitOnboardingResponses, SubmitOnboardingErrors, ThrowOnError>({
+    url: '/api/v1/onboarding',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * 성과파일 presigned URL 발급
+ *
+ * 성과파일(xlsx/csv) 업로드용 presigned PUT URL을 로그인 여부와 관계없이 발급한다. PUT 요청 시 응답의 contentType 값과 x-amz-tagging: retain=pending 헤더를 그대로 보내야 한다.
+ */
+export const presignOnboardingPerformanceFiles = <ThrowOnError extends boolean = false>(
+  options: Options<PresignOnboardingPerformanceFilesData, ThrowOnError>,
+): RequestResult<
+  PresignOnboardingPerformanceFilesResponses,
+  PresignOnboardingPerformanceFilesErrors,
+  ThrowOnError
+> =>
+  (options.client ?? client).post<
+    PresignOnboardingPerformanceFilesResponses,
+    PresignOnboardingPerformanceFilesErrors,
+    ThrowOnError
+  >({
+    url: '/api/v1/onboarding/ad-history/presigned-urls',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -285,12 +336,25 @@ export const getSampleById = <ThrowOnError extends boolean = false>(
 /**
  * 채널 목록 조회
  *
- * 전체 채널을 페이지 단위로 조회한다. 인증 없이 접근 가능하며, 미지정 시 이름순 12개.
+ * 채널을 페이지 단위로 조회한다. 미지정 시 이름순 12개. name 지정 시 채널명으로 필터링
  */
 export const getChannels = <ThrowOnError extends boolean = false>(
   options?: Options<GetChannelsData, ThrowOnError>,
 ): RequestResult<GetChannelsResponses, GetChannelsErrors, ThrowOnError> =>
   (options?.client ?? client).get<GetChannelsResponses, GetChannelsErrors, ThrowOnError>({
     url: '/api/v1/channels',
+    ...options,
+  });
+
+/**
+ * 채널 상세 조회
+ *
+ * 채널 단건을 상세 조회한다. 채널 정보와 함께 광고 상품 목록, 오디언스 규모 지표, 집행 사례를 반환한다. 상품이 없는 채널은 products 를 빈 배열로 반환한다.
+ */
+export const getChannel = <ThrowOnError extends boolean = false>(
+  options: Options<GetChannelData, ThrowOnError>,
+): RequestResult<GetChannelResponses, GetChannelErrors, ThrowOnError> =>
+  (options.client ?? client).get<GetChannelResponses, GetChannelErrors, ThrowOnError>({
+    url: '/api/v1/channels/{id}',
     ...options,
   });
