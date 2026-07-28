@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
 import { getApiErrorCode, getApiErrorMessage } from '@/shared/api/api-error';
@@ -9,57 +9,177 @@ import { FormPanelHeader } from '@/shared/ui/form-panel';
 import { InputField, type InputFieldFeedback } from '@/shared/ui/input-field';
 import { BrandSymbol } from '@/shared/ui/symbol';
 import {
-  resendSignupEmailCode,
+  sendSignupEmailVerificationCode,
+  type SignupEmailCodeResolution,
   verifySignupEmailCode,
 } from '@/pages/auth/signup-email-verification/api/signup-email-verification';
 import { signupEmailVerificationSchema } from '@/pages/auth/signup-email-verification/model/signup-email-verification-schema';
 
 const INVALID_OR_EXPIRED_CODE_MESSAGE =
   '인증 코드가 올바르지 않거나 만료되었어요. 다시 확인해 주세요.';
+const GOOGLE_ACCOUNT_MESSAGE =
+  'Google 계정으로 가입된 이메일이에요. Google 로그인을 이용해 주세요.';
+const EXISTING_ACCOUNT_MESSAGE = '이미 가입된 이메일이에요. 로그인을 이용해 주세요.';
+
+type VerificationState = {
+  code: string;
+  status: 'error' | 'verified' | 'waiting';
+  errorMessage?: string;
+};
+
+function getVerificationFeedback({
+  status,
+  errorMessage,
+}: VerificationState): InputFieldFeedback | undefined {
+  if (status === 'verified') {
+    return { tone: 'success', message: '인증이 완료됐어요.' };
+  }
+
+  if (status === 'error') {
+    return { tone: 'error', message: errorMessage };
+  }
+
+  return undefined;
+}
+
+function getSendResolutionErrorMessage(resolution: SignupEmailCodeResolution): string | undefined {
+  if (resolution === 'google') {
+    return GOOGLE_ACCOUNT_MESSAGE;
+  }
+
+  if (resolution === 'login') {
+    return EXISTING_ACCOUNT_MESSAGE;
+  }
+
+  return undefined;
+}
 
 export function SignupEmailVerificationForm({ email }: { email: string }): JSX.Element {
-  const [code, setCode] = useState('');
-  const [feedback, setFeedback] = useState<InputFieldFeedback>();
+  const [verificationState, setVerificationState] = useState<VerificationState>({
+    code: '',
+    status: 'waiting',
+  });
+  const initiallySentEmailRef = useRef<string | undefined>(undefined);
+  const initialSendMutation = useMutation({
+    mutationFn: sendSignupEmailVerificationCode,
+    onSuccess: (resolution) => {
+      const errorMessage = getSendResolutionErrorMessage(resolution);
+
+      if (!errorMessage) {
+        return;
+      }
+
+      setVerificationState((previousState) =>
+        previousState.status === 'verified'
+          ? previousState
+          : {
+              ...previousState,
+              status: 'error',
+              errorMessage,
+            },
+      );
+    },
+    onError: (error) => {
+      setVerificationState((previousState) =>
+        previousState.status === 'verified'
+          ? previousState
+          : {
+              ...previousState,
+              status: 'error',
+              errorMessage: getApiErrorMessage(error, '인증 코드를 보내는 중 문제가 발생했습니다.'),
+            },
+      );
+    },
+  });
   const verifyMutation = useMutation({
     mutationFn: verifySignupEmailCode,
     onSuccess: () => {
-      setFeedback({ tone: 'success', message: '인증이 완료됐어요.' });
+      setVerificationState((previousState) => ({
+        ...previousState,
+        status: 'verified',
+        errorMessage: undefined,
+      }));
     },
     onError: (error) => {
-      setFeedback({
-        tone: 'error',
-        message:
+      setVerificationState((previousState) => ({
+        ...previousState,
+        status: 'error',
+        errorMessage:
           getApiErrorCode(error) === 'AUTH-007'
             ? INVALID_OR_EXPIRED_CODE_MESSAGE
             : getApiErrorMessage(error, '인증 코드를 확인하는 중 문제가 발생했습니다.'),
-      });
+      }));
     },
   });
   const resendMutation = useMutation({
-    mutationFn: resendSignupEmailCode,
-    onSuccess: () => {
-      setCode('');
-      setFeedback(undefined);
-    },
-    onError: (error) => {
-      setFeedback({
-        tone: 'error',
-        message: getApiErrorMessage(error, '인증 코드를 다시 보내는 중 문제가 발생했습니다.'),
+    mutationFn: sendSignupEmailVerificationCode,
+    onSuccess: (resolution) => {
+      const errorMessage = getSendResolutionErrorMessage(resolution);
+
+      setVerificationState((previousState) => {
+        if (previousState.status === 'verified') {
+          return previousState;
+        }
+
+        return errorMessage
+          ? {
+              ...previousState,
+              status: 'error',
+              errorMessage,
+            }
+          : {
+              code: '',
+              status: 'waiting',
+            };
       });
     },
+    onError: (error) => {
+      setVerificationState((previousState) =>
+        previousState.status === 'verified'
+          ? previousState
+          : {
+              ...previousState,
+              status: 'error',
+              errorMessage: getApiErrorMessage(
+                error,
+                '인증 코드를 다시 보내는 중 문제가 발생했습니다.',
+              ),
+            },
+      );
+    },
   });
-  const isVerified = feedback?.tone === 'success';
-  const isPending = verifyMutation.isPending || resendMutation.isPending;
+  const { code } = verificationState;
+  const isVerified = verificationState.status === 'verified';
+  const feedback = getVerificationFeedback(verificationState);
+  const isSendingCode = initialSendMutation.isPending || resendMutation.isPending;
+  const { mutate: sendInitialCode } = initialSendMutation;
+
+  useEffect(() => {
+    if (initiallySentEmailRef.current === email) {
+      return;
+    }
+
+    initiallySentEmailRef.current = email;
+    sendInitialCode(email);
+  }, [email, sendInitialCode]);
 
   const handleCodeChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setCode(event.currentTarget.value.replace(/\D/g, '').slice(0, 6));
+    const nextCode = event.currentTarget.value.replace(/\D/g, '').slice(0, 6);
+    setVerificationState((previousState) => ({
+      ...previousState,
+      code: nextCode,
+    }));
   };
 
   const verifyCode = () => {
     const result = signupEmailVerificationSchema.safeParse({ code });
 
     if (!result.success) {
-      setFeedback({ tone: 'error', message: result.error.issues[0]?.message });
+      setVerificationState((previousState) => ({
+        ...previousState,
+        status: 'error',
+        errorMessage: result.error.issues[0]?.message,
+      }));
       return;
     }
 
@@ -105,7 +225,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
             placeholder="인증 코드를 입력해 주세요"
             value={code}
             readOnly={isVerified}
-            disabled={isPending}
+            disabled={verifyMutation.isPending}
             onChange={handleCodeChange}
             feedback={feedback}
           />
@@ -115,7 +235,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
           <button
             type="button"
             className="typo-subtitle-xxs text-text-medium self-center underline underline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={isPending || isVerified}
+            disabled={isSendingCode || verifyMutation.isPending || isVerified}
             onClick={handleResend}
           >
             인증 코드 다시 보내기
@@ -124,7 +244,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
             frame="cta"
             tone="login"
             type="submit"
-            disabled={code.length === 0 || isPending || isVerified}
+            disabled={code.length === 0 || verifyMutation.isPending || isVerified}
           >
             다음
           </Button>

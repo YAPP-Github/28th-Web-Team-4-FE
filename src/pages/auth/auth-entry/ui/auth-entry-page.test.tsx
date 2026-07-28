@@ -2,10 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import {
-  getAuthEmailMethods,
-  sendAuthSignupCode,
-} from '@/pages/auth/auth-entry/api/resolve-auth-email';
+import { getAuthEmailMethods } from '@/pages/auth/auth-entry/api/resolve-auth-email';
 
 import { AuthEntryPage } from './auth-entry-page';
 
@@ -17,11 +14,9 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('@/pages/auth/auth-entry/api/resolve-auth-email', () => ({
   getAuthEmailMethods: vi.fn<typeof getAuthEmailMethods>(),
-  sendAuthSignupCode: vi.fn<typeof sendAuthSignupCode>(),
 }));
 
 const getAuthEmailMethodsMock = vi.mocked(getAuthEmailMethods);
-const sendAuthSignupCodeMock = vi.mocked(sendAuthSignupCode);
 
 function renderAuthEntryPage() {
   const queryClient = new QueryClient({
@@ -116,10 +111,9 @@ describe('AuthEntryPage', () => {
     expect(screen.getByRole('textbox', { name: '이메일' })).toHaveValue('member@example.com');
   });
 
-  it('moves a new account to email verification after sending the code', async () => {
+  it('moves a new account to signup without waiting for code delivery', async () => {
     const user = userEvent.setup();
     getAuthEmailMethodsMock.mockResolvedValue([]);
-    sendAuthSignupCodeMock.mockResolvedValue('signup');
     renderAuthEntryPage();
 
     await user.type(screen.getByRole('textbox', { name: '이메일' }), 'new@example.com');
@@ -133,20 +127,6 @@ describe('AuthEntryPage', () => {
   it('guides a Google-only account to Google login', async () => {
     const user = userEvent.setup();
     getAuthEmailMethodsMock.mockResolvedValue(['GOOGLE']);
-    renderAuthEntryPage();
-
-    await user.type(screen.getByRole('textbox', { name: '이메일' }), 'google@example.com');
-    await user.click(screen.getByRole('button', { name: '이메일로 시작하기' }));
-
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Google 계정으로 가입된 이메일이에요. Google 로그인을 이용해 주세요.',
-    );
-  });
-
-  it('guides to Google login when code delivery finds a Google-only account', async () => {
-    const user = userEvent.setup();
-    getAuthEmailMethodsMock.mockResolvedValue([]);
-    sendAuthSignupCodeMock.mockResolvedValue('google');
     renderAuthEntryPage();
 
     await user.type(screen.getByRole('textbox', { name: '이메일' }), 'google@example.com');
