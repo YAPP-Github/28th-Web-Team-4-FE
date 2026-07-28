@@ -60,6 +60,17 @@ describe('signup email verification API', () => {
     );
   });
 
+  it('rejects an unsuccessful send-code response', async () => {
+    sendSignupCodeMock.mockResolvedValue({
+      data: { success: false },
+      response: new Response(null, { status: 200 }),
+    });
+
+    await expect(sendSignupEmailVerificationCode('new@example.com')).rejects.toThrow(
+      '인증 코드 발송 응답 형식이 올바르지 않습니다.',
+    );
+  });
+
   it('verifies the signup code', async () => {
     verifySignupCodeMock.mockResolvedValue({
       data: { success: true },
