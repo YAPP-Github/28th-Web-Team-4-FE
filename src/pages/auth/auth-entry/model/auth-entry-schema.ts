@@ -7,7 +7,3 @@ export const authEntrySchema = z.object({
 export const loginMethodsSchema = z.object({
   methods: z.array(z.enum(['LOCAL', 'GOOGLE'])),
 });
-
-export const sendSignupCodeResponseSchema = z.object({
-  code: z.literal('EMAIL_ALREADY_USED_WITH_GOOGLE').optional(),
-});

@@ -2,10 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import {
-  getAuthEmailMethods,
-  sendAuthSignupCode,
-} from '@/pages/auth/auth-entry/api/resolve-auth-email';
+import { getAuthEmailMethods } from '@/pages/auth/auth-entry/api/resolve-auth-email';
 
 import { AuthEntryPage } from './auth-entry-page';
 
@@ -17,11 +14,9 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('@/pages/auth/auth-entry/api/resolve-auth-email', () => ({
   getAuthEmailMethods: vi.fn<typeof getAuthEmailMethods>(),
-  sendAuthSignupCode: vi.fn<typeof sendAuthSignupCode>(),
 }));
 
 const getAuthEmailMethodsMock = vi.mocked(getAuthEmailMethods);
-const sendAuthSignupCodeMock = vi.mocked(sendAuthSignupCode);
 
 function renderAuthEntryPage() {
   const queryClient = new QueryClient({
@@ -127,7 +122,6 @@ describe('AuthEntryPage', () => {
     await waitFor(() => {
       expect(pushMock).toHaveBeenCalledWith('/signup?email=new%40example.com');
     });
-    expect(sendAuthSignupCodeMock).not.toHaveBeenCalled();
   });
 
   it('guides a Google-only account to Google login', async () => {
