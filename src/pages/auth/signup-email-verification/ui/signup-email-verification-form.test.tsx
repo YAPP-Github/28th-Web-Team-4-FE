@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import {
   sendSignupEmailVerificationCode,
+  type SignupEmailCodeResolution,
   verifySignupEmailCode,
 } from '@/pages/auth/signup-email-verification/api/signup-email-verification';
 
@@ -18,10 +19,10 @@ vi.mock('@/pages/auth/signup-email-verification/api/signup-email-verification', 
 const sendSignupEmailVerificationCodeMock = vi.mocked(sendSignupEmailVerificationCode);
 const verifySignupEmailCodeMock = vi.mocked(verifySignupEmailCode);
 
-function createDeferred() {
-  let resolve!: () => void;
+function createDeferred<T = void>() {
+  let resolve!: (value: T) => void;
   let reject!: (reason?: unknown) => void;
-  const promise = new Promise<void>((resolvePromise, rejectPromise) => {
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
     resolve = resolvePromise;
     reject = rejectPromise;
   });
@@ -48,6 +49,7 @@ function renderVerificationForm({ strict = false }: { strict?: boolean } = {}) {
 describe('SignupEmailVerificationForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    sendSignupEmailVerificationCodeMock.mockResolvedValue('signup');
   });
 
   it('renders the email verification form', () => {
@@ -73,7 +75,7 @@ describe('SignupEmailVerificationForm', () => {
 
   it('allows code entry and submission while the initial send is pending', async () => {
     const user = userEvent.setup();
-    const initialSend = createDeferred();
+    const initialSend = createDeferred<SignupEmailCodeResolution>();
     sendSignupEmailVerificationCodeMock.mockReturnValue(initialSend.promise);
     verifySignupEmailCodeMock.mockResolvedValue();
     renderVerificationForm();
@@ -96,15 +98,33 @@ describe('SignupEmailVerificationForm', () => {
     );
 
     await act(() => {
-      initialSend.resolve();
+      initialSend.resolve('signup');
       return initialSend.promise;
     });
     expect(codeInput).toHaveValue('123456');
   });
 
+  it('guides a Google-only account to Google login after the initial send response', async () => {
+    sendSignupEmailVerificationCodeMock.mockResolvedValue('google');
+    renderVerificationForm();
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Google 계정으로 가입된 이메일이에요. Google 로그인을 이용해 주세요.',
+    );
+  });
+
+  it('guides an existing local account to login after the initial send response', async () => {
+    sendSignupEmailVerificationCodeMock.mockResolvedValue('login');
+    renderVerificationForm();
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      '이미 가입된 이메일이에요. 로그인을 이용해 주세요.',
+    );
+  });
+
   it('preserves verification success when the initial send fails later', async () => {
     const user = userEvent.setup();
-    const initialSend = createDeferred();
+    const initialSend = createDeferred<SignupEmailCodeResolution>();
     sendSignupEmailVerificationCodeMock.mockReturnValue(initialSend.promise);
     verifySignupEmailCodeMock.mockResolvedValue();
     renderVerificationForm();
@@ -171,7 +191,6 @@ describe('SignupEmailVerificationForm', () => {
 
   it('resends the code and clears the previous input', async () => {
     const user = userEvent.setup();
-    sendSignupEmailVerificationCodeMock.mockResolvedValue();
     renderVerificationForm();
 
     const codeInput = screen.getByRole('textbox', { name: '인증 코드' });
@@ -193,8 +212,10 @@ describe('SignupEmailVerificationForm', () => {
 
   it('preserves verification success when a resend finishes later', async () => {
     const user = userEvent.setup();
-    const resend = createDeferred();
-    sendSignupEmailVerificationCodeMock.mockResolvedValueOnce().mockReturnValueOnce(resend.promise);
+    const resend = createDeferred<SignupEmailCodeResolution>();
+    sendSignupEmailVerificationCodeMock
+      .mockResolvedValueOnce('signup')
+      .mockReturnValueOnce(resend.promise);
     verifySignupEmailCodeMock.mockResolvedValue();
     renderVerificationForm();
 
@@ -209,7 +230,7 @@ describe('SignupEmailVerificationForm', () => {
     expect(await screen.findByRole('status')).toHaveTextContent('인증이 완료됐어요.');
 
     await act(() => {
-      resend.resolve();
+      resend.resolve('signup');
       return resend.promise;
     });
 
@@ -220,7 +241,6 @@ describe('SignupEmailVerificationForm', () => {
   it('disables code actions only while verification is pending', async () => {
     const user = userEvent.setup();
     const verification = createDeferred();
-    sendSignupEmailVerificationCodeMock.mockResolvedValue();
     verifySignupEmailCodeMock.mockReturnValue(verification.promise);
     renderVerificationForm();
 
