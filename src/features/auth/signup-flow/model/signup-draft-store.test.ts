@@ -9,7 +9,7 @@ describe('useSignupDraftStore', () => {
     useSignupDraftStore.getState().setHasHydrated(true);
   });
 
-  it('keeps the signup draft in session storage', () => {
+  it('keeps the password in memory without persisting it to session storage', () => {
     const store = useSignupDraftStore.getState();
 
     store.startEmailSignup('new@example.com');
@@ -28,9 +28,34 @@ describe('useSignupDraftStore', () => {
     expect(persisted.state).toMatchObject({
       email: 'new@example.com',
       emailVerified: true,
-      password: 'Password1!',
     });
+    expect(persisted.state).not.toHaveProperty('password');
     expect(persisted.state).not.toHaveProperty('hasHydrated');
+  });
+
+  it('removes a password persisted by an older store version', async () => {
+    const migrate = useSignupDraftStore.persist.getOptions().migrate;
+
+    const migrated = await migrate?.(
+      {
+        email: 'new@example.com',
+        emailVerified: true,
+        password: 'Password1!',
+        nickname: '',
+        companyName: '',
+        occupation: undefined,
+        serviceTermsAgreed: false,
+        privacyAgreed: false,
+        marketingAgreed: false,
+      },
+      1,
+    );
+
+    expect(migrated).toMatchObject({
+      email: 'new@example.com',
+      emailVerified: true,
+    });
+    expect(migrated).not.toHaveProperty('password');
   });
 
   it('clears the previous draft when signup starts with another email', () => {

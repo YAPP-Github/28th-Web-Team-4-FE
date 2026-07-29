@@ -19,6 +19,8 @@ type SignupDraft = {
   marketingAgreed: boolean;
 };
 
+type PersistedSignupDraft = Omit<SignupDraft, 'password'>;
+
 type SignupDraftStore = SignupDraft & {
   hasHydrated: boolean;
   startEmailSignup: (email: string) => void;
@@ -69,12 +71,11 @@ export const useSignupDraftStore = create<SignupDraftStore>()(
     }),
     {
       name: 'signup-draft',
-      version: 1,
-      storage: createJSONStorage(() => sessionStorage),
+      version: 2,
+      storage: createJSONStorage<PersistedSignupDraft>(() => sessionStorage),
       partialize: ({
         email,
         emailVerified,
-        password,
         nickname,
         companyName,
         occupation,
@@ -84,7 +85,6 @@ export const useSignupDraftStore = create<SignupDraftStore>()(
       }) => ({
         email,
         emailVerified,
-        password,
         nickname,
         companyName,
         occupation,
@@ -92,6 +92,15 @@ export const useSignupDraftStore = create<SignupDraftStore>()(
         privacyAgreed,
         marketingAgreed,
       }),
+      migrate: (persistedState) => {
+        if (!persistedState || typeof persistedState !== 'object') {
+          return initialSignupDraft;
+        }
+
+        const { password: _password, ...persistedSignupDraft } = persistedState as SignupDraft;
+
+        return persistedSignupDraft;
+      },
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
       },
