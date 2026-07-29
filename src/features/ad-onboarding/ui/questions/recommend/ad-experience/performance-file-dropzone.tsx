@@ -147,8 +147,7 @@ export function PerformanceFileDropzone({
       <input
         ref={inputRef}
         type="file"
-        className="sr-only"
-        aria-label="광고 성과 파일"
+        hidden
         accept={ACCEPTED_FILE_TYPE}
         multiple
         onChange={handleInputChange}
@@ -206,7 +205,10 @@ function PerformanceFileDropActiveContent(): JSX.Element {
 /** 업로드된 파일 메타데이터를 삭제 버튼과 함께 표시한다. */
 function PerformanceFileList({ fileList, onRemove }: PerformanceFileListProps): JSX.Element {
   return (
-    <ul className="gap-008 pointer-events-none relative z-10 flex w-full flex-col">
+    <ul
+      aria-live="polite"
+      className="gap-008 pointer-events-none relative z-10 flex w-full flex-col"
+    >
       {fileList.map((file) => (
         <li key={file.id} className="gap-010 flex min-w-0 items-center">
           <button

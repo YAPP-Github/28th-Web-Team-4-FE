@@ -68,11 +68,16 @@ export const Default: Story = {};
 export const ClickUploadAndRemove: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const fileInput = canvas.getByLabelText('광고 성과 파일');
+    const fileInput = canvasElement.querySelector<HTMLInputElement>('input[type="file"]');
     const file = new File(['performance'], 'meta-performance.csv', {
       type: 'text/csv',
       lastModified: 1,
     });
+
+    await expect(fileInput).not.toBeNull();
+    if (!fileInput) {
+      return;
+    }
 
     await userEvent.upload(fileInput, file);
     await expect(canvas.getByText('meta-performance.csv')).toBeVisible();

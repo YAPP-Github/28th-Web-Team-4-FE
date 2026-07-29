@@ -300,11 +300,16 @@ export const AdExperienceDetails: Story = {
     await expect(canvas.getByRole('button', { name: '건너뛰기' })).toBeEnabled();
     await expect(canvas.getByRole('button', { name: '다음' })).toBeDisabled();
 
-    const fileInput = canvas.getByLabelText('광고 성과 파일');
+    const fileInput = canvasElement.querySelector<HTMLInputElement>('input[type="file"]');
     const file = new File(['performance'], 'meta-performance.csv', {
       type: 'text/csv',
       lastModified: 1,
     });
+
+    await expect(fileInput).not.toBeNull();
+    if (!fileInput) {
+      return;
+    }
 
     await userEvent.upload(fileInput, file);
     await expect(canvas.getByText('meta-performance.csv')).toBeVisible();
