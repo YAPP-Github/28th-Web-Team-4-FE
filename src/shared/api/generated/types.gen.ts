@@ -111,6 +111,138 @@ export type SampleResponse = {
 };
 
 /**
+ * 과거 광고 집행 실적 수동입력 1건
+ */
+export type AdHistoryRequest = {
+  /**
+   * 카탈로그 채널 id. 검색바에서 고른 경우에만 보낸다
+   */
+  channelId?: string;
+  /**
+   * 채널명 원문
+   */
+  channelNameRaw: string;
+  /**
+   * 집행 예산(원)
+   */
+  budgetWon?: number;
+  /**
+   * 노출수
+   */
+  impressions?: number;
+  /**
+   * 클릭수
+   */
+  clicks?: number;
+  /**
+   * 전환수
+   */
+  conversions?: number;
+  /**
+   * 집행 기간(일수). 오늘 기준 최근 N일
+   */
+  periodDays?: number;
+};
+
+/**
+ * 온보딩 제출 요청
+ */
+export type SubmitOnboardingRequest = {
+  /**
+   * 서비스명
+   */
+  serviceName: string;
+  /**
+   * 업종
+   */
+  industry:
+    | 'GAME'
+    | 'ENTERTAINMENT'
+    | 'EDUCATION'
+    | 'SOCIAL_COMMUNITY'
+    | 'LIFESTYLE'
+    | 'HEALTH_FITNESS'
+    | 'FOOD_BEVERAGE'
+    | 'SHOPPING_COMMERCE'
+    | 'FINANCE_FINTECH'
+    | 'BUSINESS_B2B'
+    | 'MEDICAL_HEALTHCARE'
+    | 'TRAVEL_ACCOMMODATION'
+    | 'MUSIC_MEDIA'
+    | 'PRODUCTIVITY_UTILITY'
+    | 'SPORTS'
+    | 'NEWS_INFORMATION'
+    | 'OTHERS';
+  /**
+   * 서비스 형태
+   */
+  serviceType: 'MOBILE_APP' | 'WEB' | 'WEB_AND_APP' | 'OTHER';
+  /**
+   * 주요 연령대. 1개 이상
+   */
+  targetAgeBands: Array<'AGE_10S' | 'AGE_20S' | 'AGE_30S' | 'AGE_40S' | 'AGE_50S_PLUS'>;
+  /**
+   * 광고 목표(단일 선택). 앱이면 APP_INSTALL/IN_APP_ACTION도 가능
+   */
+  campaignObjective:
+    | 'AWARENESS'
+    | 'VIDEO_VIEW'
+    | 'TRAFFIC'
+    | 'LEAD'
+    | 'CONVERSION'
+    | 'APP_INSTALL'
+    | 'IN_APP_ACTION';
+  /**
+   * 최소 예산(원)
+   */
+  budgetMin: number;
+  /**
+   * 최대 예산(원)
+   */
+  budgetMax: number;
+  /**
+   * 집행 기간
+   */
+  period: 'LE_1W' | 'W2_3' | 'M1' | 'M2_3' | 'GE_3M';
+  /**
+   * 집행 경험 여부
+   */
+  adExperience: 'NONE' | 'EXPERIENCED';
+  /**
+   * 직접 입력한 집행 내역. 경험 없음이면 빈 배열. 최대 3건
+   */
+  adHistory: Array<AdHistoryRequest>;
+  /**
+   * 업로드 완료한 성과파일 key 목록. 경험 없음이면 빈 배열. 최대 5개
+   */
+  rawFileKeys: Array<string>;
+};
+
+/**
+ * presign 발급할 성과파일 1건의 메타데이터
+ */
+export type PerformanceFileMeta = {
+  /**
+   * 원본 파일명 (확장자 포함)
+   */
+  fileName: string;
+  /**
+   * 파일 크기(바이트, 최대 10MB)
+   */
+  fileSizeBytes: number;
+};
+
+/**
+ * 성과파일 presigned URL 발급 요청
+ */
+export type PresignPerformanceFilesRequest = {
+  /**
+   * 발급할 파일 목록. 최대 5개
+   */
+  files: Array<PerformanceFileMeta>;
+};
+
+/**
  * 회원가입 요청 (이메일 인증 완료 후 제출)
  */
 export type SignupRequest = {
@@ -374,102 +506,6 @@ export type ApiResponseListSampleResponse = {
   code?: string;
 };
 
-export type ApiResponsePageResponseChannelListItemResponse = {
-  /**
-   * 요청 성공 여부
-   */
-  success: boolean;
-  /**
-   * 성공 시 응답 본문. 실패 시 null
-   */
-  data?: PageResponseChannelListItemResponse;
-  /**
-   * 실패 시 에러 정보. 성공 시 null
-   */
-  error?: ErrorResponse;
-  /**
-   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
-   */
-  code?: string;
-};
-
-/**
- * 채널 목록 요약
- */
-export type ChannelListItemResponse = {
-  /**
-   * 채널 식별자
-   */
-  id: string;
-  /**
-   * 채널명
-   */
-  name: string;
-  /**
-   * 로고 이미지 URL
-   */
-  logoUrl?: string;
-  /**
-   * 채널 핵심 요약
-   */
-  description?: string;
-  /**
-   * 대표 업종 코드값
-   */
-  primaryCategory:
-    | 'GAME'
-    | 'ENTERTAINMENT'
-    | 'EDUCATION'
-    | 'SOCIAL_COMMUNITY'
-    | 'LIFESTYLE'
-    | 'HEALTH_FITNESS'
-    | 'FOOD_BEVERAGE'
-    | 'SHOPPING_COMMERCE'
-    | 'FINANCE_FINTECH'
-    | 'BUSINESS_B2B'
-    | 'MEDICAL_HEALTHCARE'
-    | 'TRAVEL_ACCOMMODATION'
-    | 'MUSIC_MEDIA'
-    | 'PRODUCTIVITY_UTILITY'
-    | 'SPORTS'
-    | 'NEWS_INFORMATION'
-    | 'OTHERS';
-};
-
-/**
- * 페이지네이션 응답
- */
-export type PageResponseChannelListItemResponse = {
-  /**
-   * 현재 페이지 항목
-   */
-  content: Array<ChannelListItemResponse>;
-  /**
-   * 현재 페이지 번호(0-base)
-   */
-  number: number;
-  /**
-   * 페이지 크기
-   */
-  size: number;
-  /**
-   * 전체 항목 수
-   */
-  totalElements: number;
-  /**
-   * 전체 페이지 수
-   */
-  totalPages: number;
-  /**
-   * 첫 페이지 여부
-   */
-  first: boolean;
-  /**
-   * 마지막 페이지 여부
-   */
-  last: boolean;
-};
-
 export type GetAllSamplesData = {
   body?: never;
   path?: never;
@@ -523,6 +559,74 @@ export type CreateSampleResponses = {
 };
 
 export type CreateSampleResponse = CreateSampleResponses[keyof CreateSampleResponses];
+
+export type SubmitOnboardingData = {
+  body: SubmitOnboardingRequest;
+  path?: never;
+  query?: never;
+  url: '/api/v1/onboarding';
+};
+
+export type SubmitOnboardingErrors = {
+  /**
+   * 형식 오류(C-001) 또는 비즈니스 규칙 위반(ONB-001~003, ONB-008, ONB-010)
+   */
+  400: ApiResponse;
+  /**
+   * 존재하지 않는 채널(CH-001)
+   */
+  404: ApiResponse;
+  /**
+   * 동시 제출 충돌(ONB-006)
+   */
+  409: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type SubmitOnboardingError = SubmitOnboardingErrors[keyof SubmitOnboardingErrors];
+
+export type SubmitOnboardingResponses = {
+  /**
+   * 제출 성공
+   */
+  201: ApiResponse;
+};
+
+export type SubmitOnboardingResponse = SubmitOnboardingResponses[keyof SubmitOnboardingResponses];
+
+export type PresignOnboardingPerformanceFilesData = {
+  body: PresignPerformanceFilesRequest;
+  path?: never;
+  query?: never;
+  url: '/api/v1/onboarding/ad-history/presigned-urls';
+};
+
+export type PresignOnboardingPerformanceFilesErrors = {
+  /**
+   * 파일 개수(최대 5) 또는 확장자(xlsx/csv)나 크기(10MB) 위반(C-001)
+   */
+  400: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type PresignOnboardingPerformanceFilesError =
+  PresignOnboardingPerformanceFilesErrors[keyof PresignOnboardingPerformanceFilesErrors];
+
+export type PresignOnboardingPerformanceFilesResponses = {
+  /**
+   * 발급 성공
+   */
+  200: ApiResponse;
+};
+
+export type PresignOnboardingPerformanceFilesResponse =
+  PresignOnboardingPerformanceFilesResponses[keyof PresignOnboardingPerformanceFilesResponses];
 
 export type SignupData = {
   body: SignupRequest;
@@ -897,6 +1001,10 @@ export type GetChannelsData = {
   path?: never;
   query?: {
     /**
+     * 채널명 검색어
+     */
+    name?: string;
+    /**
      * Zero-based page index (0..N)
      */
     page?: number;
@@ -925,7 +1033,41 @@ export type GetChannelsResponses = {
   /**
    * 조회 성공
    */
-  200: ApiResponsePageResponseChannelListItemResponse;
+  200: ApiResponse;
 };
 
 export type GetChannelsResponse = GetChannelsResponses[keyof GetChannelsResponses];
+
+export type GetChannelData = {
+  body?: never;
+  path: {
+    /**
+     * 채널 식별자
+     */
+    id: string;
+  };
+  query?: never;
+  url: '/api/v1/channels/{id}';
+};
+
+export type GetChannelErrors = {
+  /**
+   * 존재하지 않는 채널(CH-001)
+   */
+  404: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type GetChannelError = GetChannelErrors[keyof GetChannelErrors];
+
+export type GetChannelResponses = {
+  /**
+   * 조회 성공
+   */
+  200: ApiResponse;
+};
+
+export type GetChannelResponse = GetChannelResponses[keyof GetChannelResponses];
