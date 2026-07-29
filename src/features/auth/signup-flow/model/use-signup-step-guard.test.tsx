@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 
-import { useSignupDraftStore } from './signup-draft-store';
+import { useSignupDraftStore, type SignupOccupation } from './signup-draft-store';
 import { useSignupStepGuard, type SignupStep } from './use-signup-step-guard';
 
 const replaceMock = vi.fn<(href: string) => void>();
@@ -16,12 +16,14 @@ function setSignupDraft({
   emailVerified = false,
   password = '',
   nickname = '',
+  occupation,
   hasHydrated = true,
 }: {
   email?: string;
   emailVerified?: boolean;
   password?: string;
   nickname?: string;
+  occupation?: SignupOccupation;
   hasHydrated?: boolean;
 } = {}) {
   useSignupDraftStore.setState(
@@ -30,6 +32,7 @@ function setSignupDraft({
       emailVerified,
       password,
       nickname,
+      occupation,
       hasHydrated,
     },
     false,
@@ -73,6 +76,16 @@ describe('useSignupStepGuard', () => {
       { email: 'new@example.com', emailVerified: true, password: 'Password1!' },
       '/signup/name',
     ],
+    [
+      'terms',
+      {
+        email: 'new@example.com',
+        emailVerified: true,
+        password: 'Password1!',
+        nickname: '채소러버',
+      },
+      '/signup/occupation',
+    ],
   ])('redirects the %s step to its missing prerequisite', (step, draft, redirectPath) => {
     setSignupDraft(draft);
 
@@ -91,6 +104,21 @@ describe('useSignupStepGuard', () => {
     });
 
     const { result } = renderHook(() => useSignupStepGuard('occupation'));
+
+    expect(result.current).toBe(true);
+    expect(replaceMock).not.toHaveBeenCalled();
+  });
+
+  it('allows the terms step after an occupation is selected', () => {
+    setSignupDraft({
+      email: 'new@example.com',
+      emailVerified: true,
+      password: 'Password1!',
+      nickname: '채소러버',
+      occupation: 'DEVELOPMENT',
+    });
+
+    const { result } = renderHook(() => useSignupStepGuard('terms'));
 
     expect(result.current).toBe(true);
     expect(replaceMock).not.toHaveBeenCalled();
