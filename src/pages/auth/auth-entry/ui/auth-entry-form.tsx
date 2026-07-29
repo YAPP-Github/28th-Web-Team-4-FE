@@ -1,7 +1,10 @@
 'use client';
 
-import { useRef, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
+import { useRef, useState, type JSX } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import { useForm, useWatch } from 'react-hook-form';
+import type { z } from 'zod';
 
 import { AuthForm } from '@/features/auth/auth-form';
 import { getApiErrorMessage } from '@/shared/api/api-error';
@@ -15,11 +18,8 @@ import { useResolveAuthEmail } from '@/pages/auth/auth-entry/model/use-resolve-a
 
 const EMAIL_VALIDATION_DEBOUNCE_MS = 400;
 
-function getEmailErrorMessage(email: string): string | undefined {
-  const result = authEntrySchema.safeParse({ email });
-
-  return result.success ? undefined : result.error.issues[0]?.message;
-}
+type AuthEntryInput = z.input<typeof authEntrySchema>;
+type AuthEntryOutput = z.output<typeof authEntrySchema>;
 
 function ExistingAccountForm({
   email,
@@ -85,36 +85,40 @@ function ExistingAccountForm({
 
 export function AuthEntryForm(): JSX.Element {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [errorMessage, setErrorMessage] = useState<string>();
   const [existingAccountEmail, setExistingAccountEmail] = useState<string>();
   const hasEditedEmailRef = useRef(false);
   const resolveEmailMutation = useResolveAuthEmail();
+  const {
+    clearErrors,
+    control,
+    formState: { errors },
+    handleSubmit,
+    register,
+    setError,
+    trigger,
+  } = useForm<AuthEntryInput, unknown, AuthEntryOutput>({
+    defaultValues: { email: '' },
+    resolver: zodResolver(authEntrySchema),
+    reValidateMode: 'onSubmit',
+  });
+  const email = useWatch({ control, name: 'email' });
+  const emailRegistration = register('email', {
+    onChange: () => {
+      hasEditedEmailRef.current = true;
+    },
+  });
 
-  useDebounce(email, EMAIL_VALIDATION_DEBOUNCE_MS, (debouncedEmail) => {
+  useDebounce(email, EMAIL_VALIDATION_DEBOUNCE_MS, () => {
     if (!hasEditedEmailRef.current) {
       return;
     }
 
-    setErrorMessage(getEmailErrorMessage(debouncedEmail));
+    void trigger('email');
   });
 
-  const handleEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setEmail(event.currentTarget.value);
-    hasEditedEmailRef.current = true;
-  };
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const result = authEntrySchema.safeParse({ email });
-
-    if (!result.success) {
-      setErrorMessage(result.error.issues[0]?.message);
-      return;
-    }
-
-    setErrorMessage(undefined);
-    resolveEmailMutation.mutate(result.data.email, {
+  const submit = handleSubmit(({ email: validatedEmail }) => {
+    clearErrors('email');
+    resolveEmailMutation.mutate(validatedEmail, {
       onSuccess: (resolution) => {
         if (resolution.type === 'login') {
           setExistingAccountEmail(resolution.email);
@@ -122,7 +126,10 @@ export function AuthEntryForm(): JSX.Element {
         }
 
         if (resolution.type === 'google') {
-          setErrorMessage('Google 계정으로 가입된 이메일이에요. Google 로그인을 이용해 주세요.');
+          setError('email', {
+            message: 'Google 계정으로 가입된 이메일이에요. Google 로그인을 이용해 주세요.',
+            type: 'server',
+          });
           return;
         }
 
@@ -130,10 +137,13 @@ export function AuthEntryForm(): JSX.Element {
         router.push(`/signup?${searchParams.toString()}`);
       },
       onError: (error: unknown) => {
-        setErrorMessage(getApiErrorMessage(error, '이메일을 확인하는 중 문제가 발생했습니다.'));
+        setError('email', {
+          message: getApiErrorMessage(error, '이메일을 확인하는 중 문제가 발생했습니다.'),
+          type: 'server',
+        });
       },
     });
-  };
+  });
 
   if (existingAccountEmail) {
     return (
@@ -172,25 +182,23 @@ export function AuthEntryForm(): JSX.Element {
       title="이메일로 시작하기"
       titleId="auth-entry-title"
       noValidate
-      onSubmit={handleSubmit}
+      onSubmit={submit}
     >
       <InputField
-        name="email"
         type="email"
         autoComplete="email"
         placeholder="이메일을 입력해 주세요"
         aria-label="이메일"
-        value={email}
         disabled={resolveEmailMutation.isPending}
-        onChange={handleEmailChange}
         feedback={
-          errorMessage
+          errors.email
             ? {
                 tone: 'error',
-                message: errorMessage,
+                message: errors.email.message,
               }
             : undefined
         }
+        {...emailRegistration}
       />
     </AuthForm>
   );
