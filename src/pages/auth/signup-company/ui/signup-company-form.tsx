@@ -8,10 +8,8 @@ import {
   useSignupDraftStore,
   useSignupStepGuard,
 } from '@/features/auth/signup-flow';
-import { FormPanelHeader } from '@/shared/ui/form-panel';
+import { AuthForm } from '@/features/auth/auth-form';
 import { InputField, type InputFieldFeedback } from '@/shared/ui/input-field';
-import { VStack } from '@/shared/ui/layout/v-stack';
-import { BrandSymbol } from '@/shared/ui/symbol';
 import { signupCompanySchema } from '@/pages/auth/signup-company/model/signup-company-schema';
 
 export function SignupCompanyForm(): JSX.Element | null {
@@ -75,28 +73,23 @@ function HydratedSignupCompanyForm({
   };
 
   return (
-    <>
-      <FormPanelHeader
-        graphic={<BrandSymbol className="h-[29px] w-6" alt="" />}
-        title="회사명 입력하기"
-        titleId="signup-company-title"
+    <AuthForm
+      actions={<SignupStepActions onPrevious={() => router.push('/signup/name')} />}
+      title="회사명 입력하기"
+      titleId="signup-company-title"
+      onSubmit={handleSubmit}
+    >
+      <InputField
+        name="companyName"
+        type="text"
+        autoComplete="organization"
+        aria-label="회사명"
+        placeholder="회사명을 입력해 주세요"
+        value={companyName}
+        onChange={handleCompanyNameChange}
+        onBlur={handleCompanyNameBlur}
+        feedback={feedback}
       />
-
-      <VStack as="form" className="gap-036 w-full items-stretch" noValidate onSubmit={handleSubmit}>
-        <InputField
-          name="companyName"
-          type="text"
-          autoComplete="organization"
-          aria-label="회사명"
-          placeholder="회사명을 입력해 주세요"
-          value={companyName}
-          onChange={handleCompanyNameChange}
-          onBlur={handleCompanyNameBlur}
-          feedback={feedback}
-        />
-
-        <SignupStepActions onPrevious={() => router.push('/signup/name')} />
-      </VStack>
-    </>
+    </AuthForm>
   );
 }

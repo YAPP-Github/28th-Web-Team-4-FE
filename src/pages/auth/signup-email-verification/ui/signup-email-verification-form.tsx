@@ -11,12 +11,12 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
+import { AuthForm } from '@/features/auth/auth-form';
 import { useSignupDraftStore } from '@/features/auth/signup-flow';
 import { getApiErrorCode, getApiErrorMessage } from '@/shared/api/api-error';
 import { Button } from '@/shared/ui/button';
-import { FormPanelHeader } from '@/shared/ui/form-panel';
 import { InputField, type InputFieldFeedback } from '@/shared/ui/input-field';
-import { BrandSymbol } from '@/shared/ui/symbol';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import {
   sendSignupEmailVerificationCode,
   type SignupEmailCodeResolution,
@@ -225,39 +225,9 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
   };
 
   return (
-    <>
-      <FormPanelHeader
-        graphic={<BrandSymbol className="h-[29px] w-6" alt="" />}
-        title="이메일 인증하기"
-        titleId="signup-email-verification-title"
-      />
-
-      <form className="gap-036 flex w-full flex-col" noValidate onSubmit={handleSubmit}>
-        <div className="gap-024 flex flex-col">
-          <div className="gap-004 flex flex-col">
-            <strong className="typo-heading-lg text-text-high break-all">{email}</strong>
-            <p className="typo-subtitle-xxs text-text-default">
-              본인 확인을 위해 위 이메일로 전달된 인증 코드를 입력해 주세요.
-            </p>
-          </div>
-
-          <InputField
-            name="verificationCode"
-            type="text"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            maxLength={6}
-            aria-label="인증 코드"
-            placeholder="인증 코드를 입력해 주세요"
-            value={code}
-            readOnly={isVerified}
-            disabled={verifyMutation.isPending}
-            onChange={handleCodeChange}
-            feedback={feedback}
-          />
-        </div>
-
-        <div className="gap-012 flex flex-col">
+    <AuthForm
+      actions={
+        <VStack className="gap-012 items-stretch">
           <button
             type="button"
             className="typo-subtitle-xxs text-text-medium self-center underline underline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -274,8 +244,35 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
           >
             다음
           </Button>
-        </div>
-      </form>
-    </>
+        </VStack>
+      }
+      onSubmit={handleSubmit}
+      title="이메일 인증하기"
+      titleId="signup-email-verification-title"
+    >
+      <VStack className="gap-024 items-stretch">
+        <VStack className="gap-004 items-stretch">
+          <strong className="typo-heading-lg text-text-high break-all">{email}</strong>
+          <p className="typo-subtitle-xxs text-text-default">
+            본인 확인을 위해 위 이메일로 전달된 인증 코드를 입력해 주세요.
+          </p>
+        </VStack>
+
+        <InputField
+          name="verificationCode"
+          type="text"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          maxLength={6}
+          aria-label="인증 코드"
+          placeholder="인증 코드를 입력해 주세요"
+          value={code}
+          readOnly={isVerified}
+          disabled={verifyMutation.isPending}
+          onChange={handleCodeChange}
+          feedback={feedback}
+        />
+      </VStack>
+    </AuthForm>
   );
 }

@@ -9,10 +9,9 @@ import {
   useSignupDraftStore,
   useSignupStepGuard,
 } from '@/features/auth/signup-flow';
-import { FormPanelHeader } from '@/shared/ui/form-panel';
+import { AuthForm } from '@/features/auth/auth-form';
 import { InputField, type InputFieldFeedback } from '@/shared/ui/input-field';
 import { VStack } from '@/shared/ui/layout/v-stack';
-import { BrandSymbol } from '@/shared/ui/symbol';
 import { signupPasswordSchema } from '@/pages/auth/signup-password/model/signup-password-schema';
 
 const PASSWORD_GUIDE = '비밀번호는 8자 이상으로, 영어·숫자·특수문자를 포함해야 해요';
@@ -124,50 +123,43 @@ function HydratedSignupPasswordForm({
   };
 
   return (
-    <>
-      <FormPanelHeader
-        graphic={<BrandSymbol className="h-[29px] w-6" alt="" />}
-        title="비밀번호 설정하기"
-        titleId="signup-password-title"
-      />
-
-      <VStack as="form" className="gap-036 w-full items-stretch" noValidate onSubmit={handleSubmit}>
-        <VStack className="gap-024 items-stretch">
-          <VStack className="gap-004 items-stretch">
-            <strong className="typo-heading-lg text-text-high break-all">{email}</strong>
-            <p className="typo-subtitle-xxs text-text-default">
-              로그인에 사용할 비밀번호를 설정해요
-            </p>
-          </VStack>
-
-          <VStack className="gap-012 items-stretch">
-            <InputField
-              frame="password"
-              name="password"
-              autoComplete="new-password"
-              aria-label="비밀번호"
-              placeholder="비밀번호를 입력해 주세요"
-              value={password}
-              onChange={handlePasswordChange}
-              onBlur={() => handleBlur('password')}
-              feedback={feedback.password ?? { tone: 'info', message: PASSWORD_GUIDE }}
-            />
-            <InputField
-              frame="password"
-              name="passwordConfirmation"
-              autoComplete="new-password"
-              aria-label="비밀번호 확인"
-              placeholder="비밀번호를 다시 입력해 주세요"
-              value={passwordConfirmation}
-              onChange={handlePasswordConfirmationChange}
-              onBlur={() => handleBlur('passwordConfirmation')}
-              feedback={feedback.passwordConfirmation}
-            />
-          </VStack>
+    <AuthForm
+      actions={<SignupStepActions onPrevious={handlePrevious} />}
+      title="비밀번호 설정하기"
+      titleId="signup-password-title"
+      onSubmit={handleSubmit}
+    >
+      <VStack className="gap-024 items-stretch">
+        <VStack className="gap-004 items-stretch">
+          <strong className="typo-heading-lg text-text-high break-all">{email}</strong>
+          <p className="typo-subtitle-xxs text-text-default">로그인에 사용할 비밀번호를 설정해요</p>
         </VStack>
 
-        <SignupStepActions onPrevious={handlePrevious} />
+        <VStack className="gap-012 items-stretch">
+          <InputField
+            frame="password"
+            name="password"
+            autoComplete="new-password"
+            aria-label="비밀번호"
+            placeholder="비밀번호를 입력해 주세요"
+            value={password}
+            onChange={handlePasswordChange}
+            onBlur={() => handleBlur('password')}
+            feedback={feedback.password ?? { tone: 'info', message: PASSWORD_GUIDE }}
+          />
+          <InputField
+            frame="password"
+            name="passwordConfirmation"
+            autoComplete="new-password"
+            aria-label="비밀번호 확인"
+            placeholder="비밀번호를 다시 입력해 주세요"
+            value={passwordConfirmation}
+            onChange={handlePasswordConfirmationChange}
+            onBlur={() => handleBlur('passwordConfirmation')}
+            feedback={feedback.passwordConfirmation}
+          />
+        </VStack>
       </VStack>
-    </>
+    </AuthForm>
   );
 }

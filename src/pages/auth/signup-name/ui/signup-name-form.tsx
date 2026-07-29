@@ -8,10 +8,8 @@ import {
   useSignupDraftStore,
   useSignupStepGuard,
 } from '@/features/auth/signup-flow';
-import { FormPanelHeader } from '@/shared/ui/form-panel';
+import { AuthForm } from '@/features/auth/auth-form';
 import { InputField, type InputFieldFeedback } from '@/shared/ui/input-field';
-import { VStack } from '@/shared/ui/layout/v-stack';
-import { BrandSymbol } from '@/shared/ui/symbol';
 import { signupNameSchema } from '@/pages/auth/signup-name/model/signup-name-schema';
 
 export function SignupNameForm(): JSX.Element | null {
@@ -70,31 +68,28 @@ function HydratedSignupNameForm({ initialNickname }: { initialNickname: string }
   };
 
   return (
-    <>
-      <FormPanelHeader
-        graphic={<BrandSymbol className="h-[29px] w-6" alt="" />}
-        title="이름 입력하기"
-        titleId="signup-name-title"
-      />
-
-      <VStack as="form" className="gap-036 w-full items-stretch" noValidate onSubmit={handleSubmit}>
-        <InputField
-          name="nickname"
-          type="text"
-          autoComplete="name"
-          aria-label="이름"
-          placeholder="이름을 입력해 주세요"
-          value={nickname}
-          onChange={handleNicknameChange}
-          onBlur={handleNicknameBlur}
-          feedback={feedback}
-        />
-
+    <AuthForm
+      actions={
         <SignupStepActions
           onPrevious={() => router.push('/signup/password')}
           nextDisabled={nickname.trim().length === 0}
         />
-      </VStack>
-    </>
+      }
+      title="이름 입력하기"
+      titleId="signup-name-title"
+      onSubmit={handleSubmit}
+    >
+      <InputField
+        name="nickname"
+        type="text"
+        autoComplete="name"
+        aria-label="이름"
+        placeholder="이름을 입력해 주세요"
+        value={nickname}
+        onChange={handleNicknameChange}
+        onBlur={handleNicknameBlur}
+        feedback={feedback}
+      />
+    </AuthForm>
   );
 }

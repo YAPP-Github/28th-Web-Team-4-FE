@@ -3,13 +3,12 @@
 import { useRef, useState, type ChangeEvent, type FormEvent, type JSX } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { AuthForm } from '@/features/auth/auth-form';
 import { getApiErrorMessage } from '@/shared/api/api-error';
 import { useDebounce } from '@/shared/lib/use-debounce';
 import { Button } from '@/shared/ui/button';
-import { FormPanelHeader } from '@/shared/ui/form-panel';
 import { GoogleLogo } from '@/shared/ui/google-logo';
 import { InputField } from '@/shared/ui/input-field';
-import { BrandSymbol } from '@/shared/ui/symbol';
 import { Text } from '@/shared/ui/text';
 import { authEntrySchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
 import { useResolveAuthEmail } from '@/pages/auth/auth-entry/model/use-resolve-auth-email';
@@ -22,16 +21,6 @@ function getEmailErrorMessage(email: string): string | undefined {
   return result.success ? undefined : result.error.issues[0]?.message;
 }
 
-function AuthHeader({ title }: { title: string }): JSX.Element {
-  return (
-    <FormPanelHeader
-      graphic={<BrandSymbol className="h-[29px] w-6" alt="" />}
-      title={title}
-      titleId="auth-entry-title"
-    />
-  );
-}
-
 function ExistingAccountForm({
   email,
   onBack,
@@ -42,39 +31,8 @@ function ExistingAccountForm({
   const [password, setPassword] = useState('');
 
   return (
-    <>
-      <AuthHeader title="로그인하기" />
-      <form className="flex w-full flex-col gap-12" onSubmit={(event) => event.preventDefault()}>
-        <div className="gap-024 flex flex-col">
-          <label className="gap-008 flex flex-col">
-            <Text variant="body-xl" className="text-text-medium">
-              아이디
-            </Text>
-            <InputField
-              name="email"
-              type="email"
-              autoComplete="email"
-              value={email}
-              readOnly
-              className="cursor-pointer"
-              onClick={onBack}
-            />
-          </label>
-          <label className="gap-008 flex flex-col">
-            <Text variant="body-xl" className="text-text-medium">
-              비밀번호
-            </Text>
-            <InputField
-              frame="password"
-              name="password"
-              autoComplete="current-password"
-              placeholder="비밀번호를 입력해 주세요"
-              value={password}
-              onChange={(event) => setPassword(event.currentTarget.value)}
-            />
-          </label>
-        </div>
-
+    <AuthForm
+      actions={
         <div className="gap-012 flex w-full flex-col">
           <button
             type="button"
@@ -86,8 +44,42 @@ function ExistingAccountForm({
             로그인하기
           </Button>
         </div>
-      </form>
-    </>
+      }
+      className="gap-12"
+      title="로그인하기"
+      titleId="auth-entry-title"
+      onSubmit={(event) => event.preventDefault()}
+    >
+      <div className="gap-024 flex flex-col">
+        <label className="gap-008 flex flex-col">
+          <Text variant="body-xl" className="text-text-medium">
+            아이디
+          </Text>
+          <InputField
+            name="email"
+            type="email"
+            autoComplete="email"
+            value={email}
+            readOnly
+            className="cursor-pointer"
+            onClick={onBack}
+          />
+        </label>
+        <label className="gap-008 flex flex-col">
+          <Text variant="body-xl" className="text-text-medium">
+            비밀번호
+          </Text>
+          <InputField
+            frame="password"
+            name="password"
+            autoComplete="current-password"
+            placeholder="비밀번호를 입력해 주세요"
+            value={password}
+            onChange={(event) => setPassword(event.currentTarget.value)}
+          />
+        </label>
+      </div>
+    </AuthForm>
   );
 }
 
@@ -153,28 +145,8 @@ export function AuthEntryForm(): JSX.Element {
   }
 
   return (
-    <>
-      <AuthHeader title="이메일로 시작하기" />
-      <form className="flex w-full flex-col gap-12" noValidate onSubmit={handleSubmit}>
-        <InputField
-          name="email"
-          type="email"
-          autoComplete="email"
-          placeholder="이메일을 입력해 주세요"
-          aria-label="이메일"
-          value={email}
-          disabled={resolveEmailMutation.isPending}
-          onChange={handleEmailChange}
-          feedback={
-            errorMessage
-              ? {
-                  tone: 'error',
-                  message: errorMessage,
-                }
-              : undefined
-          }
-        />
-
+    <AuthForm
+      actions={
         <div className="gap-012 flex w-full flex-col">
           <button
             type="button"
@@ -195,7 +167,31 @@ export function AuthEntryForm(): JSX.Element {
             Google로 시작하기
           </Button>
         </div>
-      </form>
-    </>
+      }
+      className="gap-12"
+      title="이메일로 시작하기"
+      titleId="auth-entry-title"
+      noValidate
+      onSubmit={handleSubmit}
+    >
+      <InputField
+        name="email"
+        type="email"
+        autoComplete="email"
+        placeholder="이메일을 입력해 주세요"
+        aria-label="이메일"
+        value={email}
+        disabled={resolveEmailMutation.isPending}
+        onChange={handleEmailChange}
+        feedback={
+          errorMessage
+            ? {
+                tone: 'error',
+                message: errorMessage,
+              }
+            : undefined
+        }
+      />
+    </AuthForm>
   );
 }

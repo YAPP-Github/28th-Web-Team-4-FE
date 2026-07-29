@@ -3,19 +3,19 @@ import type { ComponentProps, JSX, ReactNode } from 'react';
 import { cn } from '@/shared/ui/cn';
 import { Text } from '@/shared/ui/text';
 
-export type FormPanelHeaderProps = ComponentProps<'header'> & {
+type AuthFormHeaderProps = ComponentProps<'header'> & {
   graphic: ReactNode;
   title: ReactNode;
   titleId?: string;
 };
 
-export function FormPanelHeader({
+export function AuthFormHeader({
   className,
   graphic,
   title,
   titleId,
   ...props
-}: FormPanelHeaderProps): JSX.Element {
+}: AuthFormHeaderProps): JSX.Element {
   return (
     <header
       className={cn('gap-012 flex w-full flex-col items-center text-center', className)}
