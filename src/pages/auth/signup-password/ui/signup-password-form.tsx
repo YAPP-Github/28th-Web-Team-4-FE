@@ -9,9 +9,11 @@ import {
   useSignupDraftStore,
   useSignupStepGuard,
 } from '@/features/auth/signup-flow';
-import { InputField } from '@/shared/ui/input-field';
+import { InputField, type InputFieldFeedback } from '@/shared/ui/input-field';
 import { VStack } from '@/shared/ui/layout/v-stack';
 import { useSignupPasswordForm } from '@/pages/auth/signup-password/model/use-signup-password-form';
+
+const PASSWORD_GUIDE = '비밀번호는 8자 이상으로, 영어·숫자·특수문자를 포함해야 해요';
 
 export function SignupPasswordForm(): JSX.Element | null {
   const canAccessStep = useSignupStepGuard('password');
@@ -39,7 +41,7 @@ function HydratedSignupPasswordForm({
   const {
     changePassword,
     changePasswordConfirmation,
-    feedback,
+    errors,
     goToPreviousStep,
     password,
     passwordConfirmation,
@@ -47,6 +49,12 @@ function HydratedSignupPasswordForm({
     validatePassword,
     validatePasswordConfirmation,
   } = useSignupPasswordForm({ email, initialPassword });
+  const passwordFeedback: InputFieldFeedback = errors.password
+    ? { tone: 'error', message: errors.password }
+    : { tone: 'info', message: PASSWORD_GUIDE };
+  const passwordConfirmationFeedback: InputFieldFeedback | undefined = errors.passwordConfirmation
+    ? { tone: 'error', message: errors.passwordConfirmation }
+    : undefined;
 
   return (
     <AuthForm
@@ -74,7 +82,7 @@ function HydratedSignupPasswordForm({
             value={password}
             onChange={(event) => changePassword(event.currentTarget.value)}
             onBlur={validatePassword}
-            feedback={feedback.password}
+            feedback={passwordFeedback}
           />
           <InputField
             frame="password"
@@ -85,7 +93,7 @@ function HydratedSignupPasswordForm({
             value={passwordConfirmation}
             onChange={(event) => changePasswordConfirmation(event.currentTarget.value)}
             onBlur={validatePasswordConfirmation}
-            feedback={feedback.passwordConfirmation}
+            feedback={passwordConfirmationFeedback}
           />
         </VStack>
       </VStack>

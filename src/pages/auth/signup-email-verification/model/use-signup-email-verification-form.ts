@@ -7,7 +7,6 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { useSignupDraftStore } from '@/features/auth/signup-flow';
 import { getApiErrorCode, getApiErrorMessage } from '@/shared/api/api-error';
-import type { InputFieldFeedback } from '@/shared/ui/input-field';
 import {
   sendSignupEmailVerificationCode,
   type SignupEmailCodeResolution,
@@ -16,7 +15,6 @@ import {
 import {
   initialSignupEmailVerificationState,
   signupEmailVerificationReducer,
-  type SignupEmailVerificationState,
 } from '@/pages/auth/signup-email-verification/model/signup-email-verification-reducer';
 import { signupEmailVerificationSchema } from '@/pages/auth/signup-email-verification/model/signup-email-verification-schema';
 
@@ -25,21 +23,6 @@ const INVALID_OR_EXPIRED_CODE_MESSAGE =
 const GOOGLE_ACCOUNT_MESSAGE =
   'Google 계정으로 가입된 이메일이에요. Google 로그인을 이용해 주세요.';
 const EXISTING_ACCOUNT_MESSAGE = '이미 가입된 이메일이에요. 로그인을 이용해 주세요.';
-
-function getVerificationFeedback({
-  status,
-  errorMessage,
-}: SignupEmailVerificationState): InputFieldFeedback | undefined {
-  if (status === 'verified') {
-    return { tone: 'success', message: '인증이 완료됐어요.' };
-  }
-
-  if (status === 'error') {
-    return { tone: 'error', message: errorMessage };
-  }
-
-  return undefined;
-}
 
 function getSendResolutionErrorMessage(resolution: SignupEmailCodeResolution): string | undefined {
   if (resolution === 'google') {
@@ -170,11 +153,12 @@ export function useSignupEmailVerificationForm(email: string) {
   return {
     changeCode,
     code,
-    feedback: getVerificationFeedback(verificationState),
+    errorMessage: verificationState.errorMessage,
     isSendingCode,
     isVerified,
     isVerifying: verifyMutation.isPending,
     resendCode,
+    status: verificationState.status,
     submit,
   };
 }

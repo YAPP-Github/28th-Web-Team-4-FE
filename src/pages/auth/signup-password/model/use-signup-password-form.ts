@@ -4,29 +4,26 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useSignupDraftStore } from '@/features/auth/signup-flow';
-import type { InputFieldFeedback } from '@/shared/ui/input-field';
 import { signupPasswordSchema } from '@/pages/auth/signup-password/model/signup-password-schema';
 
-const PASSWORD_GUIDE = '비밀번호는 8자 이상으로, 영어·숫자·특수문자를 포함해야 해요';
-
 type PasswordField = 'password' | 'passwordConfirmation';
-type PasswordFeedback = Partial<Record<PasswordField, InputFieldFeedback>>;
+type PasswordErrors = Partial<Record<PasswordField, string>>;
 
-function getPasswordFeedback(password: string, passwordConfirmation: string): PasswordFeedback {
+function getPasswordErrors(password: string, passwordConfirmation: string): PasswordErrors {
   const result = signupPasswordSchema.safeParse({ password, passwordConfirmation });
 
   if (result.success) {
     return {};
   }
 
-  return result.error.issues.reduce<PasswordFeedback>((feedback, issue) => {
+  return result.error.issues.reduce<PasswordErrors>((errors, issue) => {
     const field = issue.path[0];
 
-    if ((field === 'password' || field === 'passwordConfirmation') && !feedback[field]) {
-      feedback[field] = { tone: 'error', message: issue.message };
+    if ((field === 'password' || field === 'passwordConfirmation') && !errors[field]) {
+      errors[field] = issue.message;
     }
 
-    return feedback;
+    return errors;
   }, {});
 }
 
@@ -41,7 +38,7 @@ export function useSignupPasswordForm({
   const setStoredPassword = useSignupDraftStore((state) => state.setPassword);
   const [password, setPassword] = useState(initialPassword);
   const [passwordConfirmation, setPasswordConfirmation] = useState(initialPassword);
-  const [feedback, setFeedback] = useState<PasswordFeedback>({});
+  const [errors, setErrors] = useState<PasswordErrors>({});
   const [touched, setTouched] = useState<Partial<Record<PasswordField, boolean>>>({});
 
   const validateField = (
@@ -49,18 +46,18 @@ export function useSignupPasswordForm({
     nextPassword = password,
     nextPasswordConfirmation = passwordConfirmation,
   ) => {
-    const nextFeedback = getPasswordFeedback(nextPassword, nextPasswordConfirmation);
-    setFeedback((current) => ({ ...current, [field]: nextFeedback[field] }));
+    const nextErrors = getPasswordErrors(nextPassword, nextPasswordConfirmation);
+    setErrors((current) => ({ ...current, [field]: nextErrors[field] }));
   };
 
   const changePassword = (nextPassword: string) => {
     setPassword(nextPassword);
 
-    if (touched.password || feedback.password) {
+    if (touched.password || errors.password) {
       validateField('password', nextPassword, passwordConfirmation);
     }
 
-    if (touched.passwordConfirmation || feedback.passwordConfirmation) {
+    if (touched.passwordConfirmation || errors.passwordConfirmation) {
       validateField('passwordConfirmation', nextPassword, passwordConfirmation);
     }
   };
@@ -68,7 +65,7 @@ export function useSignupPasswordForm({
   const changePasswordConfirmation = (nextPasswordConfirmation: string) => {
     setPasswordConfirmation(nextPasswordConfirmation);
 
-    if (touched.passwordConfirmation || feedback.passwordConfirmation) {
+    if (touched.passwordConfirmation || errors.passwordConfirmation) {
       validateField('passwordConfirmation', password, nextPasswordConfirmation);
     }
   };
@@ -88,7 +85,7 @@ export function useSignupPasswordForm({
 
     if (!result.success) {
       setTouched({ password: true, passwordConfirmation: true });
-      setFeedback(getPasswordFeedback(password, passwordConfirmation));
+      setErrors(getPasswordErrors(password, passwordConfirmation));
       return;
     }
 
@@ -103,10 +100,7 @@ export function useSignupPasswordForm({
   return {
     changePassword,
     changePasswordConfirmation,
-    feedback: {
-      password: feedback.password ?? { tone: 'info', message: PASSWORD_GUIDE },
-      passwordConfirmation: feedback.passwordConfirmation,
-    } satisfies PasswordFeedback,
+    errors,
     goToPreviousStep,
     password,
     passwordConfirmation,

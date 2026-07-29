@@ -4,13 +4,38 @@ import type { JSX } from 'react';
 
 import { AuthForm } from '@/features/auth/auth-form';
 import { Button } from '@/shared/ui/button';
-import { InputField } from '@/shared/ui/input-field';
+import { InputField, type InputFieldFeedback } from '@/shared/ui/input-field';
 import { VStack } from '@/shared/ui/layout/v-stack';
 import { useSignupEmailVerificationForm } from '@/pages/auth/signup-email-verification/model/use-signup-email-verification-form';
 
+function getVerificationFeedback(
+  status: 'error' | 'verified' | 'waiting',
+  errorMessage?: string,
+): InputFieldFeedback | undefined {
+  if (status === 'verified') {
+    return { tone: 'success', message: '인증이 완료됐어요.' };
+  }
+
+  if (status === 'error') {
+    return { tone: 'error', message: errorMessage };
+  }
+
+  return undefined;
+}
+
 export function SignupEmailVerificationForm({ email }: { email: string }): JSX.Element {
-  const { changeCode, code, feedback, isSendingCode, isVerified, isVerifying, resendCode, submit } =
-    useSignupEmailVerificationForm(email);
+  const {
+    changeCode,
+    code,
+    errorMessage,
+    isSendingCode,
+    isVerified,
+    isVerifying,
+    resendCode,
+    status,
+    submit,
+  } = useSignupEmailVerificationForm(email);
+  const feedback = getVerificationFeedback(status, errorMessage);
 
   return (
     <AuthForm
