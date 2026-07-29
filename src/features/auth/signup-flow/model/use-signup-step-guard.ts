@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useShallow } from 'zustand/react/shallow';
 
-import { useSignupDraftStore } from './signup-draft-store';
+import { useSignupDraftStore, type SignupOccupation } from './signup-draft-store';
 
 export type SignupStep = 'company' | 'name' | 'occupation' | 'password' | 'terms';
 
@@ -12,7 +12,7 @@ type SignupPrerequisites = {
   email: string;
   emailVerified: boolean;
   nickname: string;
-  occupation?: string;
+  occupation?: SignupOccupation;
   password: string;
 };
 
