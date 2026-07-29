@@ -22,7 +22,7 @@ const OCCUPATION_OPTIONS = [
   { value: 'DATA', label: '데이터' },
   { value: 'MANAGEMENT', label: '인사' },
   { value: 'ETC', label: '기타' },
-] satisfies readonly DropdownOption[];
+] satisfies readonly DropdownOption<SignupOccupation>[];
 
 export function SignupOccupationForm(): JSX.Element | null {
   const canAccessStep = useSignupStepGuard('occupation');
@@ -42,7 +42,7 @@ function HydratedSignupOccupationForm({
 }): JSX.Element {
   const router = useRouter();
   const setStoredOccupation = useSignupDraftStore((state) => state.setOccupation);
-  const [occupation, setOccupation] = useState<string | null>(initialOccupation ?? null);
+  const [occupation, setOccupation] = useState<SignupOccupation | null>(initialOccupation ?? null);
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
