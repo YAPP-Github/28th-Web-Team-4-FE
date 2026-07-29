@@ -20,7 +20,7 @@ import {
   type BudgetSliderValue,
 } from '@/features/ad-onboarding/lib/budget-slider';
 import { BUDGET_STEP_LIST, formatBudgetAmount } from '@/features/ad-onboarding/lib/budget-snap';
-import type { BudgetRange } from '@/features/ad-onboarding/model/recommend-onboarding-options';
+import type { BudgetRange } from '@/features/ad-onboarding/model/common-onboarding-options';
 import { cn } from '@/shared/ui/cn';
 import { Text } from '@/shared/ui/text';
 

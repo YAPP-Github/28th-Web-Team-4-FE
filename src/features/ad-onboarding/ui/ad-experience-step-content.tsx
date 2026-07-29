@@ -7,11 +7,9 @@
 import { useState, type JSX, type ReactNode } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
-import { isStepComplete } from '@/features/ad-onboarding/model/recommend-onboarding-rules';
-import {
-  STEP_LIST,
-  type OnboardingDraft,
-} from '@/features/ad-onboarding/model/recommend-onboarding-state';
+import type { RecommendOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
+import { getOnboardingStepDefinition } from '@/features/ad-onboarding/model/onboarding-step';
+import { isRecommendOnboardingStepComplete } from '@/features/ad-onboarding/model/recommend-onboarding-rules';
 import { OnboardingQuestion } from '@/features/ad-onboarding/ui/onboarding-question';
 import { AdExperienceQuestion } from '@/features/ad-onboarding/ui/questions/ad-experience-question';
 import { PerformanceInputQuestion } from '@/features/ad-onboarding/ui/questions/ad-experience/performance-input-question';
@@ -20,7 +18,7 @@ import {
   type StepActionButtonProps,
 } from '@/features/ad-onboarding/ui/step-action-button';
 
-const AD_EXPERIENCE_STEP = STEP_LIST.at(-1);
+const AD_EXPERIENCE_STEP = getOnboardingStepDefinition('ad-experience');
 
 export type AdExperienceStepContentProps = {
   actionLabel?: ReactNode;
@@ -32,17 +30,13 @@ export function AdExperienceStepContent({
   actionLabel = '다음',
   onAction,
 }: AdExperienceStepContentProps): JSX.Element {
-  const { control } = useFormContext<OnboardingDraft>();
+  const { control } = useFormContext<RecommendOnboardingDraft>();
   const [isPerformanceInputOpen, setIsPerformanceInputOpen] = useState(false);
   const adExperienceType = useWatch({ control, name: 'adExperienceType' });
   const isComplete = useWatch({
     control,
-    compute: (draft) => isStepComplete('ad-experience', draft),
+    compute: (draft) => isRecommendOnboardingStepComplete('ad-experience', draft),
   });
-
-  if (!AD_EXPERIENCE_STEP) {
-    throw new Error('Ad experience step definition is missing.');
-  }
 
   if (isPerformanceInputOpen) {
     return (

@@ -1,27 +1,26 @@
 /**
- * 추천 온보딩 draft를 검증하고 최종 답변/표시 label로 변환하는 도메인 규칙을 정의한다.
+ * 추천 전용 8단계 Draft 검증, 연령대 선택, label, 완료 답변 변환 규칙이다.
  */
 
-import { formatBudgetRange, isBudgetRangeEmpty } from '@/features/ad-onboarding/lib/budget-snap';
+import {
+  getCommonOnboardingAnswerLabel,
+  getOnboardingOptionLabel,
+  isCommonOnboardingStepComplete,
+} from './common-onboarding-rules';
+import type { RecommendOnboardingAnswer, PerformanceInput } from './onboarding-answer';
+import type { RecommendOnboardingDraft } from './onboarding-draft';
+import {
+  RECOMMEND_ONBOARDING_STEP_ID_LIST,
+  type RecommendOnboardingStepId,
+} from './onboarding-step';
 import {
   AD_EXPERIENCE_OPTION_LIST,
   AD_GOAL_OPTION_LIST,
   AGE_RANGE_OPTION_LIST,
-  CAMPAIGN_PERIOD_OPTION_LIST,
-  CATEGORY_OPTION_LIST,
   PERFORMANCE_CHANNEL_OPTION_LIST,
-  SERVICE_TYPE_OPTION_LIST,
-  type AgeRangeId,
-  type OnboardingAnswer,
-  type OnboardingOption,
-  type PerformanceInput,
-} from './recommend-onboarding-options';
-import {
-  STEP_LIST,
   UNKNOWN_AGE_RANGE_ID,
-  type OnboardingDraft,
-  type OnboardingStepId,
-} from './recommend-onboarding-state';
+  type AgeRangeId,
+} from './recommend-onboarding-options';
 
 /**
  * 현재 step의 필수 입력이 채워져 다음으로 진행 가능한지 판단한다.
@@ -30,22 +29,21 @@ import {
  * @param draft 현재 온보딩 입력 상태
  * @returns 해당 step의 필수 입력 충족 여부
  */
-export function isStepComplete(stepId: OnboardingStepId, draft: OnboardingDraft): boolean {
+export function isRecommendOnboardingStepComplete(
+  stepId: RecommendOnboardingStepId,
+  draft: RecommendOnboardingDraft,
+): boolean {
   switch (stepId) {
     case 'service-name':
-      return draft.serviceName.trim().length > 0;
     case 'category':
-      return Boolean(draft.category);
     case 'service-type':
-      return Boolean(draft.serviceType);
+    case 'budget':
+    case 'campaign-period':
+      return isCommonOnboardingStepComplete(stepId, draft);
     case 'age-ranges':
       return draft.ageRangeList.length > 0;
     case 'ad-goal':
       return Boolean(draft.adGoal);
-    case 'budget':
-      return !isBudgetRangeEmpty(draft.budget) && draft.budget.minAmount <= draft.budget.maxAmount;
-    case 'campaign-period':
-      return Boolean(draft.campaignPeriod);
     case 'ad-experience':
       return Boolean(draft.adExperienceType);
   }
@@ -95,8 +93,10 @@ export function toggleAgeRange(selectedList: AgeRangeId[], option: AgeRangeId): 
  * @param draft 현재 온보딩 입력 상태
  * @returns 모든 필수값이 채워진 최종 온보딩 답변
  */
-export function buildOnboardingAnswer(draft: OnboardingDraft): OnboardingAnswer {
-  assertOnboardingDraftComplete(draft);
+export function buildRecommendOnboardingAnswer(
+  draft: RecommendOnboardingDraft,
+): RecommendOnboardingAnswer {
+  assertRecommendOnboardingDraftComplete(draft);
 
   return {
     serviceName: draft.serviceName.trim(),
@@ -117,24 +117,23 @@ export function buildOnboardingAnswer(draft: OnboardingDraft): OnboardingAnswer 
  * @param draft 현재 온보딩 입력 상태
  * @returns 답변 버블에 표시할 문자열
  */
-export function getAnswerLabel(stepId: OnboardingStepId, draft: OnboardingDraft): string {
+export function getRecommendOnboardingAnswerLabel(
+  stepId: RecommendOnboardingStepId,
+  draft: RecommendOnboardingDraft,
+): string {
   switch (stepId) {
     case 'service-name':
-      return draft.serviceName.trim();
     case 'category':
-      return getOptionLabel(CATEGORY_OPTION_LIST, draft.category);
     case 'service-type':
-      return getOptionLabel(SERVICE_TYPE_OPTION_LIST, draft.serviceType);
+    case 'budget':
+    case 'campaign-period':
+      return getCommonOnboardingAnswerLabel(stepId, draft);
     case 'age-ranges':
       return draft.ageRangeList
-        .map((ageRange) => getOptionLabel(AGE_RANGE_OPTION_LIST, ageRange))
+        .map((ageRange) => getOnboardingOptionLabel(AGE_RANGE_OPTION_LIST, ageRange))
         .join(', ');
     case 'ad-goal':
-      return getOptionLabel(AD_GOAL_OPTION_LIST, draft.adGoal);
-    case 'budget':
-      return getBudgetAnswerLabel(draft);
-    case 'campaign-period':
-      return getOptionLabel(CAMPAIGN_PERIOD_OPTION_LIST, draft.campaignPeriod);
+      return getOnboardingOptionLabel(AD_GOAL_OPTION_LIST, draft.adGoal);
     case 'ad-experience':
       return getAdExperienceAnswerLabel(draft);
   }
@@ -149,17 +148,21 @@ export function getAnswerLabel(stepId: OnboardingStepId, draft: OnboardingDraft)
  * @param draft 현재 온보딩 입력 상태
  * @throws 완료되지 않은 step이 있으면 해당 step id를 포함한 Error를 던진다.
  */
-function assertOnboardingDraftComplete(draft: OnboardingDraft): asserts draft is OnboardingDraft & {
-  category: NonNullable<OnboardingDraft['category']>;
-  serviceType: NonNullable<OnboardingDraft['serviceType']>;
-  adGoal: NonNullable<OnboardingDraft['adGoal']>;
-  campaignPeriod: NonNullable<OnboardingDraft['campaignPeriod']>;
-  adExperienceType: NonNullable<OnboardingDraft['adExperienceType']>;
+function assertRecommendOnboardingDraftComplete(
+  draft: RecommendOnboardingDraft,
+): asserts draft is RecommendOnboardingDraft & {
+  category: NonNullable<RecommendOnboardingDraft['category']>;
+  serviceType: NonNullable<RecommendOnboardingDraft['serviceType']>;
+  adGoal: NonNullable<RecommendOnboardingDraft['adGoal']>;
+  campaignPeriod: NonNullable<RecommendOnboardingDraft['campaignPeriod']>;
+  adExperienceType: NonNullable<RecommendOnboardingDraft['adExperienceType']>;
 } {
-  const incompleteStep = STEP_LIST.find((step) => !isStepComplete(step.id, draft));
+  const incompleteStepId = RECOMMEND_ONBOARDING_STEP_ID_LIST.find(
+    (stepId) => !isRecommendOnboardingStepComplete(stepId, draft),
+  );
 
-  if (incompleteStep) {
-    throw new Error(`Recommend onboarding draft is incomplete: ${incompleteStep.id}`);
+  if (incompleteStepId) {
+    throw new Error(`Recommend onboarding draft is incomplete: ${incompleteStepId}`);
   }
 }
 
@@ -169,7 +172,9 @@ function assertOnboardingDraftComplete(draft: OnboardingDraft): asserts draft is
  * @param draft 현재 온보딩 입력 상태
  * @returns 최종 답변의 광고 집행 경험 필드
  */
-function buildAdExperienceAnswer(draft: OnboardingDraft): OnboardingAnswer['adExperience'] {
+function buildAdExperienceAnswer(
+  draft: RecommendOnboardingDraft,
+): RecommendOnboardingAnswer['adExperience'] {
   if (draft.adExperienceType === 'FIRST_TIME') {
     return { type: 'FIRST_TIME' };
   }
@@ -189,7 +194,7 @@ function buildAdExperienceAnswer(draft: OnboardingDraft): OnboardingAnswer['adEx
  * @param draft 현재 온보딩 입력 상태
  * @returns 최종 답변에 포함할 성과 입력 정보
  */
-function getPerformanceInput(draft: OnboardingDraft): PerformanceInput | undefined {
+function getPerformanceInput(draft: RecommendOnboardingDraft): PerformanceInput | undefined {
   if (draft.performanceMode === 'UPLOAD' && draft.performanceFileList.length > 0) {
     return {
       mode: 'UPLOAD',
@@ -208,23 +213,13 @@ function getPerformanceInput(draft: OnboardingDraft): PerformanceInput | undefin
 }
 
 /**
- * 최소·최대 예산 답변을 범위 label로 변환한다.
- *
- * @param draft 현재 온보딩 입력 상태
- * @returns 예산 답변 표시 문자열
- */
-function getBudgetAnswerLabel(draft: OnboardingDraft): string {
-  return formatBudgetRange(draft.budget);
-}
-
-/**
  * 광고 집행 경험 답변에 파일 개수나 수동 입력 채널을 덧붙여 요약 label을 만든다.
  *
  * @param draft 현재 온보딩 입력 상태
  * @returns 광고 집행 경험 답변 표시 문자열
  */
-function getAdExperienceAnswerLabel(draft: OnboardingDraft): string {
-  const label = getOptionLabel(AD_EXPERIENCE_OPTION_LIST, draft.adExperienceType);
+function getAdExperienceAnswerLabel(draft: RecommendOnboardingDraft): string {
+  const label = getOnboardingOptionLabel(AD_EXPERIENCE_OPTION_LIST, draft.adExperienceType);
 
   if (draft.adExperienceType !== 'EXPERIENCED') {
     return label;
@@ -235,22 +230,11 @@ function getAdExperienceAnswerLabel(draft: OnboardingDraft): string {
   }
 
   if (draft.performanceMode === 'MANUAL' && draft.performanceChannel) {
-    return `${label} · ${getOptionLabel(PERFORMANCE_CHANNEL_OPTION_LIST, draft.performanceChannel)}`;
+    return `${label} · ${getOnboardingOptionLabel(
+      PERFORMANCE_CHANNEL_OPTION_LIST,
+      draft.performanceChannel,
+    )}`;
   }
 
   return label;
-}
-
-/**
- * enum 스타일 value로 저장된 선택지를 화면 표시용 label로 변환한다.
- *
- * @param optionList label을 찾을 선택지 목록
- * @param value 현재 저장된 선택지 value
- * @returns 선택지 label. 값이 없으면 빈 문자열
- */
-function getOptionLabel<TValue extends string>(
-  optionList: readonly OnboardingOption<TValue>[],
-  value?: TValue,
-): string {
-  return optionList.find((option) => option.value === value)?.label ?? '';
 }

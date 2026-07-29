@@ -11,7 +11,7 @@ import {
   AD_GOAL_GROUP_LIST,
   AD_GOAL_OPTION_LIST,
 } from '@/features/ad-onboarding/model/recommend-onboarding-options';
-import type { OnboardingDraft } from '@/features/ad-onboarding/model/recommend-onboarding-state';
+import type { RecommendOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
 import { SelectCard } from '@/features/ad-onboarding/ui/select-card';
 import { VStack } from '@/shared/ui/layout/v-stack';
 import { RadioGroup } from '@/shared/ui/radio-group';
@@ -22,7 +22,7 @@ export type AdGoalQuestionProps = Record<string, never>;
 
 /** 인지 확대와 행동 유도 그룹을 유지하면서 하나의 라디오 그룹으로 연결한다. */
 export function AdGoalQuestion(_props: AdGoalQuestionProps): JSX.Element {
-  const { control } = useFormContext<OnboardingDraft>();
+  const { control } = useFormContext<RecommendOnboardingDraft>();
   const { field } = useController({ control, name: 'adGoal' });
 
   return (

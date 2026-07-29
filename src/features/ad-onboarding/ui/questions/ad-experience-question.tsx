@@ -8,7 +8,7 @@ import type { JSX } from 'react';
 import { useController, useFormContext } from 'react-hook-form';
 
 import { AD_EXPERIENCE_OPTION_LIST } from '@/features/ad-onboarding/model/recommend-onboarding-options';
-import type { OnboardingDraft } from '@/features/ad-onboarding/model/recommend-onboarding-state';
+import type { RecommendOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
 import { SelectCard } from '@/features/ad-onboarding/ui/select-card';
 import { RadioGroup } from '@/shared/ui/radio-group';
 
@@ -17,7 +17,7 @@ export type AdExperienceQuestionProps = Record<string, never>;
 
 /** 첫 집행과 운영 경험 값을 단일 선택 필드에 연결한다. */
 export function AdExperienceQuestion(_props: AdExperienceQuestionProps): JSX.Element {
-  const { control } = useFormContext<OnboardingDraft>();
+  const { control } = useFormContext<RecommendOnboardingDraft>();
   const { field } = useController({ control, name: 'adExperienceType' });
 
   return (

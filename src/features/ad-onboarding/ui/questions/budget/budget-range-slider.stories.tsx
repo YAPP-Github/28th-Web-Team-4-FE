@@ -7,7 +7,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { formatBudgetRange } from '@/features/ad-onboarding/lib/budget-snap';
-import type { BudgetRange } from '@/features/ad-onboarding/model/recommend-onboarding-options';
+import type { BudgetRange } from '@/features/ad-onboarding/model/common-onboarding-options';
 import { BudgetRangeSlider } from '@/features/ad-onboarding/ui/questions/budget/budget-range-slider';
 import { VStack } from '@/shared/ui/layout/v-stack';
 import { Text } from '@/shared/ui/text';

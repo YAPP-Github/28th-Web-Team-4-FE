@@ -7,7 +7,7 @@
 import { useId, type ChangeEvent, type FocusEvent, type JSX, type KeyboardEvent } from 'react';
 
 import type { BudgetInputRange } from '@/features/ad-onboarding/model/budget-range-input';
-import type { BudgetRange } from '@/features/ad-onboarding/model/recommend-onboarding-options';
+import type { BudgetRange } from '@/features/ad-onboarding/model/common-onboarding-options';
 import { Input } from '@/shared/ui/input';
 import { WarningErrorIcon } from '@/shared/ui/icon';
 import { VStack } from '@/shared/ui/layout/v-stack';

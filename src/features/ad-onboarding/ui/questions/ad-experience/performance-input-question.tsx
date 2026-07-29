@@ -12,7 +12,7 @@ import {
   PERFORMANCE_MODE_OPTION_LIST,
   type PerformanceMode,
 } from '@/features/ad-onboarding/model/recommend-onboarding-options';
-import type { OnboardingDraft } from '@/features/ad-onboarding/model/recommend-onboarding-state';
+import type { RecommendOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
 import { OnboardingQuestion } from '@/features/ad-onboarding/ui/onboarding-question';
 import { PerformanceChannelCombobox } from '@/features/ad-onboarding/ui/questions/ad-experience/performance-channel-combobox';
 import { PerformanceFileDropzone } from '@/features/ad-onboarding/ui/questions/ad-experience/performance-file-dropzone';
@@ -34,7 +34,7 @@ export function PerformanceInputQuestion({
   onAction,
   onSkip,
 }: PerformanceInputQuestionProps): JSX.Element {
-  const { control } = useFormContext<OnboardingDraft>();
+  const { control } = useFormContext<RecommendOnboardingDraft>();
   const { field: performanceModeField } = useController({ control, name: 'performanceMode' });
   const { field: performanceFileListField } = useController({
     control,

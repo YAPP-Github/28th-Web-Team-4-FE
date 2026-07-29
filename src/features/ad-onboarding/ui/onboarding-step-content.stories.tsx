@@ -8,15 +8,15 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
 import {
-  INITIAL_ONBOARDING_DRAFT,
-  type OnboardingDraft,
-} from '@/features/ad-onboarding/model/recommend-onboarding-state';
-import { useOnboardingForm } from '@/features/ad-onboarding/model/use-onboarding-form';
+  createRecommendOnboardingDraft,
+  type RecommendOnboardingDraft,
+} from '@/features/ad-onboarding/model/onboarding-draft';
+import { useRecommendOnboardingForm } from '@/features/ad-onboarding/model/use-recommend-onboarding-form';
 import { OnboardingStepContent } from '@/features/ad-onboarding/ui/onboarding-step-content';
 
 const ONBOARDING_DRAFT_PARAMETER_KEY = 'onboardingDraft';
 const EMPTY_BUDGET_DRAFT = {
-  ...INITIAL_ONBOARDING_DRAFT,
+  ...createRecommendOnboardingDraft(),
   budget: {
     minAmount: 0,
     maxAmount: 0,
@@ -25,7 +25,7 @@ const EMPTY_BUDGET_DRAFT = {
     minInputValue: 0,
     maxInputValue: 0,
   },
-} satisfies OnboardingDraft;
+} satisfies RecommendOnboardingDraft;
 
 const meta = {
   title: 'features/AdOnboarding/OnboardingStepContent',
@@ -39,7 +39,7 @@ const meta = {
     (Story, context) => (
       <OnboardingStoryForm
         initialDraft={
-          context.parameters[ONBOARDING_DRAFT_PARAMETER_KEY] as OnboardingDraft | undefined
+          context.parameters[ONBOARDING_DRAFT_PARAMETER_KEY] as RecommendOnboardingDraft | undefined
         }
       >
         <div className="w-full max-w-[518px]">
@@ -54,12 +54,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 type OnboardingStoryFormProps = PropsWithChildren<{
-  initialDraft?: OnboardingDraft;
+  initialDraft?: RecommendOnboardingDraft;
 }>;
 
 /** 각 story가 독립적인 온보딩 draft를 사용하도록 폼 컨텍스트를 제공한다. */
 function OnboardingStoryForm({ children, initialDraft }: OnboardingStoryFormProps): JSX.Element {
-  const form = useOnboardingForm({ initialDraft });
+  const form = useRecommendOnboardingForm({ initialDraft });
 
   return <FormProvider {...form}>{children}</FormProvider>;
 }

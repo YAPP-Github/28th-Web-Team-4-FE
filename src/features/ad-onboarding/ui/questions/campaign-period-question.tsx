@@ -8,8 +8,8 @@ import type { JSX } from 'react';
 import { useController, useFormContext } from 'react-hook-form';
 import { CircleAlert } from 'lucide-react';
 
-import { CAMPAIGN_PERIOD_OPTION_LIST } from '@/features/ad-onboarding/model/recommend-onboarding-options';
-import type { OnboardingDraft } from '@/features/ad-onboarding/model/recommend-onboarding-state';
+import { CAMPAIGN_PERIOD_OPTION_LIST } from '@/features/ad-onboarding/model/common-onboarding-options';
+import type { CommonOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
 import { SelectCard } from '@/features/ad-onboarding/ui/select-card';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { RadioGroup } from '@/shared/ui/radio-group';
@@ -22,7 +22,7 @@ export type CampaignPeriodQuestionProps = Record<string, never>;
 
 /** 1주 이하 선택 시 채널별 최소 권장 기간 안내를 함께 표시한다. */
 export function CampaignPeriodQuestion(_props: CampaignPeriodQuestionProps): JSX.Element {
-  const { control } = useFormContext<OnboardingDraft>();
+  const { control } = useFormContext<CommonOnboardingDraft>();
   const { field } = useController({ control, name: 'campaignPeriod' });
   const shouldShowShortCampaignNotice = field.value === SHORT_CAMPAIGN_ID;
 

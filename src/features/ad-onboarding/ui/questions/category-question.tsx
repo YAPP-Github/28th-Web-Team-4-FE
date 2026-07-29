@@ -7,8 +7,8 @@
 import type { JSX } from 'react';
 import { useController, useFormContext } from 'react-hook-form';
 
-import { CATEGORY_OPTION_LIST } from '@/features/ad-onboarding/model/recommend-onboarding-options';
-import type { OnboardingDraft } from '@/features/ad-onboarding/model/recommend-onboarding-state';
+import { CATEGORY_OPTION_LIST } from '@/features/ad-onboarding/model/common-onboarding-options';
+import type { CommonOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
 import { SelectChip } from '@/features/ad-onboarding/ui/select-chip';
 import { RadioGroup } from '@/shared/ui/radio-group';
 
@@ -17,7 +17,7 @@ export type CategoryQuestionProps = Record<string, never>;
 
 /** enum 스타일 업종 value를 단일 선택 폼 필드에 연결한다. */
 export function CategoryQuestion(_props: CategoryQuestionProps): JSX.Element {
-  const { control } = useFormContext<OnboardingDraft>();
+  const { control } = useFormContext<CommonOnboardingDraft>();
   const { field } = useController({ control, name: 'category' });
 
   return (

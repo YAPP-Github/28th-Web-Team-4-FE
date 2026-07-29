@@ -15,7 +15,7 @@ import {
   isBudgetRangeEmpty,
 } from '@/features/ad-onboarding/lib/budget-snap';
 import type { BudgetInputRange } from '@/features/ad-onboarding/model/budget-range-input';
-import type { BudgetRange } from '@/features/ad-onboarding/model/recommend-onboarding-options';
+import type { BudgetRange } from '@/features/ad-onboarding/model/common-onboarding-options';
 import { BudgetRangeControl } from '@/features/ad-onboarding/ui/questions/budget/budget-range-control';
 import { VStack } from '@/shared/ui/layout/v-stack';
 import { Text } from '@/shared/ui/text';

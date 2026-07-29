@@ -7,8 +7,8 @@
 import type { JSX } from 'react';
 import { useController, useFormContext } from 'react-hook-form';
 
-import { SERVICE_TYPE_OPTION_LIST } from '@/features/ad-onboarding/model/recommend-onboarding-options';
-import type { OnboardingDraft } from '@/features/ad-onboarding/model/recommend-onboarding-state';
+import { SERVICE_TYPE_OPTION_LIST } from '@/features/ad-onboarding/model/common-onboarding-options';
+import type { CommonOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
 import { SelectCard } from '@/features/ad-onboarding/ui/select-card';
 import { RadioGroup } from '@/shared/ui/radio-group';
 
@@ -17,7 +17,7 @@ export type ServiceTypeQuestionProps = Record<string, never>;
 
 /** 서비스 형태 option을 설명이 포함된 라디오 카드로 표시한다. */
 export function ServiceTypeQuestion(_props: ServiceTypeQuestionProps): JSX.Element {
-  const { control } = useFormContext<OnboardingDraft>();
+  const { control } = useFormContext<CommonOnboardingDraft>();
   const { field } = useController({ control, name: 'serviceType' });
 
   return (

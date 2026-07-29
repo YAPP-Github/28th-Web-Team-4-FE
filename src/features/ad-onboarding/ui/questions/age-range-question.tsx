@@ -12,7 +12,7 @@ import {
   isAgeRangeOptionDisabled,
   toggleAgeRange,
 } from '@/features/ad-onboarding/model/recommend-onboarding-rules';
-import type { OnboardingDraft } from '@/features/ad-onboarding/model/recommend-onboarding-state';
+import type { RecommendOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
 import { SelectCard } from '@/features/ad-onboarding/ui/select-card';
 import { VStack } from '@/shared/ui/layout/v-stack';
 
@@ -21,7 +21,7 @@ export type AgeRangeQuestionProps = Record<string, never>;
 
 /** 선택 목록을 immutable하게 갱신하고 UNKNOWN 배타 규칙을 UI에 반영한다. */
 export function AgeRangeQuestion(_props: AgeRangeQuestionProps): JSX.Element {
-  const { control } = useFormContext<OnboardingDraft>();
+  const { control } = useFormContext<RecommendOnboardingDraft>();
   const { field } = useController({ control, name: 'ageRangeList' });
 
   return (

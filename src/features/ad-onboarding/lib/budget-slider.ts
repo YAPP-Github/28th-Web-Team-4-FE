@@ -6,7 +6,7 @@ import { BUDGET_STEP_LIST } from '@/features/ad-onboarding/lib/budget-snap';
 import type {
   BudgetAmount,
   BudgetRange,
-} from '@/features/ad-onboarding/model/recommend-onboarding-options';
+} from '@/features/ad-onboarding/model/common-onboarding-options';
 
 export const BUDGET_SLIDER_MIN = 0;
 export const BUDGET_SLIDER_MAX = BUDGET_STEP_LIST.length - 1;

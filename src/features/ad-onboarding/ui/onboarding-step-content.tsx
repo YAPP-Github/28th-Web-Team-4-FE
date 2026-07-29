@@ -7,13 +7,12 @@
 import type { JSX, ReactNode } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
-import { isStepComplete } from '@/features/ad-onboarding/model/recommend-onboarding-rules';
+import type { RecommendOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
 import {
-  STEP_LIST,
-  type OnboardingDraft,
-  type OnboardingStepDefinition,
-  type OnboardingStepId,
-} from '@/features/ad-onboarding/model/recommend-onboarding-state';
+  getOnboardingStepDefinition,
+  type RecommendOnboardingStepId,
+} from '@/features/ad-onboarding/model/onboarding-step';
+import { isRecommendOnboardingStepComplete } from '@/features/ad-onboarding/model/recommend-onboarding-rules';
 import { AdExperienceStepContent } from '@/features/ad-onboarding/ui/ad-experience-step-content';
 import { AdGoalQuestion } from '@/features/ad-onboarding/ui/questions/ad-goal-question';
 import { AgeRangeQuestion } from '@/features/ad-onboarding/ui/questions/age-range-question';
@@ -30,7 +29,7 @@ import {
 import { OnboardingQuestion } from './onboarding-question';
 
 export type OnboardingStepContentProps = {
-  stepId: OnboardingStepId;
+  stepId: RecommendOnboardingStepId;
   actionLabel?: ReactNode;
   onAction: NonNullable<StepActionButtonProps['onClick']>;
 };
@@ -41,17 +40,17 @@ export function OnboardingStepContent({
   actionLabel = '다음',
   onAction,
 }: OnboardingStepContentProps): JSX.Element {
-  const { control } = useFormContext<OnboardingDraft>();
+  const { control } = useFormContext<RecommendOnboardingDraft>();
   const isComplete = useWatch({
     control,
-    compute: (draft) => isStepComplete(stepId, draft),
+    compute: (draft) => isRecommendOnboardingStepComplete(stepId, draft),
   });
 
   if (stepId === 'ad-experience') {
     return <AdExperienceStepContent actionLabel={actionLabel} onAction={onAction} />;
   }
 
-  const step = getStepDefinition(stepId);
+  const step = getOnboardingStepDefinition(stepId);
   const widthClassName = getQuestionWidthClassName(stepId);
 
   return (
@@ -70,7 +69,7 @@ export function OnboardingStepContent({
 }
 
 /** Figma에서 단계별 입력 컨트롤에 배정된 질문 Bubble 폭을 반환한다. */
-function getQuestionWidthClassName(stepId: OnboardingStepId): string {
+function getQuestionWidthClassName(stepId: RecommendOnboardingStepId): string {
   if (stepId === 'category') {
     return 'max-w-[510px]';
   }
@@ -82,19 +81,8 @@ function getQuestionWidthClassName(stepId: OnboardingStepId): string {
   return 'max-w-[410px]';
 }
 
-/** 안정적인 step id로 질문 메타데이터를 찾는다. */
-function getStepDefinition(stepId: OnboardingStepId): OnboardingStepDefinition {
-  const step = STEP_LIST.find((candidate) => candidate.id === stepId);
-
-  if (!step) {
-    throw new Error(`Unknown onboarding step: ${stepId}`);
-  }
-
-  return step;
-}
-
 /** 모든 온보딩 step id를 질문 전용 컴포넌트에 빠짐없이 매핑한다. */
-function renderStepQuestion(stepId: OnboardingStepId): JSX.Element {
+function renderStepQuestion(stepId: RecommendOnboardingStepId): JSX.Element {
   switch (stepId) {
     case 'service-name':
       return <ServiceNameQuestion />;

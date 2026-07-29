@@ -1,7 +1,7 @@
 import type {
   BudgetAmount,
   BudgetRange,
-} from '@/features/ad-onboarding/model/recommend-onboarding-options';
+} from '@/features/ad-onboarding/model/common-onboarding-options';
 
 export const BUDGET_STEP_LIST = [
   { inputValue: 0, amount: 0 },
