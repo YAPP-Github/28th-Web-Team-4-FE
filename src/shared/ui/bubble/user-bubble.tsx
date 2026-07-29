@@ -50,7 +50,7 @@ export const UserBubble = (props: UserBubbleProps): JSX.Element => {
           >
             <Text
               variant="subtitle-xxs"
-              className="text-text-medium group-focus-within:text-text-highest"
+              className="text-text-medium group-focus-visible:text-text-highest"
             >
               {editLabel}
             </Text>

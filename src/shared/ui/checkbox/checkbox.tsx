@@ -10,7 +10,7 @@ const checkboxVariants = cva(
   [
     'inline-flex shrink-0 items-center justify-center border border-outline-low text-icon-lower',
     'transition-colors',
-    'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-outline-high',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-outline-high',
     'data-[checked]:border-sys-primary-default data-[checked]:bg-sys-primary-default',
   ],
   {

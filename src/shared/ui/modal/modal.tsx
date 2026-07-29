@@ -126,8 +126,8 @@ const ModalCloseText = ({ className, children, ...props }: ModalCloseTextProps):
           [
             'inline-flex h-[22px] items-center justify-center self-center px-002',
             'cursor-pointer text-text-medium transition-colors hover:not-data-disabled:text-text-high',
-            'focus-within:not-data-disabled:text-text-high',
-            'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-sys-primary-default',
+            'focus-visible:not-data-disabled:text-text-high',
+            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sys-primary-default',
             'data-disabled:cursor-not-allowed data-disabled:opacity-50',
           ],
           typeof className === 'function' ? className(state) : className,

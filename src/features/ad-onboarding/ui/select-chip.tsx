@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 추천 온보딩의 밀도 높은 단일 선택지를 라디오 기반 칩으로 표시한다.
+ * 광고 온보딩의 밀도 높은 단일 선택지를 라디오 기반 칩으로 표시한다.
  */
 
 import type { JSX } from 'react';
@@ -34,7 +34,7 @@ export function SelectChip({ label, className, ...radioProps }: SelectChipProps)
     >
       <RadioGroupItem
         renderMode="label-control"
-        className="sr-only focus-within:outline-none"
+        className="sr-only focus-visible:outline-none"
         {...radioProps}
       />
       <Text

@@ -36,13 +36,13 @@ const ctaButtonVariants = cva(buttonBaseClassName, {
   variants: {
     tone: {
       primary:
-        'bg-btn-primary text-text-lowest hover:not-data-disabled:opacity-80 focus-within:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-primary-selected active:not-data-disabled:opacity-100',
+        'bg-btn-primary text-text-lowest hover:not-data-disabled:opacity-80 focus-visible:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-primary-selected active:not-data-disabled:opacity-100',
       secondary:
-        'bg-btn-secondary text-text-lowest hover:not-data-disabled:opacity-80 focus-within:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-secondary-selected active:not-data-disabled:opacity-100',
+        'bg-btn-secondary text-text-lowest hover:not-data-disabled:opacity-80 focus-visible:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-secondary-selected active:not-data-disabled:opacity-100',
       third:
-        'bg-btn-sub text-text-default h-12 w-25 hover:not-data-disabled:opacity-80 focus-within:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-sub-selected active:not-data-disabled:opacity-100',
+        'bg-btn-sub text-text-default h-12 w-25 hover:not-data-disabled:opacity-80 focus-visible:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-sub-selected active:not-data-disabled:opacity-100',
       login:
-        'bg-btn-primary text-text-lowest w-full py-[13px] hover:not-data-disabled:opacity-80 focus-within:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-primary-selected active:not-data-disabled:opacity-100',
+        'bg-btn-primary text-text-lowest w-full py-[13px] hover:not-data-disabled:opacity-80 focus-visible:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-primary-selected active:not-data-disabled:opacity-100',
     },
     size: {
       s: '',

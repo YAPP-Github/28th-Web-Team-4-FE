@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 추천 온보딩의 라디오/체크박스 선택지를 Figma 카드 형태로 표시한다.
+ * 광고 온보딩의 라디오/체크박스 선택지를 Figma 카드 형태로 표시한다.
  */
 
 import type { JSX, ReactNode } from 'react';
@@ -92,7 +92,7 @@ export function SelectCard(props: SelectCardProps): JSX.Element {
         selectionControl={
           <RadioGroupItem
             renderMode="label-control"
-            className="focus-within:outline-none"
+            className="focus-visible:outline-none"
             {...radioProps}
           />
         }
@@ -110,7 +110,7 @@ export function SelectCard(props: SelectCardProps): JSX.Element {
       selectionControl={
         <Checkbox
           renderMode="label-control"
-          className="focus-within:outline-none"
+          className="focus-visible:outline-none"
           {...checkboxProps}
         />
       }

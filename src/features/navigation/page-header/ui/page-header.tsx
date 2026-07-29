@@ -50,7 +50,7 @@ export function PageHeader(props: PageHeaderProps): JSX.Element {
       >
         <Link
           href="/"
-          className="focus-within:outline-sys-primary-default focus-within:outline-2 focus-within:outline-offset-2"
+          className="focus-visible:outline-sys-primary-default focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           <Logo />
         </Link>
