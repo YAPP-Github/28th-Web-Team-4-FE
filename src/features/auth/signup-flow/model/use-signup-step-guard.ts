@@ -6,18 +6,19 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { useSignupDraftStore } from './signup-draft-store';
 
-export type SignupStep = 'company' | 'name' | 'occupation' | 'password';
+export type SignupStep = 'company' | 'name' | 'occupation' | 'password' | 'terms';
 
 type SignupPrerequisites = {
   email: string;
   emailVerified: boolean;
   nickname: string;
+  occupation?: string;
   password: string;
 };
 
 function getSignupStepRedirect(
   step: SignupStep,
-  { email, emailVerified, nickname, password }: SignupPrerequisites,
+  { email, emailVerified, nickname, occupation, password }: SignupPrerequisites,
 ): string | undefined {
   if (!email || !emailVerified) {
     return '/login';
@@ -27,8 +28,12 @@ function getSignupStepRedirect(
     return '/signup/password';
   }
 
-  if ((step === 'company' || step === 'occupation') && !nickname) {
+  if ((step === 'company' || step === 'occupation' || step === 'terms') && !nickname) {
     return '/signup/name';
+  }
+
+  if (step === 'terms' && !occupation) {
+    return '/signup/occupation';
   }
 
   return undefined;
