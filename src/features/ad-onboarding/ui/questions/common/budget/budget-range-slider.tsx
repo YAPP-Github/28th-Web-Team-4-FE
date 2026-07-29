@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 최소·최대 예산을 균등한 5개 위치에 매핑하는 Base UI Range Slider다.
+ * 공통 최소·최대 예산을 균등한 5개 위치에 매핑하는 Base UI Range Slider다.
  */
 
 import { useState, type JSX } from 'react';

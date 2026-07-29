@@ -1,5 +1,5 @@
 /**
- * BudgetRangeControl의 raw input, blur 보정, Slider 동기화, 오류 상태를 검증한다.
+ * 공통 BudgetRangeControl의 raw input, blur 보정, Slider 동기화, 오류 상태를 검증한다.
  */
 
 import { useState, type JSX } from 'react';
@@ -16,7 +16,7 @@ import {
 } from '@/features/ad-onboarding/lib/budget-snap';
 import type { BudgetInputRange } from '@/features/ad-onboarding/model/budget-range-input';
 import type { BudgetRange } from '@/features/ad-onboarding/model/common-onboarding-options';
-import { BudgetRangeControl } from '@/features/ad-onboarding/ui/questions/budget/budget-range-control';
+import { BudgetRangeControl } from '@/features/ad-onboarding/ui/questions/common/budget/budget-range-control';
 import { VStack } from '@/shared/ui/layout/v-stack';
 import { Text } from '@/shared/ui/text';
 
@@ -31,7 +31,7 @@ const EMPTY_BUDGET_RANGE = {
 } as const satisfies BudgetRange;
 
 const meta = {
-  title: 'features/AdOnboarding/BudgetRangeControl',
+  title: 'Features/AdOnboarding/Common/BudgetRangeControl',
   component: BudgetRangeControl,
   tags: ['autodocs'],
   args: {

@@ -1,5 +1,5 @@
 /**
- * BudgetRangeSlider의 두 Thumb 범위 선택과 키보드 이동을 독립적으로 검증한다.
+ * 공통 BudgetRangeSlider의 두 Thumb 범위 선택과 키보드 이동을 독립적으로 검증한다.
  */
 
 import { useState, type JSX } from 'react';
@@ -8,7 +8,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { formatBudgetRange } from '@/features/ad-onboarding/lib/budget-snap';
 import type { BudgetRange } from '@/features/ad-onboarding/model/common-onboarding-options';
-import { BudgetRangeSlider } from '@/features/ad-onboarding/ui/questions/budget/budget-range-slider';
+import { BudgetRangeSlider } from '@/features/ad-onboarding/ui/questions/common/budget/budget-range-slider';
 import { VStack } from '@/shared/ui/layout/v-stack';
 import { Text } from '@/shared/ui/text';
 
@@ -23,7 +23,7 @@ const OVERLAPPED_BUDGET_RANGE = {
 } as const satisfies BudgetRange;
 
 const meta = {
-  title: 'features/AdOnboarding/BudgetRangeSlider',
+  title: 'Features/AdOnboarding/Common/BudgetRangeSlider',
   component: BudgetRangeSlider,
   tags: ['autodocs'],
   args: {

@@ -10,7 +10,7 @@ import { SelectChip } from '@/features/ad-onboarding/ui/select-chip';
 import { RadioGroup } from '@/shared/ui/radio-group';
 
 const meta = {
-  title: 'features/AdOnboarding/SelectChip',
+  title: 'Features/AdOnboarding/SelectChip',
   component: SelectChip,
   tags: ['autodocs'],
   args: {

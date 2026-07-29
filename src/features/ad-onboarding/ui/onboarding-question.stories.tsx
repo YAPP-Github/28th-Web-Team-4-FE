@@ -11,7 +11,7 @@ import { StepActionButton } from '@/features/ad-onboarding/ui/step-action-button
 import { RadioGroup } from '@/shared/ui/radio-group';
 
 const meta = {
-  title: 'features/AdOnboarding/OnboardingQuestion',
+  title: 'Features/AdOnboarding/OnboardingQuestion',
   component: OnboardingQuestion,
   tags: ['autodocs'],
   decorators: [

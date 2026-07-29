@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 예산 step의 최소·최대 입력과 Range Slider를 폼 상태에 연결한다.
+ * 공통 예산 step의 최소·최대 입력과 Range Slider를 폼 상태에 연결한다.
  */
 
 import type { JSX } from 'react';
@@ -16,7 +16,7 @@ import {
 } from '@/features/ad-onboarding/lib/budget-snap';
 import type { BudgetRange } from '@/features/ad-onboarding/model/common-onboarding-options';
 import type { CommonOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
-import { BudgetRangeControl } from '@/features/ad-onboarding/ui/questions/budget/budget-range-control';
+import { BudgetRangeControl } from '@/features/ad-onboarding/ui/questions/common/budget/budget-range-control';
 
 /** 예산 범위 선택은 상위 온보딩 폼 컨텍스트만 사용한다. */
 export type BudgetQuestionProps = Record<string, never>;

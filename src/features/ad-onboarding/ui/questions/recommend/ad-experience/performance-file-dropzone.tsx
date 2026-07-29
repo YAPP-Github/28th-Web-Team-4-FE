@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 광고 성과 파일의 클릭 선택, drag-and-drop, 검증 결과와 파일 목록을 표시한다.
+ * 추천 광고 성과 파일의 클릭 선택, drag-and-drop, 검증 결과와 파일 목록을 표시한다.
  */
 
 import { useRef, useState, type ChangeEvent, type DragEvent, type JSX } from 'react';

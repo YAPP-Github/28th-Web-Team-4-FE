@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 서비스 형태 step의 단일 선택 카드 목록을 렌더링한다.
+ * 공통 서비스 형태 step의 단일 선택 카드 목록을 렌더링한다.
  */
 
 import type { JSX } from 'react';

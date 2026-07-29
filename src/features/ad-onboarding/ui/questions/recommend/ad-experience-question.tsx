@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 광고 집행 경험 step의 경험 여부 선택 카드를 렌더링한다.
+ * 추천 광고 집행 경험 step의 경험 여부 선택 카드를 렌더링한다.
  */
 
 import type { JSX } from 'react';

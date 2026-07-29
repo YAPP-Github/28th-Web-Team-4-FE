@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 광고 운영 경험자의 선택적 성과 입력을 업로드/직접 입력 탭으로 조합한다.
+ * 추천 광고 운영 경험자의 선택적 성과 입력을 업로드/직접 입력 탭으로 조합한다.
  */
 
 import type { JSX, ReactNode } from 'react';
@@ -14,8 +14,8 @@ import {
 } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import type { RecommendOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
 import { OnboardingQuestion } from '@/features/ad-onboarding/ui/onboarding-question';
-import { PerformanceChannelCombobox } from '@/features/ad-onboarding/ui/questions/ad-experience/performance-channel-combobox';
-import { PerformanceFileDropzone } from '@/features/ad-onboarding/ui/questions/ad-experience/performance-file-dropzone';
+import { PerformanceChannelCombobox } from '@/features/ad-onboarding/ui/questions/recommend/ad-experience/performance-channel-combobox';
+import { PerformanceFileDropzone } from '@/features/ad-onboarding/ui/questions/recommend/ad-experience/performance-file-dropzone';
 import {
   StepActionButton,
   type StepActionButtonProps,

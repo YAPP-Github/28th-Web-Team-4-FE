@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 주요 연령대 step의 다중 선택 카드와 상호 배타적 disabled 규칙을 연결한다.
+ * 추천 주요 연령대 step의 다중 선택 카드와 상호 배타적 disabled 규칙을 연결한다.
  */
 
 import type { JSX } from 'react';

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 광고 경험 선택과 선택적 성과 입력을 하나의 온보딩 step 내부 흐름으로 조합한다.
+ * 추천 광고 경험 선택과 선택적 성과 입력을 하나의 step 내부 흐름으로 조합한다.
  */
 
 import { useState, type JSX, type ReactNode } from 'react';
@@ -11,8 +11,8 @@ import type { RecommendOnboardingDraft } from '@/features/ad-onboarding/model/on
 import { getOnboardingStepDefinition } from '@/features/ad-onboarding/model/onboarding-step';
 import { isRecommendOnboardingStepComplete } from '@/features/ad-onboarding/model/recommend-onboarding-rules';
 import { OnboardingQuestion } from '@/features/ad-onboarding/ui/onboarding-question';
-import { AdExperienceQuestion } from '@/features/ad-onboarding/ui/questions/ad-experience-question';
-import { PerformanceInputQuestion } from '@/features/ad-onboarding/ui/questions/ad-experience/performance-input-question';
+import { AdExperienceQuestion } from '@/features/ad-onboarding/ui/questions/recommend/ad-experience-question';
+import { PerformanceInputQuestion } from '@/features/ad-onboarding/ui/questions/recommend/ad-experience/performance-input-question';
 import {
   StepActionButton,
   type StepActionButtonProps,

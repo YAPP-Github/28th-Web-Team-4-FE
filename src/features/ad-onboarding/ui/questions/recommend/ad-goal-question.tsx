@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 광고 목표 step의 두 목적 그룹과 단일 선택 카드 목록을 렌더링한다.
+ * 추천 광고 목표 step의 두 목적 그룹과 단일 선택 카드 목록을 렌더링한다.
  */
 
 import type { JSX } from 'react';

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 업종 step의 단일 선택 칩 목록을 렌더링한다.
+ * 공통 업종 step의 단일 선택 칩 목록을 렌더링한다.
  */
 
 import type { JSX } from 'react';

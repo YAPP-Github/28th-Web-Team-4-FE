@@ -8,7 +8,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import { StepActionButton } from '@/features/ad-onboarding/ui/step-action-button';
 
 const meta = {
-  title: 'features/AdOnboarding/StepActionButton',
+  title: 'Features/AdOnboarding/StepActionButton',
   component: StepActionButton,
   tags: ['autodocs'],
   args: {

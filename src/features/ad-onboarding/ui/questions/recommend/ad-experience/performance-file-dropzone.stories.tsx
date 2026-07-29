@@ -1,5 +1,5 @@
 /**
- * 광고 성과 dropzone의 클릭 선택, drag-and-drop, 검증 오류와 삭제 동작을 검증한다.
+ * 추천 광고 성과 dropzone의 클릭 선택, drag-and-drop, 검증 오류와 삭제 동작을 검증한다.
  */
 
 import { useState, type JSX } from 'react';
@@ -10,7 +10,7 @@ import type { UploadedPerformanceFile } from '@/features/ad-onboarding/model/rec
 import {
   PerformanceFileDropzone,
   type PerformanceFileDropzoneProps,
-} from '@/features/ad-onboarding/ui/questions/ad-experience/performance-file-dropzone';
+} from '@/features/ad-onboarding/ui/questions/recommend/ad-experience/performance-file-dropzone';
 
 function PerformanceFileDropzoneStory(props: PerformanceFileDropzoneProps): JSX.Element {
   const [fileList, setFileList] = useState<UploadedPerformanceFile[]>(props.fileList);
@@ -29,7 +29,7 @@ function PerformanceFileDropzoneStory(props: PerformanceFileDropzoneProps): JSX.
 }
 
 const meta = {
-  title: 'features/AdOnboarding/PerformanceFileDropzone',
+  title: 'Features/AdOnboarding/Recommend/PerformanceFileDropzone',
   component: PerformanceFileDropzoneStory,
   tags: ['autodocs'],
   args: {

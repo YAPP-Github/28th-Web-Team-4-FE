@@ -1,5 +1,5 @@
 /**
- * 8개 온보딩 질문의 React Hook Form 연결과 단계별 상호작용을 검증한다.
+ * 추천 8개 질문의 React Hook Form 연결과 단계별 상호작용을 검증한다.
  */
 
 import type { JSX, PropsWithChildren } from 'react';
@@ -12,7 +12,7 @@ import {
   type RecommendOnboardingDraft,
 } from '@/features/ad-onboarding/model/onboarding-draft';
 import { useRecommendOnboardingForm } from '@/features/ad-onboarding/model/use-recommend-onboarding-form';
-import { OnboardingStepContent } from '@/features/ad-onboarding/ui/onboarding-step-content';
+import { RecommendOnboardingStepContent } from '@/features/ad-onboarding/ui/recommend-onboarding-step-content';
 
 const ONBOARDING_DRAFT_PARAMETER_KEY = 'onboardingDraft';
 const EMPTY_BUDGET_DRAFT = {
@@ -28,8 +28,8 @@ const EMPTY_BUDGET_DRAFT = {
 } satisfies RecommendOnboardingDraft;
 
 const meta = {
-  title: 'features/AdOnboarding/OnboardingStepContent',
-  component: OnboardingStepContent,
+  title: 'Features/AdOnboarding/RecommendOnboardingStepContent',
+  component: RecommendOnboardingStepContent,
   tags: ['autodocs'],
   args: {
     stepId: 'service-name',
@@ -48,7 +48,7 @@ const meta = {
       </OnboardingStoryForm>
     ),
   ],
-} satisfies Meta<typeof OnboardingStepContent>;
+} satisfies Meta<typeof RecommendOnboardingStepContent>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

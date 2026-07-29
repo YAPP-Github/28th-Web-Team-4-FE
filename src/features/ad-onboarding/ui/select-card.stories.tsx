@@ -18,7 +18,7 @@ type SelectCardStoryArgs = {
 };
 
 const meta = {
-  title: 'features/AdOnboarding/SelectCard',
+  title: 'Features/AdOnboarding/SelectCard',
   component: SelectCard as ComponentType<SelectCardStoryArgs>,
   tags: ['autodocs'],
   args: {

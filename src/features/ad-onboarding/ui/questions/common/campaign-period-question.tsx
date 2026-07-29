@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 집행 기간 step의 단일 선택 카드와 단기 집행 안내를 렌더링한다.
+ * 공통 집행 기간 step의 단일 선택 카드와 단기 집행 안내를 렌더링한다.
  */
 
 import type { JSX } from 'react';

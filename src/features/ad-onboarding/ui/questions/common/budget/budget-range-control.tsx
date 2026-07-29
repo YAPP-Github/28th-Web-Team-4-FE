@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 최소·최대 예산 숫자 입력과 두 Thumb Slider를 하나의 제어 컴포넌트로 조합한다.
+ * 공통 최소·최대 예산 입력과 두 Thumb Slider를 하나의 제어 컴포넌트로 조합한다.
  */
 
 import { useId, type ChangeEvent, type FocusEvent, type JSX, type KeyboardEvent } from 'react';

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 서비스 이름 step의 텍스트 입력 필드를 렌더링한다.
+ * 공통 서비스 이름 step의 텍스트 입력 필드를 렌더링한다.
  */
 
 import type { JSX } from 'react';
