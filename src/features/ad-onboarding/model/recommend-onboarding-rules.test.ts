@@ -108,6 +108,24 @@ describe('recommend onboarding rules', () => {
       });
     });
 
+    it('운영 경험 직접 입력 채널을 최종 답변에 포함한다', () => {
+      expect(
+        buildRecommendOnboardingAnswer(
+          createCompleteRecommendDraft({
+            adExperienceType: 'EXPERIENCED',
+            performanceMode: 'MANUAL',
+            performanceChannel: 'META_ADS',
+          }),
+        ).adExperience,
+      ).toEqual({
+        type: 'EXPERIENCED',
+        performanceInput: {
+          mode: 'MANUAL',
+          channel: 'META_ADS',
+        },
+      });
+    });
+
     it('운영 경험에서 건너뛴 성과 정보는 생략한다', () => {
       expect(
         buildRecommendOnboardingAnswer(

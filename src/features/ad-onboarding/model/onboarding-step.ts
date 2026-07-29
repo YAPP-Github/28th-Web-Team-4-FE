@@ -21,11 +21,17 @@ export type RecommendOnboardingStepId = CommonOnboardingStepId | RecommendOnlyOn
 export type SimulatorOnboardingStepId = CommonOnboardingStepId;
 
 /** 질문 카드와 답변 Bubble에 사용하는 단계 메타데이터. */
-export type OnboardingStepDefinition = {
-  id: RecommendOnboardingStepId;
+export type OnboardingStepDefinition<
+  StepId extends RecommendOnboardingStepId = RecommendOnboardingStepId,
+> = {
+  id: StepId;
   title: string;
   question: string;
   description?: string;
+};
+
+type OnboardingStepDefinitionMap = {
+  [StepId in RecommendOnboardingStepId]: OnboardingStepDefinition<StepId>;
 };
 
 /** 모든 광고 온보딩 질문의 단일 메타데이터 원본. */
@@ -71,7 +77,7 @@ export const ONBOARDING_STEP_DEFINITION_MAP = {
     title: '광고 집행 경험',
     question: '이전에 광고를 해 보신 적이 있나요?',
   },
-} as const satisfies Record<RecommendOnboardingStepId, OnboardingStepDefinition>;
+} as const satisfies OnboardingStepDefinitionMap;
 
 /** 추천 온보딩 질문 순서. */
 export const RECOMMEND_ONBOARDING_STEP_ID_LIST = [

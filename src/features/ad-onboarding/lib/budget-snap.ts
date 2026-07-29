@@ -1,3 +1,7 @@
+/**
+ * 예산 입력값과 확정값 사이의 단계 보정·표시 변환 규칙을 제공한다.
+ */
+
 import type {
   BudgetAmount,
   BudgetRange,

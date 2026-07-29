@@ -22,7 +22,10 @@ export type InitializedCommonDraftAnswer = Pick<CommonOnboardingAnswer, 'service
 /** 추천과 시뮬레이터가 공유하는 입력 중 상태. */
 export type CommonOnboardingDraft = OptionalCommonDraftAnswer &
   InitializedCommonDraftAnswer & {
-    // 예산 input의 보정 전 만원 단위 값은 최종 원 단위 답변과 구조가 달라 Draft에만 둔다.
+    /**
+     * 예산 input의 보정 전 만원 단위 값이다.
+     * 최종 원 단위 답변과 표현 구조가 달라 Draft에만 둔다.
+     */
     budgetInputRange: BudgetInputRange;
   };
 
@@ -36,8 +39,10 @@ export type InitializedRecommendDraftAnswer = Pick<RecommendOnboardingAnswer, 'a
 export type RecommendOnboardingDraft = CommonOnboardingDraft &
   OptionalRecommendDraftAnswer &
   InitializedRecommendDraftAnswer & {
-    // 광고 경험 선택과 상세 입력은 최종 adExperience union으로 접히기 전 UI 상태이므로
-    // 완료 답변에서 파생하지 않고 Draft에만 명시한다.
+    /**
+     * 아래 필드는 최종 adExperience union으로 접히기 전 UI 상태다.
+     * 완료 답변에서 파생할 수 없어 Draft에만 명시한다.
+     */
     adExperienceType?: AdExperienceType;
     performanceMode: PerformanceMode;
     performanceFileList: UploadedPerformanceFile[];

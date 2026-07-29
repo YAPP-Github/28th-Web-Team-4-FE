@@ -1,5 +1,5 @@
 /**
- * 추천 온보딩 질문 제목·설명·입력 컨트롤을 bot Bubble 안에 조합한다.
+ * 광고 온보딩 질문 제목·설명·입력 컨트롤을 bot Bubble 안에 조합한다.
  */
 
 import type { JSX, ReactNode } from 'react';

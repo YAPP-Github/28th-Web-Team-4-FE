@@ -1,1 +1,1 @@
-export { RecommendOnboardingPage as default } from '@/pages/recommend/onboarding';
+export { RecommendPage as default } from '@/pages/recommend';

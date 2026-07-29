@@ -1,3 +1,7 @@
+/**
+ * 광고 성과 파일의 확장자·크기·개수 검증과 표시용 메타데이터 변환을 담당한다.
+ */
+
 import type { UploadedPerformanceFile } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import { z } from 'zod';
 
