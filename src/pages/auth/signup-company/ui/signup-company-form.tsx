@@ -1,7 +1,10 @@
 'use client';
 
-import { useState, type ChangeEvent, type FormEventHandler, type JSX } from 'react';
+import type { JSX } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import type { z } from 'zod';
 
 import {
   SignupStepActions,
@@ -9,8 +12,11 @@ import {
   useSignupStepGuard,
 } from '@/features/auth/signup-flow';
 import { AuthForm } from '@/features/auth/auth-form';
-import { InputField, type InputFieldFeedback } from '@/shared/ui/input-field';
+import { InputField } from '@/shared/ui/input-field';
 import { signupCompanySchema } from '@/pages/auth/signup-company/model/signup-company-schema';
+
+type SignupCompanyInput = z.input<typeof signupCompanySchema>;
+type SignupCompanyOutput = z.output<typeof signupCompanySchema>;
 
 export function SignupCompanyForm(): JSX.Element | null {
   const canAccessStep = useSignupStepGuard('company');
@@ -30,65 +36,42 @@ function HydratedSignupCompanyForm({
 }): JSX.Element {
   const router = useRouter();
   const setStoredCompanyName = useSignupDraftStore((state) => state.setCompanyName);
-  const [companyName, setCompanyName] = useState(initialCompanyName);
-  const [feedback, setFeedback] = useState<InputFieldFeedback>();
-  const [isTouched, setIsTouched] = useState(false);
+  const {
+    formState: { errors },
+    handleSubmit,
+    register,
+  } = useForm<SignupCompanyInput, unknown, SignupCompanyOutput>({
+    defaultValues: { companyName: initialCompanyName },
+    mode: 'onBlur',
+    resolver: zodResolver(signupCompanySchema),
+  });
 
-  const validateCompanyName = (value = companyName) =>
-    signupCompanySchema.safeParse({ companyName: value });
-
-  const updateCompanyNameFeedback = (result: ReturnType<typeof validateCompanyName>) => {
-    setFeedback(
-      result.success ? undefined : { tone: 'error', message: result.error.issues[0]?.message },
-    );
-  };
-
-  const handleCompanyNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const nextCompanyName = event.currentTarget.value;
-    setCompanyName(nextCompanyName);
-
-    if (isTouched || feedback) {
-      updateCompanyNameFeedback(validateCompanyName(nextCompanyName));
-    }
-  };
-
-  const handleCompanyNameBlur = () => {
-    setIsTouched(true);
-    updateCompanyNameFeedback(validateCompanyName());
-  };
-
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
-    event.preventDefault();
-    setIsTouched(true);
-
-    const result = validateCompanyName();
-    updateCompanyNameFeedback(result);
-
-    if (!result.success) {
-      return;
-    }
-
-    setStoredCompanyName(result.data.companyName);
+  const submit = handleSubmit(({ companyName }) => {
+    setStoredCompanyName(companyName);
     router.push('/signup/occupation');
-  };
+  });
 
   return (
     <AuthForm
       actions={<SignupStepActions onPrevious={() => router.push('/signup/name')} />}
       title="회사명 입력하기"
       titleId="signup-company-title"
-      onSubmit={handleSubmit}
+      onSubmit={submit}
     >
       <InputField
-        name="companyName"
         type="text"
         autoComplete="organization"
         aria-label="회사명"
         placeholder="회사명을 입력해 주세요"
-        value={companyName}
-        onChange={handleCompanyNameChange}
-        onBlur={handleCompanyNameBlur}
-        feedback={feedback}
+        feedback={
+          errors.companyName
+            ? {
+                tone: 'error',
+                message: errors.companyName.message,
+              }
+            : undefined
+        }
+        {...register('companyName')}
       />
     </AuthForm>
   );
