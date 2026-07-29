@@ -37,23 +37,26 @@ function HydratedSignupPasswordForm({
   initialPassword: string;
 }): JSX.Element {
   const {
+    changePassword,
+    changePasswordConfirmation,
     feedback,
-    handlePasswordBlur,
-    handlePasswordChange,
-    handlePasswordConfirmationBlur,
-    handlePasswordConfirmationChange,
-    handlePrevious,
-    handleSubmit,
+    goToPreviousStep,
     password,
     passwordConfirmation,
+    submit,
+    validatePassword,
+    validatePasswordConfirmation,
   } = useSignupPasswordForm({ email, initialPassword });
 
   return (
     <AuthForm
-      actions={<SignupStepActions onPrevious={handlePrevious} />}
+      actions={<SignupStepActions onPrevious={goToPreviousStep} />}
       title="비밀번호 설정하기"
       titleId="signup-password-title"
-      onSubmit={handleSubmit}
+      onSubmit={(event) => {
+        event.preventDefault();
+        submit();
+      }}
     >
       <VStack className="gap-024 items-stretch">
         <VStack className="gap-004 items-stretch">
@@ -69,8 +72,8 @@ function HydratedSignupPasswordForm({
             aria-label="비밀번호"
             placeholder="비밀번호를 입력해 주세요"
             value={password}
-            onChange={handlePasswordChange}
-            onBlur={handlePasswordBlur}
+            onChange={(event) => changePassword(event.currentTarget.value)}
+            onBlur={validatePassword}
             feedback={feedback.password}
           />
           <InputField
@@ -80,8 +83,8 @@ function HydratedSignupPasswordForm({
             aria-label="비밀번호 확인"
             placeholder="비밀번호를 다시 입력해 주세요"
             value={passwordConfirmation}
-            onChange={handlePasswordConfirmationChange}
-            onBlur={handlePasswordConfirmationBlur}
+            onChange={(event) => changePasswordConfirmation(event.currentTarget.value)}
+            onBlur={validatePasswordConfirmation}
             feedback={feedback.passwordConfirmation}
           />
         </VStack>

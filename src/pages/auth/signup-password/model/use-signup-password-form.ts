@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ChangeEventHandler, type FormEventHandler } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useSignupDraftStore } from '@/features/auth/signup-flow';
@@ -53,8 +53,7 @@ export function useSignupPasswordForm({
     setFeedback((current) => ({ ...current, [field]: nextFeedback[field] }));
   };
 
-  const handlePasswordChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    const nextPassword = event.currentTarget.value;
+  const changePassword = (nextPassword: string) => {
     setPassword(nextPassword);
 
     if (touched.password || feedback.password) {
@@ -66,8 +65,7 @@ export function useSignupPasswordForm({
     }
   };
 
-  const handlePasswordConfirmationChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    const nextPasswordConfirmation = event.currentTarget.value;
+  const changePasswordConfirmation = (nextPasswordConfirmation: string) => {
     setPasswordConfirmation(nextPasswordConfirmation);
 
     if (touched.passwordConfirmation || feedback.passwordConfirmation) {
@@ -75,18 +73,17 @@ export function useSignupPasswordForm({
     }
   };
 
-  const handlePasswordBlur = () => {
+  const validatePassword = () => {
     setTouched((current) => ({ ...current, password: true }));
     validateField('password');
   };
 
-  const handlePasswordConfirmationBlur = () => {
+  const validatePasswordConfirmation = () => {
     setTouched((current) => ({ ...current, passwordConfirmation: true }));
     validateField('passwordConfirmation');
   };
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
-    event.preventDefault();
+  const submit = () => {
     const result = signupPasswordSchema.safeParse({ password, passwordConfirmation });
 
     if (!result.success) {
@@ -99,22 +96,22 @@ export function useSignupPasswordForm({
     router.push('/signup/name');
   };
 
-  const handlePrevious = () => {
+  const goToPreviousStep = () => {
     router.push(`/signup?email=${encodeURIComponent(email)}`);
   };
 
   return {
+    changePassword,
+    changePasswordConfirmation,
     feedback: {
       password: feedback.password ?? { tone: 'info', message: PASSWORD_GUIDE },
       passwordConfirmation: feedback.passwordConfirmation,
     } satisfies PasswordFeedback,
-    handlePasswordBlur,
-    handlePasswordChange,
-    handlePasswordConfirmationBlur,
-    handlePasswordConfirmationChange,
-    handlePrevious,
-    handleSubmit,
+    goToPreviousStep,
     password,
     passwordConfirmation,
+    submit,
+    validatePassword,
+    validatePasswordConfirmation,
   };
 }

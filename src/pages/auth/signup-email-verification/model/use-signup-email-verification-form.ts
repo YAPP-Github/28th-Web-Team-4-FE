@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  useEffect,
-  useReducer,
-  useRef,
-  type ChangeEventHandler,
-  type FormEventHandler,
-} from 'react';
+import { useEffect, useReducer, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useShallow } from 'zustand/react/shallow';
@@ -145,14 +139,12 @@ export function useSignupEmailVerificationForm(email: string) {
     sendInitialCode(email);
   }, [email, emailVerified, hasHydrated, sendInitialCode, startEmailSignup, storedEmail]);
 
-  const handleCodeChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    const nextCode = event.currentTarget.value.replace(/\D/g, '').slice(0, 6);
+  const changeCode = (value: string) => {
+    const nextCode = value.replace(/\D/g, '').slice(0, 6);
     dispatch({ type: 'codeChanged', code: nextCode });
   };
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
-    event.preventDefault();
-
+  const submit = () => {
     if (isVerified) {
       router.push('/signup/password');
       return;
@@ -171,18 +163,18 @@ export function useSignupEmailVerificationForm(email: string) {
     verifyMutation.mutate({ email, code: result.data.code });
   };
 
-  const handleResend = () => {
+  const resendCode = () => {
     resendMutation.mutate(email);
   };
 
   return {
+    changeCode,
     code,
     feedback: getVerificationFeedback(verificationState),
-    handleCodeChange,
-    handleResend,
-    handleSubmit,
     isSendingCode,
     isVerified,
     isVerifying: verifyMutation.isPending,
+    resendCode,
+    submit,
   };
 }

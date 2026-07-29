@@ -42,11 +42,11 @@ function HydratedSignupTermsForm({ signupDraft }: { signupDraft: SignupTermsDraf
   const {
     agreements,
     canSubmit,
+    changeAgreements,
     errorMessage,
-    handleAgreementsChange,
-    handlePrevious,
-    handleSubmit,
+    goToPreviousStep,
     isPending,
+    submit,
   } = useSignupTermsForm(signupDraft);
 
   return (
@@ -59,7 +59,7 @@ function HydratedSignupTermsForm({ signupDraft }: { signupDraft: SignupTermsDraf
             </p>
           ) : null}
           <SignupStepActions
-            onPrevious={handlePrevious}
+            onPrevious={goToPreviousStep}
             previousDisabled={isPending}
             nextDisabled={!canSubmit || isPending}
             nextLabel="가입하기"
@@ -68,9 +68,12 @@ function HydratedSignupTermsForm({ signupDraft }: { signupDraft: SignupTermsDraf
       }
       title="약관 동의하기"
       titleId="signup-terms-title"
-      onSubmit={handleSubmit}
+      onSubmit={(event) => {
+        event.preventDefault();
+        submit();
+      }}
     >
-      <SignupAgreementFields agreements={agreements} onAgreementsChange={handleAgreementsChange} />
+      <SignupAgreementFields agreements={agreements} onAgreementsChange={changeAgreements} />
     </AuthForm>
   );
 }

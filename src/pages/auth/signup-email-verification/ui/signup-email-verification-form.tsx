@@ -9,16 +9,8 @@ import { VStack } from '@/shared/ui/layout/v-stack';
 import { useSignupEmailVerificationForm } from '@/pages/auth/signup-email-verification/model/use-signup-email-verification-form';
 
 export function SignupEmailVerificationForm({ email }: { email: string }): JSX.Element {
-  const {
-    code,
-    feedback,
-    handleCodeChange,
-    handleResend,
-    handleSubmit,
-    isSendingCode,
-    isVerified,
-    isVerifying,
-  } = useSignupEmailVerificationForm(email);
+  const { changeCode, code, feedback, isSendingCode, isVerified, isVerifying, resendCode, submit } =
+    useSignupEmailVerificationForm(email);
 
   return (
     <AuthForm
@@ -28,7 +20,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
             type="button"
             className="typo-subtitle-xxs text-text-medium self-center underline underline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={isSendingCode || isVerifying || isVerified}
-            onClick={handleResend}
+            onClick={resendCode}
           >
             인증 코드 다시 보내기
           </button>
@@ -42,7 +34,10 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
           </Button>
         </VStack>
       }
-      onSubmit={handleSubmit}
+      onSubmit={(event) => {
+        event.preventDefault();
+        submit();
+      }}
       title="이메일 인증하기"
       titleId="signup-email-verification-title"
     >
@@ -65,7 +60,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
           value={code}
           readOnly={isVerified}
           disabled={isVerifying}
-          onChange={handleCodeChange}
+          onChange={(event) => changeCode(event.currentTarget.value)}
           feedback={feedback}
         />
       </VStack>
