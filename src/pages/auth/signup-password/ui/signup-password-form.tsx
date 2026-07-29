@@ -38,22 +38,15 @@ function HydratedSignupPasswordForm({
   email: string;
   initialPassword: string;
 }): JSX.Element {
-  const {
-    changePassword,
-    changePasswordConfirmation,
-    errors,
-    goToPreviousStep,
-    password,
-    passwordConfirmation,
-    submit,
-    validatePassword,
-    validatePasswordConfirmation,
-  } = useSignupPasswordForm({ email, initialPassword });
+  const { errors, goToPreviousStep, register, submit } = useSignupPasswordForm({
+    email,
+    initialPassword,
+  });
   const passwordFeedback: InputFieldFeedback = errors.password
-    ? { tone: 'error', message: errors.password }
+    ? { tone: 'error', message: errors.password.message }
     : { tone: 'info', message: PASSWORD_GUIDE };
   const passwordConfirmationFeedback: InputFieldFeedback | undefined = errors.passwordConfirmation
-    ? { tone: 'error', message: errors.passwordConfirmation }
+    ? { tone: 'error', message: errors.passwordConfirmation.message }
     : undefined;
 
   return (
@@ -61,10 +54,7 @@ function HydratedSignupPasswordForm({
       actions={<SignupStepActions onPrevious={goToPreviousStep} />}
       title="비밀번호 설정하기"
       titleId="signup-password-title"
-      onSubmit={(event) => {
-        event.preventDefault();
-        submit();
-      }}
+      onSubmit={submit}
     >
       <VStack className="gap-024 items-stretch">
         <VStack className="gap-004 items-stretch">
@@ -75,25 +65,19 @@ function HydratedSignupPasswordForm({
         <VStack className="gap-012 items-stretch">
           <InputField
             frame="password"
-            name="password"
             autoComplete="new-password"
             aria-label="비밀번호"
             placeholder="비밀번호를 입력해 주세요"
-            value={password}
-            onChange={(event) => changePassword(event.currentTarget.value)}
-            onBlur={validatePassword}
             feedback={passwordFeedback}
+            {...register('password')}
           />
           <InputField
             frame="password"
-            name="passwordConfirmation"
             autoComplete="new-password"
             aria-label="비밀번호 확인"
             placeholder="비밀번호를 다시 입력해 주세요"
-            value={passwordConfirmation}
-            onChange={(event) => changePasswordConfirmation(event.currentTarget.value)}
-            onBlur={validatePasswordConfirmation}
             feedback={passwordConfirmationFeedback}
+            {...register('passwordConfirmation')}
           />
         </VStack>
       </VStack>

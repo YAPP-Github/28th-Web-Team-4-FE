@@ -1,31 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import type { z } from 'zod';
 
 import { useSignupDraftStore } from '@/features/auth/signup-flow';
 import { signupPasswordSchema } from '@/pages/auth/signup-password/model/signup-password-schema';
 
-type PasswordField = 'password' | 'passwordConfirmation';
-type PasswordErrors = Partial<Record<PasswordField, string>>;
-
-function getPasswordErrors(password: string, passwordConfirmation: string): PasswordErrors {
-  const result = signupPasswordSchema.safeParse({ password, passwordConfirmation });
-
-  if (result.success) {
-    return {};
-  }
-
-  return result.error.issues.reduce<PasswordErrors>((errors, issue) => {
-    const field = issue.path[0];
-
-    if ((field === 'password' || field === 'passwordConfirmation') && !errors[field]) {
-      errors[field] = issue.message;
-    }
-
-    return errors;
-  }, {});
-}
+type SignupPasswordInput = z.input<typeof signupPasswordSchema>;
+type SignupPasswordOutput = z.output<typeof signupPasswordSchema>;
 
 export function useSignupPasswordForm({
   email,
@@ -36,76 +20,32 @@ export function useSignupPasswordForm({
 }) {
   const router = useRouter();
   const setStoredPassword = useSignupDraftStore((state) => state.setPassword);
-  const [password, setPassword] = useState(initialPassword);
-  const [passwordConfirmation, setPasswordConfirmation] = useState(initialPassword);
-  const [errors, setErrors] = useState<PasswordErrors>({});
-  const [touched, setTouched] = useState<Partial<Record<PasswordField, boolean>>>({});
+  const {
+    formState: { errors },
+    handleSubmit,
+    register,
+  } = useForm<SignupPasswordInput, unknown, SignupPasswordOutput>({
+    defaultValues: {
+      password: initialPassword,
+      passwordConfirmation: initialPassword,
+    },
+    mode: 'onBlur',
+    resolver: zodResolver(signupPasswordSchema),
+  });
 
-  const validateField = (
-    field: PasswordField,
-    nextPassword = password,
-    nextPasswordConfirmation = passwordConfirmation,
-  ) => {
-    const nextErrors = getPasswordErrors(nextPassword, nextPasswordConfirmation);
-    setErrors((current) => ({ ...current, [field]: nextErrors[field] }));
-  };
-
-  const changePassword = (nextPassword: string) => {
-    setPassword(nextPassword);
-
-    if (touched.password || errors.password) {
-      validateField('password', nextPassword, passwordConfirmation);
-    }
-
-    if (touched.passwordConfirmation || errors.passwordConfirmation) {
-      validateField('passwordConfirmation', nextPassword, passwordConfirmation);
-    }
-  };
-
-  const changePasswordConfirmation = (nextPasswordConfirmation: string) => {
-    setPasswordConfirmation(nextPasswordConfirmation);
-
-    if (touched.passwordConfirmation || errors.passwordConfirmation) {
-      validateField('passwordConfirmation', password, nextPasswordConfirmation);
-    }
-  };
-
-  const validatePassword = () => {
-    setTouched((current) => ({ ...current, password: true }));
-    validateField('password');
-  };
-
-  const validatePasswordConfirmation = () => {
-    setTouched((current) => ({ ...current, passwordConfirmation: true }));
-    validateField('passwordConfirmation');
-  };
-
-  const submit = () => {
-    const result = signupPasswordSchema.safeParse({ password, passwordConfirmation });
-
-    if (!result.success) {
-      setTouched({ password: true, passwordConfirmation: true });
-      setErrors(getPasswordErrors(password, passwordConfirmation));
-      return;
-    }
-
-    setStoredPassword(result.data.password);
+  const submit = handleSubmit(({ password }) => {
+    setStoredPassword(password);
     router.push('/signup/name');
-  };
+  });
 
   const goToPreviousStep = () => {
     router.push(`/signup?email=${encodeURIComponent(email)}`);
   };
 
   return {
-    changePassword,
-    changePasswordConfirmation,
     errors,
     goToPreviousStep,
-    password,
-    passwordConfirmation,
+    register,
     submit,
-    validatePassword,
-    validatePasswordConfirmation,
   };
 }
