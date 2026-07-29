@@ -11,6 +11,7 @@ import { client } from '../client.gen';
 import {
   createSample,
   getAllSamples,
+  getChannel,
   getChannels,
   getSampleById,
   googleAuth,
@@ -19,10 +20,12 @@ import {
   loginMethods,
   logout,
   type Options,
+  presignOnboardingPerformanceFiles,
   refresh,
   sendSignupCode,
   signup,
   signupGoogle,
+  submitOnboarding,
   verifySignupCode,
 } from '../sdk.gen';
 import type {
@@ -32,6 +35,9 @@ import type {
   GetAllSamplesData,
   GetAllSamplesError,
   GetAllSamplesResponse,
+  GetChannelData,
+  GetChannelError,
+  GetChannelResponse,
   GetChannelsData,
   GetChannelsError,
   GetChannelsResponse,
@@ -53,6 +59,9 @@ import type {
   LogoutData,
   LogoutError,
   LogoutResponse,
+  PresignOnboardingPerformanceFilesData,
+  PresignOnboardingPerformanceFilesError,
+  PresignOnboardingPerformanceFilesResponse,
   RefreshData,
   RefreshError,
   RefreshResponse,
@@ -65,6 +74,9 @@ import type {
   SignupGoogleError,
   SignupGoogleResponse,
   SignupResponse,
+  SubmitOnboardingData,
+  SubmitOnboardingError,
+  SubmitOnboardingResponse,
   VerifySignupCodeData,
   VerifySignupCodeError,
   VerifySignupCodeResponse,
@@ -151,6 +163,64 @@ export const createSampleMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await createSample({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * 온보딩 제출
+ *
+ * 로그인 여부와 관계없이 제출할 수 있다. 로그인 상태에서 다시 제출하면 이전 제출을 대체하고, 비로그인은 대체 없이 각각 저장된다.
+ */
+export const submitOnboardingMutation = (
+  options?: Partial<Options<SubmitOnboardingData>>,
+): UseMutationOptions<
+  SubmitOnboardingResponse,
+  SubmitOnboardingError,
+  Options<SubmitOnboardingData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SubmitOnboardingResponse,
+    SubmitOnboardingError,
+    Options<SubmitOnboardingData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await submitOnboarding({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * 성과파일 presigned URL 발급
+ *
+ * 성과파일(xlsx/csv) 업로드용 presigned PUT URL을 로그인 여부와 관계없이 발급한다. PUT 요청 시 응답의 contentType 값과 x-amz-tagging: retain=pending 헤더를 그대로 보내야 한다.
+ */
+export const presignOnboardingPerformanceFilesMutation = (
+  options?: Partial<Options<PresignOnboardingPerformanceFilesData>>,
+): UseMutationOptions<
+  PresignOnboardingPerformanceFilesResponse,
+  PresignOnboardingPerformanceFilesError,
+  Options<PresignOnboardingPerformanceFilesData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PresignOnboardingPerformanceFilesResponse,
+    PresignOnboardingPerformanceFilesError,
+    Options<PresignOnboardingPerformanceFilesData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await presignOnboardingPerformanceFiles({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -432,7 +502,7 @@ export const getChannelsQueryKey = (options?: Options<GetChannelsData>) =>
 /**
  * 채널 목록 조회
  *
- * 전체 채널을 페이지 단위로 조회한다. 인증 없이 접근 가능하며, 미지정 시 이름순 12개.
+ * 채널을 페이지 단위로 조회한다. 미지정 시 이름순 12개. name 지정 시 채널명으로 필터링
  */
 export const getChannelsOptions = (options?: Options<GetChannelsData>) =>
   queryOptions<
@@ -494,7 +564,7 @@ export const getChannelsInfiniteQueryKey = (
 /**
  * 채널 목록 조회
  *
- * 전체 채널을 페이지 단위로 조회한다. 인증 없이 접근 가능하며, 미지정 시 이름순 12개.
+ * 채널을 페이지 단위로 조회한다. 미지정 시 이름순 12개. name 지정 시 채널명으로 필터링
  */
 export const getChannelsInfiniteOptions = (options?: Options<GetChannelsData>) => {
   const opts = infiniteQueryOptions<
@@ -533,3 +603,30 @@ export const getChannelsInfiniteOptions = (options?: Options<GetChannelsData>) =
   );
   return opts as Omit<typeof opts, 'initialData'>;
 };
+
+export const getChannelQueryKey = (options: Options<GetChannelData>) =>
+  createQueryKey('getChannel', options);
+
+/**
+ * 채널 상세 조회
+ *
+ * 채널 단건을 상세 조회한다. 채널 정보와 함께 광고 상품 목록, 오디언스 규모 지표, 집행 사례를 반환한다. 상품이 없는 채널은 products 를 빈 배열로 반환한다.
+ */
+export const getChannelOptions = (options: Options<GetChannelData>) =>
+  queryOptions<
+    GetChannelResponse,
+    GetChannelError,
+    GetChannelResponse,
+    ReturnType<typeof getChannelQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getChannel({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getChannelQueryKey(options),
+  });
