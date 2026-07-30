@@ -24,6 +24,7 @@ function setNameStepCompleted(occupation?: SignupOccupation) {
         password: 'Password1!',
       },
       nickname: '채소러버',
+      companyName: '채소컴퍼니',
       occupation,
       hasHydrated: true,
     },

@@ -13,6 +13,7 @@ import {
 export type SignupStep = 'company' | 'name' | 'occupation' | 'password' | 'terms';
 
 type SignupPrerequisites = {
+  companyName: string;
   identity?: SignupIdentity;
   nickname: string;
   occupation?: SignupOccupation;
@@ -20,7 +21,7 @@ type SignupPrerequisites = {
 
 function getSignupStepRedirect(
   step: SignupStep,
-  { identity, nickname, occupation }: SignupPrerequisites,
+  { companyName, identity, nickname, occupation }: SignupPrerequisites,
 ): string | undefined {
   if (!identity || (identity.method === 'email' && !identity.emailVerified)) {
     return '/login';
@@ -36,6 +37,10 @@ function getSignupStepRedirect(
 
   if ((step === 'company' || step === 'occupation' || step === 'terms') && !nickname) {
     return '/signup/name';
+  }
+
+  if ((step === 'occupation' || step === 'terms') && !companyName) {
+    return '/signup/company';
   }
 
   if (step === 'terms' && !occupation) {
