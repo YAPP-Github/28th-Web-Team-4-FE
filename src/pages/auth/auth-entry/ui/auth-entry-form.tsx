@@ -1,22 +1,19 @@
 'use client';
 
-import { useRef, useState, type JSX } from 'react';
+import { useState, type JSX } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
 
 import { AuthForm } from '@/features/auth/auth-form';
 import { getApiErrorMessage } from '@/shared/api/api-error';
-import { useDebounce } from '@/shared/lib/use-debounce';
 import { Button } from '@/shared/ui/button';
 import { GoogleLogo } from '@/shared/ui/google-logo';
 import { InputField } from '@/shared/ui/input-field';
 import { Text } from '@/shared/ui/text';
 import { authEntrySchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
 import { useResolveAuthEmail } from '@/pages/auth/auth-entry/model/use-resolve-auth-email';
-
-const EMAIL_VALIDATION_DEBOUNCE_MS = 400;
 
 type AuthEntryInput = z.input<typeof authEntrySchema>;
 type AuthEntryOutput = z.output<typeof authEntrySchema>;
@@ -86,34 +83,17 @@ function ExistingAccountForm({
 export function AuthEntryForm(): JSX.Element {
   const router = useRouter();
   const [existingAccountEmail, setExistingAccountEmail] = useState<string>();
-  const hasEditedEmailRef = useRef(false);
   const resolveEmailMutation = useResolveAuthEmail();
   const {
     clearErrors,
-    control,
     formState: { errors },
     handleSubmit,
     register,
     setError,
-    trigger,
   } = useForm<AuthEntryInput, unknown, AuthEntryOutput>({
     defaultValues: { email: '' },
     resolver: zodResolver(authEntrySchema),
     reValidateMode: 'onSubmit',
-  });
-  const email = useWatch({ control, name: 'email' });
-  const emailRegistration = register('email', {
-    onChange: () => {
-      hasEditedEmailRef.current = true;
-    },
-  });
-
-  useDebounce(email, EMAIL_VALIDATION_DEBOUNCE_MS, () => {
-    if (!hasEditedEmailRef.current) {
-      return;
-    }
-
-    void trigger('email');
   });
 
   const submit = handleSubmit(({ email: validatedEmail }) => {
@@ -198,7 +178,7 @@ export function AuthEntryForm(): JSX.Element {
               }
             : undefined
         }
-        {...emailRegistration}
+        {...register('email')}
       />
     </AuthForm>
   );
