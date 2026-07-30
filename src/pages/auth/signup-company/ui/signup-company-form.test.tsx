@@ -36,7 +36,7 @@ describe('SignupCompanyForm', () => {
     useSignupDraftStore.getState().setHasHydrated(true);
   });
 
-  it('renders the optional company field with the next button enabled', () => {
+  it('renders the required company field', () => {
     setNameStepCompleted();
 
     render(<SignupCompanyForm />);
@@ -60,15 +60,16 @@ describe('SignupCompanyForm', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('회사명은 50자 이하로 입력해 주세요');
   });
 
-  it('allows an empty company name and moves to the occupation step', async () => {
+  it('shows the required message and stays on the company step for an empty company name', async () => {
     const user = userEvent.setup();
     setNameStepCompleted();
     render(<SignupCompanyForm />);
 
     await user.click(screen.getByRole('button', { name: '다음' }));
 
+    expect(screen.getByRole('alert')).toHaveTextContent('회사명을 입력해주세요.');
     expect(useSignupDraftStore.getState().companyName).toBe('');
-    expect(pushMock).toHaveBeenCalledWith('/signup/occupation');
+    expect(pushMock).not.toHaveBeenCalledWith('/signup/occupation');
   });
 
   it('trims and stores a company name', async () => {
