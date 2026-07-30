@@ -5,8 +5,10 @@ import { useSignupDraftStore } from '@/features/auth/signup-flow';
 
 import { SignupNameForm } from './signup-name-form';
 
-const pushMock = vi.fn<(href: string) => void>();
-const replaceMock = vi.fn<(href: string) => void>();
+const { pushMock, replaceMock } = vi.hoisted(() => ({
+  pushMock: vi.fn<(href: string) => void>(),
+  replaceMock: vi.fn<(href: string) => void>(),
+}));
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: pushMock, replace: replaceMock }),

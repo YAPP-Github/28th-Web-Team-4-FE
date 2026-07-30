@@ -19,7 +19,9 @@ vi.mock('@/pages/auth/signup-email-verification/api/signup-email-verification', 
 
 const sendSignupEmailVerificationCodeMock = vi.mocked(sendSignupEmailVerificationCode);
 const verifySignupEmailCodeMock = vi.mocked(verifySignupEmailCode);
-const pushMock = vi.fn<(href: string) => void>();
+const { pushMock } = vi.hoisted(() => ({
+  pushMock: vi.fn<(href: string) => void>(),
+}));
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: pushMock }),
