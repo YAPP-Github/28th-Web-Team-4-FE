@@ -1,4 +1,5 @@
 import type { JSX } from 'react';
+import { Plus } from 'lucide-react';
 import Image from 'next/image';
 
 import type { RecommendedChannel } from '@/pages/recommend-result/model/recommended-channels';
@@ -89,8 +90,13 @@ export function RecommendedChannelCard({ channel }: RecommendedChannelCardProps)
             </Box>
           </Box>
 
-          <Button frame="button" tone="stroke" className="mt-auto w-full">
-            상세보기
+          <Button
+            frame="button"
+            tone="stroke"
+            className="mt-auto w-full"
+            leftIcon={<Plus aria-hidden="true" className="size-016" />}
+          >
+            비교 목록에 담기
           </Button>
         </Box>
       </Box>
