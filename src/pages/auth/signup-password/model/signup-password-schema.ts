@@ -11,7 +11,7 @@ export const signupPasswordSchema = z
       .min(1, PASSWORD_REQUIRED_MESSAGE)
       .min(8, PASSWORD_LENGTH_MESSAGE)
       .max(64, PASSWORD_LENGTH_MESSAGE)
-      .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9\s])\S+$/, PASSWORD_FORMAT_MESSAGE),
+      .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])\S+$/, PASSWORD_FORMAT_MESSAGE),
     passwordConfirmation: z.string(),
   })
   .refine(({ password, passwordConfirmation }) => password === passwordConfirmation, {

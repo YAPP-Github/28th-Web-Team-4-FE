@@ -56,6 +56,16 @@ describe('SignupPasswordForm', () => {
       'Password',
       '비밀번호는 영어, 숫자, 특수문자를 각각 1개 이상 포함해 주세요.',
     ],
+    [
+      'Korean-only password',
+      '한글비밀번호입니다',
+      '비밀번호는 영어, 숫자, 특수문자를 각각 1개 이상 포함해 주세요.',
+    ],
+    [
+      'Korean mixed input',
+      'Password1한',
+      '비밀번호는 영어, 숫자, 특수문자를 각각 1개 이상 포함해 주세요.',
+    ],
   ])('shows the designed %s error', async (_name, password, message) => {
     const user = userEvent.setup();
     setVerifiedEmail();
