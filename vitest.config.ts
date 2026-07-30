@@ -42,6 +42,7 @@ export default defineConfig({
             'next/link',
             '@base-ui/react/select',
             'overlay-kit',
+            'react-use-measure',
           ],
         },
         plugins: [
