@@ -1,0 +1,155 @@
+# 이메일 회원가입 플로우
+
+이 문서는 이메일 회원가입의 구조와 주요 설계 결정을 빠르게 파악할 수 있도록 정리한 문서입니다.
+
+## 먼저 볼 파일
+
+아래 순서로 보면 전체 흐름을 가장 빠르게 이해할 수 있습니다.
+
+1. [`signup-draft-store.ts`](../src/features/auth/signup-flow/model/signup-draft-store.ts): 단계 간 상태와 저장 범위
+2. [`use-signup-step-guard.ts`](../src/features/auth/signup-flow/model/use-signup-step-guard.ts): 단계별 진입 조건
+3. [`use-signup-email-verification-form.ts`](../src/pages/auth/signup-email-verification/model/use-signup-email-verification-form.ts): 인증 코드 발송·검증
+4. [`use-signup-password-form.ts`](../src/pages/auth/signup-password/model/use-signup-password-form.ts): 비밀번호 검증과 다음 단계 이동
+5. [`use-signup-terms-form.ts`](../src/pages/auth/signup-terms/model/use-signup-terms-form.ts): 최종 요청과 성공·실패 처리
+
+## 사용자 흐름
+
+```mermaid
+flowchart LR
+  login["/login<br/>이메일 입력"] --> verify["/signup?email=...<br/>이메일 인증"]
+  verify --> password["/signup/password<br/>비밀번호"]
+  password --> name["/signup/name<br/>이름"]
+  name --> company["/signup/company<br/>회사명"]
+  company --> occupation["/signup/occupation<br/>직무"]
+  occupation --> terms["/signup/terms<br/>약관"]
+  terms --> submit["회원가입 API"]
+  submit --> home["/"]
+```
+
+- `/login`에서 이메일의 기존 로그인 수단을 조회합니다.
+- 신규 이메일이면 `/signup?email=...`로 이동해 인증 코드를 발송합니다.
+- 이메일 인증이 완료되면 비밀번호부터 약관까지 순차적으로 입력합니다.
+- 마지막 단계에서 누적된 draft를 회원가입 API 요청으로 변환합니다.
+- 성공하면 draft를 초기화하고 `/`로 이동합니다.
+
+## FSD 배치
+
+```text
+app/(auth)/signup/**             Next.js route: FSD page를 re-export
+
+src/features/auth/
+  auth-form/                     인증 화면의 공통 form shell
+  signup-flow/
+    model/
+      signup-draft-store.ts      단계 간 draft와 persist 정책
+      use-signup-step-guard.ts   공통 진입 조건
+    ui/
+      signup-step-actions.tsx    이전/다음 버튼
+      signup-agreement-fields.tsx
+
+src/pages/auth/
+  auth-entry/                    이메일 입력 및 가입/로그인 분기
+  signup-email-verification/     인증 코드 발송·재발송·검증
+  signup-password/               비밀번호 입력
+  signup-name/                   이름 입력
+  signup-company/                회사명 입력
+  signup-occupation/             직무 선택
+  signup-terms/                  약관 동의 및 최종 제출
+```
+
+- 여러 회원가입 화면에서 공유하는 상태·가드·UI는 `features/auth/signup-flow`에 둡니다.
+- 각 화면에서만 사용하는 schema, form hook, API는 해당 `pages` slice에 둡니다.
+- 루트 `app` 파일은 [`architecture.md`](./architecture.md)의 원칙대로 FSD page를 얇게 re-export합니다.
+
+## 회원가입 draft
+
+`useSignupDraftStore`는 단계 이동에 필요한 값을 Zustand로 관리합니다.
+
+| 값 | 메모리 | `sessionStorage` | 비고 |
+| --- | --- | --- | --- |
+| 이메일 및 인증 완료 여부 | O | O | 단계 가드에서 사용 |
+| 비밀번호 | O | X | 평문 브라우저 저장 방지 |
+| 이름·회사명·직무 | O | O | 이전 단계 복원 |
+| 약관 동의 | O | O | 실패 후 입력 유지 |
+| hydration 상태 | O | X | redirect 시점 제어 |
+
+비밀번호는 현재 탭의 React 앱 메모리에만 남습니다. 따라서 SPA 방식으로 이전·다음 단계를 이동할 때는 유지되지만, 새로고침하면 초기화됩니다. 비밀번호 이후 단계에서 새로고침한 경우 단계 가드가 `/signup/password`로 이동시켜 다시 입력받습니다.
+
+store version 2의 migration은 과거 storage에 남아 있을 수 있는 `password` 필드도 제거합니다.
+
+다른 이메일로 회원가입을 시작하면 이전 draft를 초기화하고, 회원가입 성공 시에도 전체 draft를 초기화합니다.
+
+## 단계 가드
+
+각 단계는 persist hydration이 끝난 뒤 필요한 선행 값을 확인합니다.
+
+| 현재 단계 | 필요한 선행 값 | 누락 시 이동 |
+| --- | --- | --- |
+| 비밀번호 | 인증된 이메일 | `/login` |
+| 이름 | 인증된 이메일, 비밀번호 | `/login` 또는 `/signup/password` |
+| 회사명 | 인증된 이메일, 비밀번호, 이름 | `/login`, `/signup/password` 또는 `/signup/name` |
+| 직무 | 인증된 이메일, 비밀번호, 이름 | `/login`, `/signup/password` 또는 `/signup/name` |
+| 약관 | 인증된 이메일, 비밀번호, 이름, 직무 | 누락된 첫 단계 |
+
+더 앞 단계의 값이 누락된 경우 가까운 직전 화면이 아니라, 실제로 다시 입력해야 하는 첫 단계로 이동합니다.
+
+## 검증 정책
+
+유효성 검사는 입력 중이나 blur 시점이 아니라 각 화면의 다음/제출 버튼을 클릭했을 때 수행합니다.
+
+- 이메일·이름·회사명·비밀번호: React Hook Form과 Zod resolver
+- 직무·이메일 인증 코드: 제출 handler에서 Zod `safeParse`
+- 필수 약관: 필수 항목 동의 여부로 가입 버튼 활성화
+
+Zod schema에 `trim()`이 있는 필드는 검증된 output을 store에 저장하므로 앞뒤 공백이 제거됩니다.
+
+## 이메일 인증 상태
+
+이메일 인증 화면의 로컬 상태는 reducer로 관리합니다.
+
+```text
+waiting
+  ├─ 인증 실패/발송 실패 → error
+  ├─ 재발송 성공       → waiting + 코드 초기화
+  └─ 인증 성공         → verified
+```
+
+- 최초 진입 시 같은 이메일에 인증 코드를 한 번만 발송합니다.
+- React Strict Mode의 effect 재실행으로 중복 발송되지 않도록 ref로 발송 이메일을 추적합니다.
+- 이미 인증된 동일 이메일로 돌아오면 인증 코드를 다시 발송하지 않습니다.
+- 인증 성공 후 다음 버튼을 누르면 `/signup/password`로 이동합니다.
+
+## 최종 제출
+
+약관 단계의 `useSignupTermsForm`이 store의 draft를 `SignupRequest`로 변환해 제출합니다.
+
+- 필수 약관 두 개가 모두 동의된 경우에만 제출할 수 있습니다.
+- mutation 진행 중에는 이전/가입 버튼을 비활성화해 중복 제출을 방지합니다.
+- 성공하면 draft를 초기화하고 `/`로 이동합니다.
+- 실패하면 draft를 유지하고 API 오류 메시지를 화면에 표시합니다.
+
+## 테스트 위치
+
+각 slice의 핵심 동작은 구현 파일 가까이에 테스트를 둡니다.
+
+| 대상 | 주요 검증 |
+| --- | --- |
+| `signup-draft-store.test.ts` | persist 범위, 비밀번호 미저장, migration, 초기화 |
+| `use-signup-step-guard.test.tsx` | hydration 대기, 선행 단계 redirect |
+| 각 `signup-*-form.test.tsx` | 제출 시 검증, 값 저장, 이전·다음 이동 |
+| `signup-email-verification-*.test.ts(x)` | 발송·재발송·검증 상태 전이 |
+| `submit-signup.test.ts` | 최종 API 요청 |
+| `signup-terms-form.test.tsx` | 필수 약관, 중복 제출 방지, 성공·실패 처리 |
+
+검증 명령:
+
+```bash
+node --run fmt:check
+node --run lint
+node --run test:ci
+node --run build
+```
+
+## 후속 작업
+
+- 약관별 `보기` 버튼에 실제 약관 콘텐츠 또는 상세 화면을 연결합니다.
