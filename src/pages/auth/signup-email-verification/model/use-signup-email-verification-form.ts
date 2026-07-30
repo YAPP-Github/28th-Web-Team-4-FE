@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useReducer, useRef } from 'react';
+import { useEffect, useReducer } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useShallow } from 'zustand/react/shallow';
@@ -23,6 +23,7 @@ const INVALID_OR_EXPIRED_CODE_MESSAGE =
 const GOOGLE_ACCOUNT_MESSAGE =
   'Google 계정으로 가입된 이메일이에요. Google 로그인을 이용해 주세요.';
 const EXISTING_ACCOUNT_MESSAGE = '이미 가입된 이메일이에요. 로그인을 이용해 주세요.';
+const EMAIL_CODE_SENT_KEY_PREFIX = 'signup-email-code-sent:';
 
 function getSendResolutionErrorMessage(resolution: SignupEmailCodeResolution): string | undefined {
   if (resolution === 'google') {
@@ -42,7 +43,6 @@ export function useSignupEmailVerificationForm(email: string) {
     signupEmailVerificationReducer,
     initialSignupEmailVerificationState,
   );
-  const initiallySentEmailRef = useRef<string | undefined>(undefined);
   const { completeEmailVerification, emailVerified, hasHydrated, startEmailSignup, storedEmail } =
     useSignupDraftStore(
       useShallow((state) => ({
@@ -114,11 +114,16 @@ export function useSignupEmailVerificationForm(email: string) {
 
     startEmailSignup(email);
 
-    if ((storedEmail === email && emailVerified) || initiallySentEmailRef.current === email) {
+    const emailCodeSentKey = `${EMAIL_CODE_SENT_KEY_PREFIX}${email}`;
+
+    if (
+      (storedEmail === email && emailVerified) ||
+      sessionStorage.getItem(emailCodeSentKey) === 'true'
+    ) {
       return;
     }
 
-    initiallySentEmailRef.current = email;
+    sessionStorage.setItem(emailCodeSentKey, 'true');
     sendInitialCode(email);
   }, [email, emailVerified, hasHydrated, sendInitialCode, startEmailSignup, storedEmail]);
 
@@ -146,6 +151,10 @@ export function useSignupEmailVerificationForm(email: string) {
     verifyMutation.mutate({ email, code: result.data.code });
   };
 
+  const goToPreviousStep = () => {
+    router.push('/login');
+  };
+
   const resendCode = () => {
     resendMutation.mutate(email);
   };
@@ -154,6 +163,7 @@ export function useSignupEmailVerificationForm(email: string) {
     changeCode,
     code,
     errorMessage: verificationState.errorMessage,
+    goToPreviousStep,
     isSendingCode,
     isVerified,
     isVerifying: verifyMutation.isPending,

@@ -73,7 +73,20 @@ describe('SignupEmailVerificationForm', () => {
     expect(screen.getByRole('heading', { name: '이메일 인증하기' })).toBeInTheDocument();
     expect(screen.getByText('new@example.com')).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: '인증 코드' })).toHaveAttribute('maxLength', '6');
+    expect(screen.getByRole('button', { name: '이전' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '다음' })).toBeDisabled();
+  });
+
+  it('moves back to login', async () => {
+    const user = userEvent.setup();
+    renderVerificationForm();
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: '이전' })).toBeEnabled();
+    });
+    await user.click(screen.getByRole('button', { name: '이전' }));
+
+    expect(pushMock).toHaveBeenCalledWith('/login');
   });
 
   it('sends the signup code once when the form opens', async () => {
@@ -86,6 +99,21 @@ describe('SignupEmailVerificationForm', () => {
       'new@example.com',
       expect.anything(),
     );
+  });
+
+  it('does not send the signup code again after remounting in the same session', async () => {
+    const firstRender = renderVerificationForm();
+
+    await waitFor(() => {
+      expect(sendSignupEmailVerificationCodeMock).toHaveBeenCalledTimes(1);
+    });
+
+    firstRender.unmount();
+    renderVerificationForm();
+
+    await waitFor(() => {
+      expect(sendSignupEmailVerificationCodeMock).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('allows code entry and submission while the initial send is pending', async () => {
@@ -279,6 +307,7 @@ describe('SignupEmailVerificationForm', () => {
     await waitFor(() => {
       expect(codeInput).toBeDisabled();
       expect(screen.getByRole('button', { name: '다음' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: '이전' })).toBeDisabled();
       expect(screen.getByRole('button', { name: '인증 코드 다시 보내기' })).toBeDisabled();
     });
 
