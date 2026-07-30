@@ -30,7 +30,7 @@ export function Dropdown<Value extends string = string>({
   ...rootProps
 }: DropdownProps<Value>): JSX.Element {
   return (
-    <Select.Root<Value> items={options} {...rootProps}>
+    <Select.Root items={options} {...rootProps}>
       <Select.Trigger
         className={cn(
           [
