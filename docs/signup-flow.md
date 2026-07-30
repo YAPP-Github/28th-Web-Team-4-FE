@@ -75,7 +75,7 @@ src/pages/auth/
 
 비밀번호는 현재 탭의 React 앱 메모리에만 남습니다. 따라서 SPA 방식으로 이전·다음 단계를 이동할 때는 유지되지만, 새로고침하면 초기화됩니다. 비밀번호 이후 단계에서 새로고침한 경우 단계 가드가 `/signup/password`로 이동시켜 다시 입력받습니다.
 
-store version 2의 migration은 과거 storage에 남아 있을 수 있는 `password` 필드도 제거합니다.
+store version 3의 migration은 과거 storage에 남아 있을 수 있는 `password` 필드를 제거하고, 기존 이메일 인증 정보를 `identity` 구조로 변환합니다.
 
 다른 이메일로 회원가입을 시작하면 이전 draft를 초기화하고, 회원가입 성공 시에도 전체 draft를 초기화합니다.
 
@@ -88,8 +88,8 @@ store version 2의 migration은 과거 storage에 남아 있을 수 있는 `pass
 | 비밀번호 | 인증된 이메일 | `/login` |
 | 이름 | 인증된 이메일, 비밀번호 | `/login` 또는 `/signup/password` |
 | 회사명 | 인증된 이메일, 비밀번호, 이름 | `/login`, `/signup/password` 또는 `/signup/name` |
-| 직무 | 인증된 이메일, 비밀번호, 이름 | `/login`, `/signup/password` 또는 `/signup/name` |
-| 약관 | 인증된 이메일, 비밀번호, 이름, 직무 | 누락된 첫 단계 |
+| 직무 | 인증된 이메일, 비밀번호, 이름, 회사명 | 누락된 첫 단계 |
+| 약관 | 인증된 이메일, 비밀번호, 이름, 회사명, 직무 | 누락된 첫 단계 |
 
 더 앞 단계의 값이 누락된 경우 가까운 직전 화면이 아니라, 실제로 다시 입력해야 하는 첫 단계로 이동합니다.
 
