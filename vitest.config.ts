@@ -41,6 +41,7 @@ export default defineConfig({
             '@number-flow/react',
             'next/link',
             '@base-ui/react/select',
+            'overlay-kit',
           ],
         },
         plugins: [
