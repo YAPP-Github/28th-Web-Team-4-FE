@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { getAuthEmailMethods } from '@/pages/auth/auth-entry/api/resolve-auth-email';
+import type { authenticateGoogle } from '@/pages/auth/auth-entry/api/authenticate-google';
 
 import { AuthEntryPage } from './auth-entry-page';
 
@@ -14,6 +15,9 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('@/pages/auth/auth-entry/api/resolve-auth-email', () => ({
   getAuthEmailMethods: vi.fn<typeof getAuthEmailMethods>(),
+}));
+vi.mock('@/pages/auth/auth-entry/api/authenticate-google', () => ({
+  authenticateGoogle: vi.fn<typeof authenticateGoogle>(),
 }));
 
 const getAuthEmailMethodsMock = vi.mocked(getAuthEmailMethods);

@@ -16,9 +16,11 @@
 
 ```mermaid
 flowchart LR
-  login["/login<br/>이메일 입력"] --> verify["/signup?email=...<br/>이메일 인증"]
+  login["/login<br/>가입 방식 선택"] --> verify["/signup?email=...<br/>이메일 인증"]
+  login --> google["Google Identity Services<br/>Google 인증"]
   verify --> password["/signup/password<br/>비밀번호"]
   password --> name["/signup/name<br/>이름"]
+  google --> name
   name --> company["/signup/company<br/>회사명"]
   company --> occupation["/signup/occupation<br/>직무"]
   occupation --> terms["/signup/terms<br/>약관"]
@@ -28,6 +30,7 @@ flowchart LR
 
 - `/login`에서 이메일의 기존 로그인 수단을 조회합니다.
 - 신규 이메일이면 `/signup?email=...`로 이동해 인증 코드를 발송합니다.
+- Google 인증 결과가 `SIGNUP_REQUIRED`이면 일회성 `signupToken`과 프리필 이름을 메모리에 저장하고 `/signup/name`으로 이동합니다.
 - 이메일 인증이 완료되면 비밀번호부터 약관까지 순차적으로 입력합니다.
 - 마지막 단계에서 누적된 draft를 회원가입 API 요청으로 변환합니다.
 - 성공하면 draft를 초기화하고 `/`로 이동합니다.
@@ -67,15 +70,16 @@ src/pages/auth/
 
 | 값 | 메모리 | `sessionStorage` | 비고 |
 | --- | --- | --- | --- |
-| 이메일 및 인증 완료 여부 | O | O | 단계 가드에서 사용 |
+| 이메일 가입 인증 정보 | O | O | 이메일 및 인증 완료 여부 |
 | 비밀번호 | O | X | 평문 브라우저 저장 방지 |
+| Google `signupToken` | O | X | 일회성 가입 자격 증명 |
 | 이름·회사명·직무 | O | O | 이전 단계 복원 |
 | 약관 동의 | O | O | 실패 후 입력 유지 |
 | hydration 상태 | O | X | redirect 시점 제어 |
 
-비밀번호는 현재 탭의 React 앱 메모리에만 남습니다. 따라서 SPA 방식으로 이전·다음 단계를 이동할 때는 유지되지만, 새로고침하면 초기화됩니다. 비밀번호 이후 단계에서 새로고침한 경우 단계 가드가 `/signup/password`로 이동시켜 다시 입력받습니다.
+비밀번호와 Google `signupToken`은 현재 탭의 React 앱 메모리에만 남습니다. 따라서 SPA 방식으로 이전·다음 단계를 이동할 때는 유지되지만, 새로고침하면 초기화됩니다. 이메일 가입은 `/signup/password`, Google 가입은 `/login`부터 다시 시작합니다.
 
-store version 2의 migration은 과거 storage에 남아 있을 수 있는 `password` 필드도 제거합니다.
+store version 3의 migration은 과거 storage에 남아 있을 수 있는 `password` 필드를 제거하고 이메일 인증 정보를 가입 방식이 포함된 `identity`로 변환합니다.
 
 다른 이메일로 회원가입을 시작하면 이전 draft를 초기화하고, 회원가입 성공 시에도 전체 draft를 초기화합니다.
 
@@ -86,7 +90,7 @@ store version 2의 migration은 과거 storage에 남아 있을 수 있는 `pass
 | 현재 단계 | 필요한 선행 값 | 누락 시 이동 |
 | --- | --- | --- |
 | 비밀번호 | 인증된 이메일 | `/login` |
-| 이름 | 인증된 이메일, 비밀번호 | `/login` 또는 `/signup/password` |
+| 이름 | 이메일: 인증된 이메일·비밀번호, Google: `signupToken` | `/login` 또는 `/signup/password` |
 | 회사명 | 인증된 이메일, 비밀번호, 이름 | `/login`, `/signup/password` 또는 `/signup/name` |
 | 직무 | 인증된 이메일, 비밀번호, 이름 | `/login`, `/signup/password` 또는 `/signup/name` |
 | 약관 | 인증된 이메일, 비밀번호, 이름, 직무 | 누락된 첫 단계 |
@@ -121,12 +125,20 @@ waiting
 
 ## 최종 제출
 
-약관 단계의 `useSignupTermsForm`이 store의 draft를 `SignupRequest`로 변환해 제출합니다.
+약관 단계의 `useSignupTermsForm`이 가입 방식에 따라 draft를 `SignupRequest` 또는 `GoogleSignupRequest`로 변환해 제출합니다.
 
 - 필수 약관 두 개가 모두 동의된 경우에만 제출할 수 있습니다.
 - mutation 진행 중에는 이전/가입 버튼을 비활성화해 중복 제출을 방지합니다.
 - 성공하면 draft를 초기화하고 `/`로 이동합니다.
 - 실패하면 draft를 유지하고 API 오류 메시지를 화면에 표시합니다.
+
+## Google Identity Services
+
+Google 버튼은 `NEXT_PUBLIC_GOOGLE_CLIENT_ID`로 Google Identity Services를 초기화합니다. 이 값은 다른 시크릿과 동일하게 Doppler에서 주입하며 저장소에는 넣지 않습니다.
+
+- `LOGIN`: 로그인 완료 후 `/`로 이동
+- `SIGNUP_REQUIRED`: `signupToken`과 프리필을 저장하고 `/signup/name`으로 이동
+- `LINK_REQUIRED`: 아직 계정 연결 화면이 없어 오류로 안내
 
 ## 테스트 위치
 

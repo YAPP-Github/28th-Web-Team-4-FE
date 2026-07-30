@@ -3,6 +3,7 @@
 import { useState, type JSX } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import Script from 'next/script';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
 
@@ -13,7 +14,24 @@ import { GoogleLogo } from '@/shared/ui/google-logo';
 import { InputField } from '@/shared/ui/input-field';
 import { Text } from '@/shared/ui/text';
 import { authEntrySchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
+import { useGoogleAuth } from '@/pages/auth/auth-entry/model/use-google-auth';
 import { useResolveAuthEmail } from '@/pages/auth/auth-entry/model/use-resolve-auth-email';
+
+type GoogleCredentialResponse = { credential?: string };
+type GoogleIdentity = {
+  accounts: {
+    id: {
+      initialize: (options: {
+        callback: (response: GoogleCredentialResponse) => void;
+        client_id: string;
+      }) => void;
+      prompt: () => void;
+    };
+  };
+};
+
+const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim();
+const getGoogleIdentity = () => (window as typeof window & { google?: GoogleIdentity }).google;
 
 type AuthEntryInput = z.input<typeof authEntrySchema>;
 type AuthEntryOutput = z.output<typeof authEntrySchema>;
@@ -83,7 +101,9 @@ function ExistingAccountForm({
 export function AuthEntryForm(): JSX.Element {
   const router = useRouter();
   const [existingAccountEmail, setExistingAccountEmail] = useState<string>();
+  const [isGoogleReady, setIsGoogleReady] = useState(false);
   const resolveEmailMutation = useResolveAuthEmail();
+  const googleAuthMutation = useGoogleAuth();
   const {
     clearErrors,
     formState: { errors },
@@ -124,6 +144,23 @@ export function AuthEntryForm(): JSX.Element {
       },
     });
   });
+  const initializeGoogleIdentity = () => {
+    const google = getGoogleIdentity();
+
+    if (!googleClientId || !google) {
+      return;
+    }
+
+    google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: ({ credential }) => {
+        if (credential) {
+          googleAuthMutation.mutate(credential);
+        }
+      },
+    });
+    setIsGoogleReady(true);
+  };
 
   if (existingAccountEmail) {
     return (
@@ -135,51 +172,74 @@ export function AuthEntryForm(): JSX.Element {
   }
 
   return (
-    <AuthForm
-      actions={
-        <div className="gap-012 flex w-full flex-col">
-          <button
-            type="button"
-            className="typo-subtitle-xxs text-text-medium self-center underline underline-offset-2"
-          >
-            비밀번호를 잊으셨나요?
-          </button>
-          <Button frame="cta" tone="login" type="submit" disabled={resolveEmailMutation.isPending}>
-            이메일로 시작하기
-          </Button>
-          <Button
-            frame="button"
-            tone="social"
-            type="button"
-            disabled={resolveEmailMutation.isPending}
-            leftIcon={<GoogleLogo alt="" />}
-          >
-            Google로 시작하기
-          </Button>
-        </div>
-      }
-      className="gap-12"
-      title="이메일로 시작하기"
-      titleId="auth-entry-title"
-      noValidate
-      onSubmit={submit}
-    >
-      <InputField
-        type="email"
-        autoComplete="email"
-        placeholder="이메일을 입력해 주세요"
-        aria-label="이메일"
-        disabled={resolveEmailMutation.isPending}
-        feedback={
-          errors.email
-            ? {
-                tone: 'error',
-                message: errors.email.message,
-              }
-            : undefined
-        }
-        {...register('email')}
+    <>
+      <Script
+        src="https://accounts.google.com/gsi/client"
+        strategy="afterInteractive"
+        onLoad={initializeGoogleIdentity}
       />
-    </AuthForm>
+      <AuthForm
+        actions={
+          <div className="gap-012 flex w-full flex-col">
+            {googleAuthMutation.error ? (
+              <p className="typo-body-lg text-sys-error-default text-center" role="alert">
+                {getApiErrorMessage(
+                  googleAuthMutation.error,
+                  'Google 인증 중 문제가 발생했습니다.',
+                )}
+              </p>
+            ) : null}
+            <button
+              type="button"
+              className="typo-subtitle-xxs text-text-medium self-center underline underline-offset-2"
+            >
+              비밀번호를 잊으셨나요?
+            </button>
+            <Button
+              frame="cta"
+              tone="login"
+              type="submit"
+              disabled={resolveEmailMutation.isPending}
+            >
+              이메일로 시작하기
+            </Button>
+            <Button
+              frame="button"
+              tone="social"
+              type="button"
+              disabled={
+                resolveEmailMutation.isPending || googleAuthMutation.isPending || !isGoogleReady
+              }
+              leftIcon={<GoogleLogo alt="" />}
+              onClick={() => getGoogleIdentity()?.accounts.id.prompt()}
+            >
+              Google로 시작하기
+            </Button>
+          </div>
+        }
+        className="gap-12"
+        title="이메일로 시작하기"
+        titleId="auth-entry-title"
+        noValidate
+        onSubmit={submit}
+      >
+        <InputField
+          type="email"
+          autoComplete="email"
+          placeholder="이메일을 입력해 주세요"
+          aria-label="이메일"
+          disabled={resolveEmailMutation.isPending}
+          feedback={
+            errors.email
+              ? {
+                  tone: 'error',
+                  message: errors.email.message,
+                }
+              : undefined
+          }
+          {...register('email')}
+        />
+      </AuthForm>
+    </>
   );
 }
