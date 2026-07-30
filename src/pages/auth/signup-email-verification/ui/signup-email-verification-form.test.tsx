@@ -185,8 +185,11 @@ describe('SignupEmailVerificationForm', () => {
       expect.anything(),
     );
     expect(useSignupDraftStore.getState()).toMatchObject({
-      email: 'new@example.com',
-      emailVerified: true,
+      identity: {
+        method: 'email',
+        email: 'new@example.com',
+        emailVerified: true,
+      },
     });
     expect(screen.getByRole('button', { name: '다음' })).toBeEnabled();
 

@@ -28,9 +28,7 @@ function setSignupDraft({
 } = {}) {
   useSignupDraftStore.setState(
     {
-      email,
-      emailVerified,
-      password,
+      identity: email ? { method: 'email', email, emailVerified, password } : undefined,
       nickname,
       occupation,
       hasHydrated,
@@ -122,5 +120,43 @@ describe('useSignupStepGuard', () => {
 
     expect(result.current).toBe(true);
     expect(replaceMock).not.toHaveBeenCalled();
+  });
+
+  it('allows a Google signup to start at the name step without a password', () => {
+    useSignupDraftStore.setState(
+      {
+        identity: {
+          method: 'google',
+          email: 'google@example.com',
+          signupToken: 'one-time-token',
+        },
+        hasHydrated: true,
+      },
+      false,
+    );
+
+    const { result } = renderHook(() => useSignupStepGuard('name'));
+
+    expect(result.current).toBe(true);
+    expect(replaceMock).not.toHaveBeenCalled();
+  });
+
+  it('skips the password step for a Google signup', () => {
+    useSignupDraftStore.setState(
+      {
+        identity: {
+          method: 'google',
+          email: 'google@example.com',
+          signupToken: 'one-time-token',
+        },
+        hasHydrated: true,
+      },
+      false,
+    );
+
+    const { result } = renderHook(() => useSignupStepGuard('password'));
+
+    expect(result.current).toBe(false);
+    expect(replaceMock).toHaveBeenCalledWith('/signup/name');
   });
 });

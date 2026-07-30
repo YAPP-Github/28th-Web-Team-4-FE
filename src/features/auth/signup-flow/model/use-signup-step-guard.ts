@@ -4,27 +4,33 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useShallow } from 'zustand/react/shallow';
 
-import { useSignupDraftStore, type SignupOccupation } from './signup-draft-store';
+import {
+  useSignupDraftStore,
+  type SignupIdentity,
+  type SignupOccupation,
+} from './signup-draft-store';
 
 export type SignupStep = 'company' | 'name' | 'occupation' | 'password' | 'terms';
 
 type SignupPrerequisites = {
-  email: string;
-  emailVerified: boolean;
+  identity?: SignupIdentity;
   nickname: string;
   occupation?: SignupOccupation;
-  password: string;
 };
 
 function getSignupStepRedirect(
   step: SignupStep,
-  { email, emailVerified, nickname, occupation, password }: SignupPrerequisites,
+  { identity, nickname, occupation }: SignupPrerequisites,
 ): string | undefined {
-  if (!email || !emailVerified) {
+  if (!identity || (identity.method === 'email' && !identity.emailVerified)) {
     return '/login';
   }
 
-  if (step !== 'password' && !password) {
+  if (step === 'password' && identity.method === 'google') {
+    return '/signup/name';
+  }
+
+  if (step !== 'password' && identity.method === 'email' && !identity.password) {
     return '/signup/password';
   }
 

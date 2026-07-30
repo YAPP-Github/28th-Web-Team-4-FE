@@ -47,10 +47,10 @@ export function useSignupEmailVerificationForm(email: string) {
     useSignupDraftStore(
       useShallow((state) => ({
         completeEmailVerification: state.completeEmailVerification,
-        emailVerified: state.emailVerified,
+        emailVerified: state.identity?.method === 'email' ? state.identity.emailVerified : false,
         hasHydrated: state.hasHydrated,
         startEmailSignup: state.startEmailSignup,
-        storedEmail: state.email,
+        storedEmail: state.identity?.email ?? '',
       })),
     );
   const initialSendMutation = useMutation({

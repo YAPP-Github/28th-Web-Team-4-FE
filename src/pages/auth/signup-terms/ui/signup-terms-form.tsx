@@ -20,8 +20,7 @@ export function SignupTermsForm(): JSX.Element | null {
   const canAccessStep = useSignupStepGuard('terms');
   const signupDraft = useSignupDraftStore(
     useShallow((state) => ({
-      email: state.email,
-      password: state.password,
+      identity: state.identity,
       nickname: state.nickname,
       companyName: state.companyName,
       occupation: state.occupation,
@@ -35,7 +34,13 @@ export function SignupTermsForm(): JSX.Element | null {
     return null;
   }
 
-  return <HydratedSignupTermsForm signupDraft={signupDraft} />;
+  if (!signupDraft.identity) {
+    return null;
+  }
+
+  return (
+    <HydratedSignupTermsForm signupDraft={{ ...signupDraft, identity: signupDraft.identity }} />
+  );
 }
 
 function HydratedSignupTermsForm({ signupDraft }: { signupDraft: SignupTermsDraft }): JSX.Element {

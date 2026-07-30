@@ -17,10 +17,10 @@ const PASSWORD_GUIDE = '비밀번호는 8자 이상으로, 영어·숫자·특�
 
 export function SignupPasswordForm(): JSX.Element | null {
   const canAccessStep = useSignupStepGuard('password');
-  const { email, password: savedPassword } = useSignupDraftStore(
+  const { email, savedPassword } = useSignupDraftStore(
     useShallow((state) => ({
-      email: state.email,
-      password: state.password,
+      email: state.identity?.email ?? '',
+      savedPassword: state.identity?.method === 'email' ? state.identity.password : '',
     })),
   );
 

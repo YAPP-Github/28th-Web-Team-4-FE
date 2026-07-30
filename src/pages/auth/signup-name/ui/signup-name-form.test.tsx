@@ -17,9 +17,12 @@ const initialStore = useSignupDraftStore.getState();
 function setPasswordStepCompleted(nickname = '') {
   useSignupDraftStore.setState(
     {
-      email: 'new@example.com',
-      emailVerified: true,
-      password: 'Password1!',
+      identity: {
+        method: 'email',
+        email: 'new@example.com',
+        emailVerified: true,
+        password: 'Password1!',
+      },
       nickname,
       hasHydrated: true,
     },
@@ -108,9 +111,12 @@ describe('SignupNameForm', () => {
   it('redirects to the password step when a password is missing', () => {
     useSignupDraftStore.setState(
       {
-        email: 'new@example.com',
-        emailVerified: true,
-        password: '',
+        identity: {
+          method: 'email',
+          email: 'new@example.com',
+          emailVerified: true,
+          password: '',
+        },
         hasHydrated: true,
       },
       false,
@@ -119,5 +125,27 @@ describe('SignupNameForm', () => {
     render(<SignupNameForm />);
 
     expect(replaceMock).toHaveBeenCalledWith('/signup/password');
+  });
+
+  it('returns a Google signup to login instead of the password step', async () => {
+    const user = userEvent.setup();
+    useSignupDraftStore.setState(
+      {
+        identity: {
+          method: 'google',
+          email: 'google@example.com',
+          signupToken: 'one-time-token',
+        },
+        nickname: '구글 사용자',
+        hasHydrated: true,
+      },
+      false,
+    );
+    render(<SignupNameForm />);
+
+    expect(screen.getByLabelText('이름')).toHaveValue('구글 사용자');
+    await user.click(screen.getByRole('button', { name: '이전' }));
+
+    expect(pushMock).toHaveBeenCalledWith('/login');
   });
 });

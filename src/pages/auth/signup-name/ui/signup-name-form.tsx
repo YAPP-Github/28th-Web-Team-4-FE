@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import type { z } from 'zod';
+import { useShallow } from 'zustand/react/shallow';
 
 import {
   SignupStepActions,
@@ -20,16 +21,27 @@ type SignupNameOutput = z.output<typeof signupNameSchema>;
 
 export function SignupNameForm(): JSX.Element | null {
   const canAccessStep = useSignupStepGuard('name');
-  const savedNickname = useSignupDraftStore((state) => state.nickname);
+  const { method, savedNickname } = useSignupDraftStore(
+    useShallow((state) => ({
+      method: state.identity?.method,
+      savedNickname: state.nickname,
+    })),
+  );
 
   if (!canAccessStep) {
     return null;
   }
 
-  return <HydratedSignupNameForm initialNickname={savedNickname} />;
+  return <HydratedSignupNameForm initialNickname={savedNickname} method={method} />;
 }
 
-function HydratedSignupNameForm({ initialNickname }: { initialNickname: string }): JSX.Element {
+function HydratedSignupNameForm({
+  initialNickname,
+  method,
+}: {
+  initialNickname: string;
+  method: 'email' | 'google' | undefined;
+}): JSX.Element {
   const router = useRouter();
   const setStoredNickname = useSignupDraftStore((state) => state.setNickname);
   const {
@@ -50,7 +62,11 @@ function HydratedSignupNameForm({ initialNickname }: { initialNickname: string }
 
   return (
     <AuthForm
-      actions={<SignupStepActions onPrevious={() => router.push('/signup/password')} />}
+      actions={
+        <SignupStepActions
+          onPrevious={() => router.push(method === 'google' ? '/login' : '/signup/password')}
+        />
+      }
       title="이름 입력하기"
       titleId="signup-name-title"
       onSubmit={submit}

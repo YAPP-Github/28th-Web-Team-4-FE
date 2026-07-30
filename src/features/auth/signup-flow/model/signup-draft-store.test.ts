@@ -17,19 +17,23 @@ describe('useSignupDraftStore', () => {
     store.setPassword('Password1!');
 
     expect(useSignupDraftStore.getState()).toMatchObject({
-      email: 'new@example.com',
-      emailVerified: true,
-      password: 'Password1!',
+      identity: {
+        method: 'email',
+        email: 'new@example.com',
+        emailVerified: true,
+        password: 'Password1!',
+      },
     });
 
     const persisted = JSON.parse(sessionStorage.getItem('signup-draft') ?? '{}') as {
       state?: Record<string, unknown>;
     };
-    expect(persisted.state).toMatchObject({
+    expect(persisted.state?.identity).toMatchObject({
+      method: 'email',
       email: 'new@example.com',
       emailVerified: true,
     });
-    expect(persisted.state).not.toHaveProperty('password');
+    expect(persisted.state?.identity).not.toHaveProperty('password');
     expect(persisted.state).not.toHaveProperty('hasHydrated');
   });
 
@@ -52,10 +56,13 @@ describe('useSignupDraftStore', () => {
     );
 
     expect(migrated).toMatchObject({
-      email: 'new@example.com',
-      emailVerified: true,
+      identity: {
+        method: 'email',
+        email: 'new@example.com',
+        emailVerified: true,
+      },
     });
-    expect(migrated).not.toHaveProperty('password');
+    expect(migrated?.identity).not.toHaveProperty('password');
   });
 
   it('clears the previous draft when signup starts with another email', () => {
@@ -67,9 +74,12 @@ describe('useSignupDraftStore', () => {
     store.startEmailSignup('second@example.com');
 
     expect(useSignupDraftStore.getState()).toMatchObject({
-      email: 'second@example.com',
-      emailVerified: false,
-      password: '',
+      identity: {
+        method: 'email',
+        email: 'second@example.com',
+        emailVerified: false,
+        password: '',
+      },
     });
   });
 
@@ -82,10 +92,30 @@ describe('useSignupDraftStore', () => {
     store.resetSignupDraft();
 
     expect(useSignupDraftStore.getState()).toMatchObject({
-      email: '',
-      emailVerified: false,
-      password: '',
+      identity: undefined,
       hasHydrated: true,
     });
+  });
+
+  it('keeps a Google signup token in memory without persisting it', () => {
+    useSignupDraftStore.getState().startGoogleSignup({
+      email: 'google@example.com',
+      nickname: '구글 사용자',
+      signupToken: 'one-time-token',
+    });
+
+    expect(useSignupDraftStore.getState()).toMatchObject({
+      identity: {
+        method: 'google',
+        email: 'google@example.com',
+        signupToken: 'one-time-token',
+      },
+      nickname: '구글 사용자',
+    });
+
+    const persisted = JSON.parse(sessionStorage.getItem('signup-draft') ?? '{}') as {
+      state?: Record<string, unknown>;
+    };
+    expect(persisted.state).not.toHaveProperty('identity');
   });
 });

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import {
   type SignupAgreements,
+  type SignupIdentity,
   useSignupDraftStore,
   type SignupOccupation,
 } from '@/features/auth/signup-flow';
@@ -13,8 +14,7 @@ import { getApiErrorMessage } from '@/shared/api/api-error';
 import { submitSignup } from '@/pages/auth/signup-terms/api/submit-signup';
 
 export type SignupTermsDraft = SignupAgreements & {
-  email: string;
-  password: string;
+  identity: SignupIdentity;
   nickname: string;
   companyName: string;
   occupation?: SignupOccupation;
@@ -57,15 +57,29 @@ export function useSignupTermsForm(signupDraft: SignupTermsDraft) {
     }
 
     setStoredAgreements(agreements);
-    signupMutation.mutate({
-      email: signupDraft.email,
-      password: signupDraft.password,
+    const profile = {
       nickname: signupDraft.nickname,
       companyName: signupDraft.companyName,
       occupation: signupDraft.occupation,
       termsAgreed: requiredAgreementsAccepted,
       marketingAgreed: agreements.marketingAgreed,
-    });
+    };
+
+    signupMutation.mutate(
+      signupDraft.identity.method === 'google'
+        ? {
+            method: 'google',
+            body: { ...profile, signupToken: signupDraft.identity.signupToken },
+          }
+        : {
+            method: 'email',
+            body: {
+              ...profile,
+              email: signupDraft.identity.email,
+              password: signupDraft.identity.password,
+            },
+          },
+    );
   };
 
   return {

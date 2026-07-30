@@ -39,9 +39,12 @@ function renderSignupTermsForm() {
 function setOccupationStepCompleted() {
   useSignupDraftStore.setState(
     {
-      email: 'new@example.com',
-      emailVerified: true,
-      password: 'Password1!',
+      identity: {
+        method: 'email',
+        email: 'new@example.com',
+        emailVerified: true,
+        password: 'Password1!',
+      },
       nickname: '채소러버',
       companyName: '채소컴퍼니',
       occupation: 'DEVELOPMENT',
@@ -95,20 +98,22 @@ describe('SignupTermsForm', () => {
     await user.click(screen.getByRole('button', { name: '가입하기' }));
 
     expect(submitSignupMock.mock.calls[0]?.[0]).toEqual({
-      email: 'new@example.com',
-      password: 'Password1!',
-      nickname: '채소러버',
-      companyName: '채소컴퍼니',
-      occupation: 'DEVELOPMENT',
-      termsAgreed: true,
-      marketingAgreed: true,
+      method: 'email',
+      body: {
+        email: 'new@example.com',
+        password: 'Password1!',
+        nickname: '채소러버',
+        companyName: '채소컴퍼니',
+        occupation: 'DEVELOPMENT',
+        termsAgreed: true,
+        marketingAgreed: true,
+      },
     });
     await waitFor(() => {
       expect(replaceMock).toHaveBeenCalledWith('/');
     });
     expect(useSignupDraftStore.getState()).toMatchObject({
-      email: '',
-      password: '',
+      identity: undefined,
       nickname: '',
       companyName: '',
       occupation: undefined,
@@ -156,7 +161,10 @@ describe('SignupTermsForm', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('이미 사용 중인 이메일입니다.');
     expect(replaceMock).not.toHaveBeenCalled();
     expect(useSignupDraftStore.getState()).toMatchObject({
-      email: 'new@example.com',
+      identity: {
+        method: 'email',
+        email: 'new@example.com',
+      },
       serviceTermsAgreed: true,
       privacyAgreed: true,
       marketingAgreed: true,
@@ -171,5 +179,39 @@ describe('SignupTermsForm', () => {
     await user.click(screen.getByRole('button', { name: '이전' }));
 
     expect(pushMock).toHaveBeenCalledWith('/signup/occupation');
+  });
+
+  it('submits Google signup without an email password', async () => {
+    const user = userEvent.setup();
+    useSignupDraftStore.setState(
+      {
+        identity: {
+          method: 'google',
+          email: 'google@example.com',
+          signupToken: 'one-time-token',
+        },
+        nickname: '구글 사용자',
+        companyName: '채소컴퍼니',
+        occupation: 'DESIGN',
+        hasHydrated: true,
+      },
+      false,
+    );
+    renderSignupTermsForm();
+
+    await user.click(screen.getByRole('checkbox', { name: '전체 동의하기' }));
+    await user.click(screen.getByRole('button', { name: '가입하기' }));
+
+    expect(submitSignupMock.mock.calls[0]?.[0]).toEqual({
+      method: 'google',
+      body: {
+        signupToken: 'one-time-token',
+        nickname: '구글 사용자',
+        companyName: '채소컴퍼니',
+        occupation: 'DESIGN',
+        termsAgreed: true,
+        marketingAgreed: true,
+      },
+    });
   });
 });

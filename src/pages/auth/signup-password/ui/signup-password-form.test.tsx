@@ -17,9 +17,12 @@ const initialStore = useSignupDraftStore.getState();
 function setVerifiedEmail(password = '') {
   useSignupDraftStore.setState(
     {
-      email: 'new@example.com',
-      emailVerified: true,
-      password,
+      identity: {
+        method: 'email',
+        email: 'new@example.com',
+        emailVerified: true,
+        password,
+      },
       hasHydrated: true,
     },
     false,
@@ -98,7 +101,10 @@ describe('SignupPasswordForm', () => {
     await user.type(screen.getByLabelText('비밀번호 확인'), 'Password1!');
     await user.click(screen.getByRole('button', { name: '다음' }));
 
-    expect(useSignupDraftStore.getState().password).toBe('Password1!');
+    expect(useSignupDraftStore.getState().identity).toMatchObject({
+      method: 'email',
+      password: 'Password1!',
+    });
     expect(pushMock).toHaveBeenCalledWith('/signup/name');
   });
 

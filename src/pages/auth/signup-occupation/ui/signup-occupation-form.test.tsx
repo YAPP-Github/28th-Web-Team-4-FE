@@ -17,9 +17,12 @@ const initialStore = useSignupDraftStore.getState();
 function setNameStepCompleted(occupation?: SignupOccupation) {
   useSignupDraftStore.setState(
     {
-      email: 'new@example.com',
-      emailVerified: true,
-      password: 'Password1!',
+      identity: {
+        method: 'email',
+        email: 'new@example.com',
+        emailVerified: true,
+        password: 'Password1!',
+      },
       nickname: '채소러버',
       occupation,
       hasHydrated: true,
@@ -83,9 +86,12 @@ describe('SignupOccupationForm', () => {
   it('redirects to the name step when a name is missing', () => {
     useSignupDraftStore.setState(
       {
-        email: 'new@example.com',
-        emailVerified: true,
-        password: 'Password1!',
+        identity: {
+          method: 'email',
+          email: 'new@example.com',
+          emailVerified: true,
+          password: 'Password1!',
+        },
         nickname: '',
         hasHydrated: true,
       },
