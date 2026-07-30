@@ -15,7 +15,8 @@ import { HStack } from '@/shared/ui/layout/h-stack';
 import { RadioGroup } from '@/shared/ui/radio-group';
 import { Text } from '@/shared/ui/text';
 
-const SHORT_CAMPAIGN_ID = 'UNDER_1_WEEK';
+const SHORT_CAMPAIGN_ID =
+  'UNDER_1_WEEK' satisfies (typeof CAMPAIGN_PERIOD_OPTION_LIST)[number]['value'];
 
 /** 집행 기간 선택은 상위 온보딩 폼 컨텍스트만 사용한다. */
 export type CampaignPeriodQuestionProps = Record<string, never>;

@@ -225,14 +225,16 @@ function getAdExperienceAnswerLabel(draft: RecommendOnboardingDraft): string {
     return label;
   }
 
-  if (draft.performanceMode === 'UPLOAD' && draft.performanceFileList.length > 0) {
-    return `${label} · 파일 ${draft.performanceFileList.length}개`;
+  const performanceInput = getPerformanceInput(draft);
+
+  if (performanceInput?.mode === 'UPLOAD') {
+    return `${label} · 파일 ${performanceInput.fileList.length}개`;
   }
 
-  if (draft.performanceMode === 'MANUAL' && draft.performanceChannel) {
+  if (performanceInput?.mode === 'MANUAL') {
     return `${label} · ${getOnboardingOptionLabel(
       PERFORMANCE_CHANNEL_OPTION_LIST,
-      draft.performanceChannel,
+      performanceInput.channel,
     )}`;
   }
 
