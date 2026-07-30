@@ -1,8 +1,10 @@
 'use client';
 
-import type { JSX } from 'react';
+import { useEffect, useMemo, useRef, useState, type JSX } from 'react';
 import { Check, Info, X as XIcon } from 'lucide-react';
 import { Tabs } from '@base-ui/react/tabs';
+import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'motion/react';
+import useMeasure from 'react-use-measure';
 
 import type {
   ChannelDetail,
@@ -25,30 +27,41 @@ const TAB_ITEMS = [
 
 type TabValue = (typeof TAB_ITEMS)[number]['value'];
 
-function HighlightRow({ highlight }: { highlight: ChannelSummaryHighlight }): JSX.Element {
-  const isEmphasized = Boolean(highlight.emphasized);
+const TAB_HEIGHT_TRANSITION = {
+  duration: 0.5,
+  type: 'spring',
+  bounce: 0,
+} as const;
 
+const TAB_PANEL_VARIANTS = {
+  initial: (direction: number) => ({
+    x: `${110 * direction}%`,
+    opacity: 0,
+  }),
+  active: {
+    x: '0%',
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: `${-110 * direction}%`,
+    opacity: 0,
+  }),
+} as const;
+
+function getTabDirection(currentTab: TabValue, nextTab: TabValue): 1 | -1 {
+  const currentIndex = TAB_ITEMS.findIndex((item) => item.value === currentTab);
+  const nextIndex = TAB_ITEMS.findIndex((item) => item.value === nextTab);
+
+  return nextIndex >= currentIndex ? 1 : -1;
+}
+
+function RecommendReason({ highlight }: { highlight: ChannelSummaryHighlight }): JSX.Element {
   return (
-    <HStack
-      className={cn(
-        'gap-010 w-full items-center rounded-[var(--radius-m)] px-016 py-014',
-        isEmphasized ? 'bg-sys-primary-lower' : 'bg-surface-lower',
-      )}
-    >
-      <Box
-        className={cn(
-          'size-008 shrink-0 rounded-full',
-          isEmphasized ? 'bg-sys-primary-default' : 'bg-outline-default',
-        )}
-        aria-hidden
-      />
-      <Box
-        as="p"
-        className={cn(
-          'typo-body-lg min-w-0 flex-1',
-          isEmphasized ? 'text-text-high' : 'text-text-default',
-        )}
-      >
+    <Stack className="border-outline-low gap-004 px-020 py-014 w-full items-start rounded-[var(--radius-m)] border bg-transparent">
+      <Text as="p" variant="subtitle-xs" className="text-text-low">
+        추천 이유
+      </Text>
+      <Box as="p" className="typo-subtitle-md text-text-highest min-w-0">
         {highlight.segments.map((segment, index) => {
           if (segment.type === 'tag') {
             return (
@@ -56,7 +69,7 @@ function HighlightRow({ highlight }: { highlight: ChannelSummaryHighlight }): JS
                 key={`${segment.value}-${index}`}
                 frame="tag"
                 tone="orange"
-                className="bg-surface-lowest mx-002 inline-flex align-middle"
+                className="mx-002 inline-flex align-middle"
               >
                 {segment.value}
               </Badge>
@@ -66,7 +79,7 @@ function HighlightRow({ highlight }: { highlight: ChannelSummaryHighlight }): JS
           return <span key={`${segment.value}-${index}`}>{segment.value}</span>;
         })}
       </Box>
-    </HStack>
+    </Stack>
   );
 }
 
@@ -75,16 +88,14 @@ function SummaryPanel({ channel }: { channel: ChannelDetail }): JSX.Element {
     <Stack className="gap-020 w-full items-stretch">
       <Stack className="w-full items-start gap-0">
         {channel.summary.paragraphs.map((paragraph) => (
-          <Text key={paragraph} as="p" variant="body-lg" className="text-text-default">
+          <Text key={paragraph} as="p" variant="subtitle-xxs" className="text-text-medium">
             {paragraph}
           </Text>
         ))}
       </Stack>
-      <Stack className="gap-006 w-full items-stretch">
-        {channel.summary.highlights.map((highlight, index) => (
-          <HighlightRow key={index} highlight={highlight} />
-        ))}
-      </Stack>
+      {channel.summary.highlights.map((highlight, index) => (
+        <RecommendReason key={index} highlight={highlight} />
+      ))}
     </Stack>
   );
 }
@@ -99,15 +110,15 @@ function ProductsPanel({ channel }: { channel: ChannelDetail }): JSX.Element {
   }
 
   return (
-    <Stack className="gap-016 w-full items-stretch">
+    <Stack className="gap-010 w-full items-stretch">
       <Box className="w-full overflow-x-auto">
         <table className="w-full min-w-[560px] border-collapse text-left">
           <thead>
-            <tr className="border-outline-low border-b">
+            <tr className="bg-surface-low border-outline-low border-b">
               {['채널', '예산 범위', '예상 노출', '예상 클릭률(CTR)', '집행 가능'].map((header) => (
-                <th key={header} className="px-008 py-012 first:pl-0 last:pr-0">
+                <th key={header} className="px-014 py-008">
                   <HStack className="gap-004 items-center">
-                    <Text as="span" variant="caption-md" className="text-text-medium font-normal">
+                    <Text as="span" variant="caption-lg" className="text-text-medium">
                       {header}
                     </Text>
                     {header.startsWith('예상 클릭률') ? (
@@ -121,27 +132,27 @@ function ProductsPanel({ channel }: { channel: ChannelDetail }): JSX.Element {
           <tbody>
             {channel.products.map((product) => (
               <tr key={product.name} className="border-outline-low border-b last:border-b-0">
-                <td className="px-008 py-016 first:pl-0">
-                  <Text as="span" variant="body-xl" className="text-text-high">
+                <td className="px-014 py-008">
+                  <Text as="span" variant="body-sm" className="text-text-default">
                     {product.name}
                   </Text>
                 </td>
-                <td className="px-008 py-016">
-                  <Text as="span" variant="body-xl" className="text-text-high">
+                <td className="px-014 py-008">
+                  <Text as="span" variant="body-sm" className="text-text-default">
                     {product.budgetRange}
                   </Text>
                 </td>
-                <td className="px-008 py-016">
-                  <Text as="span" variant="body-xl" className="text-text-high">
+                <td className="px-014 py-008">
+                  <Text as="span" variant="body-sm" className="text-text-default">
                     {product.expectedImpressions}
                   </Text>
                 </td>
-                <td className="px-008 py-016">
-                  <Text as="span" variant="body-xl" className="text-text-high">
+                <td className="px-014 py-008">
+                  <Text as="span" variant="body-sm" className="text-text-default">
                     {product.ctr ?? '-'}
                   </Text>
                 </td>
-                <td className="px-008 py-016 last:pr-0">
+                <td className="px-014 py-008">
                   {product.available ? (
                     <Check className="text-sys-success-default size-020" aria-label="집행 가능" />
                   ) : (
@@ -155,7 +166,7 @@ function ProductsPanel({ channel }: { channel: ChannelDetail }): JSX.Element {
       </Box>
       <HStack className="gap-006 items-start">
         <Info className="text-icon-medium mt-002 size-014 shrink-0" aria-hidden />
-        <Text as="p" variant="caption-md" className="text-text-medium font-medium">
+        <Text as="p" variant="subtitle-xxs" className="text-text-low">
           {channel.productsNote}
         </Text>
       </HStack>
@@ -210,7 +221,12 @@ function CasesPanel({ channel }: { channel: ChannelDetail }): JSX.Element {
   return (
     <Stack as="ul" className="w-full items-start gap-0">
       {channel.similarCases.map((item) => (
-        <Text key={item} as="li" variant="body-xl" className="text-text-high list-inside list-disc">
+        <Text
+          key={item}
+          as="li"
+          variant="subtitle-xxs"
+          className="text-text-default list-inside list-disc"
+        >
           {item}
         </Text>
       ))}
@@ -218,52 +234,124 @@ function CasesPanel({ channel }: { channel: ChannelDetail }): JSX.Element {
   );
 }
 
+function ChannelDetailTabPanel({
+  tab,
+  channel,
+}: {
+  tab: TabValue;
+  channel: ChannelDetail;
+}): JSX.Element {
+  switch (tab) {
+    case 'summary':
+      return <SummaryPanel channel={channel} />;
+    case 'products':
+      return <ProductsPanel channel={channel} />;
+    case 'audience':
+      return <AudiencePanel channel={channel} />;
+    case 'cases':
+      return <CasesPanel channel={channel} />;
+  }
+}
+
 export type ChannelDetailContentProps = {
   channel: ChannelDetail;
 };
 
 export function ChannelDetailContent({ channel }: ChannelDetailContentProps): JSX.Element {
-  return (
-    <Tabs.Root defaultValue={'summary' satisfies TabValue} className="flex w-full flex-col">
-      <Tabs.List className="border-outline-low gap-012 relative flex w-full items-end border-b">
-        {TAB_ITEMS.map((tab) => (
-          <Tabs.Tab
-            key={tab.value}
-            value={tab.value}
-            className={[
-              'relative z-10 shrink-0 px-004 pt-002 pb-012',
-              'typo-subtitle-sm text-text-lower cursor-pointer border-0 bg-transparent',
-              'data-active:text-text-high',
-              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sys-primary-default',
-            ].join(' ')}
-          >
-            {tab.label}
-          </Tabs.Tab>
-        ))}
-        <Tabs.Indicator
-          className={[
-            'bg-text-highest absolute bottom-0 left-0 z-0 h-[2px]',
-            'w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)]',
-            'transition-[width,transform] duration-150 ease-out',
-          ].join(' ')}
-        />
-      </Tabs.List>
+  const [tab, setTab] = useState<TabValue>('summary');
+  const [direction, setDirection] = useState<1 | -1>(1);
+  const [height, setHeight] = useState<number | 'auto'>('auto');
+  const [measureRef, bounds] = useMeasure({ offsetSize: true });
+  const reduceMotion = useReducedMotion();
+  const previousHeightRef = useRef<number | 'auto'>('auto');
 
-      <Box className="pt-020">
-        <Tabs.Panel value="summary" className="outline-none">
-          <SummaryPanel channel={channel} />
-        </Tabs.Panel>
-        <Tabs.Panel value="products" className="outline-none">
-          <ProductsPanel channel={channel} />
-        </Tabs.Panel>
-        <Tabs.Panel value="audience" className="outline-none">
-          <AudiencePanel channel={channel} />
-        </Tabs.Panel>
-        <Tabs.Panel value="cases" className="outline-none">
-          <CasesPanel channel={channel} />
-        </Tabs.Panel>
-      </Box>
-    </Tabs.Root>
+  const panelContent = useMemo(
+    () => <ChannelDetailTabPanel tab={tab} channel={channel} />,
+    [tab, channel],
+  );
+
+  useEffect(() => {
+    if (bounds.height > 0) {
+      setHeight(bounds.height);
+    }
+  }, [bounds.height]);
+
+  useEffect(() => {
+    previousHeightRef.current = height;
+  }, [height]);
+
+  // auto → 첫 px 측정은 스프링 없이 스냅 (오픈 시 불필요한 높이 애니 방지)
+  const shouldSnapHeight = previousHeightRef.current === 'auto' && typeof height === 'number';
+
+  return (
+    <MotionConfig transition={reduceMotion ? { duration: 0 } : TAB_HEIGHT_TRANSITION}>
+      <Tabs.Root
+        value={tab}
+        onValueChange={(value) => {
+          const nextTab = value as TabValue;
+          if (bounds.height > 0) {
+            setHeight(bounds.height);
+          }
+          setDirection(getTabDirection(tab, nextTab));
+          setTab(nextTab);
+        }}
+        className="flex w-full flex-col"
+      >
+        <Tabs.List className="border-outline-low gap-012 relative flex w-full items-end border-b">
+          {TAB_ITEMS.map((item) => (
+            <Tabs.Tab
+              key={item.value}
+              value={item.value}
+              className={[
+                'relative z-10 shrink-0 px-004 pt-002 pb-012',
+                'typo-subtitle-sm text-text-lower cursor-pointer border-0 bg-transparent',
+                'data-active:text-text-high',
+                'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sys-primary-default',
+              ].join(' ')}
+            >
+              {item.label}
+            </Tabs.Tab>
+          ))}
+          <Tabs.Indicator
+            className={[
+              'bg-text-highest absolute bottom-0 left-0 z-0 h-[2px]',
+              'w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)]',
+              'transition-[width,transform] duration-150 ease-out',
+            ].join(' ')}
+          />
+        </Tabs.List>
+
+        {/* tabs ↔ panel: spacing/020 — 높이 애니 영역 밖에 둬서 패딩이 잘리지 않게 한다 */}
+        <div className="pt-020">
+          <motion.div
+            initial={false}
+            animate={{ height }}
+            transition={
+              reduceMotion || shouldSnapHeight || height === 'auto'
+                ? { duration: 0 }
+                : TAB_HEIGHT_TRANSITION
+            }
+            className="overflow-hidden"
+          >
+            <div ref={measureRef} className="w-full">
+              <AnimatePresence mode="popLayout" initial={false} custom={direction}>
+                <motion.div
+                  key={tab}
+                  custom={direction}
+                  variants={TAB_PANEL_VARIANTS}
+                  initial={reduceMotion ? false : 'initial'}
+                  animate="active"
+                  exit={reduceMotion ? undefined : 'exit'}
+                  className="w-full"
+                >
+                  {panelContent}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        </div>
+      </Tabs.Root>
+    </MotionConfig>
   );
 }
 

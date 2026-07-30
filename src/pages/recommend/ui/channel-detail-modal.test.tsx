@@ -47,13 +47,13 @@ describe('RecommendPage channel detail modal', () => {
 
     await user.click(screen.getByRole('tab', { name: '광고 상품' }));
     expect(screen.getByRole('tab', { name: '광고 상품' })).toHaveAttribute('data-active');
-    expect(screen.getByText('피드 광고')).toBeVisible();
+    expect(await screen.findByText('피드 광고')).toBeVisible();
 
     await user.click(screen.getByRole('tab', { name: '타깃층' }));
-    expect(screen.getByText('주요 연령대')).toBeVisible();
+    expect(await screen.findByText('주요 연령대')).toBeVisible();
     expect(screen.getByText('20~40대')).toBeVisible();
 
     await user.click(screen.getByRole('tab', { name: '유사 사례' }));
-    expect(screen.getByText('내셔널지오그래픽')).toBeVisible();
+    expect(await screen.findByText('내셔널지오그래픽')).toBeVisible();
   });
 });

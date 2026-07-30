@@ -3,7 +3,6 @@ export type ChannelSummaryHighlightSegment =
   | { type: 'tag'; value: string };
 
 export type ChannelSummaryHighlight = {
-  emphasized?: boolean;
   segments: ChannelSummaryHighlightSegment[];
 };
 
@@ -52,22 +51,15 @@ export const CHANNEL_DETAIL_FIXTURE: ChannelDetail = {
     ],
     highlights: [
       {
-        emphasized: true,
         segments: [
           { type: 'text', value: 'YAPP 님이 입력하신 ' },
           { type: 'tag', value: '구매 전환 목적' },
           { type: 'text', value: ' ' },
           { type: 'tag', value: '쇼핑·커머스 업종' },
           { type: 'text', value: ' ' },
-          { type: 'tag', value: '50만 원 예산' },
+          { type: 'tag', value: '50만 원 미만' },
           { type: 'text', value: ' 기준 도달 효율이 가장 높아요.' },
         ],
-      },
-      {
-        segments: [{ type: 'text', value: '관심사 기반 정교한 타기팅이 가능해요.' }],
-      },
-      {
-        segments: [{ type: 'text', value: '퍼포먼스와 브랜딩을 동시에 진행할 수 있어요.' }],
       },
     ],
   },
