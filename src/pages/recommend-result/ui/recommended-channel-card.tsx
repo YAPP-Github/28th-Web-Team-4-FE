@@ -16,7 +16,7 @@ export function RecommendedChannelCard({ channel }: RecommendedChannelCardProps)
   return (
     <Box
       as="article"
-      className="flex w-full max-w-[282px] flex-col overflow-hidden rounded-[var(--radius-l)]"
+      className="group flex w-full max-w-[282px] cursor-pointer flex-col overflow-hidden rounded-[var(--radius-l)] motion-safe:transition-[translate,box-shadow] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:focus-within:-translate-y-1 motion-safe:focus-within:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)] motion-safe:hover:-translate-y-1 motion-safe:hover:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)]"
       aria-labelledby={`${channel.id}-title`}
     >
       <Box className="relative h-[124px] w-full overflow-hidden rounded-t-[var(--radius-l)]">
