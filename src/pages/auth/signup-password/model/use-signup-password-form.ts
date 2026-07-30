@@ -29,7 +29,8 @@ export function useSignupPasswordForm({
       password: initialPassword,
       passwordConfirmation: initialPassword,
     },
-    mode: 'onBlur',
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
     resolver: zodResolver(signupPasswordSchema),
   });
 

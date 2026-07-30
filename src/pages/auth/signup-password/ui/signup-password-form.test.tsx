@@ -66,7 +66,11 @@ describe('SignupPasswordForm', () => {
     }
     await user.tab();
 
-    expect(screen.getByRole('alert')).toHaveTextContent(message);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '다음' }));
+
+    expect(screen.getByText(message)).toBeInTheDocument();
   });
 
   it('shows an error when the password confirmation does not match', async () => {
@@ -77,6 +81,10 @@ describe('SignupPasswordForm', () => {
     await user.type(screen.getByLabelText('비밀번호'), 'Password1!');
     await user.type(screen.getByLabelText('비밀번호 확인'), 'Password2!');
     await user.tab();
+
+    expect(screen.queryByText('비밀번호가 일치하지 않아요.')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '다음' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('비밀번호가 일치하지 않아요.');
   });

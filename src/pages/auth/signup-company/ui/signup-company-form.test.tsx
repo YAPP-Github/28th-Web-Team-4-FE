@@ -57,6 +57,10 @@ describe('SignupCompanyForm', () => {
     await user.type(screen.getByLabelText('회사명'), '가'.repeat(51));
     await user.tab();
 
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '다음' }));
+
     expect(screen.getByRole('alert')).toHaveTextContent('회사명은 50자 이하로 입력해 주세요');
   });
 

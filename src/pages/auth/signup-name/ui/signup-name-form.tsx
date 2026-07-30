@@ -36,13 +36,12 @@ function HydratedSignupNameForm({ initialNickname }: { initialNickname: string }
     formState: { errors },
     handleSubmit,
     register,
-    watch,
   } = useForm<SignupNameInput, unknown, SignupNameOutput>({
     defaultValues: { nickname: initialNickname },
-    mode: 'onBlur',
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
     resolver: zodResolver(signupNameSchema),
   });
-  const nickname = watch('nickname');
 
   const submit = handleSubmit(({ nickname: validatedNickname }) => {
     setStoredNickname(validatedNickname);
@@ -51,12 +50,7 @@ function HydratedSignupNameForm({ initialNickname }: { initialNickname: string }
 
   return (
     <AuthForm
-      actions={
-        <SignupStepActions
-          onPrevious={() => router.push('/signup/password')}
-          nextDisabled={nickname.trim().length === 0}
-        />
-      }
+      actions={<SignupStepActions onPrevious={() => router.push('/signup/password')} />}
       title="이름 입력하기"
       titleId="signup-name-title"
       onSubmit={submit}
