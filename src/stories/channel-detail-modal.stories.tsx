@@ -43,7 +43,10 @@ export const EmptyProducts: Story = {
     const body = within(document.body);
     await expect(body.getByRole('dialog', { name: '메타 광고' })).toBeVisible();
     await userEvent.click(body.getByRole('tab', { name: '광고 상품' }));
-    await expect(body.getByText('등록된 광고 상품이 없습니다.')).toBeVisible();
+    // 탭 패널 높이·슬라이드 애니가 끝난 뒤 visible 상태가 된다
+    await waitFor(async () => {
+      await expect(body.getByText('등록된 광고 상품이 없습니다.')).toBeVisible();
+    });
   },
 };
 
@@ -70,7 +73,10 @@ export const OpenWithOverlayKit: Story = {
     const body = within(document.body);
 
     await userEvent.click(canvas.getByRole('button', { name: '상세보기' }));
-    await expect(body.getByRole('dialog', { name: '메타 광고' })).toBeVisible();
+    // overlay.open → Portal mount + 진입 애니가 끝난 뒤 visible 상태가 된다
+    await waitFor(async () => {
+      await expect(body.getByRole('dialog', { name: '메타 광고' })).toBeVisible();
+    });
 
     await userEvent.click(body.getByRole('button', { name: '닫기' }));
     await waitFor(async () => {
