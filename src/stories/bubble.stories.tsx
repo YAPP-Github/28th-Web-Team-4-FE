@@ -3,6 +3,8 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { Bubble, BUBBLE_FRAMES } from '@/shared/ui/bubble';
+import { Button } from '@/shared/ui/button';
+import { Text } from '@/shared/ui/text';
 
 const SAMPLE = '텍스트';
 const LONG_TEXT =
@@ -178,6 +180,33 @@ export const LongText: Story = {
     className: 'w-[246px]',
   },
   render: renderBubble,
+};
+
+export const StructuredContent: Story = {
+  argTypes: {
+    frame: { control: false },
+    children: { control: false },
+    className: { control: false },
+    canEdit: { control: false },
+    onEdit: { control: false },
+    editLabel: { control: false },
+  },
+  render: () => (
+    <Bubble frame="bot" className="w-[410px]">
+      <div className="gap-020 flex flex-col">
+        <Text as="h3" variant="heading-lg">
+          항목을 선택해 주세요
+        </Text>
+        <Button frame="cta">확인</Button>
+      </div>
+    </Bubble>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByRole('heading', { name: '항목을 선택해 주세요' })).toBeVisible();
+    await expect(canvas.getByRole('button', { name: '확인' })).toBeVisible();
+  },
 };
 
 export const CustomClassName: Story = {

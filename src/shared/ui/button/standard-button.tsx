@@ -43,13 +43,13 @@ const standardButtonVariants = cva(buttonBaseClassName, {
   variants: {
     tone: {
       primary:
-        'bg-btn-primary text-text-lowest hover:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-primary-selected active:not-data-disabled:opacity-100',
+        'bg-btn-primary text-text-lowest hover:not-data-disabled:opacity-80 focus-visible:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-primary-selected active:not-data-disabled:opacity-100',
       secondary:
-        'bg-btn-secondary text-text-lowest hover:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-secondary-selected active:not-data-disabled:opacity-100',
+        'bg-btn-secondary text-text-lowest hover:not-data-disabled:opacity-80 focus-visible:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-secondary-selected active:not-data-disabled:opacity-100',
       stroke:
-        'bg-btn-sub-low text-text-high border border-btn-sub-selected gap-006 h-11 px-020 py-010 hover:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-sub active:not-data-disabled:opacity-100',
+        'bg-btn-sub-low text-text-high border border-btn-sub-selected gap-006 h-11 px-020 py-010 hover:not-data-disabled:opacity-80 focus-visible:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-sub active:not-data-disabled:opacity-100',
       social:
-        'bg-btn-sub-low text-text-high border border-outline-default w-full h-[50px] gap-012 hover:not-data-disabled:bg-btn-sub hover:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-sub-selected active:not-data-disabled:opacity-100',
+        'bg-btn-sub-low text-text-high border border-outline-default w-full h-[50px] gap-012 hover:not-data-disabled:bg-btn-sub hover:not-data-disabled:opacity-80 focus-visible:not-data-disabled:bg-btn-sub focus-visible:not-data-disabled:opacity-80 active:not-data-disabled:bg-btn-sub-selected active:not-data-disabled:opacity-100',
     },
     size: {
       s: '',

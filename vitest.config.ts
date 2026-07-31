@@ -37,9 +37,11 @@ export default defineConfig({
           include: [
             '@base-ui/react/field',
             '@base-ui/react/input',
+            '@base-ui/react/slider',
             'motion/react',
             '@number-flow/react',
             'next/link',
+            'react-hook-form',
             '@base-ui/react/select',
           ],
         },

@@ -85,3 +85,20 @@ export const AllStates: Story = {
     </div>
   ),
 };
+
+export const EnclosingLabel: Story = {
+  render: () => (
+    <label className="typo-body-md text-text-high flex w-fit cursor-pointer items-center gap-3">
+      <Checkbox renderMode="label-control" />
+      마케팅 정보 수신
+    </label>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const checkbox = canvas.getByRole('checkbox', { name: '마케팅 정보 수신' });
+
+    await expect(checkbox).not.toBeChecked();
+    await userEvent.click(canvas.getByText('마케팅 정보 수신'));
+    await expect(checkbox).toBeChecked();
+  },
+};
