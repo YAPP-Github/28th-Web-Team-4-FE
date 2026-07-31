@@ -102,6 +102,7 @@ Route Handler는 구현을 `src/app/api-routes`에 두고, `app/api/**/route.ts`
 
 ### Architecture
 
+- [광고 온보딩 feature 경계와 상태 정책](./ad-onboarding.md)
 - [FSD Overview (한국어)](https://fsd.how/kr/docs/get-started/overview/)
 - [FSD Usage with Next.js (한국어)](https://fsd.how/kr/docs/guides/tech/with-nextjs/)
 - [카카오페이 FSD 적용기 (Slice Grouping / Pages)](https://tech.kakaopay.com/post/fsd/)

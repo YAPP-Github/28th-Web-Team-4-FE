@@ -96,3 +96,27 @@ export const AllStates: Story = {
     </div>
   ),
 };
+
+export const EnclosingLabel: Story = {
+  render: () => (
+    <RadioGroup defaultValue="default" aria-label="라벨 선택">
+      {OPTIONS.map((option) => (
+        <label
+          key={option.value}
+          className="typo-body-md text-text-high flex w-fit cursor-pointer items-center gap-3"
+        >
+          <RadioGroupItem renderMode="label-control" value={option.value} />
+          {option.label}
+        </label>
+      ))}
+    </RadioGroup>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const compactRadio = canvas.getByRole('radio', { name: '촘촘하게' });
+
+    await expect(compactRadio).not.toBeChecked();
+    await userEvent.click(canvas.getByText('촘촘하게'));
+    await expect(compactRadio).toBeChecked();
+  },
+};

@@ -25,6 +25,7 @@ type BubbleShellProps = {
 export const BubbleShell = ({ frame, className, children }: BubbleShellProps): JSX.Element => (
   <Box className={cn(bubbleShellVariants({ frame }), className)}>
     <Text
+      as="div"
       variant="subtitle-xl"
       className={cn('break-words', frame === 'bot' ? 'text-text-highest' : 'text-text-lowest')}
     >

@@ -6,28 +6,31 @@ import { ChevronDown } from 'lucide-react';
 
 import { cn } from '@/shared/ui/cn';
 
-export type DropdownOption = {
-  value: string;
+export type DropdownOption<Value extends string = string> = {
+  value: Value;
   label: string;
   disabled?: boolean;
 };
 
-export type DropdownProps = Omit<Select.Root.Props<string>, 'children' | 'items' | 'multiple'> & {
-  options: readonly DropdownOption[];
+export type DropdownProps<Value extends string = string> = Omit<
+  Select.Root.Props<Value>,
+  'children' | 'items' | 'multiple'
+> & {
+  options: readonly DropdownOption<Value>[];
   placeholder: string;
   triggerAriaLabel: string;
   className?: string;
 };
 
-export function Dropdown({
+export function Dropdown<Value extends string = string>({
   options,
   placeholder,
   triggerAriaLabel,
   className,
   ...rootProps
-}: DropdownProps): JSX.Element {
+}: DropdownProps<Value>): JSX.Element {
   return (
-    <Select.Root<string> items={options} {...rootProps}>
+    <Select.Root items={options} {...rootProps}>
       <Select.Trigger
         className={cn(
           [

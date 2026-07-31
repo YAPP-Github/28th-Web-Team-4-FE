@@ -28,12 +28,15 @@ const checkboxVariants = cva(
 
 type CheckboxPrimitiveProps = ComponentProps<typeof CheckboxPrimitive.Root>;
 
+export type CheckboxRenderMode = 'button' | 'label-control';
+
 export type CheckboxProps = Omit<
   CheckboxPrimitiveProps,
   'children' | 'className' | 'nativeButton' | 'render'
 > &
   VariantProps<typeof checkboxVariants> & {
     className?: string;
+    renderMode?: CheckboxRenderMode;
   };
 
 const CheckIcon = (): JSX.Element => (
@@ -54,12 +57,19 @@ const CheckIcon = (): JSX.Element => (
   </svg>
 );
 
-export const Checkbox = ({ className, size, ...props }: CheckboxProps): JSX.Element => {
+export const Checkbox = ({
+  className,
+  renderMode = 'button',
+  size,
+  ...props
+}: CheckboxProps): JSX.Element => {
+  const isButton = renderMode === 'button';
+
   return (
     <CheckboxPrimitive.Root
       className={cn(checkboxVariants({ size }), className)}
-      nativeButton
-      render={<button type="button" />}
+      nativeButton={isButton}
+      render={isButton ? <button type="button" /> : undefined}
       {...props}
     >
       <CheckboxPrimitive.Indicator className="flex items-center justify-center">

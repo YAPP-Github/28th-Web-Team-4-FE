@@ -59,27 +59,19 @@ describe('AuthEntryPage', () => {
     expect(screen.getByRole('textbox', { name: '이메일' })).toHaveAttribute('aria-invalid', 'true');
   });
 
-  it('validates the email after the user stops typing', async () => {
+  it('does not validate the email until the submit button is clicked', async () => {
     const user = userEvent.setup();
     renderAuthEntryPage();
     const emailInput = screen.getByRole('textbox', { name: '이메일' });
 
     await user.type(emailInput, 'invalid-email');
+    await new Promise((resolve) => window.setTimeout(resolve, 500));
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(screen.getByRole('alert')).toHaveTextContent('이메일 형식을 확인해 주세요.');
-    });
-
-    await user.clear(emailInput);
-    await user.type(emailInput, 'user@example.com');
+    await user.click(screen.getByRole('button', { name: '이메일로 시작하기' }));
 
     expect(screen.getByRole('alert')).toHaveTextContent('이메일 형식을 확인해 주세요.');
-
-    await waitFor(() => {
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    });
   });
 
   it('shows the password form for an existing local account', async () => {

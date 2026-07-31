@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { useSignupDraftStore } from '@/features/auth/signup-flow';
 import {
   sendSignupEmailVerificationCode,
   type SignupEmailCodeResolution,
@@ -18,6 +19,15 @@ vi.mock('@/pages/auth/signup-email-verification/api/signup-email-verification', 
 
 const sendSignupEmailVerificationCodeMock = vi.mocked(sendSignupEmailVerificationCode);
 const verifySignupEmailCodeMock = vi.mocked(verifySignupEmailCode);
+const { pushMock } = vi.hoisted(() => ({
+  pushMock: vi.fn<(href: string) => void>(),
+}));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: pushMock }),
+}));
+
+const initialStore = useSignupDraftStore.getState();
 
 function createDeferred<T = void>() {
   let resolve!: (value: T) => void;
@@ -49,7 +59,12 @@ function renderVerificationForm({ strict = false }: { strict?: boolean } = {}) {
 describe('SignupEmailVerificationForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    sendSignupEmailVerificationCodeMock.mockReset();
+    verifySignupEmailCodeMock.mockReset();
     sendSignupEmailVerificationCodeMock.mockResolvedValue('signup');
+    sessionStorage.clear();
+    useSignupDraftStore.setState(initialStore, true);
+    useSignupDraftStore.getState().setHasHydrated(true);
   });
 
   it('renders the email verification form', () => {
@@ -58,7 +73,20 @@ describe('SignupEmailVerificationForm', () => {
     expect(screen.getByRole('heading', { name: '이메일 인증하기' })).toBeInTheDocument();
     expect(screen.getByText('new@example.com')).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: '인증 코드' })).toHaveAttribute('maxLength', '6');
+    expect(screen.getByRole('button', { name: '이전' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '다음' })).toBeDisabled();
+  });
+
+  it('moves back to login', async () => {
+    const user = userEvent.setup();
+    renderVerificationForm();
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: '이전' })).toBeEnabled();
+    });
+    await user.click(screen.getByRole('button', { name: '이전' }));
+
+    expect(pushMock).toHaveBeenCalledWith('/login');
   });
 
   it('sends the signup code once when the form opens', async () => {
@@ -71,6 +99,21 @@ describe('SignupEmailVerificationForm', () => {
       'new@example.com',
       expect.anything(),
     );
+  });
+
+  it('does not send the signup code again after remounting in the same session', async () => {
+    const firstRender = renderVerificationForm();
+
+    await waitFor(() => {
+      expect(sendSignupEmailVerificationCodeMock).toHaveBeenCalledTimes(1);
+    });
+
+    firstRender.unmount();
+    renderVerificationForm();
+
+    await waitFor(() => {
+      expect(sendSignupEmailVerificationCodeMock).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('allows code entry and submission while the initial send is pending', async () => {
@@ -171,6 +214,19 @@ describe('SignupEmailVerificationForm', () => {
       },
       expect.anything(),
     );
+    expect(useSignupDraftStore.getState()).toMatchObject({
+      identity: {
+        method: 'email',
+        email: 'new@example.com',
+        emailVerified: true,
+      },
+    });
+    expect(screen.getByRole('button', { name: '다음' })).toBeEnabled();
+
+    await user.click(screen.getByRole('button', { name: '다음' }));
+
+    expect(pushMock).toHaveBeenCalledWith('/signup/password');
+    expect(verifySignupEmailCodeMock).toHaveBeenCalledTimes(1);
   });
 
   it('shows the designed message for an invalid or expired code', async () => {
@@ -251,6 +307,7 @@ describe('SignupEmailVerificationForm', () => {
     await waitFor(() => {
       expect(codeInput).toBeDisabled();
       expect(screen.getByRole('button', { name: '다음' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: '이전' })).toBeDisabled();
       expect(screen.getByRole('button', { name: '인증 코드 다시 보내기' })).toBeDisabled();
     });
 
