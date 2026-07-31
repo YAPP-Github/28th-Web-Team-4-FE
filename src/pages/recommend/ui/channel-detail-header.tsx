@@ -28,12 +28,12 @@ export function ChannelDetailHeader({
       />
       <Stack className="gap-004 min-w-0 flex-1 items-start">
         {title ?? (
-          <Text as="span" variant="display-lg" className="text-text-high truncate">
+          <Text as="h2" variant="display-lg" className="text-text-high m-0 truncate">
             {channel.name}
           </Text>
         )}
         {description ?? (
-          <Text as="span" variant="subtitle-xxs" className="text-text-low line-clamp-2">
+          <Text as="p" variant="subtitle-xxs" className="text-text-low m-0 line-clamp-2">
             {channel.tagline}
           </Text>
         )}
