@@ -23,6 +23,11 @@ const INVALID_OR_EXPIRED_CODE_MESSAGE =
 const GOOGLE_ACCOUNT_MESSAGE =
   'Google 계정으로 가입된 이메일이에요. Google 로그인을 이용해 주세요.';
 const EXISTING_ACCOUNT_MESSAGE = '이미 가입된 이메일이에요. 로그인을 이용해 주세요.';
+const EMAIL_CODE_SENT_KEY_PREFIX = 'signup-email-code-sent:';
+
+function getEmailCodeSentKey(email: string): string {
+  return `${EMAIL_CODE_SENT_KEY_PREFIX}${email}`;
+}
 
 function getSendResolutionErrorMessage(resolution: SignupEmailCodeResolution): string | undefined {
   if (resolution === 'google') {
@@ -55,16 +60,19 @@ export function useSignupEmailVerificationForm(email: string) {
     );
   const initialSendMutation = useMutation({
     mutationFn: sendSignupEmailVerificationCode,
-    onSuccess: (resolution) => {
+    onSuccess: (resolution, sentEmail) => {
       const errorMessage = getSendResolutionErrorMessage(resolution);
 
-      if (!errorMessage) {
+      if (resolution === 'signup') {
+        sessionStorage.setItem(getEmailCodeSentKey(sentEmail), 'true');
         return;
       }
 
+      sessionStorage.removeItem(getEmailCodeSentKey(sentEmail));
       dispatch({ type: 'failed', errorMessage });
     },
-    onError: (error) => {
+    onError: (error, sentEmail) => {
+      sessionStorage.removeItem(getEmailCodeSentKey(sentEmail));
       dispatch({
         type: 'failed',
         errorMessage: getApiErrorMessage(error, '인증 코드를 보내는 중 문제가 발생했습니다.'),
@@ -114,7 +122,11 @@ export function useSignupEmailVerificationForm(email: string) {
 
     startEmailSignup(email);
 
-    if ((storedEmail === email && emailVerified) || initiallySentEmailRef.current === email) {
+    if (
+      (storedEmail === email && emailVerified) ||
+      initiallySentEmailRef.current === email ||
+      sessionStorage.getItem(getEmailCodeSentKey(email)) === 'true'
+    ) {
       return;
     }
 

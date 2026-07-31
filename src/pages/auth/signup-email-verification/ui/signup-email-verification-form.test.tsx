@@ -86,6 +86,42 @@ describe('SignupEmailVerificationForm', () => {
     );
   });
 
+  it('does not send the initial code again after a successful send and remount', async () => {
+    const firstRender = renderVerificationForm();
+
+    await waitFor(() => {
+      expect(sendSignupEmailVerificationCodeMock).toHaveBeenCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(sessionStorage.getItem('signup-email-code-sent:new@example.com')).toBe('true');
+    });
+
+    firstRender.unmount();
+    renderVerificationForm();
+
+    await waitFor(() => {
+      expect(sendSignupEmailVerificationCodeMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('sends the initial code again after a failed send and remount', async () => {
+    sendSignupEmailVerificationCodeMock.mockRejectedValueOnce(new Error('send failed'));
+    const firstRender = renderVerificationForm();
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      '인증 코드를 보내는 중 문제가 발생했습니다.',
+    );
+    expect(sessionStorage.getItem('signup-email-code-sent:new@example.com')).toBeNull();
+
+    firstRender.unmount();
+    sendSignupEmailVerificationCodeMock.mockResolvedValue('signup');
+    renderVerificationForm();
+
+    await waitFor(() => {
+      expect(sendSignupEmailVerificationCodeMock).toHaveBeenCalledTimes(2);
+    });
+  });
+
   it('allows code entry and submission while the initial send is pending', async () => {
     const user = userEvent.setup();
     const initialSend = createDeferred<SignupEmailCodeResolution>();
@@ -124,6 +160,7 @@ describe('SignupEmailVerificationForm', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Google 계정으로 가입된 이메일이에요. Google 로그인을 이용해 주세요.',
     );
+    expect(sessionStorage.getItem('signup-email-code-sent:new@example.com')).toBeNull();
   });
 
   it('guides an existing local account to login after the initial send response', async () => {
@@ -133,6 +170,7 @@ describe('SignupEmailVerificationForm', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       '이미 가입된 이메일이에요. 로그인을 이용해 주세요.',
     );
+    expect(sessionStorage.getItem('signup-email-code-sent:new@example.com')).toBeNull();
   });
 
   it('preserves verification success when the initial send fails later', async () => {
