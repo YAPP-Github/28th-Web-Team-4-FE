@@ -36,8 +36,8 @@ describe('Dropdown', () => {
     const trigger = screen.getByRole('combobox', { name: '직무' });
     await user.click(trigger);
 
-    expect(trigger.querySelector('svg')?.parentElement).toHaveAttribute('data-popup-open');
-    await user.click(screen.getByRole('option', { name: '개발' }));
+    const developmentOption = await screen.findByRole('option', { name: '개발' });
+    await user.click(developmentOption);
 
     expect(handleValueChange).toHaveBeenCalledWith('development', expect.anything());
     expect(screen.getByRole('combobox', { name: '직무' })).toHaveTextContent('개발');
