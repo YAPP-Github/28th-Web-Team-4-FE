@@ -6,8 +6,9 @@ import {
   CHANNEL_DETAIL_FIXTURE,
 } from '@/pages/recommend/model/channel-detail';
 import { openChannelDetailModal } from '@/pages/recommend/model/open-channel-detail-modal';
-import { ChannelDetailModal } from '@/pages/recommend/ui/channel-detail-modal';
 import { Button } from '@/shared/ui/button';
+
+import { ChannelDetailModal } from './channel-detail-modal';
 
 const meta = {
   title: 'pages/recommend/ChannelDetailModal',

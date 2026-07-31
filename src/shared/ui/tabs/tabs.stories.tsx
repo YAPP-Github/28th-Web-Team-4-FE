@@ -2,8 +2,9 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, userEvent, within } from 'storybook/test';
 
 import { Box } from '@/shared/ui/layout/box';
-import { Tabs } from '@/shared/ui/tabs';
 import { Text } from '@/shared/ui/text';
+
+import { Tabs } from './tabs';
 
 function UnderlineTabsExample() {
   return (
