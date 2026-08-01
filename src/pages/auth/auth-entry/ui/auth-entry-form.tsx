@@ -14,6 +14,7 @@ import { GoogleLogo } from '@/shared/ui/google-logo';
 import { InputField } from '@/shared/ui/input-field';
 import { Text } from '@/shared/ui/text';
 import { authEntrySchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
+import { authenticateLocal } from '@/pages/auth/auth-entry/api/authenticate-local';
 import { useGoogleAuth } from '@/pages/auth/auth-entry/model/use-google-auth';
 import { useResolveAuthEmail } from '@/pages/auth/auth-entry/model/use-resolve-auth-email';
 
@@ -43,19 +44,44 @@ function ExistingAccountForm({
   email: string;
   onBack: () => void;
 }): JSX.Element {
+  const router = useRouter();
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string>();
+  const [isPending, setIsPending] = useState(false);
+
+  const submit = async () => {
+    if (!password || isPending) {
+      return;
+    }
+
+    setErrorMessage(undefined);
+    setIsPending(true);
+
+    try {
+      await authenticateLocal(email, password);
+      router.replace('/');
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error, '로그인 중 문제가 발생했습니다.'));
+      setIsPending(false);
+    }
+  };
 
   return (
     <AuthForm
       actions={
         <div className="gap-012 flex w-full flex-col">
+          {errorMessage ? (
+            <p className="typo-body-lg text-sys-error-default text-center" role="alert">
+              {errorMessage}
+            </p>
+          ) : null}
           <button
             type="button"
             className="typo-subtitle-xxs text-text-medium self-center underline underline-offset-2"
           >
             비밀번호를 잊으셨나요?
           </button>
-          <Button frame="cta" tone="login" type="button" disabled={!password}>
+          <Button frame="cta" tone="login" type="submit" disabled={!password || isPending}>
             로그인하기
           </Button>
         </div>
@@ -63,7 +89,10 @@ function ExistingAccountForm({
       className="gap-12"
       title="로그인하기"
       titleId="auth-entry-title"
-      onSubmit={(event) => event.preventDefault()}
+      onSubmit={(event) => {
+        event.preventDefault();
+        void submit();
+      }}
     >
       <div className="gap-024 flex flex-col">
         <label className="gap-008 flex flex-col">
@@ -90,7 +119,11 @@ function ExistingAccountForm({
             autoComplete="current-password"
             placeholder="비밀번호를 입력해 주세요"
             value={password}
-            onChange={(event) => setPassword(event.currentTarget.value)}
+            disabled={isPending}
+            onChange={(event) => {
+              setPassword(event.currentTarget.value);
+              setErrorMessage(undefined);
+            }}
           />
         </label>
       </div>
