@@ -2,6 +2,30 @@ name: 'Chromatic'
 
 on:
   push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/chromatic.yml'
+      - '.github/actions/pnpm-setup-node/**'
+      - '.storybook/**'
+      - 'src/stories/**'
+      - 'src/**/*.stories.*'
+      - 'src/**/*.mdx'
+      - 'src/shared/ui/**'
+      - 'src/shared/fonts/**'
+      - 'src/app/styles/**'
+      - 'src/styles/tokens/**'
+      - 'design-tokens/**'
+      - 'public/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'mise.toml'
+      - 'tsconfig.json'
+      - 'next.config.ts'
+      - 'postcss.config.mjs'
+  pull_request:
+    branches:
+      - main
     paths:
       - '.github/workflows/chromatic.yml'
       - '.github/actions/pnpm-setup-node/**'
@@ -23,6 +47,11 @@ on:
       - 'postcss.config.mjs'
   workflow_dispatch:
 
+# 같은 브랜치에 연속 push 시 이전 빌드를 취소해 스냅샷 쿼터 절약
+concurrency:
+  group: chromatic-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   statuses: write
@@ -31,7 +60,6 @@ jobs:
   chromatic:
     name: Storybook Publish
     runs-on: ubuntu-latest
-    # Job steps
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -49,6 +77,11 @@ jobs:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           token: ${{ secrets.GITHUB_TOKEN }}
           buildScriptName: build-storybook
+          # TurboSnap — 변경된 스토리만 스냅샷 (쿼터 절약)
           onlyChanged: true
+          # main 머지 시 변경을 자동 승인 → 새 베이스라인으로 확정
           autoAcceptChanges: 'main'
-          skip: '@(renovate/**|dependabot/**)'
+          # 비주얼 변경이 있어도 CI를 블록하지 않고 Chromatic에서 리뷰
+          exitZeroOnChanges: true
+          # 드래프트 PR · dependabot/renovate PR은 건너뜀
+          skip: ${{ github.event.pull_request.draft == true || startsWith(github.head_ref, 'renovate/') || startsWith(github.head_ref, 'dependabot/') }}

@@ -3,7 +3,7 @@
 import type { JSX } from 'react';
 
 import { AuthForm } from '@/features/auth/auth-form';
-import { Button } from '@/shared/ui/button';
+import { SignupStepActions } from '@/features/auth/signup-flow';
 import { InputField, type InputFieldFeedback } from '@/shared/ui/input-field';
 import { VStack } from '@/shared/ui/layout/v-stack';
 import { useSignupEmailVerificationForm } from '@/pages/auth/signup-email-verification/model/use-signup-email-verification-form';
@@ -28,6 +28,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
     changeCode,
     code,
     errorMessage,
+    goToPreviousStep,
     isSendingCode,
     isVerified,
     isVerifying,
@@ -49,14 +50,11 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
           >
             인증 코드 다시 보내기
           </button>
-          <Button
-            frame="cta"
-            tone="login"
-            type="submit"
-            disabled={(!isVerified && code.length === 0) || isVerifying}
-          >
-            다음
-          </Button>
+          <SignupStepActions
+            onPrevious={goToPreviousStep}
+            previousDisabled={isSendingCode || isVerifying}
+            nextDisabled={(!isVerified && code.length === 0) || isVerifying}
+          />
         </VStack>
       }
       onSubmit={(event) => {

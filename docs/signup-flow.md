@@ -92,8 +92,8 @@ store version 3의 migration은 과거 storage에 남아 있을 수 있는 `pass
 | 비밀번호 | 인증된 이메일 | `/login` |
 | 이름 | 이메일: 인증된 이메일·비밀번호, Google: `signupToken` | `/login` 또는 `/signup/password` |
 | 회사명 | 인증된 이메일, 비밀번호, 이름 | `/login`, `/signup/password` 또는 `/signup/name` |
-| 직무 | 인증된 이메일, 비밀번호, 이름 | `/login`, `/signup/password` 또는 `/signup/name` |
-| 약관 | 인증된 이메일, 비밀번호, 이름, 직무 | 누락된 첫 단계 |
+| 직무 | 인증된 이메일, 비밀번호, 이름, 회사명 | 누락된 첫 단계 |
+| 약관 | 인증된 이메일, 비밀번호, 이름, 회사명, 직무 | 누락된 첫 단계 |
 
 더 앞 단계의 값이 누락된 경우 가까운 직전 화면이 아니라, 실제로 다시 입력해야 하는 첫 단계로 이동합니다.
 

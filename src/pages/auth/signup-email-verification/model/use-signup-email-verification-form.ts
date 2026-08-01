@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useReducer, useRef } from 'react';
+import { useEffect, useReducer } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useShallow } from 'zustand/react/shallow';
@@ -47,7 +47,6 @@ export function useSignupEmailVerificationForm(email: string) {
     signupEmailVerificationReducer,
     initialSignupEmailVerificationState,
   );
-  const initiallySentEmailRef = useRef<string | undefined>(undefined);
   const { completeEmailVerification, emailVerified, hasHydrated, startEmailSignup, storedEmail } =
     useSignupDraftStore(
       useShallow((state) => ({
@@ -130,7 +129,7 @@ export function useSignupEmailVerificationForm(email: string) {
       return;
     }
 
-    initiallySentEmailRef.current = email;
+    sessionStorage.setItem(emailCodeSentKey, 'true');
     sendInitialCode(email);
   }, [email, emailVerified, hasHydrated, sendInitialCode, startEmailSignup, storedEmail]);
 
@@ -158,6 +157,10 @@ export function useSignupEmailVerificationForm(email: string) {
     verifyMutation.mutate({ email, code: result.data.code });
   };
 
+  const goToPreviousStep = () => {
+    router.push('/login');
+  };
+
   const resendCode = () => {
     resendMutation.mutate(email);
   };
@@ -166,6 +169,7 @@ export function useSignupEmailVerificationForm(email: string) {
     changeCode,
     code,
     errorMessage: verificationState.errorMessage,
+    goToPreviousStep,
     isSendingCode,
     isVerified,
     isVerifying: verifyMutation.isPending,

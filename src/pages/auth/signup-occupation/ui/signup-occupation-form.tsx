@@ -32,10 +32,10 @@ export function SignupOccupationForm(): JSX.Element | null {
     return null;
   }
 
-  return <HydratedSignupOccupationForm initialOccupation={savedOccupation} />;
+  return <ReadySignupOccupationForm initialOccupation={savedOccupation} />;
 }
 
-function HydratedSignupOccupationForm({
+function ReadySignupOccupationForm({
   initialOccupation,
 }: {
   initialOccupation?: SignupOccupation;

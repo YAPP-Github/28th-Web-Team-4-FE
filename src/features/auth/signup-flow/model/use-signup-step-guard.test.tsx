@@ -16,6 +16,7 @@ function setSignupDraft({
   emailVerified = false,
   password = '',
   nickname = '',
+  companyName = '',
   occupation,
   hasHydrated = true,
 }: {
@@ -23,6 +24,7 @@ function setSignupDraft({
   emailVerified?: boolean;
   password?: string;
   nickname?: string;
+  companyName?: string;
   occupation?: SignupOccupation;
   hasHydrated?: boolean;
 } = {}) {
@@ -30,6 +32,7 @@ function setSignupDraft({
     {
       identity: email ? { method: 'email', email, emailVerified, password } : undefined,
       nickname,
+      companyName,
       occupation,
       hasHydrated,
     },
@@ -82,6 +85,17 @@ describe('useSignupStepGuard', () => {
         password: 'Password1!',
         nickname: '채소러버',
       },
+      '/signup/company',
+    ],
+    [
+      'terms',
+      {
+        email: 'new@example.com',
+        emailVerified: true,
+        password: 'Password1!',
+        nickname: '채소러버',
+        companyName: '채소컴퍼니',
+      },
       '/signup/occupation',
     ],
   ])('redirects the %s step to its missing prerequisite', (step, draft, redirectPath) => {
@@ -99,6 +113,7 @@ describe('useSignupStepGuard', () => {
       emailVerified: true,
       password: 'Password1!',
       nickname: '채소러버',
+      companyName: '채소컴퍼니',
     });
 
     const { result } = renderHook(() => useSignupStepGuard('occupation'));
@@ -113,6 +128,7 @@ describe('useSignupStepGuard', () => {
       emailVerified: true,
       password: 'Password1!',
       nickname: '채소러버',
+      companyName: '채소컴퍼니',
       occupation: 'DEVELOPMENT',
     });
 
