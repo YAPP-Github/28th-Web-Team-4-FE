@@ -43,6 +43,9 @@ export default defineConfig({
             'next/link',
             'react-hook-form',
             '@base-ui/react/select',
+            '@base-ui/react/tabs',
+            'overlay-kit',
+            'react-use-measure',
           ],
         },
         plugins: [

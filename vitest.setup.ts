@@ -5,6 +5,28 @@ import '@testing-library/jest-dom/vitest';
 
 import { server } from './src/shared/api/mocks/server';
 
+class ResizeObserverStub {
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+}
+
+vi.stubGlobal('ResizeObserver', ResizeObserverStub);
+
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn<(query: string) => MediaQueryList>().mockImplementation((query) => ({
+    matches: query.includes('prefers-reduced-motion'),
+    media: query,
+    onchange: null,
+    addListener: vi.fn<() => void>(),
+    removeListener: vi.fn<() => void>(),
+    addEventListener: vi.fn<() => void>(),
+    removeEventListener: vi.fn<() => void>(),
+    dispatchEvent: vi.fn<() => boolean>(),
+  })),
+});
+
 beforeAll(() => {
   server.listen({
     onUnhandledRequest: 'bypass',
