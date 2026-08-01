@@ -1,4 +1,3 @@
-import { googleAuth } from '@/shared/api/generated';
 import { googleAuthResolutionSchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
 
 export type GoogleAuthResolution =
@@ -7,11 +6,18 @@ export type GoogleAuthResolution =
   | { type: 'signup'; email: string; nickname: string; signupToken: string };
 
 export async function authenticateGoogle(idToken: string): Promise<GoogleAuthResolution> {
-  const { data: response } = await googleAuth({
-    body: { idToken },
-    throwOnError: true,
+  const response = await fetch('/api/auth/google', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idToken }),
   });
-  const result = googleAuthResolutionSchema.safeParse(response.data);
+  const body: unknown = await response.json();
+
+  if (!response.ok) {
+    throw body;
+  }
+
+  const result = googleAuthResolutionSchema.safeParse(body);
 
   if (!result.success) {
     throw new Error('Google 인증 응답 형식이 올바르지 않습니다.');

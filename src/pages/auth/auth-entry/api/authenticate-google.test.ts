@@ -1,30 +1,27 @@
-import { googleAuth } from '@/shared/api/generated';
-
 import { authenticateGoogle } from './authenticate-google';
 
-vi.mock('@/shared/api/generated', () => ({
-  googleAuth: vi.fn<typeof googleAuth>(),
-}));
-
-const googleAuthMock = vi.mocked(googleAuth);
+const fetchMock = vi.fn<typeof fetch>();
 
 describe('authenticateGoogle', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it('returns the signup token and prefilled profile for a new Google account', async () => {
-    googleAuthMock.mockResolvedValue({
-      data: {
-        success: true,
-        data: {
-          status: 'SIGNUP_REQUIRED',
-          signupRequired: true,
-          signupToken: 'one-time-token',
-          prefill: {
-            email: 'google@example.com',
-            suggestedNickname: '구글 사용자',
-          },
+    fetchMock.mockResolvedValue(
+      Response.json({
+        status: 'SIGNUP_REQUIRED',
+        signupToken: 'one-time-token',
+        prefill: {
+          email: 'google@example.com',
+          suggestedNickname: '구글 사용자',
         },
-      },
-      response: new Response(null, { status: 200 }),
-    });
+      }),
+    );
 
     await expect(authenticateGoogle('google-id-token')).resolves.toEqual({
       type: 'signup',
@@ -32,17 +29,15 @@ describe('authenticateGoogle', () => {
       nickname: '구글 사용자',
       signupToken: 'one-time-token',
     });
-    expect(googleAuthMock).toHaveBeenCalledWith({
-      body: { idToken: 'google-id-token' },
-      throwOnError: true,
+    expect(fetchMock).toHaveBeenCalledWith('/api/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken: 'google-id-token' }),
     });
   });
 
   it('rejects an unexpected response instead of starting an invalid signup', async () => {
-    googleAuthMock.mockResolvedValue({
-      data: { success: true, data: { status: 'SIGNUP_REQUIRED' } },
-      response: new Response(null, { status: 200 }),
-    });
+    fetchMock.mockResolvedValue(Response.json({ status: 'SIGNUP_REQUIRED' }));
 
     await expect(authenticateGoogle('google-id-token')).rejects.toThrow(
       'Google 인증 응답 형식이 올바르지 않습니다.',
