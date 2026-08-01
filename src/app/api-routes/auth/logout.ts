@@ -101,7 +101,11 @@ async function revokeBackendSession(session: AuthSession): Promise<void> {
     return;
   }
 
-  await revokeWithOneTransientRetry(refreshedTokens);
+  const result = await revokeWithOneTransientRetry(refreshedTokens);
+
+  if (result === 'unauthorized') {
+    reportLogoutFailure('logout', 401, 'Refreshed access token was rejected');
+  }
 }
 
 export async function postLogout(request: Request): Promise<Response> {

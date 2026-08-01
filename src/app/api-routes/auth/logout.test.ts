@@ -76,6 +76,10 @@ describe('logout BFF', () => {
     logoutMock.mockResolvedValue(logoutSuccessResponse());
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('revokes with the current token while the access token is usable', async () => {
     const response = await postLogout(logoutRequest());
 
@@ -117,6 +121,29 @@ describe('logout BFF', () => {
       auth: 'new-access-token',
       body: { refreshToken: 'new-refresh-token' },
     });
+  });
+
+  it('reports when logout rejects a freshly issued access token', async () => {
+    const consoleErrorMock = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    readAuthSessionMock.mockResolvedValue({
+      ...session,
+      accessTokenExpiresAt: now - 1,
+    });
+    refreshMock.mockResolvedValue(refreshSuccessResponse());
+    logoutMock.mockResolvedValue(errorResponse(401));
+
+    const response = await postLogout(logoutRequest());
+
+    expect(response.status).toBe(204);
+    expect(consoleErrorMock).toHaveBeenCalledWith(
+      '[auth] Failed to revoke the backend session during logout.',
+      {
+        phase: 'logout',
+        status: 401,
+        error: 'Refreshed access token was rejected',
+      },
+    );
+    expect(clearAuthSessionMock).toHaveBeenCalledOnce();
   });
 
   it('does not retry a failed refresh token rotation', async () => {
