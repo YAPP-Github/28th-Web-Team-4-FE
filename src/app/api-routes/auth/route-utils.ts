@@ -18,7 +18,7 @@ export function isTrustedMutation(request: Request): boolean {
     return false;
   }
 
-  return fetchSite !== 'cross-site';
+  return fetchSite === 'same-origin' || fetchSite === 'none';
 }
 
 export function forbiddenMutationResponse(): Response {

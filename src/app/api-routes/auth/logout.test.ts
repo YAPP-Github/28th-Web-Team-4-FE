@@ -34,7 +34,10 @@ const refreshedTokens = {
 function logoutRequest(): Request {
   return new Request('https://chaeso-zip.com/api/auth/logout', {
     method: 'POST',
-    headers: { origin: 'https://chaeso-zip.com' },
+    headers: {
+      origin: 'https://chaeso-zip.com',
+      'sec-fetch-site': 'same-origin',
+    },
   });
 }
 
