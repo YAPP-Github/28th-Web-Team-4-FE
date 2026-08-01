@@ -31,7 +31,6 @@ type GoogleIdentity = {
   };
 };
 
-const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim();
 const getGoogleIdentity = () => (window as typeof window & { google?: GoogleIdentity }).google;
 
 type AuthEntryInput = z.input<typeof authEntrySchema>;
@@ -135,6 +134,7 @@ export function AuthEntryForm(): JSX.Element {
   const router = useRouter();
   const [existingAccountEmail, setExistingAccountEmail] = useState<string>();
   const [isGoogleReady, setIsGoogleReady] = useState(false);
+  const [googleInitializationError, setGoogleInitializationError] = useState<string>();
   const resolveEmailMutation = useResolveAuthEmail();
   const googleAuthMutation = useGoogleAuth();
   const {
@@ -178,9 +178,16 @@ export function AuthEntryForm(): JSX.Element {
     });
   });
   const initializeGoogleIdentity = () => {
+    const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim();
     const google = getGoogleIdentity();
 
-    if (!googleClientId || !google) {
+    if (!googleClientId) {
+      setIsGoogleReady(false);
+      setGoogleInitializationError('Google 로그인 설정을 확인해 주세요.');
+      return;
+    }
+
+    if (!google) {
       return;
     }
 
@@ -192,8 +199,14 @@ export function AuthEntryForm(): JSX.Element {
         }
       },
     });
+    setGoogleInitializationError(undefined);
     setIsGoogleReady(true);
   };
+  const googleErrorMessage =
+    googleInitializationError ??
+    (googleAuthMutation.error
+      ? getApiErrorMessage(googleAuthMutation.error, 'Google 인증 중 문제가 발생했습니다.')
+      : undefined);
 
   if (existingAccountEmail) {
     return (
@@ -209,17 +222,14 @@ export function AuthEntryForm(): JSX.Element {
       <Script
         src="https://accounts.google.com/gsi/client"
         strategy="afterInteractive"
-        onLoad={initializeGoogleIdentity}
+        onReady={initializeGoogleIdentity}
       />
       <AuthForm
         actions={
           <div className="gap-012 flex w-full flex-col">
-            {googleAuthMutation.error ? (
+            {googleErrorMessage ? (
               <p className="typo-body-lg text-sys-error-default text-center" role="alert">
-                {getApiErrorMessage(
-                  googleAuthMutation.error,
-                  'Google 인증 중 문제가 발생했습니다.',
-                )}
+                {googleErrorMessage}
               </p>
             ) : null}
             <button
