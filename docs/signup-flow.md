@@ -136,9 +136,45 @@ waiting
 
 Google 버튼은 `NEXT_PUBLIC_GOOGLE_CLIENT_ID`로 Google Identity Services를 초기화합니다. 이 값은 다른 시크릿과 동일하게 Doppler에서 주입하며 저장소에는 넣지 않습니다.
 
-- `LOGIN`: 로그인 완료 후 `/`로 이동
+- `LOGIN`: BFF가 서비스 토큰을 암호화된 `HttpOnly` 쿠키에 저장한 뒤 `/`로 이동
 - `SIGNUP_REQUIRED`: `signupToken`과 프리필을 저장하고 `/signup/name`으로 이동
 - `LINK_REQUIRED`: 아직 계정 연결 화면이 없어 오류로 안내
+
+## 로그인 세션
+
+백엔드를 인증의 단일 기준으로 유지하며, Next.js Route Handler가 BFF로서 서비스
+`accessToken`과 `refreshToken`을 브라우저 JavaScript에서 숨깁니다.
+
+```text
+브라우저 → /api/auth/* → 백엔드 인증 API
+             │
+             └─ AES-256-GCM 암호화 → HttpOnly 쿠키
+```
+
+- `POST /api/auth/google`: Google ID token을 백엔드에 전달하고 `LOGIN`이면 세션 저장
+- `POST /api/auth/signup/google`: Google 최종 가입 후 발급된 서비스 토큰 저장
+- `POST /api/auth/login`: 로컬 로그인 후 발급된 서비스 토큰 저장
+- `POST /api/auth/refresh`: 쿠키의 refresh token으로 토큰을 회전하고 쿠키 교체
+- `POST /api/auth/logout`: 백엔드 세션을 폐기하고 쿠키 삭제
+- `GET /api/auth/session`: 토큰을 노출하지 않고 로그인 여부와 access token 만료 시각만 반환
+
+세션 쿠키는 `HttpOnly`, `SameSite=Lax`, `Path=/`이며 운영 환경에서는 `Secure`와
+`__Host-` prefix를 함께 사용합니다. 쿠키 평문은 서버 전용 `SESSION_ENCRYPTION_KEY`로
+AES-256-GCM 인증 암호화합니다.
+
+`SESSION_ENCRYPTION_KEY`는 32바이트 base64url 문자열이어야 하며 Doppler에서 주입합니다.
+로컬에서 새 값을 생성할 때는 아래 명령을 사용할 수 있습니다.
+
+```bash
+node -p "require('node:crypto').randomBytes(32).toString('base64url')"
+```
+
+키를 변경하면 기존 세션 쿠키를 복호화할 수 없어 사용자가 다시 로그인해야 합니다. 무중단
+키 회전이 필요해지면 현재 키와 이전 키를 함께 읽는 key ring으로 확장합니다.
+
+암호화 쿠키 방식에는 서버 공유 저장소가 없으므로 여러 탭에서 동시에 refresh 요청이
+발생하는 것을 서버 전체에서 직렬화할 수 없습니다. 클라이언트의 단일 refresh 요청 정책으로
+빈도를 줄일 수 있지만, 강한 동시성 보장이 필요하면 Redis 기반 세션으로 전환해야 합니다.
 
 ## 테스트 위치
 
