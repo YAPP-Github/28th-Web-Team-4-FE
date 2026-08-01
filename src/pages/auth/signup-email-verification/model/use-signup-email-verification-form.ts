@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useShallow } from 'zustand/react/shallow';
@@ -47,6 +47,7 @@ export function useSignupEmailVerificationForm(email: string) {
     signupEmailVerificationReducer,
     initialSignupEmailVerificationState,
   );
+  const initiallySentEmailRef = useRef<string | undefined>(undefined);
   const { completeEmailVerification, emailVerified, hasHydrated, startEmailSignup, storedEmail } =
     useSignupDraftStore(
       useShallow((state) => ({
@@ -129,7 +130,7 @@ export function useSignupEmailVerificationForm(email: string) {
       return;
     }
 
-    sessionStorage.setItem(emailCodeSentKey, 'true');
+    initiallySentEmailRef.current = email;
     sendInitialCode(email);
   }, [email, emailVerified, hasHydrated, sendInitialCode, startEmailSignup, storedEmail]);
 
