@@ -24,23 +24,25 @@ export function RecommendOnboardingSubHeader({
   const currentStepDefinition = getOnboardingStepDefinition(currentStepId);
 
   return (
-    <Box className="bg-surface-lowest border-outline-low flex w-full justify-center border-b">
-      <Box className="gap-006 px-016 py-018 sm:px-032 lg:px-000 flex w-full max-w-[792px] flex-col items-center justify-center">
-        <Box className="gap-012 flex w-full items-center">
-          <Badge frame="badge" tone="primary" className="w-[22px]">
-            {currentStep + 1}
-          </Badge>
-          <Text variant="heading-lg" className="text-text-highest min-w-0 flex-1">
-            {currentStepDefinition.title}
-          </Text>
+    <Box className="bg-surface-lowest border-outline-low px-016 sm:px-032 w-full border-b lg:px-120">
+      <Box className="mx-auto w-full max-w-[1200px] lg:grid lg:grid-cols-[204px_minmax(0,792px)_1fr]">
+        <Box className="gap-006 py-018 flex flex-col items-center justify-center lg:col-start-2">
+          <Box className="gap-012 flex w-full items-center">
+            <Badge frame="badge" tone="primary" className="w-[22px]">
+              {currentStep + 1}
+            </Badge>
+            <Text variant="heading-lg" className="text-text-highest min-w-0 flex-1">
+              {currentStepDefinition.title}
+            </Text>
+          </Box>
+          <StepBar
+            currentStep={currentStep}
+            totalSteps={RECOMMEND_ONBOARDING_TOTAL_STEP_COUNT}
+            labels={RECOMMEND_ONBOARDING_PROGRESS_LABEL_LIST}
+            ariaLabel="광고 채널 추천 진행률"
+            className="w-full"
+          />
         </Box>
-        <StepBar
-          currentStep={currentStep}
-          totalSteps={RECOMMEND_ONBOARDING_TOTAL_STEP_COUNT}
-          labels={RECOMMEND_ONBOARDING_PROGRESS_LABEL_LIST}
-          ariaLabel="광고 채널 추천 진행률"
-          className="w-full"
-        />
       </Box>
     </Box>
   );

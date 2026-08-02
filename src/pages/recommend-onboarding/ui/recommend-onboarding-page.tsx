@@ -16,23 +16,25 @@ export function RecommendOnboardingPage(): JSX.Element {
     <>
       <RecommendOnboardingSubHeader currentStep={currentStep} />
 
-      <main className="bg-surface-background-default px-016 py-024 sm:px-032 flex flex-1 justify-center lg:px-120">
-        <Stack className="gap-024 w-full max-w-[792px]">
-          <Bubble className="max-w-[282px] whitespace-pre-line">
-            {'안녕하세요!\n딱 맞는 광고 채널을 추천해 드릴게요.'}
-          </Bubble>
+      <main className="bg-surface-background-default px-016 py-024 sm:px-032 flex-1 lg:px-120">
+        <Box className="mx-auto w-full max-w-[1200px] lg:grid lg:grid-cols-[204px_minmax(0,792px)_1fr]">
+          <Stack className="gap-024 w-full lg:col-start-2">
+            <Bubble className="max-w-[282px] whitespace-pre-line">
+              {'안녕하세요!\n딱 맞는 광고 채널을 추천해 드릴게요.'}
+            </Bubble>
 
-          <Box className="bg-surface-lowest rounded-m border-stroke-default p-024 min-h-[320px] w-full border">
-            <Stack className="gap-008">
-              <Text as="h1" variant="heading-lg" className="text-text-highest">
-                광고 채널 추천
-              </Text>
-              <Text variant="body-md" className="text-text-low">
-                서비스 정보와 예산을 바탕으로 맞는 채널을 찾습니다.
-              </Text>
-            </Stack>
-          </Box>
-        </Stack>
+            <Box className="bg-surface-lowest rounded-m border-stroke-default p-024 min-h-[320px] w-full border">
+              <Stack className="gap-008">
+                <Text as="h1" variant="heading-lg" className="text-text-highest">
+                  광고 채널 추천
+                </Text>
+                <Text variant="body-md" className="text-text-low">
+                  서비스 정보와 예산을 바탕으로 맞는 채널을 찾습니다.
+                </Text>
+              </Stack>
+            </Box>
+          </Stack>
+        </Box>
       </main>
     </>
   );
