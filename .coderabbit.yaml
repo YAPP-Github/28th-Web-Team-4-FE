@@ -10,6 +10,15 @@ reviews:
   path_filters:
     - '!design-tokens/**'
     - '!src/styles/tokens/**'
+    # AI harness (app 코드 리뷰 신호 아님)
+    - '!.agents/**'
+    - '!.claude/**'
+    - '!.cursor/**'
+    - '!shared/skills/**'
+    - '!shared/rules/**'
+    - '!AGENTS.md'
+    - '!CLAUDE.md'
+    - '!docs/**'
   auto_review:
     enabled: true
     drafts: false

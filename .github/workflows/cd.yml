@@ -8,12 +8,31 @@ on:
 permissions:
   contents: read
   id-token: write
+  actions: write
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   cd:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     # Job steps
     steps:
+      - name: Check for newer commits
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REF_NAME: ${{ github.ref_name }}
+          EXPECTED_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          latest_sha=$(git ls-remote "https://github.com/${{ github.repository }}" "refs/heads/$REF_NAME" | cut -f1)
+          if [[ "$latest_sha" != "$EXPECTED_SHA" ]]; then
+            echo "Newer commit detected on $REF_NAME ($latest_sha), cancelling run"
+            gh run cancel "$RUN_ID"
+            exit 1
+          fi
+
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
@@ -57,7 +76,7 @@ jobs:
           ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build --platform linux/amd64 \
+          docker build --platform linux/arm64 \
             -f docker/Dockerfile \
             -t "$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" .
           docker push $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -70,6 +89,20 @@ jobs:
           task-definition: task-definition.json
           container-name: nextjs-ecs-container
           image: ${{ steps.build-image.outputs.image }}
+
+      - name: Check for newer commits
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REF_NAME: ${{ github.ref_name }}
+          EXPECTED_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          latest_sha=$(git ls-remote "https://github.com/${{ github.repository }}" "refs/heads/$REF_NAME" | cut -f1)
+          if [[ "$latest_sha" != "$EXPECTED_SHA" ]]; then
+            echo "Newer commit detected on $REF_NAME ($latest_sha), cancelling run"
+            gh run cancel "$RUN_ID"
+            exit 1
+          fi
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2

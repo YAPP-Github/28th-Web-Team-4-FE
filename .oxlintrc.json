@@ -1,5 +1,26 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "ignorePatterns": [
+    "pnpm-lock.yaml",
+    "package-lock.json",
+    "yarn.lock",
+    "bun.lock",
+    "bun.lockb",
+    "public/mockServiceWorker.js",
+    "design-tokens/**",
+    "src/styles/tokens/**",
+    ".agents/**",
+    ".claude/**",
+    ".cursor/skills/**",
+    ".cursor/rules/**",
+    "shared/skills/**",
+    "shared/rules/**",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/**",
+    ".github/**",
+    "src/shared/api/generated/**"
+  ],
   "plugins": [
     "eslint",
     "typescript",
@@ -146,17 +167,18 @@
   },
   "overrides": [
     {
-      "files": ["design-tokens/**/*.mjs"],
+      "files": ["scripts/sync-rules.mjs"],
       "rules": {
-        "typescript/no-unsafe-member-access": "off"
+        "typescript/no-unsafe-member-access": "off",
+        "eslint/no-console": "off"
       }
     },
     {
       // Next.js 규약 파일(page/layout/route/error 등), Storybook story,
       // 설정 파일은 default export가 강제되므로 no-default-export 예외 처리
       "files": [
+        "app/**",
         "src/app/**",
-        "src/_app/**",
         "**/*.stories.{ts,tsx}",
         ".storybook/**",
         "*.config.{ts,js,mjs}"

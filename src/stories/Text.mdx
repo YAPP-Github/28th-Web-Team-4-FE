@@ -1,0 +1,89 @@
+import { Canvas, Controls, Meta, Typeset } from '@storybook/addon-docs/blocks';
+
+import * as TextStories from './text.stories';
+
+export const SampleText = 'YAPP님께 딱 맞는 광고 채널을 추천해 드려요';
+
+export const fontSizes = [10, 11, 12, 13, 14, 15, 16, 17, 18, 22, 24, 32];
+
+<Meta of={TextStories} />
+
+# Text
+
+디자인 토큰 `typo-*` 유틸리티를 `variant`로 매핑한 polymorphic 텍스트 컴포넌트입니다.
+`Box`를 기반으로 하며, 기본 태그는 `span`입니다.
+
+```tsx
+import { Text } from '@/shared/ui/text';
+
+<Text variant="heading-xl">제목</Text>
+<Text variant="body-lg" className="text-text-medium">
+  본문
+</Text>
+<Text variant="display-lg" as="h1">
+  히어로
+</Text>
+```
+
+## Font scale
+
+Pretendard Variable 기준 size / weight 프리미티브입니다.
+
+**Font:** Pretendard Variable
+
+**Weights:** 400 (regular), 500 (medium), 600 (semibold), 700 (bold)
+
+### Regular (400)
+
+<Typeset
+  fontFamily="var(--font-pre)"
+  fontSizes={fontSizes}
+  fontWeight={400}
+  sampleText={SampleText}
+/>
+
+### Medium (500)
+
+<Typeset
+  fontFamily="var(--font-pre)"
+  fontSizes={fontSizes}
+  fontWeight={500}
+  sampleText={SampleText}
+/>
+
+### Semibold (600)
+
+<Typeset
+  fontFamily="var(--font-pre)"
+  fontSizes={fontSizes}
+  fontWeight={600}
+  sampleText={SampleText}
+/>
+
+### Bold (700)
+
+<Typeset
+  fontFamily="var(--font-pre)"
+  fontSizes={fontSizes}
+  fontWeight={700}
+  sampleText={SampleText}
+/>
+
+## Semantic variants
+
+Figma Typography 스타일(`display` / `heading` / `subtitle` / `body` / `caption`)입니다.
+
+<Canvas of={TextStories.AllVariants} />
+
+## Playground
+
+<Canvas of={TextStories.SingleVariant} />
+<Controls of={TextStories.SingleVariant} />
+
+## Custom className
+
+<Canvas of={TextStories.CustomClassName} />
+
+## Semantic heading
+
+<Canvas of={TextStories.AsHeading} />

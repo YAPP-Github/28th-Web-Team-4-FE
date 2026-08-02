@@ -24,6 +24,18 @@ node --run tokens
 
 3. 생성된 `src/styles/tokens/` diff를 확인하고 PR을 생성합니다.
 
+```bash
+node --run fmt:check
+git diff -- src/styles/tokens
+```
+
+빌드까지 확인해야 하는 변경이라면 아래 명령 후 토큰 diff가 다시 생기지 않는지 확인합니다.
+
+```bash
+node --run build
+git diff -- src/styles/tokens
+```
+
 ## 출력 파일
 
 | 파일                               | 내용                                                          |
@@ -76,6 +88,7 @@ design-tokens/
 - `spacing`, `radius`, `opacity`, `boxShadow`
 - `typography` primitive + composite
 
-## 후속 작업
+## 폰트
 
-- Pretendard 폰트 파일 추가 및 `layout.tsx` 연동 (`globals.css`의 `--font-pre` override 제거)
+Pretendard Variable은 `src/shared/fonts`에서 `next/font/local`로 로드합니다.
+`--font-pretendard` → `globals.css`에서 토큰 `--font-pre`로 매핑됩니다.

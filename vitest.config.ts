@@ -33,6 +33,21 @@ export default defineConfig({
     projects: [
       {
         extends: true,
+        optimizeDeps: {
+          include: [
+            '@base-ui/react/field',
+            '@base-ui/react/input',
+            '@base-ui/react/slider',
+            'motion/react',
+            '@number-flow/react',
+            'next/link',
+            'react-hook-form',
+            '@base-ui/react/select',
+            '@base-ui/react/tabs',
+            'overlay-kit',
+            'react-use-measure',
+          ],
+        },
         plugins: [
           // The plugin will run tests for the stories defined in your Storybook config
           // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
