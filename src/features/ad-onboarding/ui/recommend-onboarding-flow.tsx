@@ -9,7 +9,10 @@ import {
   type RecommendOnboardingStepId,
 } from '@/features/ad-onboarding/model/onboarding-step';
 import type { RecommendOnboardingAnswer } from '@/features/ad-onboarding/model/onboarding-answer';
-import type { RecommendOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
+import {
+  createRecommendOnboardingDraft,
+  type RecommendOnboardingDraft,
+} from '@/features/ad-onboarding/model/onboarding-draft';
 import {
   buildRecommendOnboardingAnswer,
   getRecommendOnboardingAnswerLabel,
@@ -91,7 +94,10 @@ function RecommendOnboardingFlowContent({
   onAdvance,
 }: RecommendOnboardingFlowContentProps): JSX.Element {
   const { control } = useFormContext<RecommendOnboardingDraft>();
-  const draft = useWatch({ control });
+  const draft = useWatch({
+    control,
+    defaultValue: createRecommendOnboardingDraft(),
+  });
   const currentStepId = RECOMMEND_ONBOARDING_STEP_ID_LIST[currentStep];
 
   if (!currentStepId) {
