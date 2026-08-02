@@ -94,13 +94,26 @@ function RecommendOnboardingFlowContent({
   onAdvance,
 }: RecommendOnboardingFlowContentProps): JSX.Element {
   const { control } = useFormContext<RecommendOnboardingDraft>();
+  const initialDraft = createRecommendOnboardingDraft();
   const watchedDraft = useWatch({
     control,
-    defaultValue: createRecommendOnboardingDraft(),
+    defaultValue: initialDraft,
   });
   const draft: RecommendOnboardingDraft = {
-    ...createRecommendOnboardingDraft(),
+    ...initialDraft,
     ...watchedDraft,
+    serviceName: watchedDraft?.serviceName ?? initialDraft.serviceName,
+    budget: {
+      ...initialDraft.budget,
+      ...watchedDraft?.budget,
+    },
+    budgetInputRange: {
+      ...initialDraft.budgetInputRange,
+      ...watchedDraft?.budgetInputRange,
+    },
+    ageRangeList: watchedDraft?.ageRangeList ?? initialDraft.ageRangeList,
+    performanceMode: watchedDraft?.performanceMode ?? initialDraft.performanceMode,
+    performanceFileList: watchedDraft?.performanceFileList ?? initialDraft.performanceFileList,
   };
   const currentStepId = RECOMMEND_ONBOARDING_STEP_ID_LIST[currentStep];
 
