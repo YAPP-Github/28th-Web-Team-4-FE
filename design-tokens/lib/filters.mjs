@@ -6,6 +6,14 @@ import {
 } from './constants.mjs';
 import { getTokenType } from './utils.mjs';
 
+const TYPOGRAPHY_PRIMITIVE_CATEGORIES = new Set([
+  'fontFamily',
+  'fontWeight',
+  'fontSize',
+  'lineHeight',
+  'letterSpacing',
+]);
+
 export function isCompositeTypographyLeaf(token) {
   const [group, , prop] = token.path;
   return (
@@ -31,7 +39,6 @@ export function isLayoutToken(token) {
 
 export function isTypographyPrimitiveToken(token) {
   const [group, category] = token.path;
-  const type = getTokenType(token);
 
   if (isCompositeTypographyLeaf(token)) {
     return false;
@@ -41,11 +48,7 @@ export function isTypographyPrimitiveToken(token) {
     return false;
   }
 
-  if (category === 'fontFamily') {
-    return true;
-  }
-
-  return ['fontWeight', 'number', 'dimension', 'letterSpacing'].includes(type);
+  return TYPOGRAPHY_PRIMITIVE_CATEGORIES.has(category);
 }
 
 export function isShadowToken(token) {
