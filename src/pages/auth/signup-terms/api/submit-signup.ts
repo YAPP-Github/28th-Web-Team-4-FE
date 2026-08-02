@@ -1,5 +1,6 @@
 import { signup } from '@/shared/api/generated';
 import type { GoogleSignupRequest, SignupRequest } from '@/shared/api/generated/types.gen';
+import { ensureResponseOk } from '@/shared/api/response';
 
 export type SubmitSignupRequest =
   | { method: 'email'; body: SignupRequest }
@@ -13,9 +14,7 @@ export async function submitSignup(request: SubmitSignupRequest): Promise<void> 
       body: JSON.stringify(request.body),
     });
 
-    if (!response.ok) {
-      throw await response.json();
-    }
+    await ensureResponseOk(response);
 
     return;
   }

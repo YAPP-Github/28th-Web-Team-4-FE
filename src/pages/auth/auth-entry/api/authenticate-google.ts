@@ -1,4 +1,5 @@
 import { googleAuthResolutionSchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
+import { parseJsonResponse } from '@/shared/api/response';
 
 export type GoogleAuthResolution =
   | { type: 'login' }
@@ -11,11 +12,7 @@ export async function authenticateGoogle(idToken: string): Promise<GoogleAuthRes
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ idToken }),
   });
-  const body: unknown = await response.json();
-
-  if (!response.ok) {
-    throw body;
-  }
+  const body = await parseJsonResponse<unknown>(response);
 
   const result = googleAuthResolutionSchema.safeParse(body);
 

@@ -1,3 +1,5 @@
+import { ensureResponseOk } from '@/shared/api/response';
+
 export async function authenticateLocal(email: string, password: string): Promise<void> {
   const response = await fetch('/api/auth/login', {
     method: 'POST',
@@ -5,7 +7,5 @@ export async function authenticateLocal(email: string, password: string): Promis
     body: JSON.stringify({ email, password }),
   });
 
-  if (!response.ok) {
-    throw await response.json();
-  }
+  await ensureResponseOk(response);
 }
