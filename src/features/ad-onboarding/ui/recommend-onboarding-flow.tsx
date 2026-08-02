@@ -268,7 +268,7 @@ function getQuestionWidthClassName(stepId: RecommendOnboardingStepId): string {
 }
 
 function normalizePerformanceFileList(
-  performanceFileList: RecommendOnboardingDraft['performanceFileList'] | undefined,
+  performanceFileList: Partial<UploadedPerformanceFile>[] | undefined,
 ): UploadedPerformanceFile[] {
   if (!performanceFileList) {
     return [];
@@ -278,7 +278,7 @@ function normalizePerformanceFileList(
 }
 
 function isUploadedPerformanceFile(
-  value: RecommendOnboardingDraft['performanceFileList'][number] | undefined,
+  value: Partial<UploadedPerformanceFile> | undefined,
 ): value is UploadedPerformanceFile {
   return Boolean(value?.id && value.name && typeof value.size === 'number');
 }
