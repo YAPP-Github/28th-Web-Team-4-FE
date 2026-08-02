@@ -1,13 +1,11 @@
 import { z } from 'zod';
 
 const apiErrorSchema = z.object({
-  error: z
-    .object({
-      code: z.string(),
-      message: z.string(),
-      fieldErrors: z.array(z.unknown()).optional(),
-    })
-    .nullish(),
+  error: z.object({
+    code: z.string(),
+    message: z.string(),
+    fieldErrors: z.array(z.unknown()).optional(),
+  }),
 });
 
 export function isTrustedMutation(request: Request): boolean {

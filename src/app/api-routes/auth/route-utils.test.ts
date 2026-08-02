@@ -1,4 +1,4 @@
-import { isTrustedMutation } from './route-utils';
+import { isTrustedMutation, upstreamErrorResponse } from './route-utils';
 
 describe('auth BFF mutation origin checks', () => {
   it('accepts a same-origin browser request', () => {
@@ -57,4 +57,39 @@ describe('auth BFF mutation origin checks', () => {
 
     expect(isTrustedMutation(request)).toBe(false);
   });
+});
+
+describe('auth BFF upstream errors', () => {
+  it('preserves a valid upstream error payload', async () => {
+    const error = {
+      success: false,
+      error: {
+        code: 'AUTH-001',
+        message: '인증 정보가 올바르지 않습니다.',
+        fieldErrors: [],
+      },
+    };
+
+    const response = upstreamErrorResponse(error, 401);
+
+    expect(response.status).toBe(401);
+    await expect(response.json()).resolves.toEqual(error);
+  });
+
+  it.each([{ success: false }, { success: false, error: null }])(
+    'returns the BFF fallback for a malformed upstream error',
+    async (error) => {
+      const response = upstreamErrorResponse(error, 401);
+
+      expect(response.status).toBe(401);
+      await expect(response.json()).resolves.toEqual({
+        success: false,
+        error: {
+          code: 'BFF-002',
+          message: '인증 서버 요청 중 문제가 발생했습니다.',
+          fieldErrors: [],
+        },
+      });
+    },
+  );
 });
