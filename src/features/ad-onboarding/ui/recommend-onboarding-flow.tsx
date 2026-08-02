@@ -13,6 +13,7 @@ import {
   createRecommendOnboardingDraft,
   type RecommendOnboardingDraft,
 } from '@/features/ad-onboarding/model/onboarding-draft';
+import type { UploadedPerformanceFile } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import {
   buildRecommendOnboardingAnswer,
   getRecommendOnboardingAnswerLabel,
@@ -113,7 +114,7 @@ function RecommendOnboardingFlowContent({
     },
     ageRangeList: watchedDraft?.ageRangeList ?? initialDraft.ageRangeList,
     performanceMode: watchedDraft?.performanceMode ?? initialDraft.performanceMode,
-    performanceFileList: watchedDraft?.performanceFileList ?? initialDraft.performanceFileList,
+    performanceFileList: normalizePerformanceFileList(watchedDraft?.performanceFileList),
   };
   const currentStepId = RECOMMEND_ONBOARDING_STEP_ID_LIST[currentStep];
 
@@ -264,4 +265,20 @@ function getQuestionWidthClassName(stepId: RecommendOnboardingStepId): string {
     case 'category':
       return 'max-w-[510px]';
   }
+}
+
+function normalizePerformanceFileList(
+  performanceFileList: RecommendOnboardingDraft['performanceFileList'] | undefined,
+): UploadedPerformanceFile[] {
+  if (!performanceFileList) {
+    return [];
+  }
+
+  return performanceFileList.filter(isUploadedPerformanceFile);
+}
+
+function isUploadedPerformanceFile(
+  value: RecommendOnboardingDraft['performanceFileList'][number] | undefined,
+): value is UploadedPerformanceFile {
+  return Boolean(value?.id && value.name && typeof value.size === 'number');
 }
