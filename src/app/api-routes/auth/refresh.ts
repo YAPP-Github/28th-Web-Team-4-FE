@@ -42,8 +42,13 @@ function requestRefreshSingleFlight(refreshToken: string): Promise<RefreshResult
     }, REFRESH_FLIGHT_GRACE_MS);
     timeout.unref();
   };
+  const removeFailedFlight = () => {
+    if (refreshFlights.get(fingerprint) === flight) {
+      refreshFlights.delete(fingerprint);
+    }
+  };
 
-  void flight.then(scheduleCleanup, scheduleCleanup);
+  void flight.then(scheduleCleanup, removeFailedFlight);
 
   return flight;
 }

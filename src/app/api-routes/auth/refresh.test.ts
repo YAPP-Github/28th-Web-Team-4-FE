@@ -121,4 +121,17 @@ describe('refresh BFF single-flight', () => {
     expect(clearAuthSessionMock).toHaveBeenCalledTimes(2);
     expect(writeAuthSessionMock).not.toHaveBeenCalled();
   });
+
+  it('retries immediately after a rejected upstream request', async () => {
+    readAuthSessionMock.mockResolvedValue(sessionWith('network-failure-refresh-token'));
+    refreshMock
+      .mockRejectedValueOnce(new Error('network failure'))
+      .mockResolvedValueOnce(refreshSuccessResponse());
+
+    await expect(postRefresh(refreshRequest())).rejects.toThrow('network failure');
+    await expect(postRefresh(refreshRequest())).resolves.toHaveProperty('status', 204);
+
+    expect(refreshMock).toHaveBeenCalledTimes(2);
+    expect(writeAuthSessionMock).toHaveBeenCalledOnce();
+  });
 });
