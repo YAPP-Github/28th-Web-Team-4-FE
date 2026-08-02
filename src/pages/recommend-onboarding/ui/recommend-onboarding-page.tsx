@@ -1,16 +1,28 @@
 'use client';
 
-import type { JSX } from 'react';
+import { useState, type JSX } from 'react';
+import { useRouter } from 'next/navigation';
 
+import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
+import type { RecommendOnboardingAnswer } from '@/features/ad-onboarding/model/onboarding-answer';
+import { RecommendOnboardingFlow } from '@/features/ad-onboarding/ui/recommend-onboarding-flow';
 import { Bubble } from '@/shared/ui/bubble';
 import { Box } from '@/shared/ui/layout/box';
 import { Stack } from '@/shared/ui/layout/stack';
-import { Text } from '@/shared/ui/text';
 
 import { RecommendOnboardingSubHeader } from './recommend-onboarding-sub-header';
 
 export function RecommendOnboardingPage(): JSX.Element {
-  const currentStep = 0;
+  const router = useRouter();
+  const setAnswer = useRecommendOnboardingStore((state) => state.setAnswer);
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const handleComplete = (answer: RecommendOnboardingAnswer) => {
+    const onboardingId = crypto.randomUUID();
+
+    setAnswer(answer);
+    router.push(`/recommend/result/${onboardingId}`);
+  };
 
   return (
     <>
@@ -23,16 +35,7 @@ export function RecommendOnboardingPage(): JSX.Element {
               {'안녕하세요!\n딱 맞는 광고 채널을 추천해 드릴게요.'}
             </Bubble>
 
-            <Box className="bg-surface-lowest rounded-m border-stroke-default p-024 min-h-[320px] w-full border">
-              <Stack className="gap-008">
-                <Text as="h1" variant="heading-lg" className="text-text-highest">
-                  광고 채널 추천
-                </Text>
-                <Text variant="body-md" className="text-text-low">
-                  서비스 정보와 예산을 바탕으로 맞는 채널을 찾습니다.
-                </Text>
-              </Stack>
-            </Box>
+            <RecommendOnboardingFlow onStepChange={setCurrentStep} onComplete={handleComplete} />
           </Stack>
         </Box>
       </main>

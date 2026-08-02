@@ -25,14 +25,20 @@ const textVariants = {
   }),
 };
 
-export function RecommendResultSubHeader(): JSX.Element {
+export type RecommendResultSubHeaderProps = {
+  serviceName: string;
+};
+
+export function RecommendResultSubHeader({
+  serviceName,
+}: RecommendResultSubHeaderProps): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
 
   if (shouldReduceMotion) {
     return (
       <Box className="gap-008 flex w-full flex-col">
         <Text as="h1" variant="heading-xl" className="text-text-highest break-keep">
-          채소집에 딱 맞는 채널이에요
+          {serviceName}에 딱 맞는 채널이에요
         </Text>
         <Text as="p" variant="body-lg" className="text-text-medium break-keep">
           입력한 광고 목적과 예산을 바탕으로 효율이 높은 채널을 추천했어요
@@ -45,7 +51,7 @@ export function RecommendResultSubHeader(): JSX.Element {
     <Box className="gap-008 flex w-full flex-col">
       <MotionBox custom={0} variants={textVariants} initial="hidden" animate="show">
         <Text as="h1" variant="heading-xl" className="text-text-highest break-keep">
-          채소집에 딱 맞는 채널이에요
+          {serviceName}에 딱 맞는 채널이에요
         </Text>
       </MotionBox>
       <MotionBox custom={0.06} variants={textVariants} initial="hidden" animate="show">
