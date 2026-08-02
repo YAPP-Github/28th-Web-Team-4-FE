@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   cd:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     # Job steps
     steps:
       - name: Check for newer commits
