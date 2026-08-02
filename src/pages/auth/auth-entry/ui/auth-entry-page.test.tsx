@@ -90,6 +90,33 @@ describe('AuthEntryPage', () => {
     expect(screen.getByRole('button', { name: 'Google로 시작하기' })).toBeDisabled();
   });
 
+  it('shows guidance when Google One Tap is skipped', async () => {
+    const user = userEvent.setup();
+    const promptMock = vi.fn<
+      (
+        listener?: (notification: {
+          isSkippedMoment: () => boolean;
+          isNotDisplayed: () => boolean;
+        }) => void,
+      ) => void
+    >((listener) => {
+      listener?.({ isSkippedMoment: () => true, isNotDisplayed: () => false });
+    });
+    vi.stubEnv('NEXT_PUBLIC_GOOGLE_CLIENT_ID', 'google-client-id');
+    vi.stubGlobal('google', {
+      accounts: { id: { initialize: vi.fn<(options: unknown) => void>(), prompt: promptMock } },
+    });
+    renderAuthEntryPage();
+    act(() => scriptPropsMock.mock.calls.at(-1)?.[0].onReady?.());
+
+    await user.click(screen.getByRole('button', { name: 'Google로 시작하기' }));
+
+    expect(promptMock).toHaveBeenCalledWith(expect.any(Function));
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Google 로그인을 진행하지 못했습니다. 다시 시도해 주세요.',
+    );
+  });
+
   it('shows the email format error using the designed helper text', async () => {
     const user = userEvent.setup();
     renderAuthEntryPage();

@@ -19,6 +19,10 @@ import { useGoogleAuth } from '@/pages/auth/auth-entry/model/use-google-auth';
 import { useResolveAuthEmail } from '@/pages/auth/auth-entry/model/use-resolve-auth-email';
 
 type GoogleCredentialResponse = { credential?: string };
+type GooglePromptMomentNotification = {
+  isNotDisplayed: () => boolean;
+  isSkippedMoment: () => boolean;
+};
 type GoogleIdentity = {
   accounts: {
     id: {
@@ -26,7 +30,7 @@ type GoogleIdentity = {
         callback: (response: GoogleCredentialResponse) => void;
         client_id: string;
       }) => void;
-      prompt: () => void;
+      prompt: (momentListener?: (notification: GooglePromptMomentNotification) => void) => void;
     };
   };
 };
@@ -202,6 +206,22 @@ export function AuthEntryForm(): JSX.Element {
     setGoogleInitializationError(undefined);
     setIsGoogleReady(true);
   };
+  const promptGoogleIdentity = () => {
+    const google = getGoogleIdentity();
+
+    if (!google) {
+      setIsGoogleReady(false);
+      setGoogleInitializationError('Google 로그인을 불러오지 못했습니다. 다시 시도해 주세요.');
+      return;
+    }
+
+    setGoogleInitializationError(undefined);
+    google.accounts.id.prompt((notification) => {
+      if (notification.isSkippedMoment() || notification.isNotDisplayed()) {
+        setGoogleInitializationError('Google 로그인을 진행하지 못했습니다. 다시 시도해 주세요.');
+      }
+    });
+  };
   const googleErrorMessage =
     googleInitializationError ??
     (googleAuthMutation.error
@@ -254,7 +274,7 @@ export function AuthEntryForm(): JSX.Element {
                 resolveEmailMutation.isPending || googleAuthMutation.isPending || !isGoogleReady
               }
               leftIcon={<GoogleLogo alt="" />}
-              onClick={() => getGoogleIdentity()?.accounts.id.prompt()}
+              onClick={promptGoogleIdentity}
             >
               Google로 시작하기
             </Button>
