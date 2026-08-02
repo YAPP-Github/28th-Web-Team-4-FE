@@ -128,9 +128,10 @@ function RecommendOnboardingFlowContent({
           }
 
           return (
-            <CollapsedAnswerItem
+            <CompletedStepItem
               key={answer.stepId}
               stepIndex={stepIndex}
+              stepId={answer.stepId}
               label={answer.label}
               onEditStep={onEditStep}
             />

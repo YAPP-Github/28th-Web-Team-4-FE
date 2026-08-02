@@ -68,7 +68,7 @@ describe('RecommendOnboardingPage', () => {
     expect(screen.getByRole('textbox', { name: '서비스 이름' })).toHaveValue('채소집');
   });
 
-  it('keeps the other completed answers visible while editing one step', async () => {
+  it('keeps the other completed question screens visible while editing one step', async () => {
     const user = userEvent.setup();
 
     render(<RecommendOnboardingPage />);
@@ -86,8 +86,8 @@ describe('RecommendOnboardingPage', () => {
     await user.click(firstEditButton);
 
     expect(screen.getByRole('textbox', { name: '서비스 이름' })).toHaveValue('채소집');
+    expect(screen.getByRole('heading', { name: '어떤 업종인가요?' })).toBeVisible();
     expect(screen.getByText('쇼핑·커머스')).toBeVisible();
-    expect(screen.queryByRole('heading', { name: '어떤 업종인가요?' })).not.toBeInTheDocument();
     expect(
       screen.queryByRole('heading', { name: '서비스 형태가 무엇인가요?' }),
     ).not.toBeInTheDocument();
