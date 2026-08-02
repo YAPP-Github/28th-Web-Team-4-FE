@@ -2,6 +2,7 @@ type JsonObject = Record<string, unknown>;
 
 class ApiResponseError extends Error {
   readonly body: unknown;
+  readonly error?: unknown;
   readonly status: number;
   readonly statusText: string;
 
@@ -9,8 +10,8 @@ class ApiResponseError extends Error {
     super(`HTTP ${response.status} ${response.statusText}`.trim());
     this.name = 'ApiResponseError';
 
-    if (isJsonObject(body)) {
-      Object.assign(this, body);
+    if (isJsonObject(body) && 'error' in body) {
+      this.error = body.error;
     }
 
     this.body = body;
