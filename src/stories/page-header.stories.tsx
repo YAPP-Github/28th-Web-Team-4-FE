@@ -3,7 +3,7 @@ import { expect, within } from 'storybook/test';
 
 import { PageHeader } from '@/features/navigation/page-header';
 
-const NAV_LABELS = ['광고 채널 추천', '채널 비교', '예산 시뮬레이터', '마이페이지'] as const;
+const NAV_LABELS = ['맞춤 채널 추천', '전체 채널 비교', '예산 시뮬레이터', '마이페이지'] as const;
 
 const meta = {
   title: 'features/navigation/PageHeader',
