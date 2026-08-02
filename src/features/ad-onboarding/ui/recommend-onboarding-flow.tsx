@@ -47,6 +47,8 @@ export function RecommendOnboardingFlow({
     <FormProvider {...form}>
       <RecommendOnboardingFlowContent
         currentStep={currentStep}
+        editingStep={editingStep}
+        furthestStep={furthestStep}
         onEditStep={(step) => {
           setEditingStep(step);
           setCurrentStep(step);
@@ -75,12 +77,16 @@ export function RecommendOnboardingFlow({
 
 type RecommendOnboardingFlowContentProps = {
   currentStep: number;
+  editingStep: number | null;
+  furthestStep: number;
   onEditStep: (step: number) => void;
   onAdvance: () => void;
 };
 
 function RecommendOnboardingFlowContent({
   currentStep,
+  editingStep,
+  furthestStep,
   onEditStep,
   onAdvance,
 }: RecommendOnboardingFlowContentProps): JSX.Element {
@@ -94,12 +100,45 @@ function RecommendOnboardingFlowContent({
 
   const completedAnswerList = useMemo(
     () =>
-      RECOMMEND_ONBOARDING_STEP_ID_LIST.slice(0, currentStep).map((stepId) => ({
+      RECOMMEND_ONBOARDING_STEP_ID_LIST.slice(
+        0,
+        editingStep === null ? currentStep : furthestStep,
+      ).map((stepId) => ({
         stepId,
         label: getRecommendOnboardingAnswerLabel(stepId, draft),
       })),
-    [currentStep, draft],
+    [currentStep, draft, editingStep, furthestStep],
   );
+
+  if (editingStep !== null) {
+    return (
+      <Stack className="gap-012 w-full">
+        {completedAnswerList.map((answer) => {
+          const stepIndex = RECOMMEND_ONBOARDING_STEP_ID_LIST.indexOf(answer.stepId);
+
+          if (stepIndex === editingStep) {
+            return (
+              <RecommendOnboardingStepContent
+                key={answer.stepId}
+                stepId={currentStepId}
+                actionLabel="수정 완료"
+                onAction={onAdvance}
+              />
+            );
+          }
+
+          return (
+            <CollapsedAnswerItem
+              key={answer.stepId}
+              stepIndex={stepIndex}
+              label={answer.label}
+              onEditStep={onEditStep}
+            />
+          );
+        })}
+      </Stack>
+    );
+  }
 
   return (
     <Stack className="gap-012 w-full">
@@ -145,15 +184,27 @@ function CompletedStepItem({
         className={getQuestionWidthClassName(stepId)}
       />
 
-      <Bubble
-        frame="user"
-        className="w-[246px] self-end"
-        canEdit
-        onEdit={() => onEditStep(stepIndex)}
-      >
-        {label}
-      </Bubble>
+      <CollapsedAnswerItem stepIndex={stepIndex} label={label} onEditStep={onEditStep} />
     </Stack>
+  );
+}
+
+type CollapsedAnswerItemProps = Omit<RecommendOnboardingAnswerBubbleProps, 'stepId'>;
+
+function CollapsedAnswerItem({
+  stepIndex,
+  label,
+  onEditStep,
+}: CollapsedAnswerItemProps): JSX.Element {
+  return (
+    <Bubble
+      frame="user"
+      className="w-[246px] self-end"
+      canEdit
+      onEdit={() => onEditStep(stepIndex)}
+    >
+      {label}
+    </Bubble>
   );
 }
 

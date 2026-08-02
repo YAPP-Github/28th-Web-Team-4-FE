@@ -67,4 +67,29 @@ describe('RecommendOnboardingPage', () => {
     expect(screen.queryByRole('heading', { name: '어떤 업종인가요?' })).not.toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: '서비스 이름' })).toHaveValue('채소집');
   });
+
+  it('keeps the other completed answers visible while editing one step', async () => {
+    const user = userEvent.setup();
+
+    render(<RecommendOnboardingPage />);
+
+    await user.type(screen.getByRole('textbox', { name: '서비스 이름' }), '채소집');
+    await user.click(screen.getByRole('button', { name: '다음' }));
+    await user.click(screen.getByText('쇼핑·커머스'));
+    await user.click(screen.getByRole('button', { name: '다음' }));
+    const [firstEditButton] = screen.getAllByRole('button', { name: '수정' });
+
+    if (!firstEditButton) {
+      throw new Error('Expected at least one edit button after completing two steps.');
+    }
+
+    await user.click(firstEditButton);
+
+    expect(screen.getByRole('textbox', { name: '서비스 이름' })).toHaveValue('채소집');
+    expect(screen.getByText('쇼핑·커머스')).toBeVisible();
+    expect(screen.queryByRole('heading', { name: '어떤 업종인가요?' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: '서비스 형태가 무엇인가요?' }),
+    ).not.toBeInTheDocument();
+  });
 });
