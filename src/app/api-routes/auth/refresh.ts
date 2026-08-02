@@ -62,7 +62,7 @@ export async function postRefresh(request: Request): Promise<Response> {
 
   const result = await requestRefreshSingleFlight(session.refreshToken);
 
-  if (result.error !== undefined) {
+  if ('error' in result) {
     if (result.response?.status === 401) {
       await clearAuthSession();
     }

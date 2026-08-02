@@ -83,7 +83,7 @@ describe('refresh BFF single-flight', () => {
       resolveRefresh = resolve;
     });
     readAuthSessionMock.mockResolvedValue(sessionWith('concurrent-refresh-token'));
-    refreshMock.mockReturnValue(pendingRefresh);
+    refreshMock.mockReturnValue(pendingRefresh as ReturnType<typeof refresh>);
 
     const firstResponsePromise = postRefresh(refreshRequest());
     const secondResponsePromise = postRefresh(refreshRequest());
