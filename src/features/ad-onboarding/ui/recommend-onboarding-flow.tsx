@@ -133,6 +133,7 @@ function RecommendOnboardingFlowContent({
               stepIndex={stepIndex}
               stepId={answer.stepId}
               label={answer.label}
+              isEditable={false}
               onEditStep={onEditStep}
             />
           );
@@ -149,6 +150,7 @@ function RecommendOnboardingFlowContent({
           stepIndex={RECOMMEND_ONBOARDING_STEP_ID_LIST.indexOf(answer.stepId)}
           stepId={answer.stepId}
           label={answer.label}
+          isEditable
           onEditStep={onEditStep}
         />
       ))}
@@ -166,6 +168,7 @@ type RecommendOnboardingAnswerBubbleProps = {
   stepIndex: number;
   stepId: RecommendOnboardingStepId;
   label: string;
+  isEditable: boolean;
   onEditStep: (step: number) => void;
 };
 
@@ -173,6 +176,7 @@ function CompletedStepItem({
   stepIndex,
   stepId,
   label,
+  isEditable,
   onEditStep,
 }: RecommendOnboardingAnswerBubbleProps): JSX.Element {
   const step = getOnboardingStepDefinition(stepId);
@@ -185,7 +189,12 @@ function CompletedStepItem({
         className={getQuestionWidthClassName(stepId)}
       />
 
-      <CollapsedAnswerItem stepIndex={stepIndex} label={label} onEditStep={onEditStep} />
+      <CollapsedAnswerItem
+        stepIndex={stepIndex}
+        label={label}
+        isEditable={isEditable}
+        onEditStep={onEditStep}
+      />
     </Stack>
   );
 }
@@ -195,8 +204,17 @@ type CollapsedAnswerItemProps = Omit<RecommendOnboardingAnswerBubbleProps, 'step
 function CollapsedAnswerItem({
   stepIndex,
   label,
+  isEditable,
   onEditStep,
 }: CollapsedAnswerItemProps): JSX.Element {
+  if (!isEditable) {
+    return (
+      <Bubble frame="user" className="w-[246px] self-end">
+        {label}
+      </Bubble>
+    );
+  }
+
   return (
     <Bubble
       frame="user"
