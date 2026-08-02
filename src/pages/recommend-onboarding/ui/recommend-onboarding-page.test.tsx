@@ -47,7 +47,24 @@ describe('RecommendOnboardingPage', () => {
     await user.type(screen.getByRole('textbox', { name: '서비스 이름' }), '채소집');
     await user.click(screen.getByRole('button', { name: '다음' }));
 
+    expect(screen.getByRole('heading', { name: '서비스 이름을 알려 주세요' })).toBeVisible();
     expect(screen.getByText('채소집')).toBeVisible();
+    expect(screen.getByText('채소집')).toHaveClass('text-text-lowest');
+    expect(screen.getByRole('button', { name: '수정' })).toBeVisible();
     expect(screen.getByRole('heading', { name: '어떤 업종인가요?' })).toBeVisible();
+  });
+
+  it('reopens a completed step when the edit button is clicked', async () => {
+    const user = userEvent.setup();
+
+    render(<RecommendOnboardingPage />);
+
+    await user.type(screen.getByRole('textbox', { name: '서비스 이름' }), '채소집');
+    await user.click(screen.getByRole('button', { name: '다음' }));
+    await user.click(screen.getByRole('button', { name: '수정' }));
+
+    expect(screen.getByRole('heading', { name: '서비스 이름을 알려 주세요' })).toBeVisible();
+    expect(screen.queryByRole('heading', { name: '어떤 업종인가요?' })).not.toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: '서비스 이름' })).toHaveValue('채소집');
   });
 });
