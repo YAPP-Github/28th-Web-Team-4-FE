@@ -1,4 +1,4 @@
-import type { ComponentProps, JSX } from 'react';
+import type { ComponentProps, JSX, ReactNode } from 'react';
 import Link from 'next/link';
 
 import { Avatar } from '@/shared/ui/avatar';
@@ -23,18 +23,27 @@ type PageHeaderBaseProps = Omit<ComponentProps<'header'>, 'children'> & {
 
 type PageHeaderLoginProps = {
   isLogin: true;
-  userName: string;
+  accountAction?: ReactNode;
+  userName?: string;
 };
 
 type PageHeaderGuestProps = {
   isLogin?: false;
+  accountAction?: never;
   userName?: never;
 };
 
 export type PageHeaderProps = PageHeaderBaseProps & (PageHeaderLoginProps | PageHeaderGuestProps);
 
 export function PageHeader(props: PageHeaderProps): JSX.Element {
-  const { className, innerClassName, isLogin: _isLogin, userName: _userName, ...rest } = props;
+  const {
+    accountAction: _accountAction,
+    className,
+    innerClassName,
+    isLogin: _isLogin,
+    userName: _userName,
+    ...rest
+  } = props;
 
   return (
     <HStack
@@ -66,10 +75,13 @@ export function PageHeader(props: PageHeaderProps): JSX.Element {
           </Box>
           {props.isLogin ? (
             <Box className="gap-018 flex shrink-0 items-center">
-              <Box as="span" className="typo-subtitle-xs text-text-medium">
-                {props.userName} 님
-              </Box>
-              <Avatar alt={`${props.userName} 프로필`} />
+              {props.userName ? (
+                <Box as="span" className="typo-subtitle-xs text-text-medium">
+                  {props.userName} 님
+                </Box>
+              ) : null}
+              <Avatar alt={props.userName ? `${props.userName} 프로필` : '내 프로필'} />
+              {props.accountAction}
             </Box>
           ) : (
             <HeaderLoginButton />

@@ -1,11 +1,27 @@
 import type { ReactNode } from 'react';
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 
-import { PageHeader } from '@/features/navigation/page-header';
+import { readAuthSession } from '@/app/api-routes/auth/session-cookie';
+import { SessionPageHeader } from '@/app/layouts/session-page-header';
+import { authSessionQueryKey } from '@/features/auth/session/model/auth-session-query';
 
-export default function WithHeaderLayout({ children }: { children: ReactNode }) {
+export default async function WithHeaderLayout({ children }: { children: ReactNode }) {
+  const session = await readAuthSession();
+  const sessionState =
+    session && session.refreshTokenExpiresAt > Date.now()
+      ? {
+          authenticated: true as const,
+          accessTokenExpiresAt: session.accessTokenExpiresAt,
+        }
+      : { authenticated: false as const };
+  const queryClient = new QueryClient();
+  queryClient.setQueryData(authSessionQueryKey, sessionState);
+
   return (
     <>
-      <PageHeader />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <SessionPageHeader />
+      </HydrationBoundary>
       {children}
     </>
   );

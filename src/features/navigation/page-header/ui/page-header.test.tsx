@@ -50,10 +50,18 @@ describe('PageHeader', () => {
   });
 
   it('renders the login header trailing area', () => {
-    render(<PageHeader isLogin userName="YAPP" />);
+    render(<PageHeader isLogin userName="YAPP" accountAction={<button>로그아웃</button>} />);
 
     expect(screen.getByText('YAPP 님')).toBeVisible();
     expect(screen.getByRole('img', { name: 'YAPP 프로필' })).toBeVisible();
+    expect(screen.getByRole('button', { name: '로그아웃' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: '시작하기' })).not.toBeInTheDocument();
+  });
+
+  it('renders an authenticated account without a profile name', () => {
+    render(<PageHeader isLogin />);
+
+    expect(screen.getByRole('img', { name: '내 프로필' })).toBeVisible();
     expect(screen.queryByRole('button', { name: '시작하기' })).not.toBeInTheDocument();
   });
 });

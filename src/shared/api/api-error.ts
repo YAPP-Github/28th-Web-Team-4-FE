@@ -9,6 +9,16 @@ const apiErrorSchema = z.object({
     .nullish(),
 });
 
+const apiErrorStatusSchema = z.object({
+  status: z.number().int(),
+});
+
+export function getApiErrorStatus(error: unknown): number | undefined {
+  const result = apiErrorStatusSchema.safeParse(error);
+
+  return result.success ? result.data.status : undefined;
+}
+
 export function getApiErrorCode(error: unknown): string | undefined {
   const result = apiErrorSchema.safeParse(error);
 
