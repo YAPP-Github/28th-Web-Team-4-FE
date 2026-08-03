@@ -16,6 +16,12 @@ export async function readAuthSession(): Promise<AuthSession | null> {
   return encryptedSession ? decryptAuthSession(encryptedSession) : null;
 }
 
+export async function hasActiveAuthSession(now = Date.now()): Promise<boolean> {
+  const session = await readAuthSession();
+
+  return session !== null && session.refreshTokenExpiresAt > now;
+}
+
 export async function writeAuthSession(tokens: TokenResponse): Promise<AuthSession> {
   const session = createAuthSession(tokens);
   const cookie = getSessionCookieOptions(session.refreshTokenExpiresAt);
