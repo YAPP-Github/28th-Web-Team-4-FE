@@ -16,6 +16,7 @@ const SAMPLE = '텍스트';
 type BadgeStoryArgs = {
   frame: BadgeFrameType;
   tone?: 'gray' | 'primary' | 'deep-gray' | 'orange';
+  size?: 'm' | 's';
   children: string;
   className?: string;
 };
@@ -30,6 +31,7 @@ const meta = {
   argTypes: {
     frame: { control: false },
     children: { control: 'text' },
+    size: { control: false },
     className: { control: 'text' },
   },
   decorators: [
@@ -82,13 +84,19 @@ export const AllFrames: Story = {
 
       <div className="flex flex-col gap-3">
         <span className="typo-caption-sm text-text-lowest">{BADGE_FRAMES[2]}</span>
-        <div className="flex flex-wrap items-center gap-3">
-          {(['orange', 'gray', 'primary'] as const).map((tone) => (
-            <div key={tone} className="flex flex-col items-start gap-1">
-              <span className="typo-caption-sm text-text-lowest">{tone}</span>
-              <Badge frame="indicator" tone={tone}>
-                {SAMPLE}
-              </Badge>
+        <div className="flex flex-col gap-3">
+          {(['m', 's'] as const).map((size) => (
+            <div key={size} className="flex flex-wrap items-center gap-3">
+              {(['orange', 'gray', 'primary'] as const).map((tone) => (
+                <div key={`${size}-${tone}`} className="flex flex-col items-start gap-1">
+                  <span className="typo-caption-sm text-text-lowest">
+                    {tone} / {size}
+                  </span>
+                  <Badge frame="indicator" tone={tone} size={size}>
+                    {SAMPLE}
+                  </Badge>
+                </div>
+              ))}
             </div>
           ))}
         </div>
@@ -137,12 +145,17 @@ export const IndicatorFrame: Story = {
   args: {
     frame: 'indicator',
     tone: 'orange',
+    size: 'm',
     children: SAMPLE,
   },
   argTypes: {
     tone: {
       control: 'radio',
       options: ['orange', 'gray', 'primary'],
+    },
+    size: {
+      control: 'radio',
+      options: ['m', 's'],
     },
   },
 };

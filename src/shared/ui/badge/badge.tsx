@@ -16,6 +16,8 @@ export type BadgeFrame = keyof typeof FRAME_MAP;
 
 export const BADGE_FRAMES = keys(FRAME_MAP);
 
+export type BadgeIndicatorSize = 'm' | 's';
+
 type BadgeToneByFrame = {
   badge: 'gray' | 'primary' | 'deep-gray';
   tag: 'gray' | 'orange';
@@ -36,14 +38,22 @@ type BadgeBaseProps = {
 export type BadgeProps =
   | (BadgeBaseProps & { frame: 'badge'; tone?: BadgeToneByFrame['badge'] })
   | (BadgeBaseProps & { frame: 'tag'; tone?: BadgeToneByFrame['tag'] })
-  | (BadgeBaseProps & { frame: 'indicator'; tone?: BadgeToneByFrame['indicator'] });
+  | (BadgeBaseProps & {
+      frame: 'indicator';
+      tone?: BadgeToneByFrame['indicator'];
+      size?: BadgeIndicatorSize;
+    });
 
 const badgeVariants = cva('inline-flex items-center justify-center shrink-0 whitespace-nowrap', {
   variants: {
     frame: {
       badge: 'rounded-xxs px-008 py-002',
       tag: 'rounded-xs px-010 py-004',
-      indicator: 'rounded-[var(--radius-s)] h-032 px-012 py-006',
+      indicator: '',
+    },
+    size: {
+      m: '',
+      s: '',
     },
     tone: {
       gray: '',
@@ -80,6 +90,16 @@ const badgeVariants = cva('inline-flex items-center justify-center shrink-0 whit
     },
     {
       frame: 'indicator',
+      size: 'm',
+      class: 'rounded-[var(--radius-s)] h-032 px-012 py-006',
+    },
+    {
+      frame: 'indicator',
+      size: 's',
+      class: 'rounded-[var(--radius-xxs)] px-006 py-002',
+    },
+    {
+      frame: 'indicator',
       tone: 'orange',
       class: 'bg-sys-primary-lower text-text-primary',
     },
@@ -101,7 +121,19 @@ const resolveTone = <F extends BadgeFrame>(
   tone: BadgeToneByFrame[F] | undefined,
 ): BadgeToneByFrame[F] => tone ?? DEFAULT_TONE[frame];
 
-const resolveTextVariant = (frame: BadgeFrame, tone: BadgeToneByFrame[BadgeFrame]): TextVariant => {
+const resolveIndicatorSize = (frame: BadgeFrame, size: BadgeIndicatorSize | undefined) => {
+  if (frame === 'indicator') {
+    return size ?? 'm';
+  }
+
+  return undefined;
+};
+
+const resolveTextVariant = (
+  frame: BadgeFrame,
+  tone: BadgeToneByFrame[BadgeFrame],
+  size?: BadgeIndicatorSize,
+): TextVariant => {
   if (frame === 'badge') {
     return 'body-sm';
   }
@@ -110,15 +142,19 @@ const resolveTextVariant = (frame: BadgeFrame, tone: BadgeToneByFrame[BadgeFrame
     return tone === 'orange' ? 'subtitle-xs' : 'subtitle-xxs';
   }
 
-  return 'body-md';
+  return size === 's' ? 'caption-md' : 'body-md';
 };
 
-export const Badge = ({ frame, tone, className, children }: BadgeProps): JSX.Element => {
+export const Badge = ({ frame, tone, className, children, size }: BadgeProps): JSX.Element => {
   const resolvedTone = resolveTone(frame, tone);
+  const resolvedSize = resolveIndicatorSize(frame, size);
 
   return (
-    <Box as="span" className={cn(badgeVariants({ frame, tone: resolvedTone }), className)}>
-      <Text variant={resolveTextVariant(frame, resolvedTone)}>{children}</Text>
+    <Box
+      as="span"
+      className={cn(badgeVariants({ frame, tone: resolvedTone, size: resolvedSize }), className)}
+    >
+      <Text variant={resolveTextVariant(frame, resolvedTone, resolvedSize)}>{children}</Text>
     </Box>
   );
 };
