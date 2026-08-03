@@ -4,8 +4,8 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import {
   CHANNEL_DETAIL_EMPTY_PRODUCTS_FIXTURE,
   CHANNEL_DETAIL_FIXTURE,
-} from '@/pages/recommend/model/channel-detail';
-import { openChannelDetailModal } from '@/pages/recommend/model/open-channel-detail-modal';
+} from '@/features/channel-detail/model/channel-detail';
+import { openChannelDetailModal } from '@/features/channel-detail/model/open-channel-detail-modal';
 import { Button } from '@/shared/ui/button';
 
 import { ChannelDetailModal } from './channel-detail-modal';

@@ -2,7 +2,7 @@
 
 import type { JSX } from 'react';
 
-import type { ChannelDetail } from '@/pages/recommend/model/channel-detail';
+import type { ChannelDetail } from '@/features/channel-detail/model/channel-detail';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Stack } from '@/shared/ui/layout/stack';

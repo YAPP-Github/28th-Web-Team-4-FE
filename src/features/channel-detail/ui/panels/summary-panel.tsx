@@ -5,7 +5,7 @@ import type { JSX } from 'react';
 import type {
   ChannelDetail,
   ChannelSummaryHighlight,
-} from '@/pages/recommend/model/channel-detail';
+} from '@/features/channel-detail/model/channel-detail';
 import { Badge } from '@/shared/ui/badge';
 import { Box } from '@/shared/ui/layout/box';
 import { Stack } from '@/shared/ui/layout/stack';

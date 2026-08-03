@@ -3,9 +3,9 @@
 import type { JSX } from 'react';
 import { X } from 'lucide-react';
 
-import { ChannelDetailContent } from '@/pages/recommend/ui/channel-detail-content';
-import { ChannelDetailHeader } from '@/pages/recommend/ui/channel-detail-header';
-import type { ChannelDetail } from '@/pages/recommend/model/channel-detail';
+import { ChannelDetailContent } from '@/features/channel-detail/ui/channel-detail-content';
+import { ChannelDetailHeader } from '@/features/channel-detail/ui/channel-detail-header';
+import type { ChannelDetail } from '@/features/channel-detail/model/channel-detail';
 import { Box } from '@/shared/ui/layout/box';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';

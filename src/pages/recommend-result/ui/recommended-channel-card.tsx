@@ -10,13 +10,30 @@ import { Text } from '@/shared/ui/text';
 
 type RecommendedChannelCardProps = {
   channel: RecommendedChannel;
+  onOpenDetail: (channel: RecommendedChannel) => void;
 };
 
-export function RecommendedChannelCard({ channel }: RecommendedChannelCardProps): JSX.Element {
+export function RecommendedChannelCard({
+  channel,
+  onOpenDetail,
+}: RecommendedChannelCardProps): JSX.Element {
   return (
     <Box
       as="article"
-      className="group flex w-full max-w-[282px] cursor-pointer flex-col overflow-hidden rounded-[var(--radius-l)] motion-safe:transition-[translate,box-shadow] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:focus-within:-translate-y-1 motion-safe:focus-within:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)] motion-safe:hover:-translate-y-1 motion-safe:hover:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)]"
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpenDetail(channel)}
+      onKeyDown={(event) => {
+        if (event.target !== event.currentTarget) {
+          return;
+        }
+
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onOpenDetail(channel);
+        }
+      }}
+      className="group motion-safe:focus-visible:outline-outline-high flex w-full max-w-[282px] cursor-pointer flex-col overflow-hidden rounded-[var(--radius-l)] motion-safe:transition-[translate,box-shadow] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:focus-within:-translate-y-1 motion-safe:focus-within:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)] motion-safe:hover:-translate-y-1 motion-safe:hover:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)] motion-safe:focus-visible:outline-2 motion-safe:focus-visible:outline-offset-2"
       aria-labelledby={`${channel.id}-title`}
     >
       <Box className="relative h-[124px] w-full overflow-hidden rounded-t-[var(--radius-l)]">
@@ -95,6 +112,9 @@ export function RecommendedChannelCard({ channel }: RecommendedChannelCardProps)
             tone="stroke"
             className="mt-auto w-full"
             leftIcon={<Plus aria-hidden="true" className="size-016" />}
+            onClick={(event) => {
+              event.stopPropagation();
+            }}
           >
             비교 목록에 담기
           </Button>

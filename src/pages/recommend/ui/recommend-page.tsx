@@ -2,7 +2,7 @@
 
 import type { JSX } from 'react';
 
-import { openChannelDetailModal } from '@/pages/recommend/model/open-channel-detail-modal';
+import { openChannelDetailModal } from '@/features/channel-detail/model/open-channel-detail-modal';
 import { Button } from '@/shared/ui/button';
 import { Stack } from '@/shared/ui/layout/stack';
 

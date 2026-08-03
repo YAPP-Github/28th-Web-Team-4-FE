@@ -4,13 +4,13 @@ import { useState, type JSX, type ReactNode } from 'react';
 import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'motion/react';
 import useMeasure from 'react-use-measure';
 
-import type { ChannelDetail } from '@/pages/recommend/model/channel-detail';
+import type { ChannelDetail } from '@/features/channel-detail/model/channel-detail';
 import {
   ChannelDetailAudiencePanel,
   ChannelDetailCasesPanel,
   ChannelDetailProductsPanel,
   ChannelDetailSummaryPanel,
-} from '@/pages/recommend/ui/panels';
+} from '@/features/channel-detail/ui/panels';
 import { cn } from '@/shared/ui/cn';
 import { Tabs } from '@/shared/ui/tabs';
 
