@@ -29,6 +29,7 @@ import { RecommendOnboardingStepContent } from './recommend-onboarding-step-cont
 
 export type RecommendOnboardingFlowProps = {
   initialDraft?: RecommendOnboardingDraft;
+  scrollContainerRef: RefObject<HTMLElement | null>;
   currentStep: number;
   onStepChange: (step: number) => void;
   onComplete: (answer: RecommendOnboardingAnswer) => void;
@@ -38,13 +39,14 @@ const LAST_RECOMMEND_ONBOARDING_STEP_INDEX = RECOMMEND_ONBOARDING_STEP_ID_LIST.l
 
 export function RecommendOnboardingFlow({
   initialDraft,
+  scrollContainerRef,
   currentStep,
   onStepChange,
   onComplete,
 }: RecommendOnboardingFlowProps): JSX.Element {
   const form = useRecommendOnboardingForm({ initialDraft });
   const { activeStepRef, latestAnswerRef, scrollToActiveStep, scrollToLatestAnswer } =
-    useRecommendOnboardingScroll();
+    useRecommendOnboardingScroll(scrollContainerRef);
   const [editingStep, setEditingStep] = useState<number | null>(null);
   const [furthestStep, setFurthestStep] = useState(0);
 

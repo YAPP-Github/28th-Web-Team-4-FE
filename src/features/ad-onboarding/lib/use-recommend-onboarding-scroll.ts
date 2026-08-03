@@ -10,7 +10,9 @@ export type RecommendOnboardingScroll = {
   scrollToLatestAnswer: () => void;
 };
 
-export function useRecommendOnboardingScroll(): RecommendOnboardingScroll {
+export function useRecommendOnboardingScroll(
+  scrollContainerRef: RefObject<HTMLElement | null>,
+): RecommendOnboardingScroll {
   const activeStepRef = useRef<HTMLDivElement>(null);
   const latestAnswerRef = useRef<HTMLDivElement>(null);
   const scrollFrameRef = useRef<number | null>(null);
@@ -26,18 +28,27 @@ export function useRecommendOnboardingScroll(): RecommendOnboardingScroll {
         scrollFrameRef.current = null;
 
         const element = elementRef.current;
+        const scrollContainer = scrollContainerRef.current;
 
-        if (!element) {
+        if (!element || !scrollContainer) {
           return;
         }
 
-        element.scrollIntoView({
+        const containerRect = scrollContainer.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        const scrollMarginTop = Number.parseFloat(getComputedStyle(element).scrollMarginTop) || 0;
+        const top = Math.max(
+          0,
+          scrollContainer.scrollTop + elementRect.top - containerRect.top - scrollMarginTop,
+        );
+
+        scrollContainer.scrollTo({
+          top,
           behavior: shouldReduceMotion === true ? 'auto' : 'smooth',
-          block: 'start',
         });
       });
     },
-    [shouldReduceMotion],
+    [scrollContainerRef, shouldReduceMotion],
   );
 
   const scrollToActiveStep = useCallback(() => {

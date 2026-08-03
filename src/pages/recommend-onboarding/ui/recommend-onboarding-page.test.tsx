@@ -5,7 +5,6 @@ import { createElement } from 'react';
 import { RecommendOnboardingPage } from './recommend-onboarding-page';
 
 const pushMock = vi.fn<(href: string) => void>();
-const scrollIntoViewMock = vi.fn<(options?: boolean | ScrollIntoViewOptions) => void>();
 const scrollToMock = vi.fn<(options?: ScrollToOptions) => void>();
 
 vi.mock('next/navigation', () => ({
@@ -35,12 +34,7 @@ describe('RecommendOnboardingPage', () => {
       return 1;
     });
     vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {});
-    scrollIntoViewMock.mockReset();
     scrollToMock.mockReset();
-    Object.defineProperty(Element.prototype, 'scrollIntoView', {
-      configurable: true,
-      value: scrollIntoViewMock,
-    });
     Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
       configurable: true,
       value: scrollToMock,
@@ -48,7 +42,6 @@ describe('RecommendOnboardingPage', () => {
   });
 
   afterEach(() => {
-    Reflect.deleteProperty(Element.prototype, 'scrollIntoView');
     Reflect.deleteProperty(HTMLElement.prototype, 'scrollTo');
     vi.restoreAllMocks();
   });
@@ -85,9 +78,9 @@ describe('RecommendOnboardingPage', () => {
     expect(screen.getByText('채소집')).toHaveClass('text-text-lowest');
     expect(screen.getByRole('button', { name: '수정' })).toBeVisible();
     expect(screen.getByRole('heading', { name: '어떤 업종인가요?' })).toBeVisible();
-    expect(scrollIntoViewMock).toHaveBeenCalledWith({
+    expect(scrollToMock).toHaveBeenCalledWith({
+      top: 0,
       behavior: 'smooth',
-      block: 'start',
     });
   });
 
@@ -105,7 +98,7 @@ describe('RecommendOnboardingPage', () => {
     expect(screen.getByRole('textbox', { name: '서비스 이름' })).toHaveValue('채소집');
     expect(screen.getByRole('button', { name: '다음' })).toBeVisible();
     expect(screen.queryByRole('button', { name: '수정' })).not.toBeInTheDocument();
-    expect(scrollIntoViewMock).toHaveBeenCalledTimes(2);
+    expect(scrollToMock).toHaveBeenCalledTimes(3);
   });
 
   it('keeps the other completed question screens visible while editing one step', async () => {

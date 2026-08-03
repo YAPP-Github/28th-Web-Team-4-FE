@@ -26,7 +26,13 @@ export function AdGoalQuestion(_props: AdGoalQuestionProps): JSX.Element {
       onValueChange={field.onChange}
     >
       {AD_GOAL_OPTION_LIST.map((option) => (
-        <SelectCard key={option.value} control="radio" value={option.value} label={option.label} />
+        <SelectCard
+          key={option.value}
+          control="radio"
+          value={option.value}
+          label={option.label}
+          onSelect={() => field.onChange(option.value)}
+        />
       ))}
     </RadioGroup>
   );
