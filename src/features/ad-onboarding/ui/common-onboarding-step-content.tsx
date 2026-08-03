@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * 추천과 시뮬레이터가 공유하는 5개 질문을 공통 Draft와 완료 규칙으로 조합한다.
+ * 추천 온보딩 공통 5개 질문을 공통 Draft와 완료 규칙으로 조합한다.
  */
 
 import type { JSX, ReactNode } from 'react';
