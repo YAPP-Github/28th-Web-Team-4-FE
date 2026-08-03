@@ -1,19 +1,30 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { getAuthEmailMethods } from '@/pages/auth/auth-entry/api/resolve-auth-email';
+import type { authenticateGoogle } from '@/pages/auth/auth-entry/api/authenticate-google';
 
 import { AuthEntryPage } from './auth-entry-page';
 
 const { pushMock } = vi.hoisted(() => ({ pushMock: vi.fn<(href: string) => void>() }));
+const scriptPropsMock = vi.hoisted(() => vi.fn<(props: { onReady?: () => void }) => void>());
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: pushMock }),
 }));
+vi.mock('next/script', () => ({
+  default: (props: { onReady?: () => void }) => {
+    scriptPropsMock(props);
+    return null;
+  },
+}));
 
 vi.mock('@/pages/auth/auth-entry/api/resolve-auth-email', () => ({
   getAuthEmailMethods: vi.fn<typeof getAuthEmailMethods>(),
+}));
+vi.mock('@/pages/auth/auth-entry/api/authenticate-google', () => ({
+  authenticateGoogle: vi.fn<typeof authenticateGoogle>(),
 }));
 
 const getAuthEmailMethodsMock = vi.mocked(getAuthEmailMethods);
@@ -38,6 +49,11 @@ describe('AuthEntryPage', () => {
     vi.clearAllMocks();
   });
 
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
   it('renders the email and social authentication entry points', () => {
     renderAuthEntryPage();
 
@@ -46,6 +62,59 @@ describe('AuthEntryPage', () => {
     expect(screen.getByRole('button', { name: '이메일로 시작하기' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Google로 시작하기' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '비밀번호를 잊으셨나요?' })).toBeInTheDocument();
+  });
+
+  it('initializes Google authentication from Script onReady', () => {
+    const initializeMock = vi.fn<(options: unknown) => void>();
+    vi.stubEnv('NEXT_PUBLIC_GOOGLE_CLIENT_ID', 'google-client-id');
+    vi.stubGlobal('google', {
+      accounts: { id: { initialize: initializeMock, prompt: vi.fn<() => void>() } },
+    });
+    renderAuthEntryPage();
+
+    act(() => scriptPropsMock.mock.calls.at(-1)?.[0].onReady?.());
+
+    expect(initializeMock).toHaveBeenCalledWith(
+      expect.objectContaining({ client_id: 'google-client-id' }),
+    );
+    expect(screen.getByRole('button', { name: 'Google로 시작하기' })).toBeEnabled();
+  });
+
+  it('shows an error when Google authentication has no Client ID', () => {
+    vi.stubEnv('NEXT_PUBLIC_GOOGLE_CLIENT_ID', '');
+    renderAuthEntryPage();
+
+    act(() => scriptPropsMock.mock.calls.at(-1)?.[0].onReady?.());
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Google 로그인 설정을 확인해 주세요.');
+    expect(screen.getByRole('button', { name: 'Google로 시작하기' })).toBeDisabled();
+  });
+
+  it('shows guidance when Google One Tap is skipped', async () => {
+    const user = userEvent.setup();
+    const promptMock = vi.fn<
+      (
+        listener?: (notification: {
+          isSkippedMoment: () => boolean;
+          isNotDisplayed: () => boolean;
+        }) => void,
+      ) => void
+    >((listener) => {
+      listener?.({ isSkippedMoment: () => true, isNotDisplayed: () => false });
+    });
+    vi.stubEnv('NEXT_PUBLIC_GOOGLE_CLIENT_ID', 'google-client-id');
+    vi.stubGlobal('google', {
+      accounts: { id: { initialize: vi.fn<(options: unknown) => void>(), prompt: promptMock } },
+    });
+    renderAuthEntryPage();
+    act(() => scriptPropsMock.mock.calls.at(-1)?.[0].onReady?.());
+
+    await user.click(screen.getByRole('button', { name: 'Google로 시작하기' }));
+
+    expect(promptMock).toHaveBeenCalledWith(expect.any(Function));
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Google 로그인을 진행하지 못했습니다. 다시 시도해 주세요.',
+    );
   });
 
   it('shows the email format error using the designed helper text', async () => {

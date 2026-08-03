@@ -7,3 +7,19 @@ export const authEntrySchema = z.object({
 export const loginMethodsSchema = z.object({
   methods: z.array(z.enum(['LOCAL', 'GOOGLE'])),
 });
+
+export const googleAuthResolutionSchema = z.discriminatedUnion('status', [
+  z.object({ status: z.literal('LOGIN') }).passthrough(),
+  z.object({
+    status: z.literal('LINK_REQUIRED'),
+    email: z.string().email(),
+  }),
+  z.object({
+    status: z.literal('SIGNUP_REQUIRED'),
+    signupToken: z.string().min(1),
+    prefill: z.object({
+      email: z.string().email(),
+      suggestedNickname: z.string(),
+    }),
+  }),
+]);
