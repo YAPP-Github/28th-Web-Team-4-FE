@@ -256,12 +256,13 @@ function getQuestionWidthClassName(stepId: RecommendOnboardingStepId): string {
     case 'service-name':
     case 'service-type':
     case 'age-ranges':
-    case 'ad-goal':
     case 'campaign-period':
     case 'ad-experience':
       return 'max-w-[410px]';
     case 'budget':
-      return 'max-w-[482px]';
+      return 'max-w-[410px]';
+    case 'ad-goal':
+      return 'max-w-[518px]';
     case 'category':
       return 'max-w-[510px]';
   }

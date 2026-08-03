@@ -21,7 +21,7 @@ export function AdGoalQuestion(_props: AdGoalQuestionProps): JSX.Element {
   return (
     <RadioGroup
       aria-label="광고 목표"
-      className="gap-010 w-full"
+      className="gap-010 grid w-full grid-cols-2"
       value={field.value ?? ''}
       onValueChange={field.onChange}
     >

@@ -64,10 +64,6 @@ function getCommonQuestionWidthClassName(stepId: CommonOnboardingStepId): string
     return 'max-w-[510px]';
   }
 
-  if (stepId === 'budget') {
-    return 'max-w-[482px]';
-  }
-
   return 'max-w-[410px]';
 }
 
