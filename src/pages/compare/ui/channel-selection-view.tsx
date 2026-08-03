@@ -137,7 +137,7 @@ export function ChannelSelectionView(): JSX.Element {
           {filteredChannels.length > 0 ? (
             <Box
               as="ul"
-              className="gap-x-024 gap-y-016 grid w-full grid-cols-1 justify-items-center md:grid-cols-2 xl:grid-cols-4"
+              className="gap-x-024 gap-y-016 grid w-full grid-cols-1 justify-items-center md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
             >
               {filteredChannels.map((channel) => (
                 <Box key={channel.id} as="li" className="flex w-full justify-center">
@@ -161,7 +161,9 @@ export function ChannelSelectionView(): JSX.Element {
       <Box className="border-outline-low bg-surface-lowest px-016 sm:px-032 flex h-[102px] w-full shrink-0 justify-center border-t lg:px-120">
         <Box className="gap-016 py-020 md:py-000 grid w-full max-w-[1200px] grid-cols-1 items-center md:grid-cols-[1fr_auto_1fr]">
           <Box className="hidden md:block" />
-          <ComparePagination />
+          <Box className="flex justify-center">
+            <ComparePagination />
+          </Box>
           <Box className="flex justify-center md:justify-end">
             <Button
               frame="button"
