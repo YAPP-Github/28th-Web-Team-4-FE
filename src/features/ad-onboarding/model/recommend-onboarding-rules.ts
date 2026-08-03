@@ -102,7 +102,7 @@ export function buildRecommendOnboardingAnswer(
     serviceName: draft.serviceName.trim(),
     category: draft.category,
     serviceType: draft.serviceType,
-    ageRangeList: draft.ageRangeList,
+    ageRangeList: sortAgeRangeList(draft.ageRangeList),
     adGoal: draft.adGoal,
     budget: draft.budget,
     campaignPeriod: draft.campaignPeriod,
@@ -129,7 +129,7 @@ export function getRecommendOnboardingAnswerLabel(
     case 'campaign-period':
       return getCommonOnboardingAnswerLabel(stepId, draft);
     case 'age-ranges':
-      return draft.ageRangeList
+      return sortAgeRangeList(draft.ageRangeList)
         .map((ageRange) => getOnboardingOptionLabel(AGE_RANGE_OPTION_LIST, ageRange))
         .join(', ');
     case 'ad-goal':
@@ -137,6 +137,14 @@ export function getRecommendOnboardingAnswerLabel(
     case 'ad-experience':
       return getAdExperienceAnswerLabel(draft);
   }
+}
+
+function sortAgeRangeList(ageRangeList: AgeRangeId[]): AgeRangeId[] {
+  return ageRangeList.toSorted((left, right) => getAgeRangeOrder(left) - getAgeRangeOrder(right));
+}
+
+function getAgeRangeOrder(ageRange: AgeRangeId): number {
+  return AGE_RANGE_OPTION_LIST.findIndex((option) => option.value === ageRange);
 }
 
 /**

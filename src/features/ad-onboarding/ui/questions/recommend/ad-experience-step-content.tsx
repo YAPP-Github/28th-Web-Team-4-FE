@@ -42,7 +42,7 @@ export function AdExperienceStepContent({
     return (
       <div className="gap-012 flex w-full flex-col items-start">
         <OnboardingQuestion title={AD_EXPERIENCE_STEP.question} className="max-w-[518px]" />
-        <PerformanceInputQuestion actionLabel={actionLabel} onAction={onAction} onSkip={onAction} />
+        <PerformanceInputQuestion actionLabel="결과 보기" onAction={onAction} onSkip={onAction} />
       </div>
     );
   }
