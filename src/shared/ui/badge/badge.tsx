@@ -145,7 +145,9 @@ const resolveTextVariant = (
   return size === 's' ? 'caption-md' : 'body-md';
 };
 
-export const Badge = ({ frame, tone, className, children, size }: BadgeProps): JSX.Element => {
+export const Badge = (props: BadgeProps): JSX.Element => {
+  const { frame, tone, className, children } = props;
+  const size = 'size' in props ? props.size : undefined;
   const resolvedTone = resolveTone(frame, tone);
   const resolvedSize = resolveIndicatorSize(frame, size);
 
