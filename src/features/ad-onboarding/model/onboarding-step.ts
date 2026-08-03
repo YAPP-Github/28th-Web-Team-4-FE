@@ -40,7 +40,7 @@ export const ONBOARDING_STEP_DEFINITION_MAP = {
   },
   category: {
     id: 'category',
-    title: '업종',
+    title: '업종 선택',
     question: '어떤 업종인가요?',
   },
   'service-type': {
@@ -57,11 +57,11 @@ export const ONBOARDING_STEP_DEFINITION_MAP = {
   'ad-goal': {
     id: 'ad-goal',
     title: '광고 목표',
-    question: '광고 목표를 선택해 주세요',
+    question: '이번 광고를 통해 달성하고 싶은 가장 큰 목표는 무엇인가요?',
   },
   budget: {
     id: 'budget',
-    title: '예산',
+    title: '광고 예산',
     question: '광고에 사용할 수 있는 총 예산은 얼마인가요?',
   },
   'campaign-period': {

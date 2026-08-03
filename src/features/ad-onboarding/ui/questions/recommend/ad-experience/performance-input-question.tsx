@@ -60,7 +60,7 @@ export function PerformanceInputQuestion({
   return (
     <OnboardingQuestion
       title="진행했던 광고 성과들을 알려 주세요"
-      description="데이터를 바탕으로 더 정확한 채널을 추천해요"
+      description="최대 5개의 데이터를 바탕으로 더 정확한 채널을 추천해요"
       className="max-w-[518px]"
     >
       <Tabs.Root

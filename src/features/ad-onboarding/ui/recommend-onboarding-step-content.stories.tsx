@@ -139,8 +139,14 @@ export const AdGoal: Story = {
     const canvas = within(canvasElement);
     const option = canvas.getByRole('radio', { name: '구매·결제 전환' });
 
-    await expect(canvas.getByRole('heading', { name: '더 많은 사람에게 알리기' })).toBeVisible();
-    await expect(canvas.getByRole('heading', { name: '고객의 행동 유도하기' })).toBeVisible();
+    await expect(canvas.getByRole('radio', { name: '앱 설치' })).toBeVisible();
+    await expect(canvas.getByRole('radio', { name: '인앱 구매·행동' })).toBeVisible();
+    await expect(
+      canvas.queryByRole('heading', { name: '더 많은 사람에게 알리기' }),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('heading', { name: '고객의 행동 유도하기' }),
+    ).not.toBeInTheDocument();
     await userEvent.click(canvas.getByText('구매·결제 전환'));
     await expect(option).toBeChecked();
     await expect(canvas.getByRole('button', { name: '다음' })).toBeEnabled();
@@ -273,9 +279,9 @@ export const AdExperience: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const firstTime = canvas.getByRole('radio', { name: '집행은 처음이에요' });
+    const firstTime = canvas.getByRole('radio', { name: '광고 운영은 처음이에요' });
 
-    await userEvent.click(canvas.getByText('집행은 처음이에요'));
+    await userEvent.click(canvas.getByText('광고 운영은 처음이에요'));
     await expect(firstTime).toBeChecked();
     await userEvent.click(canvas.getByRole('button', { name: '다음' }));
     await expect(args.onAction).toHaveBeenCalledOnce();
