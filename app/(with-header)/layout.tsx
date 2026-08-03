@@ -20,9 +20,11 @@ export default async function WithHeaderLayout({ children }: { children: ReactNo
 
   return (
     <>
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <SessionPageHeader />
-      </HydrationBoundary>
+      <div className="shrink-0">
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <SessionPageHeader />
+        </HydrationBoundary>
+      </div>
       {children}
     </>
   );

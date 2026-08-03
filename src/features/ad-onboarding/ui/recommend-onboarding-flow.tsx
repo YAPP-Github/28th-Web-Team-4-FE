@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState, type JSX } from 'react';
+import { flushSync } from 'react-dom';
+import { useMemo, useState, type JSX, type RefObject } from 'react';
 import { FormProvider, useFormContext, useWatch } from 'react-hook-form';
 
 import {
@@ -19,6 +20,7 @@ import {
   getRecommendOnboardingAnswerLabel,
 } from '@/features/ad-onboarding/model/recommend-onboarding-rules';
 import { useRecommendOnboardingForm } from '@/features/ad-onboarding/model/use-recommend-onboarding-form';
+import { useRecommendOnboardingScroll } from '@/features/ad-onboarding/lib/use-recommend-onboarding-scroll';
 import { Bubble } from '@/shared/ui/bubble';
 import { OnboardingQuestion } from '@/features/ad-onboarding/ui/onboarding-question';
 import { Stack } from '@/shared/ui/layout/stack';
@@ -27,7 +29,8 @@ import { RecommendOnboardingStepContent } from './recommend-onboarding-step-cont
 
 export type RecommendOnboardingFlowProps = {
   initialDraft?: RecommendOnboardingDraft;
-  onStepChange?: (step: number) => void;
+  currentStep: number;
+  onStepChange: (step: number) => void;
   onComplete: (answer: RecommendOnboardingAnswer) => void;
 };
 
@@ -35,27 +38,30 @@ const LAST_RECOMMEND_ONBOARDING_STEP_INDEX = RECOMMEND_ONBOARDING_STEP_ID_LIST.l
 
 export function RecommendOnboardingFlow({
   initialDraft,
+  currentStep,
   onStepChange,
   onComplete,
 }: RecommendOnboardingFlowProps): JSX.Element {
   const form = useRecommendOnboardingForm({ initialDraft });
-  const [currentStep, setCurrentStep] = useState(0);
+  const { activeStepRef, latestAnswerRef, scrollToActiveStep, scrollToLatestAnswer } =
+    useRecommendOnboardingScroll();
   const [editingStep, setEditingStep] = useState<number | null>(null);
   const [furthestStep, setFurthestStep] = useState(0);
-
-  useEffect(() => {
-    onStepChange?.(currentStep);
-  }, [currentStep, onStepChange]);
 
   return (
     <FormProvider {...form}>
       <RecommendOnboardingFlowContent
+        activeStepRef={activeStepRef}
+        latestAnswerRef={latestAnswerRef}
         currentStep={currentStep}
         editingStep={editingStep}
         furthestStep={furthestStep}
         onEditStep={(step) => {
-          setEditingStep(step);
-          setCurrentStep(step);
+          flushSync(() => {
+            setEditingStep(step);
+            onStepChange(step);
+          });
+          scrollToActiveStep();
         }}
         onAdvance={() => {
           if (currentStep >= LAST_RECOMMEND_ONBOARDING_STEP_INDEX) {
@@ -64,15 +70,21 @@ export function RecommendOnboardingFlow({
           }
 
           if (editingStep !== null) {
-            setCurrentStep(Math.max(furthestStep, currentStep + 1));
-            setEditingStep(null);
+            flushSync(() => {
+              onStepChange(Math.max(furthestStep, currentStep + 1));
+              setEditingStep(null);
+            });
+            scrollToActiveStep();
             return;
           }
 
           const nextStep = currentStep + 1;
 
-          setCurrentStep(nextStep);
-          setFurthestStep(nextStep);
+          flushSync(() => {
+            onStepChange(nextStep);
+            setFurthestStep(nextStep);
+          });
+          scrollToLatestAnswer();
         }}
       />
     </FormProvider>
@@ -80,6 +92,8 @@ export function RecommendOnboardingFlow({
 }
 
 type RecommendOnboardingFlowContentProps = {
+  activeStepRef: RefObject<HTMLDivElement | null>;
+  latestAnswerRef: RefObject<HTMLDivElement | null>;
   currentStep: number;
   editingStep: number | null;
   furthestStep: number;
@@ -88,6 +102,8 @@ type RecommendOnboardingFlowContentProps = {
 };
 
 function RecommendOnboardingFlowContent({
+  activeStepRef,
+  latestAnswerRef,
   currentStep,
   editingStep,
   furthestStep,
@@ -142,12 +158,13 @@ function RecommendOnboardingFlowContent({
 
           if (stepIndex === editingStep) {
             return (
-              <RecommendOnboardingStepContent
-                key={answer.stepId}
-                stepId={currentStepId}
-                actionLabel="수정 완료"
-                onAction={onAdvance}
-              />
+              <div key={answer.stepId} ref={activeStepRef} className="scroll-mt-[12px]">
+                <RecommendOnboardingStepContent
+                  stepId={currentStepId}
+                  actionLabel="다음"
+                  onAction={onAdvance}
+                />
+              </div>
             );
           }
 
@@ -168,22 +185,29 @@ function RecommendOnboardingFlowContent({
 
   return (
     <Stack className="gap-012 w-full">
-      {completedAnswerList.map((answer) => (
-        <CompletedStepItem
-          key={answer.stepId}
-          stepIndex={RECOMMEND_ONBOARDING_STEP_ID_LIST.indexOf(answer.stepId)}
-          stepId={answer.stepId}
-          label={answer.label}
-          isEditable
-          onEditStep={onEditStep}
-        />
-      ))}
+      {completedAnswerList.map((answer) => {
+        const stepIndex = RECOMMEND_ONBOARDING_STEP_ID_LIST.indexOf(answer.stepId);
 
-      <RecommendOnboardingStepContent
-        stepId={currentStepId}
-        actionLabel={currentStepId === 'ad-experience' ? '결과 보기' : '다음'}
-        onAction={onAdvance}
-      />
+        return (
+          <CompletedStepItem
+            key={answer.stepId}
+            stepIndex={stepIndex}
+            stepId={answer.stepId}
+            label={answer.label}
+            isEditable
+            answerRef={stepIndex === currentStep - 1 ? latestAnswerRef : undefined}
+            onEditStep={onEditStep}
+          />
+        );
+      })}
+
+      <div ref={activeStepRef} className="scroll-mt-[12px]">
+        <RecommendOnboardingStepContent
+          stepId={currentStepId}
+          actionLabel="다음"
+          onAction={onAdvance}
+        />
+      </div>
     </Stack>
   );
 }
@@ -193,6 +217,7 @@ type RecommendOnboardingAnswerBubbleProps = {
   stepId: RecommendOnboardingStepId;
   label: string;
   isEditable: boolean;
+  answerRef?: RefObject<HTMLDivElement | null>;
   onEditStep: (step: number) => void;
 };
 
@@ -201,6 +226,7 @@ function CompletedStepItem({
   stepId,
   label,
   isEditable,
+  answerRef,
   onEditStep,
 }: RecommendOnboardingAnswerBubbleProps): JSX.Element {
   const step = getOnboardingStepDefinition(stepId);
@@ -213,12 +239,14 @@ function CompletedStepItem({
         className={getQuestionWidthClassName(stepId)}
       />
 
-      <CollapsedAnswerItem
-        stepIndex={stepIndex}
-        label={label}
-        isEditable={isEditable}
-        onEditStep={onEditStep}
-      />
+      <div ref={answerRef} className="flex w-full scroll-mt-[12px] justify-end">
+        <CollapsedAnswerItem
+          stepIndex={stepIndex}
+          label={label}
+          isEditable={isEditable}
+          onEditStep={onEditStep}
+        />
+      </div>
     </Stack>
   );
 }

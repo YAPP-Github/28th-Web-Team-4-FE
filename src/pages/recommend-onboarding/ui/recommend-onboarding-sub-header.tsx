@@ -24,7 +24,7 @@ export function RecommendOnboardingSubHeader({
   const currentStepDefinition = getOnboardingStepDefinition(currentStepId);
 
   return (
-    <Box className="bg-surface-lowest border-outline-low px-016 sm:px-032 w-full border-b lg:px-120">
+    <Box className="bg-surface-lowest border-outline-low px-016 sm:px-032 w-full shrink-0 border-b lg:px-120">
       <Box className="mx-auto w-full max-w-[1200px] lg:grid lg:grid-cols-[204px_minmax(0,792px)_1fr]">
         <Box className="gap-006 py-018 flex flex-col items-center justify-center lg:col-start-2">
           <Box className="gap-012 flex w-full items-center">
