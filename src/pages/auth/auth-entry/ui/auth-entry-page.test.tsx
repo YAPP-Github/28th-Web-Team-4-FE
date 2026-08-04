@@ -3,15 +3,18 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { getAuthEmailMethods } from '@/pages/auth/auth-entry/api/resolve-auth-email';
-import type { authenticateGoogle } from '@/pages/auth/auth-entry/api/authenticate-google';
+import { authenticateGoogle } from '@/pages/auth/auth-entry/api/authenticate-google';
 
 import { AuthEntryPage } from './auth-entry-page';
 
-const { pushMock } = vi.hoisted(() => ({ pushMock: vi.fn<(href: string) => void>() }));
+const { pushMock, replaceMock } = vi.hoisted(() => ({
+  pushMock: vi.fn<(href: string) => void>(),
+  replaceMock: vi.fn<(href: string) => void>(),
+}));
 const scriptPropsMock = vi.hoisted(() => vi.fn<(props: { onReady?: () => void }) => void>());
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: pushMock }),
+  useRouter: () => ({ push: pushMock, replace: replaceMock }),
 }));
 vi.mock('next/script', () => ({
   default: (props: { onReady?: () => void }) => {
@@ -28,6 +31,7 @@ vi.mock('@/pages/auth/auth-entry/api/authenticate-google', () => ({
 }));
 
 const getAuthEmailMethodsMock = vi.mocked(getAuthEmailMethods);
+const authenticateGoogleMock = vi.mocked(authenticateGoogle);
 
 function renderAuthEntryPage() {
   const queryClient = new QueryClient({
@@ -115,6 +119,38 @@ describe('AuthEntryPage', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(
       'Google 로그인을 진행하지 못했습니다. 다시 시도해 주세요.',
     );
+  });
+
+  it('shows the account link modal and continues with local login when deferred', async () => {
+    const user = userEvent.setup();
+    let credentialCallback: ((response: { credential?: string }) => void) | undefined;
+    vi.stubEnv('NEXT_PUBLIC_GOOGLE_CLIENT_ID', 'google-client-id');
+    vi.stubGlobal('google', {
+      accounts: {
+        id: {
+          initialize: vi.fn<
+            (options: { callback: (response: { credential?: string }) => void }) => void
+          >((options: { callback: (response: { credential?: string }) => void }) => {
+            credentialCallback = options.callback;
+          }),
+          prompt: vi.fn<() => void>(),
+        },
+      },
+    });
+    authenticateGoogleMock.mockResolvedValue({
+      type: 'link',
+      email: 'member@example.com',
+    });
+    renderAuthEntryPage();
+    act(() => scriptPropsMock.mock.calls.at(-1)?.[0].onReady?.());
+
+    act(() => credentialCallback?.({ credential: 'google-id-token' }));
+
+    expect(await screen.findByRole('dialog', { name: 'Google 계정을 연동할까요?' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: '나중에 하기' }));
+
+    expect(await screen.findByRole('heading', { name: '로그인하기' })).toBeInTheDocument();
+    expect(screen.getByDisplayValue('member@example.com')).toHaveAttribute('readonly');
   });
 
   it('shows the email format error using the designed helper text', async () => {

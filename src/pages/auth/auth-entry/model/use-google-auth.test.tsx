@@ -54,4 +54,30 @@ describe('useGoogleAuth', () => {
       nickname: '구글 사용자',
     });
   });
+
+  it('exposes a link requirement without routing or treating it as an error', async () => {
+    authenticateGoogleMock.mockResolvedValue({
+      type: 'link',
+      email: 'member@example.com',
+    });
+    const queryClient = new QueryClient({
+      defaultOptions: { mutations: { retry: false } },
+    });
+    const wrapper = ({ children }: PropsWithChildren) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+    const { result } = renderHook(() => useGoogleAuth(), { wrapper });
+
+    act(() => result.current.mutate('google-id-token'));
+
+    await waitFor(() =>
+      expect(result.current.data).toEqual({
+        type: 'link',
+        email: 'member@example.com',
+      }),
+    );
+    expect(result.current.error).toBeNull();
+    expect(pushMock).not.toHaveBeenCalled();
+    expect(replaceMock).not.toHaveBeenCalled();
+  });
 });
