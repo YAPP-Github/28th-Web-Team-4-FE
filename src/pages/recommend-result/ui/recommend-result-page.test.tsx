@@ -1,17 +1,22 @@
 import { OverlayProvider } from 'overlay-kit';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
 
 import { RecommendResultPage } from './recommend-result-page';
 
+vi.mock('@number-flow/react', () => ({
+  default: ({ value }: { value: number }) => <span>{value}</span>,
+}));
+
 const initialStore = useRecommendOnboardingStore.getState();
 
-function renderRecommendResultPage() {
+function renderRecommendResultPage(props?: { isGuest?: boolean }) {
   return render(
     <OverlayProvider>
-      <RecommendResultPage />
+      <RecommendResultPage {...props} />
     </OverlayProvider>,
   );
 }
@@ -19,62 +24,121 @@ function renderRecommendResultPage() {
 describe('RecommendResultPage', () => {
   beforeEach(() => {
     useRecommendOnboardingStore.setState(initialStore, true);
+    vi.spyOn(window, 'alert').mockImplementation(() => undefined);
   });
 
-  it('renders the stored service name in the result heading', () => {
-    const serviceName = '상하이식당';
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
-    useRecommendOnboardingStore.setState(
-      {
-        answer: {
-          serviceName,
-          category: 'SHOPPING_COMMERCE',
-          serviceType: 'WEB_SERVICE',
-          ageRangeList: ['TWENTIES'],
-          adGoal: 'PURCHASE_CONVERSION',
-          budget: { minAmount: 0, maxAmount: 10000000 },
-          campaignPeriod: 'TWO_TO_THREE_MONTHS',
-          adExperience: { type: 'FIRST_TIME' },
-        },
-      },
-      false,
+  it('starts with a disabled 0/3 comparison CTA', () => {
+    renderRecommendResultPage();
+
+    expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (0/3)' })).toBeDisabled();
+  });
+
+  it('toggles selection and enables the CTA only after three channels are selected', async () => {
+    const user = userEvent.setup();
+    renderRecommendResultPage();
+
+    const naverButton = screen.getAllByRole('button', { name: '비교 목록에 담기' })[0];
+    await user.click(naverButton);
+    expect(
+      screen
+        .getByRole('article', { name: '네이버 검색 광고' })
+        .querySelector('div.bg-sys-primary-lowest'),
+    ).toBeNull();
+    expect(screen.getByRole('button', { name: '채널 선택 완료' })).toHaveClass(
+      'bg-sys-primary-lowest',
     );
+    expect(screen.getByRole('button', { name: '채널 선택 완료' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (1/3)' })).toBeDisabled();
 
-    renderRecommendResultPage();
+    await user.click(screen.getAllByRole('button', { name: '비교 목록에 담기' })[0]);
+    await user.click(screen.getAllByRole('button', { name: '비교 목록에 담기' })[0]);
 
-    expect(
-      screen.getByRole('heading', { name: `${serviceName}에 딱 맞는 채널이에요` }),
-    ).toBeVisible();
+    expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (3/3)' })).toBeEnabled();
+
+    await user.click(screen.getAllByRole('button', { name: '채널 선택 완료' })[0]);
+    expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (2/3)' })).toBeDisabled();
   });
 
-  it('falls back to the default service name when no onboarding answer exists', () => {
-    renderRecommendResultPage();
-
-    expect(screen.getByRole('heading', { name: '채소집에 딱 맞는 채널이에요' })).toBeVisible();
-  });
-
-  it('opens the selected channel detail modal from a result card', async () => {
+  it('alerts instead of adding a fourth channel', async () => {
     const user = userEvent.setup();
-
     renderRecommendResultPage();
 
-    await user.click(screen.getByRole('button', { name: '네이버 검색 광고' }));
-
-    const dialog = await screen.findByRole('dialog', { name: '네이버 검색 광고' });
-
-    expect(dialog).toBeVisible();
-    expect(
-      within(dialog).getByText('설정한 목적과 예산에서 유저에게 도달 효율이 가장 높아요'),
-    ).toBeVisible();
-  });
-
-  it('does not open the detail modal when adding a channel to the comparison list', async () => {
-    const user = userEvent.setup();
-
-    renderRecommendResultPage();
+    for (const button of screen.getAllByRole('button', { name: '비교 목록에 담기' }).slice(0, 3)) {
+      await user.click(button);
+    }
 
     await user.click(screen.getAllByRole('button', { name: '비교 목록에 담기' })[0]);
 
+    expect(window.alert).toHaveBeenCalledWith('비교 목록은 최대 3개까지 선택할 수 있어요.');
+    expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (3/3)' })).toBeEnabled();
+  });
+
+  it('alerts when the enabled CTA is clicked', async () => {
+    const user = userEvent.setup();
+    renderRecommendResultPage();
+
+    for (const button of screen.getAllByRole('button', { name: '비교 목록에 담기' }).slice(0, 3)) {
+      await user.click(button);
+    }
+
+    await user.click(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (3/3)' }));
+
+    expect(window.alert).toHaveBeenCalledWith('비교 기능은 준비 중이에요.');
+  });
+
+  it('opens channel details from the card surface but not from the comparison button', async () => {
+    const user = userEvent.setup();
+    renderRecommendResultPage();
+
+    await user.click(screen.getAllByRole('button', { name: '비교 목록에 담기' })[0]);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '네이버 검색 광고 상세 정보 열기' }));
+    expect(await screen.findByRole('dialog', { name: '네이버 검색 광고' })).toBeVisible();
+  });
+
+  it('shows the CPC explanation popover on hover', async () => {
+    const user = userEvent.setup();
+    renderRecommendResultPage();
+
+    const infoButton = screen.getByRole('button', { name: '추천 결과 안내' });
+    await user.hover(infoButton);
+
+    expect(screen.getByRole('tooltip')).toHaveTextContent('클릭 1회당 비용이란?');
+    expect(screen.getByRole('tooltip')).toHaveTextContent(
+      '광고 클릭당 비용(CPC)을 말해요. 채소집에서는 쉬운 비교를 위해 단위를 모두 클릭 수 기준으로 통일했어요.',
+    );
+  });
+
+  it('always shows the cheapest CPC tooltip', () => {
+    renderRecommendResultPage();
+
+    expect(screen.getByText('클릭당 비용이 가장 낮아요')).toBeVisible();
+  });
+
+  it('blurs the top two cards and provides login links for guests', () => {
+    renderRecommendResultPage({ isGuest: true });
+
+    expect(screen.getAllByRole('link', { name: '로그인하기' })).toHaveLength(2);
+    expect(screen.getAllByRole('link', { name: '로그인하기' })[0]).toHaveAttribute(
+      'href',
+      '/login',
+    );
+    expect(screen.getByRole('article', { name: '네이버 검색 광고' })).toHaveTextContent(
+      '전체 결과를 볼 수 있어요',
+    );
+    expect(
+      screen.getByRole('article', { name: '네이버 검색 광고' }).querySelector('.blur-\\[4px\\]'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '카카오 검색 광고 상세 정보 열기' }),
+    ).toBeInTheDocument();
   });
 });

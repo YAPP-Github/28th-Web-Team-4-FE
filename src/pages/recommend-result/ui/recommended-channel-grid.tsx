@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, type JSX } from 'react';
+import type { JSX } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 
 import type { RecommendedChannel } from '@/pages/recommend-result/model/recommended-channels';
@@ -10,7 +10,10 @@ import { RecommendedChannelCard } from './recommended-channel-card';
 type RecommendedChannelGridProps = {
   channels: readonly RecommendedChannel[];
   startDelay?: number;
+  selectedChannelIds: readonly string[];
+  isGuest?: boolean;
   onOpenDetail: (channel: RecommendedChannel) => void;
+  onToggleSelection: (channelId: string) => void;
 };
 
 const MotionList = motion.ul;
@@ -42,19 +45,28 @@ const cardVariants = {
   },
 };
 
-export const RecommendedChannelGrid = memo(function RecommendedChannelGrid({
+export function RecommendedChannelGrid({
   channels,
   startDelay = 0.04,
+  selectedChannelIds,
+  isGuest = false,
   onOpenDetail,
+  onToggleSelection,
 }: RecommendedChannelGridProps): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
 
   if (shouldReduceMotion) {
     return (
       <ul className="gap-024 grid w-full max-w-[1200px] grid-cols-1 justify-items-center md:grid-cols-2 xl:grid-cols-4">
-        {channels.map((channel) => (
+        {channels.map((channel, index) => (
           <li key={channel.id} className="flex w-full justify-center">
-            <RecommendedChannelCard channel={channel} onOpenDetail={onOpenDetail} />
+            <RecommendedChannelCard
+              channel={channel}
+              selected={selectedChannelIds.includes(channel.id)}
+              locked={isGuest && index < 2}
+              onOpenDetail={onOpenDetail}
+              onToggleSelection={onToggleSelection}
+            />
           </li>
         ))}
       </ul>
@@ -69,11 +81,17 @@ export const RecommendedChannelGrid = memo(function RecommendedChannelGrid({
       animate="show"
       custom={startDelay}
     >
-      {channels.map((channel) => (
+      {channels.map((channel, index) => (
         <MotionItem key={channel.id} variants={cardVariants} className="flex w-full justify-center">
-          <RecommendedChannelCard channel={channel} onOpenDetail={onOpenDetail} />
+          <RecommendedChannelCard
+            channel={channel}
+            selected={selectedChannelIds.includes(channel.id)}
+            locked={isGuest && index < 2}
+            onOpenDetail={onOpenDetail}
+            onToggleSelection={onToggleSelection}
+          />
         </MotionItem>
       ))}
     </MotionList>
   );
-});
+}
