@@ -106,32 +106,34 @@ describe('refresh BFF single-flight', () => {
     expect(clearAuthSessionMock).not.toHaveBeenCalled();
   });
 
-  it('shares a genuine upstream 401 and clears each stale cookie response', async () => {
-    readAuthSessionMock.mockResolvedValue(sessionWith('invalid-refresh-token'));
-    refreshMock.mockResolvedValue(refreshErrorResponse(401));
+  it.each([401, 500])(
+    'shares an upstream %s failure and clears each stale cookie response',
+    async (status) => {
+      readAuthSessionMock.mockResolvedValue(sessionWith(`invalid-refresh-token-${status}`));
+      refreshMock.mockResolvedValue(refreshErrorResponse(status));
 
-    const [firstResponse, secondResponse] = await Promise.all([
-      postRefresh(refreshRequest()),
-      postRefresh(refreshRequest()),
-    ]);
+      const [firstResponse, secondResponse] = await Promise.all([
+        postRefresh(refreshRequest()),
+        postRefresh(refreshRequest()),
+      ]);
 
-    expect(firstResponse.status).toBe(401);
-    expect(secondResponse.status).toBe(401);
-    expect(refreshMock).toHaveBeenCalledOnce();
-    expect(clearAuthSessionMock).toHaveBeenCalledTimes(2);
-    expect(writeAuthSessionMock).not.toHaveBeenCalled();
-  });
+      expect(firstResponse.status).toBe(status);
+      expect(secondResponse.status).toBe(status);
+      expect(refreshMock).toHaveBeenCalledOnce();
+      expect(clearAuthSessionMock).toHaveBeenCalledTimes(2);
+      expect(writeAuthSessionMock).not.toHaveBeenCalled();
+    },
+  );
 
-  it('retries immediately after a rejected upstream request', async () => {
+  it('clears the session without retrying a rejected upstream request', async () => {
     readAuthSessionMock.mockResolvedValue(sessionWith('network-failure-refresh-token'));
-    refreshMock
-      .mockRejectedValueOnce(new Error('network failure'))
-      .mockResolvedValueOnce(refreshSuccessResponse());
+    refreshMock.mockRejectedValue(new Error('network failure'));
 
-    await expect(postRefresh(refreshRequest())).rejects.toThrow('network failure');
-    await expect(postRefresh(refreshRequest())).resolves.toHaveProperty('status', 204);
+    const response = await postRefresh(refreshRequest());
 
-    expect(refreshMock).toHaveBeenCalledTimes(2);
-    expect(writeAuthSessionMock).toHaveBeenCalledOnce();
+    expect(response.status).toBe(502);
+    expect(refreshMock).toHaveBeenCalledOnce();
+    expect(clearAuthSessionMock).toHaveBeenCalledOnce();
+    expect(writeAuthSessionMock).not.toHaveBeenCalled();
   });
 });
