@@ -138,7 +138,7 @@ export function RecommendedChannelCard({
                 aria-pressed={selected}
                 className={`pointer-events-auto relative z-20 mt-auto w-full ${
                   selected
-                    ? 'border-icon-primary-low bg-sys-primary-lowest text-icon-primary-low hover:not-data-disabled:bg-sys-primary-lowest'
+                    ? 'border-icon-primary-low bg-sys-primary-lower text-icon-primary-low hover:not-data-disabled:bg-sys-primary-lower'
                     : ''
                 }`}
                 onClick={() => {

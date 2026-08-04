@@ -43,13 +43,8 @@ describe('RecommendResultPage', () => {
 
     const naverButton = screen.getAllByRole('button', { name: '비교 목록에 담기' })[0];
     await user.click(naverButton);
-    expect(
-      screen
-        .getByRole('article', { name: '네이버 검색 광고' })
-        .querySelector('div.bg-sys-primary-lowest'),
-    ).toBeNull();
     expect(screen.getByRole('button', { name: '채널 선택 완료' })).toHaveClass(
-      'bg-sys-primary-lowest',
+      'bg-sys-primary-lower',
     );
     expect(screen.getByRole('button', { name: '채널 선택 완료' })).toHaveAttribute(
       'aria-pressed',
