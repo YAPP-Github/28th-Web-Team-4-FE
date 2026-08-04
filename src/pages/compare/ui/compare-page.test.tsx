@@ -50,28 +50,85 @@ describe('ComparePage', () => {
 
     expect(screen.getByRole('heading', { name: '비교할 채널을 선택해 주세요' })).toBeVisible();
     expect(screen.getByText('최대 3개까지 선택할 수 있어요')).toBeVisible();
-    expect(screen.getByRole('button', { name: '전체' })).toBeVisible();
+    expect(screen.getByRole('combobox', { name: '채널 카테고리' })).toHaveTextContent('전체');
     expect(screen.getByLabelText('채널 검색')).toHaveAttribute('placeholder', '검색');
     expect(screen.getAllByRole('checkbox')).toHaveLength(12);
-    expect(screen.getByText('1').closest('[aria-current="page"]')).not.toBeNull();
+    expect(screen.getByRole('button', { name: '페이지 1' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
     expect(getCompareButton()).toBeDisabled();
     expect(getCompareButton()).toHaveTextContent('선택한 채널 비교하기 (0/3)');
   });
 
-  it('filters channels by name, description, and category', async () => {
+  it('filters channels by name and shows an empty state for unmatched queries', async () => {
     const user = userEvent.setup();
     renderComparePage();
 
-    await user.type(screen.getByLabelText('채널 검색'), 'CRM');
+    await user.type(screen.getByLabelText('채널 검색'), '네이버 검색 광고');
 
-    expect(screen.getByText('카카오 채널 메시지')).toBeVisible();
-    expect(screen.queryByText('네이버 검색 광고')).not.toBeInTheDocument();
+    expect(screen.getByText('네이버 검색 광고')).toBeVisible();
+    expect(screen.queryByText('카카오 키워드 광고')).not.toBeInTheDocument();
 
     await user.clear(screen.getByLabelText('채널 검색'));
-    await user.type(screen.getByLabelText('채널 검색'), '없는 검색어');
+    await user.type(screen.getByLabelText('채널 검색'), '구매 전환 목적');
 
     expect(screen.getByText('검색 결과가 없어요')).toBeVisible();
     expect(screen.getByText('다른 검색어로 다시 찾아보세요')).toBeVisible();
+  });
+
+  it('filters channels by multiple categories and resets to the first page', async () => {
+    const user = userEvent.setup();
+    renderComparePage('?page=3');
+
+    expect(screen.getByRole('button', { name: '페이지 3' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+
+    const categoryDropdown = screen.getByRole('combobox', { name: '채널 카테고리' });
+    await user.click(categoryDropdown);
+    await user.click(await screen.findByRole('option', { name: /교육/ }));
+    await user.click(await screen.findByRole('option', { name: /쇼핑·커머스/ }));
+
+    expect(categoryDropdown).toHaveTextContent('교육 외 1개');
+    expect(screen.getByRole('checkbox', { name: '교육 선택' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: '쇼핑·커머스 선택' })).toBeChecked();
+    expect(screen.getByRole('button', { name: '페이지 1' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(screen.getByText('네이버 검색 광고')).toBeVisible();
+    expect(screen.getByText('카카오 키워드 광고')).toBeVisible();
+  });
+
+  it('moves between pages and disables pagination controls at the boundaries', async () => {
+    const user = userEvent.setup();
+    renderComparePage();
+
+    expect(screen.getByRole('button', { name: '첫 페이지' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '이전 페이지' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '다음 페이지' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: '마지막 페이지' })).toBeEnabled();
+
+    await user.click(screen.getByRole('button', { name: '페이지 2' }));
+
+    expect(screen.getByRole('button', { name: '페이지 2' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(screen.getByText('네이버 검색 광고 2')).toBeVisible();
+    expect(screen.queryByText('네이버 검색 광고')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '마지막 페이지' }));
+
+    expect(screen.getByRole('button', { name: '페이지 5' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(screen.getByText('네이버 검색 광고 5')).toBeVisible();
+    expect(screen.getByRole('button', { name: '다음 페이지' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '마지막 페이지' })).toBeDisabled();
   });
 
   it('selects and unselects cards while updating the CTA count', async () => {

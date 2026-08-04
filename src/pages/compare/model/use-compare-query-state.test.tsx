@@ -5,18 +5,21 @@ import { withNuqsTestingAdapter, type OnUrlUpdateFunction } from 'nuqs/adapters/
 import { useCompareQueryState } from './use-compare-query-state';
 
 function QueryStateProbe() {
-  const { q, category, page, setSearchQuery, setCategory, setPage } = useCompareQueryState();
+  const { q, category, page, setSearchQuery, setCategories, setPage } = useCompareQueryState();
 
   return (
     <div>
       <output data-testid="query">{q}</output>
-      <output data-testid="category">{category}</output>
+      <output data-testid="category">{category.join(',')}</output>
       <output data-testid="page">{page}</output>
       <button type="button" onClick={() => setSearchQuery('새 검색어')}>
         검색 변경
       </button>
-      <button type="button" onClick={() => setCategory('EDUCATION')}>
+      <button type="button" onClick={() => setCategories(['EDUCATION'])}>
         카테고리 변경
+      </button>
+      <button type="button" onClick={() => setCategories(['GAME', 'EDUCATION'])}>
+        여러 카테고리 변경
       </button>
       <button type="button" onClick={() => setPage(3)}>
         페이지 변경
@@ -61,11 +64,30 @@ describe('useCompareQueryState', () => {
     expect(event?.options.history).toBe('replace');
   });
 
-  it('카테고리 변경 시 page를 1로 초기화하고 push history를 사용한다', async () => {
+  it('여러 카테고리 변경 시 page를 1로 초기화하고 push history를 사용한다', async () => {
     const user = userEvent.setup();
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
 
     renderQueryStateProbe('?q=검색&page=4', onUrlUpdate);
+
+    await user.click(screen.getByRole('button', { name: '여러 카테고리 변경' }));
+
+    expect(screen.getByTestId('category')).toHaveTextContent('GAME,EDUCATION');
+    expect(screen.getByTestId('page')).toHaveTextContent('1');
+    await waitFor(() => expect(onUrlUpdate).toHaveBeenCalled());
+
+    const event = onUrlUpdate.mock.lastCall?.[0];
+    expect(event?.searchParams.get('category')).toBe('GAME,EDUCATION');
+    expect(event?.searchParams.get('q')).toBe('검색');
+    expect(event?.searchParams.has('page')).toBe(false);
+    expect(event?.options.history).toBe('push');
+  });
+
+  it('단일 카테고리를 URL 값으로 저장한다', async () => {
+    const user = userEvent.setup();
+    const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
+
+    renderQueryStateProbe('?page=3', onUrlUpdate);
 
     await user.click(screen.getByRole('button', { name: '카테고리 변경' }));
 
@@ -75,9 +97,6 @@ describe('useCompareQueryState', () => {
 
     const event = onUrlUpdate.mock.lastCall?.[0];
     expect(event?.searchParams.get('category')).toBe('EDUCATION');
-    expect(event?.searchParams.get('q')).toBe('검색');
-    expect(event?.searchParams.has('page')).toBe(false);
-    expect(event?.options.history).toBe('push');
   });
 
   it('페이지 변경 시 입력한 page를 push history로 저장한다', async () => {
