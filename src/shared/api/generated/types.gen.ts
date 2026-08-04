@@ -5,13 +5,39 @@ export type ClientOptions = {
 };
 
 /**
- * 샘플 생성 요청
+ * 매체별 예산 배분
  */
-export type CreateSampleRequest = {
+export type AllocationRequest = {
   /**
-   * 샘플 이름
+   * 배분 대상 채널 id
    */
-  name: string;
+  channelId: string;
+  /**
+   * 배분 예산(원). 0 은 미집행
+   */
+  budgetWon: number;
+  /**
+   * 전체 예산 대비 배분 비율(%)
+   */
+  allocationPct: number;
+};
+
+/**
+ * 예산 시뮬레이션 요청
+ */
+export type SimulationRequest = {
+  /**
+   * 총 예산(원). 10만 이상 500만 이하
+   */
+  totalBudgetWon: number;
+  /**
+   * 집행 기간(온보딩과 같은 구간). 구간이라 계산에는 대표 일수를 쓴다 — LE_1W=1주 이하(7일), W2_3=2-3주(17일), M1=1개월(30일), M2_3=2-3개월(75일), GE_3M=3개월 이상(90일). 하루 예산을 계산할 때 프론트도 같은 일수를 써야 한다
+   */
+  period: 'LE_1W' | 'W2_3' | 'M1' | 'M2_3' | 'GE_3M';
+  /**
+   * 매체별 예산 배분. 1개 이상
+   */
+  allocations: Array<AllocationRequest>;
 };
 
 export type ApiResponse = {
@@ -22,15 +48,14 @@ export type ApiResponse = {
   /**
    * 성공 시 응답 본문. 실패 시 null
    */
-  data?: unknown;
-  /**
-   * 실패 시 에러 정보. 성공 시 null
-   */
+  data?: {
+    [key: string]: unknown;
+  } | null;
   error?: ErrorResponse;
   /**
    * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
    */
-  code?: string;
+  code?: string | null;
 };
 
 /**
@@ -49,7 +74,7 @@ export type ErrorResponse = {
    * 검증 실패 시 필드별 상세 에러. 검증 외 에러는 빈 배열
    */
   fieldErrors: Array<FieldError>;
-};
+} | null;
 
 /**
  * 검증 실패 필드 상세
@@ -69,23 +94,136 @@ export type FieldError = {
   reason: string;
 };
 
+export type ApiResponseSimulationResponse = {
+  /**
+   * 요청 성공 여부
+   */
+  success: boolean;
+  data?: SimulationResponse;
+  error?: ErrorResponse;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   */
+  code?: string | null;
+};
+
+/**
+ * 추정 범위
+ */
+export type CountRangeResponse = {
+  /**
+   * 하한
+   */
+  min: number;
+  /**
+   * 상한
+   */
+  max: number;
+} | null;
+
+/**
+ * 매체별 시뮬레이션 결과
+ */
+export type SimulationItemResponse = {
+  /**
+   * 채널 id
+   */
+  channelId: string;
+  /**
+   * 채널명
+   */
+  channelName: string;
+  /**
+   * 추정 근거가 된 대표 상품 id. 단가 정보가 없으면 null
+   */
+  channelProductId?: string | null;
+  /**
+   * 배분 예산(원). 0 은 미집행
+   */
+  allocatedBudgetWon: number;
+  /**
+   * 전체 예산 대비 배분 비율(%)
+   */
+  allocationPct?: number | null;
+  estImpressions?: CountRangeResponse;
+  estClicks?: CountRangeResponse;
+  /**
+   * 클릭당 비용(원). 클릭당 과금 매체는 단가 그대로, 그 외 매체는 배분 예산 / 예상 클릭 수(중앙값)로 환산한다. 예상 클릭이 없으면 null
+   */
+  cpcWon?: number | null;
+  /**
+   * 1000회 노출당 단가(원). 대표 단가가 CPM 일 때만 채워진다. 화면에는 쓰지 않고 어떤 단가로 추정했는지 남기는 값
+   */
+  cpmWon?: number | null;
+  /**
+   * 배분 예산으로 집행 가능한지 여부
+   */
+  isExecutable: boolean;
+  /**
+   * 집행에 부족한 금액(원). 집행 가능하면 null
+   */
+  shortfallWon?: number | null;
+  /**
+   * 산출 근거 고지
+   */
+  basisNote: string;
+};
+
+/**
+ * 예산 시뮬레이션 결과
+ */
+export type SimulationResponse = {
+  /**
+   * 저장된 시뮬레이션 id
+   */
+  simulationId?: string | null;
+  /**
+   * 총 예산(원)
+   */
+  totalBudgetWon: number;
+  /**
+   * 집행 기간(온보딩과 같은 구간)
+   */
+  period: 'LE_1W' | 'W2_3' | 'M1' | 'M2_3' | 'GE_3M';
+  /**
+   * 집행 가능한 매체들의 추정 노출 수 합(범위 중앙값 기준)
+   */
+  totalEstImpressions: number;
+  /**
+   * 집행 가능한 매체들의 추정 클릭 수 합(범위 중앙값 기준)
+   */
+  totalEstClicks: number;
+  /**
+   * 집행 가능한 매체 개수
+   */
+  executableChannelCount: number;
+  /**
+   * 매체별 결과. 요청한 순서를 유지한다
+   */
+  items: Array<SimulationItemResponse>;
+} | null;
+
+/**
+ * 샘플 생성 요청
+ */
+export type CreateSampleRequest = {
+  /**
+   * 샘플 이름
+   */
+  name: string;
+};
+
 export type ApiResponseSampleResponse = {
   /**
    * 요청 성공 여부
    */
   success: boolean;
-  /**
-   * 성공 시 응답 본문. 실패 시 null
-   */
   data?: SampleResponse;
-  /**
-   * 실패 시 에러 정보. 성공 시 null
-   */
   error?: ErrorResponse;
   /**
    * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
    */
-  code?: string;
+  code?: string | null;
 };
 
 /**
@@ -108,7 +246,7 @@ export type SampleResponse = {
    * 수정 시각
    */
   updatedAt?: string;
-};
+} | null;
 
 /**
  * 과거 광고 집행 실적 수동입력 1건
@@ -117,7 +255,7 @@ export type AdHistoryRequest = {
   /**
    * 카탈로그 채널 id. 검색바에서 고른 경우에만 보낸다
    */
-  channelId?: string;
+  channelId?: string | null;
   /**
    * 채널명 원문
    */
@@ -125,23 +263,23 @@ export type AdHistoryRequest = {
   /**
    * 집행 예산(원)
    */
-  budgetWon?: number;
+  budgetWon?: number | null;
   /**
    * 노출수
    */
-  impressions?: number;
+  impressions?: number | null;
   /**
    * 클릭수
    */
-  clicks?: number;
+  clicks?: number | null;
   /**
    * 전환수
    */
-  conversions?: number;
+  conversions?: number | null;
   /**
    * 집행 기간(일수). 오늘 기준 최근 N일
    */
-  periodDays?: number;
+  periodDays?: number | null;
 };
 
 /**
@@ -218,6 +356,33 @@ export type SubmitOnboardingRequest = {
   rawFileKeys: Array<string>;
 };
 
+export type ApiResponseOnboardingSubmitResponse = {
+  /**
+   * 요청 성공 여부
+   */
+  success: boolean;
+  data?: OnboardingSubmitResponse;
+  error?: ErrorResponse;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   */
+  code?: string | null;
+};
+
+/**
+ * 온보딩 제출 결과
+ */
+export type OnboardingSubmitResponse = {
+  /**
+   * 생성된 온보딩 id
+   */
+  onboardingId: string;
+  /**
+   * 생성 시각
+   */
+  createdAt: string;
+} | null;
+
 /**
  * presign 발급할 성과파일 1건의 메타데이터
  */
@@ -241,6 +406,44 @@ export type PresignPerformanceFilesRequest = {
    */
   files: Array<PerformanceFileMeta>;
 };
+
+export type ApiResponseListPresignedFileUploadResult = {
+  /**
+   * 요청 성공 여부
+   */
+  success: boolean;
+  /**
+   * 성공 시 응답 본문. 실패 시 null
+   */
+  data?: Array<PresignedFileUploadResult> | null;
+  error?: ErrorResponse;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   */
+  code?: string | null;
+};
+
+/**
+ * 성과파일 1건에 대한 presigned URL 발급 결과
+ */
+export type PresignedFileUploadResult = {
+  /**
+   * 발급된 S3 object key
+   */
+  key: string;
+  /**
+   * PUT 업로드용 presigned URL
+   */
+  uploadUrl: string;
+  /**
+   * PUT 요청의 Content-Type 헤더에 사용할 값
+   */
+  contentType: string;
+  /**
+   * presigned URL 만료 시각
+   */
+  expiresAt: string;
+} | null;
 
 /**
  * 회원가입 요청 (이메일 인증 완료 후 제출)
@@ -289,18 +492,12 @@ export type ApiResponseUserResponse = {
    * 요청 성공 여부
    */
   success: boolean;
-  /**
-   * 성공 시 응답 본문. 실패 시 null
-   */
   data?: UserResponse;
-  /**
-   * 실패 시 에러 정보. 성공 시 null
-   */
   error?: ErrorResponse;
   /**
    * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
    */
-  code?: string;
+  code?: string | null;
 };
 
 /**
@@ -319,7 +516,7 @@ export type UserResponse = {
    * 닉네임
    */
   nickname: string;
-};
+} | null;
 
 /**
  * 구글 최종 회원가입 요청 (signupToken + 로컬 가입과 동일 필드, password 제외)
@@ -359,76 +556,17 @@ export type GoogleSignupRequest = {
   marketingAgreed?: boolean;
 };
 
-/**
- * 이메일 인증 코드 발송 요청
- */
-export type SendVerificationCodeRequest = {
-  /**
-   * 이메일
-   */
-  email: string;
-};
-
-/**
- * 이메일 인증 코드 확인 요청
- */
-export type VerifyEmailCodeRequest = {
-  /**
-   * 이메일
-   */
-  email: string;
-  /**
-   * 6자리 인증 코드
-   */
-  code: string;
-};
-
-export type ApiResponseVoid = {
-  /**
-   * 요청 성공 여부
-   */
-  success: boolean;
-  /**
-   * 성공 시 응답 본문. 실패 시 null
-   */
-  data?: unknown;
-  /**
-   * 실패 시 에러 정보. 성공 시 null
-   */
-  error?: ErrorResponse;
-  /**
-   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
-   */
-  code?: string;
-};
-
-/**
- * Refresh Token 요청
- */
-export type RefreshTokenRequest = {
-  /**
-   * 리프레시 토큰
-   */
-  refreshToken: string;
-};
-
 export type ApiResponseTokenResponse = {
   /**
    * 요청 성공 여부
    */
   success: boolean;
-  /**
-   * 성공 시 응답 본문. 실패 시 null
-   */
   data?: TokenResponse;
-  /**
-   * 실패 시 에러 정보. 성공 시 null
-   */
   error?: ErrorResponse;
   /**
    * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
    */
-  code?: string;
+  code?: string | null;
 };
 
 /**
@@ -451,6 +589,58 @@ export type TokenResponse = {
    * 리프레시 토큰 만료(초, 고정값X)
    */
   refreshTokenExpiresIn: number;
+} | null;
+
+/**
+ * 이메일 인증 코드 발송 요청
+ */
+export type SendVerificationCodeRequest = {
+  /**
+   * 이메일
+   */
+  email: string;
+};
+
+export type ApiResponseVoid = {
+  /**
+   * 요청 성공 여부
+   */
+  success: boolean;
+  /**
+   * 성공 시 응답 본문. 실패 시 null
+   */
+  data?: {
+    [key: string]: unknown;
+  } | null;
+  error?: ErrorResponse;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   */
+  code?: string | null;
+};
+
+/**
+ * 이메일 인증 코드 확인 요청
+ */
+export type VerifyEmailCodeRequest = {
+  /**
+   * 이메일
+   */
+  email: string;
+  /**
+   * 6자리 인증 코드
+   */
+  code: string;
+};
+
+/**
+ * Refresh Token 요청
+ */
+export type RefreshTokenRequest = {
+  /**
+   * 리프레시 토큰
+   */
+  refreshToken: string;
 };
 
 /**
@@ -477,6 +667,29 @@ export type LoginMethodsRequest = {
   email: string;
 };
 
+export type ApiResponseLoginMethodsResponse = {
+  /**
+   * 요청 성공 여부
+   */
+  success: boolean;
+  data?: LoginMethodsResponse;
+  error?: ErrorResponse;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   */
+  code?: string | null;
+};
+
+/**
+ * 로그인 수단 조회 응답
+ */
+export type LoginMethodsResponse = {
+  /**
+   * 이 계정으로 로그인할 수 있는 방법. 비어 있으면 미가입
+   */
+  methods: Array<'LOCAL' | 'GOOGLE'>;
+} | null;
+
 /**
  * 구글 idToken 요청
  */
@@ -487,6 +700,76 @@ export type GoogleAuthRequest = {
   idToken: string;
 };
 
+export type ApiResponseGoogleAuthResponse = {
+  /**
+   * 요청 성공 여부
+   */
+  success: boolean;
+  data?: GoogleAuthResponse;
+  error?: ErrorResponse;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   */
+  code?: string | null;
+};
+
+/**
+ * 구글 인증 진입 응답
+ */
+export type GoogleAuthResponse = {
+  /**
+   * 분기 판별값
+   */
+  status: 'LOGIN' | 'LINK_REQUIRED' | 'SIGNUP_REQUIRED';
+  /**
+   * 액세스 토큰. 로그인 분기에만 존재
+   */
+  accessToken?: string | null;
+  /**
+   * 리프레시 토큰. 로그인 분기에만 존재
+   */
+  refreshToken?: string | null;
+  /**
+   * 액세스 토큰 만료(초)
+   */
+  accessTokenExpiresIn?: number | null;
+  /**
+   * 리프레시 토큰 만료(초, 고정값X)
+   */
+  refreshTokenExpiresIn?: number | null;
+  /**
+   * 같은 이메일의 로컬 계정이 있어 연결 확인이 필요함. 아직 연결되지 않았다
+   */
+  linkRequired?: boolean | null;
+  /**
+   * 연결 대상 계정의 이메일. 어느 계정에 붙는지 사용자가 보고 판단하도록 내려준다
+   */
+  email?: string | null;
+  /**
+   * 가입 이력이 없어 추가정보 입력이 필요함
+   */
+  signupRequired?: boolean | null;
+  /**
+   * 최종가입에 되돌려줄 일회성 티켓
+   */
+  signupToken?: string | null;
+  prefill?: Prefill;
+} | null;
+
+/**
+ * 가입 폼 프리필
+ */
+export type Prefill = {
+  /**
+   * 구글이 인증한 이메일
+   */
+  email: string;
+  /**
+   * 구글 계정 이름. 계정에 이름이 없으면 null
+   */
+  suggestedNickname?: string | null;
+} | null;
+
 export type ApiResponseListSampleResponse = {
   /**
    * 요청 성공 여부
@@ -495,16 +778,528 @@ export type ApiResponseListSampleResponse = {
   /**
    * 성공 시 응답 본문. 실패 시 null
    */
-  data?: Array<SampleResponse>;
-  /**
-   * 실패 시 에러 정보. 성공 시 null
-   */
+  data?: Array<SampleResponse> | null;
   error?: ErrorResponse;
   /**
    * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
    */
-  code?: string;
+  code?: string | null;
 };
+
+export type ApiResponseListRecommendationItemResponse = {
+  /**
+   * 요청 성공 여부
+   */
+  success: boolean;
+  /**
+   * 성공 시 응답 본문. 실패 시 null
+   */
+  data?: Array<RecommendationItemResponse> | null;
+  error?: ErrorResponse;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   */
+  code?: string | null;
+};
+
+/**
+ * 추천 채널
+ */
+export type RecommendationItemResponse = {
+  /**
+   * 채널 식별자
+   */
+  channelId: string;
+  /**
+   * 채널명
+   */
+  channelName: string;
+  /**
+   * 적합도(%)
+   */
+  matchRate: number;
+  /**
+   * 추천 근거
+   */
+  recommendationReason: string;
+  /**
+   * 주요 타깃
+   */
+  primaryTarget: string;
+  /**
+   * 클릭당 비용(원)
+   */
+  cpcWon?: number | null;
+  /**
+   * 대표 단가의 과금 방식
+   */
+  pricingModel?:
+    | 'CPM'
+    | 'CPC'
+    | 'CPA'
+    | 'CPI'
+    | 'CPV'
+    | 'CPP'
+    | 'DB'
+    | 'SLOT'
+    | 'FLAT'
+    | 'PACKAGE'
+    | 'PER_UNIT'
+    | 'OTHER';
+  /**
+   * 최소 집행 예산(원)
+   */
+  minBudgetWon?: number | null;
+  estImpressions?: CountRangeResponse;
+  estClicks?: CountRangeResponse;
+  /**
+   * 온보딩 예산(상한)으로 집행 가능한지 여부
+   */
+  isExecutable: boolean;
+  /**
+   * 집행에 부족한 금액(원)
+   */
+  shortfallWon?: number | null;
+} | null;
+
+export type ApiResponsePageResponseChannelListItemResponse = {
+  /**
+   * 요청 성공 여부
+   */
+  success: boolean;
+  data?: PageResponseChannelListItemResponse;
+  error?: ErrorResponse;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   */
+  code?: string | null;
+};
+
+/**
+ * 채널 목록 요약
+ */
+export type ChannelListItemResponse = {
+  /**
+   * 채널 식별자
+   */
+  id: string;
+  /**
+   * 채널명
+   */
+  name: string;
+  /**
+   * 로고 이미지 URL
+   */
+  logoUrl?: string;
+  /**
+   * 채널 핵심 요약
+   */
+  description?: string;
+  /**
+   * 대표 업종 코드값
+   */
+  primaryCategory:
+    | 'GAME'
+    | 'ENTERTAINMENT'
+    | 'EDUCATION'
+    | 'SOCIAL_COMMUNITY'
+    | 'LIFESTYLE'
+    | 'HEALTH_FITNESS'
+    | 'FOOD_BEVERAGE'
+    | 'SHOPPING_COMMERCE'
+    | 'FINANCE_FINTECH'
+    | 'BUSINESS_B2B'
+    | 'MEDICAL_HEALTHCARE'
+    | 'TRAVEL_ACCOMMODATION'
+    | 'MUSIC_MEDIA'
+    | 'PRODUCTIVITY_UTILITY'
+    | 'SPORTS'
+    | 'NEWS_INFORMATION'
+    | 'OTHERS';
+};
+
+/**
+ * 페이지네이션 응답
+ */
+export type PageResponseChannelListItemResponse = {
+  /**
+   * 현재 페이지 항목
+   */
+  content: Array<ChannelListItemResponse>;
+  /**
+   * 현재 페이지 번호(0-base)
+   */
+  number: number;
+  /**
+   * 페이지 크기
+   */
+  size: number;
+  /**
+   * 전체 항목 수
+   */
+  totalElements: number;
+  /**
+   * 전체 페이지 수
+   */
+  totalPages: number;
+  /**
+   * 첫 페이지 여부
+   */
+  first: boolean;
+  /**
+   * 마지막 페이지 여부
+   */
+  last: boolean;
+} | null;
+
+export type ApiResponseChannelDetailResponse = {
+  /**
+   * 요청 성공 여부
+   */
+  success: boolean;
+  data?: ChannelDetailResponse;
+  error?: ErrorResponse;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   */
+  code?: string | null;
+};
+
+/**
+ * 채널 오디언스 규모 지표
+ */
+export type AudienceMetricResponse = {
+  /**
+   * 지표명
+   */
+  metricName: string;
+  /**
+   * 지표 수치값
+   */
+  valueNumeric?: number | null;
+  /**
+   * 지표 텍스트값
+   */
+  valueText?: string | null;
+  /**
+   * 단위
+   */
+  unit?: string | null;
+  /**
+   * 집계 기간
+   */
+  period?: string | null;
+};
+
+/**
+ * 채널 상세
+ */
+export type ChannelDetailResponse = {
+  /**
+   * 채널 식별자
+   */
+  id: string;
+  /**
+   * 채널명
+   */
+  name: string;
+  /**
+   * 로고 이미지 URL
+   */
+  logoUrl?: string;
+  /**
+   * 채널 핵심 요약
+   */
+  description?: string;
+  /**
+   * 대표 업종 코드값
+   */
+  primaryCategory:
+    | 'GAME'
+    | 'ENTERTAINMENT'
+    | 'EDUCATION'
+    | 'SOCIAL_COMMUNITY'
+    | 'LIFESTYLE'
+    | 'HEALTH_FITNESS'
+    | 'FOOD_BEVERAGE'
+    | 'SHOPPING_COMMERCE'
+    | 'FINANCE_FINTECH'
+    | 'BUSINESS_B2B'
+    | 'MEDICAL_HEALTHCARE'
+    | 'TRAVEL_ACCOMMODATION'
+    | 'MUSIC_MEDIA'
+    | 'PRODUCTIVITY_UTILITY'
+    | 'SPORTS'
+    | 'NEWS_INFORMATION'
+    | 'OTHERS';
+  /**
+   * 매체 유형
+   */
+  mediaType?: string;
+  /**
+   * 적합 업종 코드값 목록
+   */
+  suitableCategories?: Array<
+    | 'GAME'
+    | 'ENTERTAINMENT'
+    | 'EDUCATION'
+    | 'SOCIAL_COMMUNITY'
+    | 'LIFESTYLE'
+    | 'HEALTH_FITNESS'
+    | 'FOOD_BEVERAGE'
+    | 'SHOPPING_COMMERCE'
+    | 'FINANCE_FINTECH'
+    | 'BUSINESS_B2B'
+    | 'MEDICAL_HEALTHCARE'
+    | 'TRAVEL_ACCOMMODATION'
+    | 'MUSIC_MEDIA'
+    | 'PRODUCTIVITY_UTILITY'
+    | 'SPORTS'
+    | 'NEWS_INFORMATION'
+    | 'OTHERS'
+  >;
+  /**
+   * 연령대 코드값 목록
+   */
+  ageBandCodes?: Array<'AGE_10S' | 'AGE_20S' | 'AGE_30S' | 'AGE_40S' | 'AGE_50S_PLUS'>;
+  /**
+   * 대표 연령대
+   */
+  primaryAgeBand?: string;
+  /**
+   * 대표 성별 코드값
+   */
+  primaryGender?: 'MALE' | 'FEMALE' | 'ALL';
+  /**
+   * 오디언스 요약
+   */
+  audienceSummary?: string;
+  /**
+   * 오디언스 특성
+   */
+  audienceTraits?: string;
+  /**
+   * 채널 강점 목록
+   */
+  advantages?: Array<string>;
+  /**
+   * 최소 예산(원)
+   */
+  minBudgetWon?: number;
+  /**
+   * 최대 예산(원)
+   */
+  maxBudgetWon?: number;
+  /**
+   * 집행 방식 코드값
+   */
+  executionType?: 'SELF' | 'AGENCY';
+  /**
+   * 지원 광고 형식 목록
+   */
+  adFormats?: Array<string>;
+  /**
+   * 지원 타게팅 방식 목록
+   */
+  targetingMethods?: Array<string>;
+  /**
+   * 채널 광고 상품 목록(상품 없는 채널은 빈 배열)
+   */
+  products: Array<ProductResponse>;
+  /**
+   * 오디언스 규모 지표 목록
+   */
+  audienceMetrics: Array<AudienceMetricResponse>;
+  /**
+   * 집행 사례 목록
+   */
+  references: Array<string>;
+} | null;
+
+/**
+ * 상품 단가
+ */
+export type PricingResponse = {
+  /**
+   * 과금 모델 코드값
+   */
+  pricingModel:
+    | 'CPM'
+    | 'CPC'
+    | 'CPA'
+    | 'CPI'
+    | 'CPV'
+    | 'CPP'
+    | 'DB'
+    | 'SLOT'
+    | 'FLAT'
+    | 'PACKAGE'
+    | 'PER_UNIT'
+    | 'OTHER';
+  /**
+   * 단가 값
+   */
+  value?: number | null;
+  /**
+   * 단가 상한값(구간형 단가)
+   */
+  valueMax?: number | null;
+  /**
+   * 단가 적용 단위 기간
+   */
+  unitPeriod?: string | null;
+  /**
+   * 단가 적용 단위 일수
+   */
+  unitDays?: number | null;
+  /**
+   * 단가 적용 세그먼트
+   */
+  segment?: string | null;
+  /**
+   * 가격 유형 코드값
+   */
+  priceType: 'LIST' | 'SALE' | 'DISCOUNT' | 'UNKNOWN';
+  /**
+   * 부가세 포함 여부 코드값
+   */
+  vat: 'INCLUDED' | 'EXCLUDED' | 'UNKNOWN';
+  /**
+   * 통화 코드값
+   */
+  currency: 'KRW' | 'USD';
+  /**
+   * 단가 유효 기간
+   */
+  validPeriod?: string | null;
+};
+
+/**
+ * 채널 광고 상품
+ */
+export type ProductResponse = {
+  /**
+   * 상품 식별자
+   */
+  id: string;
+  /**
+   * 상품명
+   */
+  productName?: string;
+  /**
+   * 인벤토리 유형
+   */
+  inventoryType?: string;
+  /**
+   * 지원 광고 목표 코드값 목록
+   */
+  supportedObjectives?: Array<
+    'AWARENESS' | 'VIDEO_VIEW' | 'TRAFFIC' | 'LEAD' | 'CONVERSION' | 'APP_INSTALL' | 'IN_APP_ACTION'
+  >;
+  /**
+   * 최소 예산(원)
+   */
+  minBudgetWon?: number;
+  /**
+   * 최대 예산(원)
+   */
+  maxBudgetWon?: number;
+  /**
+   * 대표 클릭률(CTR)
+   */
+  ctr?: number;
+  /**
+   * 클릭률 하한
+   */
+  ctrMin?: number;
+  /**
+   * 클릭률 상한
+   */
+  ctrMax?: number;
+  /**
+   * 예상 노출수
+   */
+  expectedImpressions?: number;
+  /**
+   * 예상 집행 기간
+   */
+  expectedPeriod?: string;
+  /**
+   * 상품 단가 목록
+   */
+  pricing: Array<PricingResponse>;
+};
+
+export type SaveSimulationData = {
+  body: SimulationRequest;
+  path?: never;
+  query?: never;
+  url: '/api/v1/simulations';
+};
+
+export type SaveSimulationErrors = {
+  /**
+   * 입력값 검증 실패(C-001)
+   */
+  400: ApiResponse;
+  /**
+   * 인증 필요(C-004)
+   */
+  401: ApiResponse;
+  /**
+   * 존재하지 않는 채널(CH-001)
+   */
+  404: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type SaveSimulationError = SaveSimulationErrors[keyof SaveSimulationErrors];
+
+export type SaveSimulationResponses = {
+  /**
+   * 저장 성공
+   */
+  201: ApiResponseSimulationResponse;
+};
+
+export type SaveSimulationResponse = SaveSimulationResponses[keyof SaveSimulationResponses];
+
+export type EstimateSimulationData = {
+  body: SimulationRequest;
+  path?: never;
+  query?: never;
+  url: '/api/v1/simulations/estimate';
+};
+
+export type EstimateSimulationErrors = {
+  /**
+   * 입력값 검증 실패(C-001). 총 예산 범위(10만~500만), 기간, 배분 목록을 확인한다
+   */
+  400: ApiResponse;
+  /**
+   * 존재하지 않는 채널(CH-001)
+   */
+  404: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type EstimateSimulationError = EstimateSimulationErrors[keyof EstimateSimulationErrors];
+
+export type EstimateSimulationResponses = {
+  /**
+   * 계산 성공
+   */
+  200: ApiResponseSimulationResponse;
+};
+
+export type EstimateSimulationResponse =
+  EstimateSimulationResponses[keyof EstimateSimulationResponses];
 
 export type GetAllSamplesData = {
   body?: never;
@@ -514,6 +1309,10 @@ export type GetAllSamplesData = {
 };
 
 export type GetAllSamplesErrors = {
+  /**
+   * 인증 필요(C-004)
+   */
+  401: ApiResponse;
   /**
    * 서버 내부 오류
    */
@@ -543,6 +1342,10 @@ export type CreateSampleErrors = {
    * 입력값 검증 실패
    */
   400: ApiResponse;
+  /**
+   * 인증 필요(C-004)
+   */
+  401: ApiResponse;
   /**
    * 서버 내부 오류
    */
@@ -592,7 +1395,7 @@ export type SubmitOnboardingResponses = {
   /**
    * 제출 성공
    */
-  201: ApiResponse;
+  201: ApiResponseOnboardingSubmitResponse;
 };
 
 export type SubmitOnboardingResponse = SubmitOnboardingResponses[keyof SubmitOnboardingResponses];
@@ -622,7 +1425,7 @@ export type PresignOnboardingPerformanceFilesResponses = {
   /**
    * 발급 성공
    */
-  200: ApiResponse;
+  200: ApiResponseListPresignedFileUploadResult;
 };
 
 export type PresignOnboardingPerformanceFilesResponse =
@@ -693,7 +1496,7 @@ export type SignupGoogleResponses = {
   /**
    * 가입 성공, 토큰 발급
    */
-  200: ApiResponse;
+  200: ApiResponseTokenResponse;
 };
 
 export type SignupGoogleResponse = SignupGoogleResponses[keyof SignupGoogleResponses];
@@ -730,7 +1533,7 @@ export type SendSignupCodeResponses = {
   /**
    * 발송 성공. 구글로만 가입된 이메일이면 발송 없이 안내 코드만 실린다
    */
-  200: ApiResponse;
+  200: ApiResponseVoid;
 };
 
 export type SendSignupCodeResponse = SendSignupCodeResponses[keyof SendSignupCodeResponses];
@@ -891,10 +1694,10 @@ export type LoginMethodsResponses = {
   /**
    * 조회 성공
    */
-  200: ApiResponse;
+  200: ApiResponseLoginMethodsResponse;
 };
 
-export type LoginMethodsResponse = LoginMethodsResponses[keyof LoginMethodsResponses];
+export type LoginMethodsResponse2 = LoginMethodsResponses[keyof LoginMethodsResponses];
 
 export type GoogleAuthData = {
   body: GoogleAuthRequest;
@@ -924,10 +1727,10 @@ export type GoogleAuthResponses = {
   /**
    * 로그인 성공 / 연결 확인 필요 / 가입 필요
    */
-  200: ApiResponse;
+  200: ApiResponseGoogleAuthResponse;
 };
 
-export type GoogleAuthResponse = GoogleAuthResponses[keyof GoogleAuthResponses];
+export type GoogleAuthResponse2 = GoogleAuthResponses[keyof GoogleAuthResponses];
 
 export type LinkGoogleData = {
   body: GoogleAuthRequest;
@@ -957,10 +1760,44 @@ export type LinkGoogleResponses = {
   /**
    * 연결 완료(code: GOOGLE_ACCOUNT_LINKED) 및 토큰 발급
    */
-  200: ApiResponse;
+  200: ApiResponseTokenResponse;
 };
 
 export type LinkGoogleResponse = LinkGoogleResponses[keyof LinkGoogleResponses];
+
+export type GetLatestSimulationData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/api/v1/simulations/latest';
+};
+
+export type GetLatestSimulationErrors = {
+  /**
+   * 인증 필요(C-004)
+   */
+  401: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type GetLatestSimulationError = GetLatestSimulationErrors[keyof GetLatestSimulationErrors];
+
+export type GetLatestSimulationResponses = {
+  /**
+   * 조회 성공
+   */
+  200: ApiResponseSimulationResponse;
+  /**
+   * 저장된 결과 없음
+   */
+  204: void;
+};
+
+export type GetLatestSimulationResponse =
+  GetLatestSimulationResponses[keyof GetLatestSimulationResponses];
 
 export type GetSampleByIdData = {
   body?: never;
@@ -975,6 +1812,10 @@ export type GetSampleByIdData = {
 };
 
 export type GetSampleByIdErrors = {
+  /**
+   * 인증 필요(C-004)
+   */
+  401: ApiResponse;
   /**
    * 샘플 없음
    */
@@ -996,6 +1837,41 @@ export type GetSampleByIdResponses = {
 
 export type GetSampleByIdResponse = GetSampleByIdResponses[keyof GetSampleByIdResponses];
 
+export type GetRecommendationsData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * 온보딩 응답 식별자
+     */
+    onboardingId: string;
+  };
+  url: '/api/v1/recommendations';
+};
+
+export type GetRecommendationsErrors = {
+  /**
+   * 존재하지 않는 온보딩(ONB-007)
+   */
+  404: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type GetRecommendationsError = GetRecommendationsErrors[keyof GetRecommendationsErrors];
+
+export type GetRecommendationsResponses = {
+  /**
+   * 추천 성공. 맞는 채널이 없으면 빈 배열
+   */
+  200: ApiResponseListRecommendationItemResponse;
+};
+
+export type GetRecommendationsResponse =
+  GetRecommendationsResponses[keyof GetRecommendationsResponses];
+
 export type GetChannelsData = {
   body?: never;
   path?: never;
@@ -1005,11 +1881,11 @@ export type GetChannelsData = {
      */
     name?: string;
     /**
-     * Zero-based page index (0..N)
+     * 페이지 번호(0-base)
      */
     page?: number;
     /**
-     * The size of the page to be returned
+     * 페이지 크기
      */
     size?: number;
     /**
@@ -1033,7 +1909,7 @@ export type GetChannelsResponses = {
   /**
    * 조회 성공
    */
-  200: ApiResponse;
+  200: ApiResponsePageResponseChannelListItemResponse;
 };
 
 export type GetChannelsResponse = GetChannelsResponses[keyof GetChannelsResponses];
@@ -1067,7 +1943,7 @@ export type GetChannelResponses = {
   /**
    * 조회 성공
    */
-  200: ApiResponse;
+  200: ApiResponseChannelDetailResponse;
 };
 
 export type GetChannelResponse = GetChannelResponses[keyof GetChannelResponses];
