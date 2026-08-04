@@ -116,3 +116,40 @@ export const Disabled: Story = {
     await expect(checkbox).not.toBeChecked();
   },
 };
+
+function DisabledRadioSelectCardExample(): JSX.Element {
+  const [value, setValue] = useState('MOBILE_APP');
+
+  return (
+    <RadioGroup value={value} onValueChange={setValue} aria-label="서비스 형태">
+      <SelectCard
+        control="radio"
+        value="MOBILE_APP"
+        label="모바일 앱"
+        onSelect={() => setValue('MOBILE_APP')}
+      />
+      <SelectCard
+        control="radio"
+        value="WEB_SERVICE"
+        label="웹 서비스"
+        disabled
+        onSelect={() => setValue('WEB_SERVICE')}
+      />
+    </RadioGroup>
+  );
+}
+
+export const DisabledRadio: Story = {
+  render: () => <DisabledRadioSelectCardExample />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const mobileApp = canvas.getByRole('radio', { name: '모바일 앱' });
+    const webService = canvas.getByRole('radio', { name: '웹 서비스' });
+
+    await expect(webService).toHaveAttribute('aria-disabled', 'true');
+    await expect(mobileApp).toBeChecked();
+    await userEvent.click(canvas.getByText('웹 서비스'));
+    await expect(mobileApp).toBeChecked();
+    await expect(webService).not.toBeChecked();
+  },
+};

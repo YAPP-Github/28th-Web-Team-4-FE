@@ -98,7 +98,7 @@ export function SelectCard(props: SelectCardProps): JSX.Element {
         label={label}
         description={description}
         className={className}
-        onSelect={onSelect}
+        onSelect={props.disabled ? undefined : onSelect}
         selectionControl={
           <RadioGroupItem
             renderMode="label-control"
