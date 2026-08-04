@@ -16,7 +16,6 @@ type SelectCardBaseProps = {
   label: string;
   description?: string;
   className?: string;
-  onSelect?: () => void;
 };
 
 export type RadioSelectCardProps = SelectCardBaseProps &
@@ -42,18 +41,10 @@ function SelectCardLayout({
   label,
   description,
   className,
-  onSelect,
   selectionControl,
 }: SelectCardLayoutProps): JSX.Element {
   return (
-    <div
-      onClick={(event) => {
-        if (event.defaultPrevented || !onSelect) {
-          return;
-        }
-
-        onSelect();
-      }}
+    <label
       className={cn(
         [
           'group flex min-h-[58px] w-full cursor-pointer items-center gap-014',
@@ -85,25 +76,23 @@ function SelectCardLayout({
           </Text>
         ) : null}
       </VStack>
-    </div>
+    </label>
   );
 }
 
 export function SelectCard(props: SelectCardProps): JSX.Element {
   if (props.control === 'radio') {
-    const { control: _control, label, description, className, onSelect, ...radioProps } = props;
+    const { control: _control, label, description, className, ...radioProps } = props;
 
     return (
       <SelectCardLayout
         label={label}
         description={description}
         className={className}
-        onSelect={props.disabled ? undefined : onSelect}
         selectionControl={
           <RadioGroupItem
             renderMode="label-control"
             className="focus-visible:outline-none"
-            aria-label={label}
             {...radioProps}
           />
         }
@@ -111,19 +100,17 @@ export function SelectCard(props: SelectCardProps): JSX.Element {
     );
   }
 
-  const { control: _control, label, description, className, onSelect, ...checkboxProps } = props;
+  const { control: _control, label, description, className, ...checkboxProps } = props;
 
   return (
     <SelectCardLayout
       label={label}
       description={description}
       className={className}
-      onSelect={props.disabled ? undefined : onSelect}
       selectionControl={
         <Checkbox
           renderMode="label-control"
           className="focus-visible:outline-none"
-          aria-label={label}
           {...checkboxProps}
         />
       }

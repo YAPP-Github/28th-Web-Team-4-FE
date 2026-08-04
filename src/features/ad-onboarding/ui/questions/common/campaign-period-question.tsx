@@ -35,13 +35,7 @@ export function CampaignPeriodQuestion(_props: CampaignPeriodQuestionProps): JSX
       onValueChange={field.onChange}
     >
       {CAMPAIGN_PERIOD_OPTION_LIST.map((option) => (
-        <SelectCard
-          key={option.value}
-          control="radio"
-          value={option.value}
-          label={option.label}
-          onSelect={() => field.onChange(option.value)}
-        />
+        <SelectCard key={option.value} control="radio" value={option.value} label={option.label} />
       ))}
       {shouldShowShortCampaignNotice ? (
         <HStack

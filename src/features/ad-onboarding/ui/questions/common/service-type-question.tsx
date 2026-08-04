@@ -34,7 +34,6 @@ export function ServiceTypeQuestion(_props: ServiceTypeQuestionProps): JSX.Eleme
           value={option.value}
           label={option.label}
           description={'description' in option ? option.description : undefined}
-          onSelect={() => field.onChange(option.value)}
         />
       ))}
     </RadioGroup>

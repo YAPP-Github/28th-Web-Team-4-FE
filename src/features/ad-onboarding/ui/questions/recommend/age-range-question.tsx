@@ -40,7 +40,6 @@ export function AgeRangeQuestion(_props: AgeRangeQuestionProps): JSX.Element {
             checked={isChecked}
             disabled={isDisabled}
             onCheckedChange={() => field.onChange(toggleAgeRange(field.value, option.value))}
-            onSelect={() => field.onChange(toggleAgeRange(field.value, option.value))}
           />
         );
       })}

@@ -48,16 +48,14 @@ function RadioSelectCardExample(): JSX.Element {
         value="MOBILE_APP"
         label="모바일 앱"
         description="iOS / Android"
-        onSelect={() => setValue('MOBILE_APP')}
       />
       <SelectCard
         control="radio"
         value="WEB_SERVICE"
         label="웹 서비스"
         description="PC·모바일 브라우저"
-        onSelect={() => setValue('WEB_SERVICE')}
       />
-      <SelectCard control="radio" value="OTHER" label="기타" onSelect={() => setValue('OTHER')} />
+      <SelectCard control="radio" value="OTHER" label="기타" />
     </RadioGroup>
   );
 }
@@ -66,13 +64,7 @@ function CheckboxSelectCardExample(): JSX.Element {
   const [checked, setChecked] = useState(false);
 
   return (
-    <SelectCard
-      control="checkbox"
-      label="20대"
-      checked={checked}
-      onCheckedChange={setChecked}
-      onSelect={() => setChecked((previous) => !previous)}
-    />
+    <SelectCard control="checkbox" label="20대" checked={checked} onCheckedChange={setChecked} />
   );
 }
 
@@ -122,19 +114,8 @@ function DisabledRadioSelectCardExample(): JSX.Element {
 
   return (
     <RadioGroup value={value} onValueChange={setValue} aria-label="서비스 형태">
-      <SelectCard
-        control="radio"
-        value="MOBILE_APP"
-        label="모바일 앱"
-        onSelect={() => setValue('MOBILE_APP')}
-      />
-      <SelectCard
-        control="radio"
-        value="WEB_SERVICE"
-        label="웹 서비스"
-        disabled
-        onSelect={() => setValue('WEB_SERVICE')}
-      />
+      <SelectCard control="radio" value="MOBILE_APP" label="모바일 앱" />
+      <SelectCard control="radio" value="WEB_SERVICE" label="웹 서비스" disabled />
     </RadioGroup>
   );
 }
