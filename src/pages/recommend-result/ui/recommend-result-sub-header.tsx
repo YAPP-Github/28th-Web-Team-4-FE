@@ -3,6 +3,7 @@
 import { useState, type JSX } from 'react';
 import { Download, Info } from 'lucide-react';
 
+import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
@@ -67,15 +68,14 @@ export function RecommendResultSubHeader({
             입력하신 조건으로 분석했어요
           </Text>
         </Box>
-        <button
-          type="button"
-          className="bg-btn-sub-low border-outline-low text-text-high focus-visible:outline-sys-primary-default mt-008 h-044 gap-008 px-020 py-010 inline-flex items-center justify-center rounded-[var(--radius-s)] border focus-visible:outline-2 focus-visible:outline-offset-2 lg:mt-0"
+        <Button
+          frame="button"
+          tone="stroke"
+          className="border-outline-low mt-008 h-044 px-020 py-010 lg:mt-0"
+          leftIcon={<Download aria-hidden="true" className="text-icon-high size-016" />}
         >
-          <Download aria-hidden="true" className="text-icon-high size-016" />
-          <Text as="span" variant="subtitle-xs">
-            결과 저장하기
-          </Text>
-        </button>
+          결과 저장하기
+        </Button>
       </Box>
     </Box>
   );
