@@ -1,4 +1,7 @@
 import type { Preview } from '@storybook/nextjs-vite';
+import { OverlayProvider } from 'overlay-kit';
+
+import { ToastProvider } from '@/shared/ui/toast';
 
 // oxlint-disable-next-line import/no-relative-parent-imports
 import '../src/app/styles/globals.css';
@@ -8,9 +11,13 @@ import './fonts.css';
 const preview: Preview = {
   decorators: [
     (Story) => (
-      <div className="root">
-        <Story />
-      </div>
+      <OverlayProvider>
+        <ToastProvider>
+          <div className="root">
+            <Story />
+          </div>
+        </ToastProvider>
+      </OverlayProvider>
     ),
   ],
   parameters: {

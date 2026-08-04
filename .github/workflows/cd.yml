@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   cd:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     # Job steps
     steps:
       - name: Check for newer commits
@@ -76,7 +76,7 @@ jobs:
           ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build --platform linux/amd64 \
+          docker build --platform linux/arm64 \
             -f docker/Dockerfile \
             -t "$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" .
           docker push $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

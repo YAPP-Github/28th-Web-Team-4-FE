@@ -3,6 +3,7 @@
  * shadows
  */
 @theme {
+  --shadow-drop-shadow-03: 0 0 15px 0 #7b523926;
   --shadow-drop-shadow-01: 4px 4px 20px 0 #00000003;
   --shadow-drop-shadow-02: 0 0 4px 0 #6d6d6d33;
 }

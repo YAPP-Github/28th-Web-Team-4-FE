@@ -1,6 +1,9 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { OverlayProvider } from 'overlay-kit';
+
+import { ToastProvider } from '@/shared/ui/toast';
 
 import { AuthSessionManager } from '@/features/auth/session';
 
@@ -11,8 +14,12 @@ export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <QueryProvider>
       <AuthSessionManager />
-      {children}
-      <GoogleAnalyticsProvider />
+      <OverlayProvider>
+        <ToastProvider>
+          {children}
+          <GoogleAnalyticsProvider />
+        </ToastProvider>
+      </OverlayProvider>
     </QueryProvider>
   );
 }

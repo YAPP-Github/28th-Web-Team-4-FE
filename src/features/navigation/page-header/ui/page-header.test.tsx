@@ -21,7 +21,10 @@ describe('PageHeader', () => {
     expect(screen.getByRole('link', { name: 'chaesozip' })).toHaveAttribute('href', '/');
     expect(screen.getByRole('img', { name: 'chaesozip' })).toBeVisible();
     expect(screen.getByRole('navigation', { name: '주요 메뉴' })).toBeVisible();
-    expect(screen.getByRole('link', { name: '광고 채널 추천' })).toBeVisible();
+    expect(screen.getByRole('link', { name: '광고 채널 추천' })).toHaveAttribute(
+      'href',
+      '/recommend/onboarding/new',
+    );
     expect(screen.getByRole('link', { name: '광고 채널 추천' })).toHaveClass(
       'hover:text-text-highest',
       'hover:bg-surface-low',
@@ -29,9 +32,12 @@ describe('PageHeader', () => {
       'px-012',
       'py-008',
     );
-    expect(screen.getByRole('link', { name: '채널 비교' })).toBeVisible();
-    expect(screen.getByRole('link', { name: '예산 시뮬레이터' })).toBeVisible();
-    expect(screen.getByRole('link', { name: '마이페이지' })).toBeVisible();
+    expect(screen.getByRole('link', { name: '채널 비교' })).toHaveAttribute('href', '/compare');
+    expect(screen.getByRole('link', { name: '예산 시뮬레이터' })).toHaveAttribute(
+      'href',
+      '/simulator',
+    );
+    expect(screen.getByRole('link', { name: '마이페이지' })).toHaveAttribute('href', '/mypage');
     expect(screen.getByRole('button', { name: '시작하기' })).toHaveAttribute('href', '/login');
   });
 
