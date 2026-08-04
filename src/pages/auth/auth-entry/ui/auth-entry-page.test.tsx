@@ -133,14 +133,9 @@ describe('AuthEntryPage', () => {
   it('shows guidance when Google One Tap is skipped', async () => {
     const user = userEvent.setup();
     const promptMock = vi.fn<
-      (
-        listener?: (notification: {
-          isSkippedMoment: () => boolean;
-          isNotDisplayed: () => boolean;
-        }) => void,
-      ) => void
+      (listener?: (notification: { isSkippedMoment: () => boolean }) => void) => void
     >((listener) => {
-      listener?.({ isSkippedMoment: () => true, isNotDisplayed: () => false });
+      listener?.({ isSkippedMoment: () => true });
     });
     vi.stubEnv('NEXT_PUBLIC_GOOGLE_CLIENT_ID', 'google-client-id');
     vi.stubGlobal('google', {

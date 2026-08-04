@@ -23,7 +23,6 @@ import { Modal, TextModal } from '@/shared/ui/modal';
 
 type GoogleCredentialResponse = { credential?: string };
 type GooglePromptMomentNotification = {
-  isNotDisplayed: () => boolean;
   isSkippedMoment: () => boolean;
 };
 type GoogleIdentity = {
@@ -233,7 +232,7 @@ export function AuthEntryForm(): JSX.Element {
 
     setGoogleInitializationError(undefined);
     google.accounts.id.prompt((notification) => {
-      if (notification.isSkippedMoment() || notification.isNotDisplayed()) {
+      if (notification.isSkippedMoment()) {
         setGoogleInitializationError('Google 로그인을 진행하지 못했습니다. 다시 시도해 주세요.');
       }
     });
