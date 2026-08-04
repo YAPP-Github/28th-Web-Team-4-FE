@@ -67,4 +67,14 @@ describe('RecommendResultPage', () => {
       within(dialog).getByText('설정한 목적과 예산에서 유저에게 도달 효율이 가장 높아요'),
     ).toBeVisible();
   });
+
+  it('does not open the detail modal when adding a channel to the comparison list', async () => {
+    const user = userEvent.setup();
+
+    renderRecommendResultPage();
+
+    await user.click(screen.getAllByRole('button', { name: '비교 목록에 담기' })[0]);
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
 });
