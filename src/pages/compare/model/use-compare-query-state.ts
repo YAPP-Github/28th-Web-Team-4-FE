@@ -1,12 +1,12 @@
 'use client';
 
-import { debounce, parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
+import { debounce, parseAsArrayOf, parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 
 const SEARCH_URL_UPDATE_LIMIT = debounce(300);
 
 const compareQueryParsers = {
   q: parseAsString.withDefault(''),
-  category: parseAsString.withDefault(''),
+  category: parseAsArrayOf(parseAsString).withDefault([]),
   page: parseAsInteger.withDefault(1),
 };
 
@@ -25,9 +25,9 @@ export function useCompareQueryState() {
     );
   };
 
-  const setCategory = (nextCategory: string | null) => {
+  const setCategories = (nextCategories: readonly string[]) => {
     void setQuery(
-      { category: nextCategory, page: 1 },
+      { category: nextCategories.length > 0 ? [...nextCategories] : null, page: 1 },
       {
         history: 'push',
       },
@@ -48,7 +48,7 @@ export function useCompareQueryState() {
     category,
     page: Math.max(1, page),
     setSearchQuery,
-    setCategory,
+    setCategories,
     setPage,
   };
 }

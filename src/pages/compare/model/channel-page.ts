@@ -140,6 +140,8 @@ export const compareChannelPages = Array.from(
   }),
 );
 
+export const compareChannelList = compareChannelPages.flatMap((page) => page.content);
+
 export function toOnboardingCategoryId(primaryCategory: ChannelPrimaryCategory): CategoryId {
   return primaryCategory === 'OTHERS' ? 'OTHER' : primaryCategory;
 }

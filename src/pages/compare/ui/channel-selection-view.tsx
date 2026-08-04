@@ -2,49 +2,78 @@
 
 import type { JSX } from 'react';
 import NumberFlow from '@number-flow/react';
-import { ChevronDown, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
 import { Input as BaseInput } from '@base-ui/react/input';
 
-import { compareChannels, COMPARE_SELECTION_LIMIT } from '@/pages/compare/model/channels';
+import { CATEGORY_OPTION_LIST } from '@/features/ad-onboarding/model/common-onboarding-options';
+import {
+  COMPARE_CHANNEL_PAGE_SIZE,
+  compareChannelList,
+  toOnboardingCategoryId,
+  type ChannelListItem,
+} from '@/pages/compare/model/channel-page';
+import { COMPARE_SELECTION_LIMIT } from '@/pages/compare/model/channels';
 import { useChannelSelection } from '@/pages/compare/model/use-channel-selection';
 import { useCompareQueryState } from '@/pages/compare/model/use-compare-query-state';
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
+import { Pagination } from '@/shared/ui/pagination';
 import { Placeholder } from '@/shared/ui/placeholder';
+import { Select } from '@/shared/ui/select';
 import { Text } from '@/shared/ui/text';
 import { showWarningToast } from '@/shared/ui/toast';
 
 import { CompareChannelCard } from './compare-channel-card';
-import { ComparePagination } from './compare-pagination';
 
-function matchesQuery(query: string, channel: (typeof compareChannels)[number]): boolean {
-  if (!query) {
-    return true;
-  }
+const CATEGORY_FILTER_OPTIONS = CATEGORY_OPTION_LIST;
 
-  const target = [channel.name, channel.category, ...channel.descriptionLines]
-    .join(' ')
-    .toLocaleLowerCase();
+function matchesChannel(
+  query: string,
+  categories: readonly string[],
+  channel: ChannelListItem,
+): boolean {
+  const matchesName = !query || channel.name.toLocaleLowerCase().includes(query);
+  const matchesCategory =
+    categories.length === 0 || categories.includes(toOnboardingCategoryId(channel.primaryCategory));
 
-  return target.includes(query);
+  return matchesName && matchesCategory;
 }
 
-function CompareCategoryButton(): JSX.Element {
+function getCategoryLabel(category: string): string {
+  return CATEGORY_FILTER_OPTIONS.find((option) => option.value === category)?.label ?? '전체';
+}
+
+function getCategoryTriggerLabel(categories: readonly string[]): string {
+  if (categories.length === 0) {
+    return '전체';
+  }
+
+  const firstCategoryLabel = getCategoryLabel(categories[0] ?? '');
+
+  return categories.length === 1
+    ? firstCategoryLabel
+    : `${firstCategoryLabel} 외 ${categories.length - 1}개`;
+}
+
+function CompareCategoryMultiSelect({
+  value,
+  onValueChange,
+}: {
+  value: readonly string[];
+  onValueChange: (value: string[]) => void;
+}): JSX.Element {
   return (
-    <button
-      type="button"
-      className={cn([
-        'border-outline-default bg-surface-lowest flex h-036 w-full items-center justify-between rounded-[var(--radius-s)] border',
-        'px-014 py-008 text-text-low',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sys-primary-default',
-        'sm:w-[206px]',
-      ])}
-    >
-      <Text variant="subtitle-xxs">전체</Text>
-      <ChevronDown aria-hidden className="size-020 text-icon-default" strokeWidth={1.8} />
-    </button>
+    <Select
+      options={CATEGORY_FILTER_OPTIONS}
+      placeholder="전체"
+      triggerAriaLabel="채널 카테고리"
+      value={[...value]}
+      onValueChange={onValueChange}
+      renderValue={getCategoryTriggerLabel}
+      className="h-036 sm:w-[206px]"
+    />
   );
 }
 
@@ -81,9 +110,13 @@ function CompareSearchInput({
 }
 
 function CompareSubHeader({
+  category,
+  onCategoryChange,
   query,
   onQueryChange,
 }: {
+  category: readonly string[];
+  onCategoryChange: (category: string[]) => void;
   query: string;
   onQueryChange: (query: string) => void;
 }): JSX.Element {
@@ -99,7 +132,7 @@ function CompareSubHeader({
           </Text>
         </Box>
         <Box className="gap-016 flex w-full flex-col sm:w-auto sm:flex-row sm:items-center">
-          <CompareCategoryButton />
+          <CompareCategoryMultiSelect value={category} onValueChange={onCategoryChange} />
           <CompareSearchInput value={query} onChange={onQueryChange} />
         </Box>
       </Box>
@@ -113,8 +146,15 @@ export function ChannelSelectionView(): JSX.Element {
   const channelSelection = useChannelSelection();
 
   const normalizedQuery = compareQueryState.q.trim().toLocaleLowerCase();
-  const filteredChannels = compareChannels.filter((channel) =>
-    matchesQuery(normalizedQuery, channel),
+  const filteredChannels = compareChannelList.filter((channel) =>
+    matchesChannel(normalizedQuery, compareQueryState.category, channel),
+  );
+  const totalPages = Math.max(1, Math.ceil(filteredChannels.length / COMPARE_CHANNEL_PAGE_SIZE));
+  const currentPage = Math.min(compareQueryState.page, totalPages);
+  const pageStartIndex = (currentPage - 1) * COMPARE_CHANNEL_PAGE_SIZE;
+  const visibleChannels = filteredChannels.slice(
+    pageStartIndex,
+    pageStartIndex + COMPARE_CHANNEL_PAGE_SIZE,
   );
 
   const handleCompare = () => {
@@ -130,17 +170,19 @@ export function ChannelSelectionView(): JSX.Element {
   return (
     <Box className="flex min-h-0 flex-1 flex-col">
       <CompareSubHeader
+        category={compareQueryState.category}
+        onCategoryChange={compareQueryState.setCategories}
         query={compareQueryState.q}
         onQueryChange={compareQueryState.setSearchQuery}
       />
       <Box className="px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto py-[46px] lg:px-120">
         <Box className="w-full max-w-[1200px]">
-          {filteredChannels.length > 0 ? (
+          {visibleChannels.length > 0 ? (
             <Box
               as="ul"
               className="gap-x-024 gap-y-016 grid w-full grid-cols-1 justify-items-center md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
             >
-              {filteredChannels.map((channel) => (
+              {visibleChannels.map((channel) => (
                 <Box key={channel.id} as="li" className="flex w-full justify-center">
                   <CompareChannelCard
                     channel={channel}
@@ -163,7 +205,11 @@ export function ChannelSelectionView(): JSX.Element {
         <Box className="gap-016 py-020 md:py-000 grid w-full max-w-[1200px] grid-cols-1 items-center md:grid-cols-[1fr_auto_1fr]">
           <Box className="hidden md:block" />
           <Box className="flex justify-center">
-            <ComparePagination />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={compareQueryState.setPage}
+            />
           </Box>
           <Box className="flex justify-center md:justify-end">
             <Button

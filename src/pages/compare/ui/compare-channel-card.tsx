@@ -3,7 +3,8 @@
 import type { JSX } from 'react';
 import Image from 'next/image';
 
-import type { CompareChannel } from '@/pages/compare/model/channels';
+import { getChannelCategoryLabel, type ChannelListItem } from '@/pages/compare/model/channel-page';
+import { Avatar } from '@/shared/ui/avatar';
 import { Badge } from '@/shared/ui/badge';
 import { Checkbox } from '@/shared/ui/checkbox';
 import { cn } from '@/shared/ui/cn';
@@ -11,7 +12,7 @@ import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
 type CompareChannelCardProps = {
-  channel: CompareChannel;
+  channel: ChannelListItem;
   checked: boolean;
   onToggle: (channelId: string) => void;
 };
@@ -20,18 +21,16 @@ function CompareChannelCardHeader({
   channel,
   checked,
 }: {
-  channel: CompareChannel;
+  channel: ChannelListItem;
   checked: boolean;
 }): JSX.Element {
   return (
     <Box as="header" className="flex w-full items-start justify-between">
       <Box className="size-[33px] overflow-hidden rounded-[5.333px]">
-        <Image
-          src={channel.iconSrc}
+        <Avatar
+          src={channel.logoUrl ?? undefined}
           alt=""
-          width={33}
-          height={33}
-          className="size-full object-cover"
+          className="size-[33px] rounded-[5.333px] hover:ring-0"
         />
       </Box>
       <Box
@@ -54,18 +53,14 @@ function CompareChannelCardHeader({
   );
 }
 
-function CompareChannelCardBody({ channel }: { channel: CompareChannel }): JSX.Element {
+function CompareChannelCardBody({ channel }: { channel: ChannelListItem }): JSX.Element {
   return (
     <Box className="gap-002 flex w-full flex-col items-start">
       <Text as="h2" variant="subtitle-lg" className="text-text-high line-clamp-1 w-full">
         {channel.name}
       </Text>
       <Text as="p" variant="body-lg" className="text-text-medium w-full">
-        {channel.descriptionLines.map((line) => (
-          <span key={line} className="block truncate">
-            {line}
-          </span>
-        ))}
+        <span className="line-clamp-2 block truncate">{channel.description}</span>
       </Text>
     </Box>
   );
@@ -75,7 +70,7 @@ function CompareChannelCardFooter({
   channel,
   checked,
 }: {
-  channel: CompareChannel;
+  channel: ChannelListItem;
   checked: boolean;
 }): JSX.Element {
   return (
@@ -86,7 +81,7 @@ function CompareChannelCardFooter({
         size="s"
         className="motion-safe:ease-out-cubic motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none"
       >
-        {channel.category}
+        {getChannelCategoryLabel(channel.primaryCategory)}
       </Badge>
     </Box>
   );
