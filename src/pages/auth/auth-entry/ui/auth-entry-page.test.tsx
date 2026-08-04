@@ -4,6 +4,8 @@ import userEvent from '@testing-library/user-event';
 
 import { getAuthEmailMethods } from '@/pages/auth/auth-entry/api/resolve-auth-email';
 import { authenticateGoogle } from '@/pages/auth/auth-entry/api/authenticate-google';
+import { linkGoogleAccount } from '@/pages/auth/auth-entry/api/link-google-account';
+import { markGoogleLinkFeedbackPending } from '@/shared/lib/auth/google-link-feedback';
 
 import { AuthEntryPage } from './auth-entry-page';
 
@@ -29,9 +31,17 @@ vi.mock('@/pages/auth/auth-entry/api/resolve-auth-email', () => ({
 vi.mock('@/pages/auth/auth-entry/api/authenticate-google', () => ({
   authenticateGoogle: vi.fn<typeof authenticateGoogle>(),
 }));
+vi.mock('@/pages/auth/auth-entry/api/link-google-account', () => ({
+  linkGoogleAccount: vi.fn<typeof linkGoogleAccount>(),
+}));
+vi.mock('@/shared/lib/auth/google-link-feedback', () => ({
+  markGoogleLinkFeedbackPending: vi.fn<typeof markGoogleLinkFeedbackPending>(),
+}));
 
 const getAuthEmailMethodsMock = vi.mocked(getAuthEmailMethods);
 const authenticateGoogleMock = vi.mocked(authenticateGoogle);
+const linkGoogleAccountMock = vi.mocked(linkGoogleAccount);
+const markGoogleLinkFeedbackPendingMock = vi.mocked(markGoogleLinkFeedbackPending);
 
 function renderAuthEntryPage() {
   const queryClient = new QueryClient({
@@ -46,6 +56,32 @@ function renderAuthEntryPage() {
       <AuthEntryPage />
     </QueryClientProvider>,
   );
+}
+
+async function openGoogleLinkModal() {
+  let credentialCallback: ((response: { credential?: string }) => void) | undefined;
+  vi.stubEnv('NEXT_PUBLIC_GOOGLE_CLIENT_ID', 'google-client-id');
+  vi.stubGlobal('google', {
+    accounts: {
+      id: {
+        initialize: vi.fn<
+          (options: { callback: (response: { credential?: string }) => void }) => void
+        >((options) => {
+          credentialCallback = options.callback;
+        }),
+        prompt: vi.fn<() => void>(),
+      },
+    },
+  });
+  authenticateGoogleMock.mockResolvedValue({
+    type: 'link',
+    email: 'member@example.com',
+  });
+  renderAuthEntryPage();
+  act(() => scriptPropsMock.mock.calls.at(-1)?.[0].onReady?.());
+  act(() => credentialCallback?.({ credential: 'google-id-token' }));
+
+  return screen.findByRole('dialog', { name: 'Google 계정을 연동할까요?' });
 }
 
 describe('AuthEntryPage', () => {
@@ -123,34 +159,76 @@ describe('AuthEntryPage', () => {
 
   it('shows the account link modal and continues with local login when deferred', async () => {
     const user = userEvent.setup();
-    let credentialCallback: ((response: { credential?: string }) => void) | undefined;
-    vi.stubEnv('NEXT_PUBLIC_GOOGLE_CLIENT_ID', 'google-client-id');
-    vi.stubGlobal('google', {
-      accounts: {
-        id: {
-          initialize: vi.fn<
-            (options: { callback: (response: { credential?: string }) => void }) => void
-          >((options: { callback: (response: { credential?: string }) => void }) => {
-            credentialCallback = options.callback;
-          }),
-          prompt: vi.fn<() => void>(),
-        },
-      },
-    });
-    authenticateGoogleMock.mockResolvedValue({
-      type: 'link',
-      email: 'member@example.com',
-    });
-    renderAuthEntryPage();
-    act(() => scriptPropsMock.mock.calls.at(-1)?.[0].onReady?.());
-
-    act(() => credentialCallback?.({ credential: 'google-id-token' }));
-
-    expect(await screen.findByRole('dialog', { name: 'Google 계정을 연동할까요?' })).toBeVisible();
+    expect(await openGoogleLinkModal()).toBeVisible();
     await user.click(screen.getByRole('button', { name: '나중에 하기' }));
 
     expect(await screen.findByRole('heading', { name: '로그인하기' })).toBeInTheDocument();
     expect(screen.getByDisplayValue('member@example.com')).toHaveAttribute('readonly');
+  });
+
+  it('returns to auth entry without selecting local login when the link modal is escaped', async () => {
+    const user = userEvent.setup();
+    expect(await openGoogleLinkModal()).toBeVisible();
+
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('dialog', { name: 'Google 계정을 연동할까요?' }),
+      ).not.toBeInTheDocument();
+    });
+    expect(screen.getByRole('heading', { name: '이메일로 시작하기' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: '로그인하기' })).not.toBeInTheDocument();
+  });
+
+  it('returns to auth entry without selecting local login when the link backdrop is clicked', async () => {
+    const user = userEvent.setup();
+    expect(await openGoogleLinkModal()).toBeVisible();
+    const backdrop = document.querySelector<HTMLElement>('.bg-surface-dimmed');
+
+    expect(backdrop).not.toBeNull();
+    if (!backdrop) {
+      throw new Error('Google link modal backdrop was not rendered.');
+    }
+    await user.click(backdrop);
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('dialog', { name: 'Google 계정을 연동할까요?' }),
+      ).not.toBeInTheDocument();
+    });
+    expect(screen.getByRole('heading', { name: '이메일로 시작하기' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: '로그인하기' })).not.toBeInTheDocument();
+  });
+
+  it('links the Google account, records feedback, and moves to home', async () => {
+    const user = userEvent.setup();
+    linkGoogleAccountMock.mockResolvedValue();
+    expect(await openGoogleLinkModal()).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: '연동하기' }));
+
+    await waitFor(() => {
+      expect(linkGoogleAccountMock).toHaveBeenCalledWith('google-id-token');
+      expect(markGoogleLinkFeedbackPendingMock).toHaveBeenCalledOnce();
+      expect(replaceMock).toHaveBeenCalledWith('/');
+    });
+  });
+
+  it('keeps the link modal open and shows the API error when linking fails', async () => {
+    const user = userEvent.setup();
+    linkGoogleAccountMock.mockRejectedValue({
+      error: { code: 'AUTH-009', message: '이미 다른 계정과 연결되어 있어요.' },
+    });
+    expect(await openGoogleLinkModal()).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: '연동하기' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('이미 다른 계정과 연결되어 있어요.');
+    expect(screen.getByRole('dialog', { name: 'Google 계정을 연동할까요?' })).toBeVisible();
+    expect(screen.getByRole('button', { name: '연동하기' })).toBeEnabled();
+    expect(markGoogleLinkFeedbackPendingMock).not.toHaveBeenCalled();
+    expect(replaceMock).not.toHaveBeenCalled();
   });
 
   it('shows the email format error using the designed helper text', async () => {
