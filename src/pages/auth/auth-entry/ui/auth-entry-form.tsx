@@ -252,6 +252,14 @@ export function AuthEntryForm(): JSX.Element {
     setGoogleLinkRequest(undefined);
     setGoogleLinkError(undefined);
   };
+  const dismissGoogleLink = () => {
+    if (isGoogleLinkPending) {
+      return;
+    }
+
+    setGoogleLinkRequest(undefined);
+    setGoogleLinkError(undefined);
+  };
   const confirmGoogleLink = async () => {
     if (!googleLinkRequest || isGoogleLinkPending) {
       return;
@@ -348,8 +356,8 @@ export function AuthEntryForm(): JSX.Element {
       <Modal.Root
         open={googleLinkRequest !== undefined}
         onOpenChange={(open) => {
-          if (!open && !isGoogleLinkPending) {
-            deferGoogleLink();
+          if (!open) {
+            dismissGoogleLink();
           }
         }}
       >
