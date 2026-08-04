@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type JSX, type ReactNode } from 'react';
+import { useEffect, useState, type JSX, type ReactNode } from 'react';
 import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'motion/react';
 import useMeasure from 'react-use-measure';
 
@@ -64,15 +64,23 @@ function ChannelDetailAnimatedPanel({
   className?: string;
 }): JSX.Element {
   const [measureRef, bounds] = useMeasure({ offsetSize: true });
+  const [hasMeasuredHeight, setHasMeasuredHeight] = useState(false);
   const reduceMotion = useReducedMotion();
   const height = bounds.height || 'auto';
+  const shouldAnimateHeight = hasMeasuredHeight && !reduceMotion && height !== 'auto';
+
+  useEffect(() => {
+    if (bounds.height > 0) {
+      setHasMeasuredHeight(true);
+    }
+  }, [bounds.height]);
 
   return (
     <MotionConfig transition={reduceMotion ? { duration: 0 } : PANEL_HEIGHT_TRANSITION}>
       <motion.div
         initial={false}
         animate={{ height }}
-        transition={reduceMotion || height === 'auto' ? { duration: 0 } : PANEL_HEIGHT_TRANSITION}
+        transition={shouldAnimateHeight ? PANEL_HEIGHT_TRANSITION : { duration: 0 }}
         className={cn('overflow-hidden', className)}
       >
         <div ref={measureRef} className="w-full">
