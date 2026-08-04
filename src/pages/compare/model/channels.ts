@@ -115,7 +115,3 @@ export const compareChannels = [
     iconSrc: '/compare-assets/youtube.png',
   },
 ] as const satisfies readonly CompareChannel[];
-
-export function getKnownCompareChannelIds(): Set<string> {
-  return new Set(compareChannels.map((channel) => channel.id));
-}

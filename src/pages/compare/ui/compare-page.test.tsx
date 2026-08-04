@@ -1,15 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { withNuqsTestingAdapter } from 'nuqs/adapters/testing';
 
 import { ComparePage } from './compare-page';
 
-const { searchParamsMock, showWarningToastMock } = vi.hoisted(() => ({
-  searchParamsMock: { value: '' },
+const { showWarningToastMock } = vi.hoisted(() => ({
   showWarningToastMock: vi.fn<(description: string, options?: { id?: string }) => void>(),
-}));
-
-vi.mock('next/navigation', () => ({
-  useSearchParams: () => new URLSearchParams(searchParamsMock.value),
 }));
 
 vi.mock('@number-flow/react', () => ({
@@ -24,8 +20,12 @@ vi.mock('motion/react', () => ({
   useReducedMotion: () => false,
 }));
 
-function renderComparePage() {
-  return render(<ComparePage />);
+function renderComparePage(searchParams = '') {
+  return render(<ComparePage />, {
+    wrapper: withNuqsTestingAdapter({
+      searchParams,
+    }),
+  });
 }
 
 function escapeRegExp(value: string) {
@@ -43,7 +43,6 @@ function getCompareButton() {
 describe('ComparePage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    searchParamsMock.value = '';
   });
 
   it('renders the Figma compare page shell with 12 channel cards and a disabled CTA', () => {
@@ -130,16 +129,14 @@ describe('ComparePage', () => {
     });
   });
 
-  it('restores up to 3 known channel ids from the URL query', () => {
-    searchParamsMock.value =
-      'channels=meta-feed-ad,unknown,kakao-bizboard,youtube-video-ad,naver-search-ad';
+  it('기존 channels query에서 선택을 복원하지 않는다', () => {
+    renderComparePage(
+      'channels=meta-feed-ad,unknown,kakao-bizboard,youtube-video-ad,naver-search-ad',
+    );
 
-    renderComparePage();
-
-    expect(getChannelCheckbox('메타 피드 광고')).toBeChecked();
-    expect(getChannelCheckbox('카카오 비즈보드')).toBeChecked();
-    expect(getChannelCheckbox('유튜브 영상 광고')).toBeChecked();
-    expect(getChannelCheckbox('네이버 검색 광고')).not.toBeChecked();
-    expect(getCompareButton()).toHaveTextContent('선택한 채널 비교하기 (3/3)');
+    expect(getChannelCheckbox('메타 피드 광고')).not.toBeChecked();
+    expect(getChannelCheckbox('카카오 비즈보드')).not.toBeChecked();
+    expect(getChannelCheckbox('유튜브 영상 광고')).not.toBeChecked();
+    expect(getCompareButton()).toHaveTextContent('선택한 채널 비교하기 (0/3)');
   });
 });
