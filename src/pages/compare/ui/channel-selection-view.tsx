@@ -4,12 +4,11 @@ import type { JSX } from 'react';
 import NumberFlow from '@number-flow/react';
 import { ChevronDown, Search } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
-import { useSearchParams } from 'next/navigation';
 import { Input as BaseInput } from '@base-ui/react/input';
 
 import { compareChannels, COMPARE_SELECTION_LIMIT } from '@/pages/compare/model/channels';
 import { useChannelSelection } from '@/pages/compare/model/use-channel-selection';
-import { useInput } from '@/pages/compare/model/use-input';
+import { useCompareQueryState } from '@/pages/compare/model/use-compare-query-state';
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
@@ -109,12 +108,11 @@ function CompareSubHeader({
 }
 
 export function ChannelSelectionView(): JSX.Element {
-  const searchParams = useSearchParams();
   const shouldReduceMotion = useReducedMotion();
-  const searchInput = useInput();
-  const channelSelection = useChannelSelection(searchParams?.get('channels') ?? null);
+  const compareQueryState = useCompareQueryState();
+  const channelSelection = useChannelSelection();
 
-  const normalizedQuery = searchInput.value.trim().toLocaleLowerCase();
+  const normalizedQuery = compareQueryState.q.trim().toLocaleLowerCase();
   const filteredChannels = compareChannels.filter((channel) =>
     matchesQuery(normalizedQuery, channel),
   );
@@ -131,7 +129,10 @@ export function ChannelSelectionView(): JSX.Element {
 
   return (
     <Box className="flex min-h-0 flex-1 flex-col">
-      <CompareSubHeader query={searchInput.value} onQueryChange={searchInput.setValue} />
+      <CompareSubHeader
+        query={compareQueryState.q}
+        onQueryChange={compareQueryState.setSearchQuery}
+      />
       <Box className="px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto py-[46px] lg:px-120">
         <Box className="w-full max-w-[1200px]">
           {filteredChannels.length > 0 ? (
@@ -179,9 +180,9 @@ export function ChannelSelectionView(): JSX.Element {
                   value={channelSelection.selectedCount}
                   trend={0}
                   animated={!shouldReduceMotion}
-                  transformTiming={{ duration: 120, easing: 'ease-out' }}
-                  spinTiming={{ duration: 120, easing: 'ease-out' }}
-                  opacityTiming={{ duration: 80, easing: 'ease-out' }}
+                  transformTiming={{ duration: 80, easing: 'ease-out' }}
+                  spinTiming={{ duration: 80, easing: 'ease-out' }}
+                  opacityTiming={{ duration: 50, easing: 'ease-out' }}
                 />
                 /{COMPARE_SELECTION_LIMIT})
               </span>
