@@ -18,7 +18,7 @@ export type { SelectOption } from './select-common';
 
 const SELECT_TRIGGER_CLASSES = [
   'typo-subtitle-xl flex h-11 w-full items-center gap-014 rounded-[var(--radius-s)] border border-outline-default px-014',
-  'bg-surface-lowest text-text-low outline-none select-none',
+  'bg-surface-lowest text-text-low cursor-pointer outline-none select-none',
   'transition-colors disabled:cursor-not-allowed disabled:opacity-50',
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-outline-high',
 ];

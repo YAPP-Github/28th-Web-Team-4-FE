@@ -222,14 +222,16 @@ export function ChannelSelectionView(): JSX.Element {
             >
               <span className="inline-flex items-center">
                 선택한 채널 비교하기 (
-                <NumberFlow
-                  value={channelSelection.selectedCount}
-                  trend={0}
-                  animated={!shouldReduceMotion}
-                  transformTiming={{ duration: 80, easing: 'ease-out' }}
-                  spinTiming={{ duration: 80, easing: 'ease-out' }}
-                  opacityTiming={{ duration: 50, easing: 'ease-out' }}
-                />
+                <span className="inline-flex translate-y-px">
+                  <NumberFlow
+                    value={channelSelection.selectedCount}
+                    trend={0}
+                    animated={!shouldReduceMotion}
+                    transformTiming={{ duration: 80, easing: 'ease-out' }}
+                    spinTiming={{ duration: 80, easing: 'ease-out' }}
+                    opacityTiming={{ duration: 50, easing: 'ease-out' }}
+                  />
+                </span>
                 /{COMPARE_SELECTION_LIMIT})
               </span>
             </Button>

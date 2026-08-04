@@ -141,7 +141,7 @@ describe('ComparePage', () => {
     await user.click(naverCheckbox);
 
     expect(naverCheckbox).toBeChecked();
-    expect(naverCard).toHaveClass('border-outline-selected');
+    expect(naverCard).toHaveClass('outline-outline-selected');
     expect(getCompareButton()).toHaveTextContent('선택한 채널 비교하기 (1/3)');
 
     await user.click(naverCheckbox);

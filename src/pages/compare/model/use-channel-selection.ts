@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import { showWarningToast } from '@/shared/ui/toast';
 
@@ -14,7 +14,7 @@ export function useChannelSelection() {
   const selectedCount = selectedIds.length;
   const canCompare = selectedCount === COMPARE_SELECTION_LIMIT;
 
-  const toggleChannel = useCallback((channelId: string) => {
+  const toggleChannel = (channelId: string) => {
     setSelectedIds((currentSelectedIds) => {
       if (currentSelectedIds.includes(channelId)) {
         return currentSelectedIds.filter((selectedId) => selectedId !== channelId);
@@ -27,7 +27,7 @@ export function useChannelSelection() {
 
       return [...currentSelectedIds, channelId];
     });
-  }, []);
+  };
 
   return {
     selectedIds,

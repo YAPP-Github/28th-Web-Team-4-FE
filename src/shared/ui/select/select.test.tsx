@@ -28,6 +28,7 @@ describe('Select', () => {
     const trigger = screen.getByRole('combobox', { name: '직무' });
 
     expect(trigger).toHaveTextContent('1개 선택');
+    expect(trigger).toHaveClass('cursor-pointer');
 
     await user.click(trigger);
 
