@@ -98,12 +98,11 @@ export function CompareChannelCard({
     <label
       className={cn(
         [
-          'bg-surface-lowest relative flex h-[176px] w-full max-w-[282px] cursor-pointer flex-col rounded-[var(--radius-m)]',
-          'border-2 border-transparent p-[18px]',
-          'motion-safe:ease-out-cubic motion-safe:transition-[border-color,box-shadow,outline-color,background-color] motion-safe:duration-150 motion-reduce:transition-none',
+          'bg-surface-lowest relative flex h-[176px] w-full max-w-[282px] cursor-pointer flex-col justify-between gap-012 rounded-[var(--radius-m)] p-020 outline outline-2 outline-transparent',
+          'transition-[outline-color,box-shadow] duration-150 ease-out',
           'has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-sys-primary-default',
         ],
-        checked ? 'border-outline-selected' : 'hover:shadow-drop-shadow-02',
+        checked ? 'outline-outline-selected' : 'hover:shadow-drop-shadow-02',
       )}
     >
       <Checkbox
@@ -119,7 +118,7 @@ export function CompareChannelCard({
 
       <CompareChannelCardHeader channel={channel} checked={checked} />
 
-      <Box className="mt-012 gap-008 flex w-full flex-col items-start">
+      <Box className="gap-008 flex w-full flex-col items-start">
         <CompareChannelCardBody channel={channel} />
         <CompareChannelCardFooter channel={channel} checked={checked} />
       </Box>
