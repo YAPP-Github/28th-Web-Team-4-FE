@@ -1,7 +1,7 @@
 'use client';
 
 import { flushSync } from 'react-dom';
-import { useMemo, useState, type JSX, type RefObject } from 'react';
+import { useState, type JSX, type RefObject } from 'react';
 import { FormProvider, useFormContext, useWatch } from 'react-hook-form';
 
 import {
@@ -140,17 +140,13 @@ function RecommendOnboardingFlowContent({
     throw new Error(`Unknown recommend onboarding step index: ${currentStep}`);
   }
 
-  const completedAnswerList = useMemo(
-    () =>
-      RECOMMEND_ONBOARDING_STEP_ID_LIST.slice(
-        0,
-        editingStep === null ? currentStep : furthestStep,
-      ).map((stepId) => ({
-        stepId,
-        label: getRecommendOnboardingAnswerLabel(stepId, draft),
-      })),
-    [currentStep, draft, editingStep, furthestStep],
-  );
+  const completedAnswerList = RECOMMEND_ONBOARDING_STEP_ID_LIST.slice(
+    0,
+    editingStep === null ? currentStep : furthestStep,
+  ).map((stepId) => ({
+    stepId,
+    label: getRecommendOnboardingAnswerLabel(stepId, draft),
+  }));
 
   if (editingStep !== null) {
     return (
