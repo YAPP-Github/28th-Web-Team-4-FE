@@ -1,19 +1,25 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type * as MotionReact from 'motion/react';
 import { vi } from 'vitest';
 
 import { PageHeader } from './page-header';
 
+const motionMockState = vi.hoisted(() => ({ shouldReduceMotion: false }));
 const useSelectedLayoutSegmentMock = vi.fn<() => string | null>(() => null);
 const MOBILE_VIEWPORT_QUERY = '(max-width: 1023px)';
+const SIDEBAR_EXIT_WAIT_OPTIONS = { timeout: 750 } as const;
 const mediaQueryChangeListeners = new Set<() => void>();
 
 let viewportWidth = 1023;
-
 function createMediaQueryList(query: string): MediaQueryList {
   return {
     get matches() {
-      return query === MOBILE_VIEWPORT_QUERY && viewportWidth < 1024;
+      if (query === MOBILE_VIEWPORT_QUERY) {
+        return viewportWidth < 1024;
+      }
+
+      return query.includes('prefers-reduced-motion') && motionMockState.shouldReduceMotion;
     },
     media: query,
     onchange: null,
@@ -57,10 +63,20 @@ vi.mock('next/navigation', () => ({
   useSelectedLayoutSegment: () => useSelectedLayoutSegmentMock(),
 }));
 
+vi.mock('motion/react', async (importOriginal) => {
+  const original = await importOriginal<typeof MotionReact>();
+
+  return {
+    ...original,
+    useReducedMotion: () => motionMockState.shouldReduceMotion,
+  };
+});
+
 describe('PageHeader', () => {
   beforeEach(() => {
     useSelectedLayoutSegmentMock.mockReturnValue(null);
     viewportWidth = 1023;
+    motionMockState.shouldReduceMotion = false;
     mediaQueryChangeListeners.clear();
     vi.mocked(window.matchMedia).mockImplementation(createMediaQueryList);
   });
@@ -139,22 +155,38 @@ describe('PageHeader', () => {
     render(<PageHeader />);
 
     const trigger = screen.getByRole('button', { name: '메뉴 열기' });
+    const hamburgerLines = trigger.querySelectorAll('line');
 
     expect(trigger).toHaveAttribute('aria-controls', 'page-header-mobile-sidebar');
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(hamburgerLines).toHaveLength(4);
+    hamburgerLines.forEach((line) => expect(line).toHaveAttribute('stroke-width', '1.5'));
 
     await user.click(trigger);
 
     const dialog = await screen.findByRole('dialog', { name: '전체 메뉴' });
     const mobileNavigation = within(dialog).getByRole('navigation', { name: '모바일 주요 메뉴' });
+    const sidebarPanel = within(dialog).getByTestId('mobile-sidebar-panel');
+    const sidebarLogo = within(dialog).getByRole('link', { name: 'chaesozip' });
+    const mobileNavigationLinks = within(mobileNavigation).getAllByRole('link');
 
     expect(dialog).toHaveAttribute('id', 'page-header-mobile-sidebar');
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(sidebarPanel).not.toContainElement(sidebarLogo);
+    expect(sidebarPanel).toContainElement(mobileNavigation);
+    mobileNavigationLinks.forEach((link, index) => {
+      expect(link.parentElement).toHaveStyle(`--sidebar-item-index: ${index}`);
+    });
     expect(within(mobileNavigation).getByRole('link', { name: '맞춤 채널 추천' })).toHaveAttribute(
       'href',
       '/recommend/onboarding/new',
     );
-    expect(within(dialog).getByText(/로그인하고 나에게 맞는 광고 채널을/)).toBeVisible();
+    await waitFor(() => {
+      expect(within(dialog).getByText(/로그인하고 나에게 맞는 광고 채널을/)).toBeVisible();
+    });
+    expect(within(dialog).getByText('추천받아 보세요!').closest('div[style]')).toHaveStyle(
+      `--sidebar-item-index: ${mobileNavigationLinks.length}`,
+    );
     expect(within(dialog).getByRole('button', { name: '시작하기' })).toHaveAttribute(
       'href',
       '/login',
@@ -165,7 +197,7 @@ describe('PageHeader', () => {
       expect(screen.queryByRole('dialog', { name: '전체 메뉴' })).not.toBeInTheDocument();
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
       expect(trigger).toHaveFocus();
-    });
+    }, SIDEBAR_EXIT_WAIT_OPTIONS);
   });
 
   it('removes and restores an open sidebar across the desktop breakpoint', async () => {
@@ -202,7 +234,7 @@ describe('PageHeader', () => {
     await user.click(within(dialog).getByRole('button', { name: '메뉴 닫기' }));
     await waitFor(() => {
       expect(screen.queryByRole('dialog', { name: '전체 메뉴' })).not.toBeInTheDocument();
-    });
+    }, SIDEBAR_EXIT_WAIT_OPTIONS);
 
     setViewportWidth(1024);
     setViewportWidth(1023);
@@ -238,7 +270,7 @@ describe('PageHeader', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog', { name: '전체 메뉴' })).not.toBeInTheDocument();
       expect(trigger).toHaveFocus();
-    });
+    }, SIDEBAR_EXIT_WAIT_OPTIONS);
   });
 
   it('clears the open intent when a sidebar link is selected', async () => {
@@ -254,7 +286,7 @@ describe('PageHeader', () => {
 
     await waitFor(() => {
       expect(screen.queryByRole('dialog', { name: '전체 메뉴' })).not.toBeInTheDocument();
-    });
+    }, SIDEBAR_EXIT_WAIT_OPTIONS);
 
     setViewportWidth(1024);
     setViewportWidth(1023);
@@ -271,6 +303,41 @@ describe('PageHeader', () => {
     expect(screen.queryByRole('dialog', { name: '전체 메뉴' })).not.toBeInTheDocument();
   });
 
+  it('finishes all sidebar state changes immediately when reduced motion is requested', async () => {
+    motionMockState.shouldReduceMotion = true;
+    const user = userEvent.setup();
+    render(<PageHeader />);
+
+    await user.click(screen.getByRole('button', { name: '메뉴 열기' }));
+
+    const dialog = await screen.findByRole('dialog', { name: '전체 메뉴' });
+    const panel = within(dialog).getByTestId('mobile-sidebar-panel');
+
+    expect(panel).toHaveStyle({
+      opacity: '1',
+      transform: 'translateY(0%) scale(1)',
+    });
+    expect(within(dialog).getByText(/로그인하고 나에게 맞는 광고 채널을/)).toBeVisible();
+
+    await user.click(within(dialog).getByRole('button', { name: '메뉴 닫기' }));
+
+    expect(screen.queryByRole('dialog', { name: '전체 메뉴' })).not.toBeInTheDocument();
+  });
+
+  it('settles closed when the sidebar is closed during its entrance', async () => {
+    const user = userEvent.setup();
+    render(<PageHeader />);
+
+    await user.click(screen.getByRole('button', { name: '메뉴 열기' }));
+    const dialog = await screen.findByRole('dialog', { name: '전체 메뉴' });
+
+    await user.click(within(dialog).getByRole('button', { name: '메뉴 닫기' }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: '전체 메뉴' })).not.toBeInTheDocument();
+    }, SIDEBAR_EXIT_WAIT_OPTIONS);
+  });
+
   it('renders the authenticated identity in the basic sidebar', async () => {
     const user = userEvent.setup();
     render(<PageHeader isLogin userName="YAPP" />);
@@ -279,8 +346,10 @@ describe('PageHeader', () => {
 
     const dialog = await screen.findByRole('dialog', { name: '전체 메뉴' });
 
-    expect(within(dialog).getByRole('img', { name: 'YAPP 프로필' })).toBeVisible();
-    expect(within(dialog).getByText('YAPP 님')).toBeVisible();
+    await waitFor(() => {
+      expect(within(dialog).getByRole('img', { name: 'YAPP 프로필' })).toBeVisible();
+      expect(within(dialog).getByText('YAPP 님')).toBeVisible();
+    });
     expect(within(dialog).queryByRole('button', { name: '시작하기' })).not.toBeInTheDocument();
     expect(within(dialog).queryByText('로그아웃')).not.toBeInTheDocument();
   });
