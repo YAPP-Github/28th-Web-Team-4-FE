@@ -16,7 +16,7 @@ export function LogoutButton(): JSX.Element {
   const queryClient = useQueryClient();
   const [errorMessage, setErrorMessage] = useState<string>();
   const logoutMutation = useMutation({
-    mutationFn: logoutAuthSession,
+    mutationFn: () => logoutAuthSession(),
     onSuccess: () => {
       queryClient.setQueryData(authSessionQueryKey, { authenticated: false });
       router.replace('/login');
