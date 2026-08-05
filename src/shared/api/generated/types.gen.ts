@@ -46,16 +46,16 @@ export type ApiResponse = {
    */
   success: boolean;
   /**
-   * 성공 시 응답 본문. 실패 시 null
+   * 성공 시 응답 본문. 실패 시 생략
    */
   data?: {
     [key: string]: unknown;
-  } | null;
+  };
   error?: ErrorResponse;
   /**
-   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략
    */
-  code?: string | null;
+  code?: string;
 };
 
 /**
@@ -74,7 +74,7 @@ export type ErrorResponse = {
    * 검증 실패 시 필드별 상세 에러. 검증 외 에러는 빈 배열
    */
   fieldErrors: Array<FieldError>;
-} | null;
+};
 
 /**
  * 검증 실패 필드 상세
@@ -102,9 +102,9 @@ export type ApiResponseSimulationResponse = {
   data?: SimulationResponse;
   error?: ErrorResponse;
   /**
-   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략
    */
-  code?: string | null;
+  code?: string;
 };
 
 /**
@@ -119,7 +119,7 @@ export type CountRangeResponse = {
    * 상한
    */
   max: number;
-} | null;
+};
 
 /**
  * 매체별 시뮬레이션 결과
@@ -201,7 +201,7 @@ export type SimulationResponse = {
    * 매체별 결과. 요청한 순서를 유지한다
    */
   items: Array<SimulationItemResponse>;
-} | null;
+};
 
 /**
  * 샘플 생성 요청
@@ -221,9 +221,9 @@ export type ApiResponseSampleResponse = {
   data?: SampleResponse;
   error?: ErrorResponse;
   /**
-   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략
    */
-  code?: string | null;
+  code?: string;
 };
 
 /**
@@ -246,7 +246,7 @@ export type SampleResponse = {
    * 수정 시각
    */
   updatedAt?: string;
-} | null;
+};
 
 /**
  * 과거 광고 집행 실적 수동입력 1건
@@ -364,9 +364,9 @@ export type ApiResponseOnboardingSubmitResponse = {
   data?: OnboardingSubmitResponse;
   error?: ErrorResponse;
   /**
-   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략
    */
-  code?: string | null;
+  code?: string;
 };
 
 /**
@@ -381,7 +381,7 @@ export type OnboardingSubmitResponse = {
    * 생성 시각
    */
   createdAt: string;
-} | null;
+};
 
 /**
  * presign 발급할 성과파일 1건의 메타데이터
@@ -413,14 +413,14 @@ export type ApiResponseListPresignedFileUploadResult = {
    */
   success: boolean;
   /**
-   * 성공 시 응답 본문. 실패 시 null
+   * 성공 시 응답 본문. 실패 시 생략
    */
-  data?: Array<PresignedFileUploadResult> | null;
+  data?: Array<PresignedFileUploadResult>;
   error?: ErrorResponse;
   /**
-   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략
    */
-  code?: string | null;
+  code?: string;
 };
 
 /**
@@ -443,7 +443,7 @@ export type PresignedFileUploadResult = {
    * presigned URL 만료 시각
    */
   expiresAt: string;
-} | null;
+};
 
 /**
  * 회원가입 요청 (이메일 인증 완료 후 제출)
@@ -495,9 +495,9 @@ export type ApiResponseUserResponse = {
   data?: UserResponse;
   error?: ErrorResponse;
   /**
-   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략
    */
-  code?: string | null;
+  code?: string;
 };
 
 /**
@@ -516,7 +516,7 @@ export type UserResponse = {
    * 닉네임
    */
   nickname: string;
-} | null;
+};
 
 /**
  * 구글 최종 회원가입 요청 (signupToken + 로컬 가입과 동일 필드, password 제외)
@@ -564,9 +564,9 @@ export type ApiResponseTokenResponse = {
   data?: TokenResponse;
   error?: ErrorResponse;
   /**
-   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략
    */
-  code?: string | null;
+  code?: string;
 };
 
 /**
@@ -589,7 +589,7 @@ export type TokenResponse = {
    * 리프레시 토큰 만료(초, 고정값X)
    */
   refreshTokenExpiresIn: number;
-} | null;
+};
 
 /**
  * 이메일 인증 코드 발송 요청
@@ -607,16 +607,16 @@ export type ApiResponseVoid = {
    */
   success: boolean;
   /**
-   * 성공 시 응답 본문. 실패 시 null
+   * 성공 시 응답 본문. 실패 시 생략
    */
   data?: {
     [key: string]: unknown;
-  } | null;
+  };
   error?: ErrorResponse;
   /**
-   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략
    */
-  code?: string | null;
+  code?: string;
 };
 
 /**
@@ -675,9 +675,9 @@ export type ApiResponseLoginMethodsResponse = {
   data?: LoginMethodsResponse;
   error?: ErrorResponse;
   /**
-   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략
    */
-  code?: string | null;
+  code?: string;
 };
 
 /**
@@ -688,7 +688,7 @@ export type LoginMethodsResponse = {
    * 이 계정으로 로그인할 수 있는 방법. 비어 있으면 미가입
    */
   methods: Array<'LOCAL' | 'GOOGLE'>;
-} | null;
+};
 
 /**
  * 구글 idToken 요청
@@ -708,9 +708,9 @@ export type ApiResponseGoogleAuthResponse = {
   data?: GoogleAuthResponse;
   error?: ErrorResponse;
   /**
-   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략
    */
-  code?: string | null;
+  code?: string;
 };
 
 /**
@@ -754,7 +754,7 @@ export type GoogleAuthResponse = {
    */
   signupToken?: string | null;
   prefill?: Prefill;
-} | null;
+};
 
 /**
  * 가입 폼 프리필
@@ -768,7 +768,7 @@ export type Prefill = {
    * 구글 계정 이름. 계정에 이름이 없으면 null
    */
   suggestedNickname?: string | null;
-} | null;
+};
 
 export type ApiResponseListSampleResponse = {
   /**
@@ -776,14 +776,14 @@ export type ApiResponseListSampleResponse = {
    */
   success: boolean;
   /**
-   * 성공 시 응답 본문. 실패 시 null
+   * 성공 시 응답 본문. 실패 시 생략
    */
-  data?: Array<SampleResponse> | null;
+  data?: Array<SampleResponse>;
   error?: ErrorResponse;
   /**
-   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략
    */
-  code?: string | null;
+  code?: string;
 };
 
 export type ApiResponseListRecommendationItemResponse = {
@@ -792,14 +792,14 @@ export type ApiResponseListRecommendationItemResponse = {
    */
   success: boolean;
   /**
-   * 성공 시 응답 본문. 실패 시 null
+   * 성공 시 응답 본문. 실패 시 생략
    */
-  data?: Array<RecommendationItemResponse> | null;
+  data?: Array<RecommendationItemResponse>;
   error?: ErrorResponse;
   /**
-   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략
    */
-  code?: string | null;
+  code?: string;
 };
 
 /**
@@ -860,7 +860,7 @@ export type RecommendationItemResponse = {
    * 집행에 부족한 금액(원)
    */
   shortfallWon?: number | null;
-} | null;
+};
 
 export type ApiResponsePageResponseChannelListItemResponse = {
   /**
@@ -870,9 +870,9 @@ export type ApiResponsePageResponseChannelListItemResponse = {
   data?: PageResponseChannelListItemResponse;
   error?: ErrorResponse;
   /**
-   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략
    */
-  code?: string | null;
+  code?: string;
 };
 
 /**
@@ -950,7 +950,7 @@ export type PageResponseChannelListItemResponse = {
    * 마지막 페이지 여부
    */
   last: boolean;
-} | null;
+};
 
 export type ApiResponseChannelDetailResponse = {
   /**
@@ -960,9 +960,9 @@ export type ApiResponseChannelDetailResponse = {
   data?: ChannelDetailResponse;
   error?: ErrorResponse;
   /**
-   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략된다
+   * 성공 안내 코드. 안내할 것이 없으면 응답에서 생략
    */
-  code?: string | null;
+  code?: string;
 };
 
 /**
@@ -1114,7 +1114,7 @@ export type ChannelDetailResponse = {
    * 집행 사례 목록
    */
   references: Array<string>;
-} | null;
+};
 
 /**
  * 상품 단가
