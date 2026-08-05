@@ -9,6 +9,7 @@ import { logoutAuthSession, refreshAuthSession } from '@/features/auth/session/a
 import { authSessionQueryKey, authSessionQueryOptions } from './auth-session-query';
 
 const REFRESH_EARLY_MS = 30_000;
+const LOGOUT_DEADLINE_MS = 5_000;
 
 export function AuthSessionManager(): JSX.Element | null {
   const router = useRouter();
@@ -20,10 +21,15 @@ export function AuthSessionManager(): JSX.Element | null {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: authSessionQueryKey }),
     onError: async () => {
       // Refresh 결과가 불확실하면 같은 토큰으로 재시도하지 않고 안전하게 재로그인시킨다.
+      const logoutController = new AbortController();
+      const logoutTimeout = window.setTimeout(() => logoutController.abort(), LOGOUT_DEADLINE_MS);
+
       try {
-        await logoutAuthSession();
+        await logoutAuthSession(logoutController.signal);
       } catch {
         // 로그아웃 요청 실패 여부와 관계없이 클라이언트 세션을 정리한다.
+      } finally {
+        window.clearTimeout(logoutTimeout);
       }
 
       queryClient.setQueryData(authSessionQueryKey, { authenticated: false });

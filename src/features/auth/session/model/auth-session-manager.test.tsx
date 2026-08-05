@@ -115,9 +115,45 @@ describe('AuthSessionManager', () => {
 
       expect(refreshAuthSessionMock).toHaveBeenCalledOnce();
       expect(logoutAuthSessionMock).toHaveBeenCalledOnce();
+      expect(logoutAuthSessionMock).toHaveBeenCalledWith(expect.any(AbortSignal));
       expect(queryClient.getQueryData(['auth', 'session'])).toEqual({ authenticated: false });
       expect(replaceMock).toHaveBeenCalledWith('/login');
       expect(refreshMock).toHaveBeenCalledOnce();
     },
   );
+
+  it('continues local cleanup when logout exceeds its deadline', async () => {
+    getAuthSessionMock.mockResolvedValue({
+      authenticated: true,
+      accessTokenExpiresAt: Date.now() + 30_000,
+    });
+    refreshAuthSessionMock.mockRejectedValue(new Error('refresh failed'));
+    logoutAuthSessionMock.mockImplementation(
+      (signal) =>
+        new Promise<void>((_resolve, reject) => {
+          signal?.addEventListener('abort', () => reject(new Error('logout timed out')), {
+            once: true,
+          });
+        }),
+    );
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <AuthSessionManager />
+      </QueryClientProvider>,
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+      await vi.runAllTimersAsync();
+    });
+
+    expect(logoutAuthSessionMock).toHaveBeenCalledOnce();
+    expect(queryClient.getQueryData(['auth', 'session'])).toEqual({ authenticated: false });
+    expect(replaceMock).toHaveBeenCalledWith('/login');
+    expect(refreshMock).toHaveBeenCalledOnce();
+  });
 });

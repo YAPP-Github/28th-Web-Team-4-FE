@@ -30,10 +30,11 @@ export async function refreshAuthSession(): Promise<void> {
   await ensureResponseOk(response);
 }
 
-export async function logoutAuthSession(): Promise<void> {
+export async function logoutAuthSession(signal?: AbortSignal): Promise<void> {
   const response = await fetch('/api/auth/logout', {
     method: 'POST',
     credentials: 'same-origin',
+    ...(signal ? { signal } : {}),
   });
 
   await ensureResponseOk(response);

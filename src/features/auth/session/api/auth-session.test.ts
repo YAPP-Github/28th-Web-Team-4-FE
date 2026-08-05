@@ -44,4 +44,16 @@ describe('auth session api', () => {
       credentials: 'same-origin',
     });
   });
+
+  it('passes an abort signal to the logout BFF request', async () => {
+    const controller = new AbortController();
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    await expect(logoutAuthSession(controller.signal)).resolves.toBeUndefined();
+    expect(fetchMock).toHaveBeenCalledWith('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'same-origin',
+      signal: controller.signal,
+    });
+  });
 });
