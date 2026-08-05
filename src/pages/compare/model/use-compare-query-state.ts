@@ -17,7 +17,7 @@ export function useCompareQueryState() {
 
   const setSearchQuery = (nextQuery: string) => {
     void setQuery(
-      { q: nextQuery, page: 1 },
+      { q: nextQuery, page: null },
       {
         history: 'replace',
         limitUrlUpdates: SEARCH_URL_UPDATE_LIMIT,
@@ -27,18 +27,18 @@ export function useCompareQueryState() {
 
   const setCategories = (nextCategories: readonly string[]) => {
     void setQuery(
-      { category: nextCategories.length > 0 ? [...nextCategories] : null, page: 1 },
+      { category: nextCategories.length > 0 ? [...nextCategories] : null, page: null },
       {
         history: 'push',
       },
     );
   };
 
-  const setPage = (nextPage: number) => {
+  const setPage = (nextPage: number, options: { history?: 'push' | 'replace' } = {}) => {
     void setQuery(
       { page: Math.max(1, Math.trunc(nextPage)) },
       {
-        history: 'push',
+        history: options.history ?? 'push',
       },
     );
   };
