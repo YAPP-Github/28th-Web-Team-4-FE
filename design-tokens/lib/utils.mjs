@@ -24,26 +24,31 @@ export function formatTokenValue(token) {
   const value = getTokenValue(token);
   const type = getTokenType(token);
   const path = token.path;
+  const [group, category] = path;
 
   if (
     type === 'fontWeight' ||
-    (type === 'number' && path[0] === 'typography' && path[1] === 'fontWeight')
+    (type === 'number' && group === 'typography' && category === 'fontWeight')
   ) {
     return value;
   }
 
-  if (path[0] === 'opacity') {
+  if (group === 'opacity') {
     const n = typeof value === 'number' ? value : Number(value);
     if (!Number.isNaN(n)) {
       return n > 1 ? n / 100 : n;
     }
   }
 
+  if (type === 'lineHeights' || (group === 'typography' && category === 'lineHeight')) {
+    return formatPx(value);
+  }
+
   if (type === 'number') {
     return formatPx(value);
   }
 
-  if (type === 'fontFamily' || (path[0] === 'typography' && path[1] === 'fontFamily')) {
+  if (type === 'fontFamily' || (group === 'typography' && category === 'fontFamily')) {
     return `${value}, ${FONT_FALLBACK}`;
   }
 

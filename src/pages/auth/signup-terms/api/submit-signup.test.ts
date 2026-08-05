@@ -1,16 +1,23 @@
-import { signup, signupGoogle } from '@/shared/api/generated';
+import { signup } from '@/shared/api/generated';
 
 import { submitSignup } from './submit-signup';
 
 vi.mock('@/shared/api/generated', () => ({
   signup: vi.fn<typeof signup>(),
-  signupGoogle: vi.fn<typeof signupGoogle>(),
 }));
 
 const signupMock = vi.mocked(signup);
-const signupGoogleMock = vi.mocked(signupGoogle);
+const fetchMock = vi.fn<typeof fetch>();
 
 describe('submitSignup', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it('submits the completed signup draft', async () => {
     const body = {
       email: 'new@example.com',
@@ -42,15 +49,13 @@ describe('submitSignup', () => {
       termsAgreed: true,
       marketingAgreed: false,
     } as const;
-    signupGoogleMock.mockResolvedValue({
-      data: { success: true },
-      response: new Response(null, { status: 200 }),
-    });
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
 
     await expect(submitSignup({ method: 'google', body })).resolves.toBeUndefined();
-    expect(signupGoogleMock).toHaveBeenCalledWith({
-      body,
-      throwOnError: true,
+    expect(fetchMock).toHaveBeenCalledWith('/api/auth/signup/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
     });
   });
 });

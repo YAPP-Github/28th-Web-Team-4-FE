@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useShallow } from 'zustand/react/shallow';
@@ -25,6 +25,10 @@ const GOOGLE_ACCOUNT_MESSAGE =
 const EXISTING_ACCOUNT_MESSAGE = '이미 가입된 이메일이에요. 로그인을 이용해 주세요.';
 const EMAIL_CODE_SENT_KEY_PREFIX = 'signup-email-code-sent:';
 
+function getEmailCodeSentKey(email: string): string {
+  return `${EMAIL_CODE_SENT_KEY_PREFIX}${email}`;
+}
+
 function getSendResolutionErrorMessage(resolution: SignupEmailCodeResolution): string | undefined {
   if (resolution === 'google') {
     return GOOGLE_ACCOUNT_MESSAGE;
@@ -43,6 +47,7 @@ export function useSignupEmailVerificationForm(email: string) {
     signupEmailVerificationReducer,
     initialSignupEmailVerificationState,
   );
+  const initiallySentEmailRef = useRef<string | undefined>(undefined);
   const { completeEmailVerification, emailVerified, hasHydrated, startEmailSignup, storedEmail } =
     useSignupDraftStore(
       useShallow((state) => ({
@@ -55,16 +60,19 @@ export function useSignupEmailVerificationForm(email: string) {
     );
   const initialSendMutation = useMutation({
     mutationFn: sendSignupEmailVerificationCode,
-    onSuccess: (resolution) => {
+    onSuccess: (resolution, sentEmail) => {
       const errorMessage = getSendResolutionErrorMessage(resolution);
 
-      if (!errorMessage) {
+      if (resolution === 'signup') {
+        sessionStorage.setItem(getEmailCodeSentKey(sentEmail), 'true');
         return;
       }
 
+      sessionStorage.removeItem(getEmailCodeSentKey(sentEmail));
       dispatch({ type: 'failed', errorMessage });
     },
-    onError: (error) => {
+    onError: (error, sentEmail) => {
+      sessionStorage.removeItem(getEmailCodeSentKey(sentEmail));
       dispatch({
         type: 'failed',
         errorMessage: getApiErrorMessage(error, '인증 코드를 보내는 중 문제가 발생했습니다.'),
@@ -114,16 +122,15 @@ export function useSignupEmailVerificationForm(email: string) {
 
     startEmailSignup(email);
 
-    const emailCodeSentKey = `${EMAIL_CODE_SENT_KEY_PREFIX}${email}`;
-
     if (
       (storedEmail === email && emailVerified) ||
-      sessionStorage.getItem(emailCodeSentKey) === 'true'
+      initiallySentEmailRef.current === email ||
+      sessionStorage.getItem(getEmailCodeSentKey(email)) === 'true'
     ) {
       return;
     }
 
-    sessionStorage.setItem(emailCodeSentKey, 'true');
+    initiallySentEmailRef.current = email;
     sendInitialCode(email);
   }, [email, emailVerified, hasHydrated, sendInitialCode, startEmailSignup, storedEmail]);
 
