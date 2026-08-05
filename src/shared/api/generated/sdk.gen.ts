@@ -6,6 +6,9 @@ import type {
   CreateSampleData,
   CreateSampleErrors,
   CreateSampleResponses,
+  EstimateSimulationData,
+  EstimateSimulationErrors,
+  EstimateSimulationResponses,
   GetAllSamplesData,
   GetAllSamplesErrors,
   GetAllSamplesResponses,
@@ -15,6 +18,12 @@ import type {
   GetChannelsData,
   GetChannelsErrors,
   GetChannelsResponses,
+  GetLatestSimulationData,
+  GetLatestSimulationErrors,
+  GetLatestSimulationResponses,
+  GetRecommendationsData,
+  GetRecommendationsErrors,
+  GetRecommendationsResponses,
   GetSampleByIdData,
   GetSampleByIdErrors,
   GetSampleByIdResponses,
@@ -39,6 +48,9 @@ import type {
   RefreshData,
   RefreshErrors,
   RefreshResponses,
+  SaveSimulationData,
+  SaveSimulationErrors,
+  SaveSimulationResponses,
   SendSignupCodeData,
   SendSignupCodeErrors,
   SendSignupCodeResponses,
@@ -75,6 +87,45 @@ export type Options<
 };
 
 /**
+ * 예산 시뮬레이션 결과 저장
+ *
+ * 계산 결과를 스냅샷으로 저장하고 simulationId 를 포함해 반환한다. 사용자당 저장 개수에 제한이 없으며, 저장된 결과는 수정되지 않는다.
+ */
+export const saveSimulation = <ThrowOnError extends boolean = false>(
+  options: Options<SaveSimulationData, ThrowOnError>,
+): RequestResult<SaveSimulationResponses, SaveSimulationErrors, ThrowOnError> =>
+  (options.client ?? client).post<SaveSimulationResponses, SaveSimulationErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/simulations',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * 예산 시뮬레이션 계산
+ *
+ * 매체별 예산 배분에 대한 예상 노출·클릭을 계산해 반환한다. 저장하지 않으므로 응답에 simulationId 가 없다. 로그인 없이 호출할 수 있다. 매체별로 단가가 가장 싼 상품을 대표로 삼으며, CTR 이 없는 상품은 카탈로그 전체 평균 CTR 로 클릭을 계산한다. 집행 가능 여부는 기간과 무관하게 배분 예산이 단가를 넘는지로만 판단한다. cpcWon 은 모든 매체를 클릭당 비용 하나로 통일해 보여주는 값으로, 클릭당 과금 매체는 단가 그대로이고 그 외 매체는 배분 예산 / 예상 클릭 수(중앙값)로 환산한다.
+ */
+export const estimateSimulation = <ThrowOnError extends boolean = false>(
+  options: Options<EstimateSimulationData, ThrowOnError>,
+): RequestResult<EstimateSimulationResponses, EstimateSimulationErrors, ThrowOnError> =>
+  (options.client ?? client).post<
+    EstimateSimulationResponses,
+    EstimateSimulationErrors,
+    ThrowOnError
+  >({
+    url: '/api/v1/simulations/estimate',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
  * 샘플 목록 조회
  *
  * 전체 샘플 목록을 조회한다.
@@ -109,7 +160,8 @@ export const createSample = <ThrowOnError extends boolean = false>(
 /**
  * 온보딩 제출
  *
- * 로그인 여부와 관계없이 제출할 수 있다. 로그인 상태에서 다시 제출하면 이전 제출을 대체하고, 비로그인은 대체 없이 각각 저장된다.
+ * 로그인 여부와 관계없이 제출할 수 있다.
+ * 로그인 상태에서 다시 제출하면 이전 제출은 스냅샷으로 저장후 새로운 온보딩을 진행하고,비로그인은 userId = null로 각각 저장된다.
  */
 export const submitOnboarding = <ThrowOnError extends boolean = false>(
   options: Options<SubmitOnboardingData, ThrowOnError>,
@@ -236,7 +288,7 @@ export const refresh = <ThrowOnError extends boolean = false>(
 /**
  * 로그아웃
  *
- * 제출한 Refresh Token 의 세션(family)을 폐기한다. 인증된 사용자만 호출할 수 있고, 토큰 소유자가 인증 사용자와 다르면 401. 이미 폐기된 세션이어도 200 을 반환한다(멱등).
+ * 제출한 Refresh Token 의 세션(family)을 폐기한다. 인증된 사용자만 호출할 수 있고, 토큰 소유자가 인증 사용자와 다르면 401. 이미 폐기된 세션이어도 200 을 반환한다.
  */
 export const logout = <ThrowOnError extends boolean = false>(
   options: Options<LogoutData, ThrowOnError>,
@@ -271,7 +323,8 @@ export const login = <ThrowOnError extends boolean = false>(
 /**
  * 로그인 수단 조회
  *
- * 이메일로 사용 가능한 로그인 수단을 조회한다. 비밀번호 입력 전 화면 분기용. methods [LOCAL]: 비밀번호 입력창. [LOCAL, GOOGLE]: 비밀번호 입력창과 구글 버튼. [GOOGLE]: 구글로 가입된 계정 안내. []: 미가입 -> 회원가입 화면.
+ * 이메일로 사용 가능한 로그인 수단을 조회한다. 비밀번호 입력 전 화면 분기용.
+ * methods [LOCAL]: 비밀번호 입력창. [LOCAL, GOOGLE]: 비밀번호 입력창과 구글 버튼. [GOOGLE]: 구글로 가입된 계정 안내. []: 미가입 -> 회원가입 화면.
  */
 export const loginMethods = <ThrowOnError extends boolean = false>(
   options: Options<LoginMethodsData, ThrowOnError>,
@@ -288,7 +341,8 @@ export const loginMethods = <ThrowOnError extends boolean = false>(
 /**
  * 구글 인증 진입
  *
- * 구글 idToken 을 검증하고 계정 상태에 따라 status 로 분기한다. LOGIN: 토큰 발급. LINK_REQUIRED: linkRequired 와 email 을 내려주며, 사용자 확인 후 POST /auth/google/link 호출. SIGNUP_REQUIRED: signupRequired 와 일회성 signupToken, 프리필 값을 내려준다.
+ * 구글 idToken 을 검증하고 계정 상태에 따라 status 로 분기한다.
+ * LOGIN: 토큰 발급. LINK_REQUIRED: linkRequired 와 email 을 내려주며, 사용자 확인 후 POST /auth/google/link 호출. SIGNUP_REQUIRED: signupRequired 와 일회성 signupToken, 프리필 값을 내려준다.
  */
 export const googleAuth = <ThrowOnError extends boolean = false>(
   options: Options<GoogleAuthData, ThrowOnError>,
@@ -320,6 +374,24 @@ export const linkGoogle = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * 최신 시뮬레이션 결과 불러오기
+ *
+ * 사용자가 가장 최근에 저장한 결과를 재계산 없이 그대로 반환한다. 저장된 결과가 없으면 본문 없이 204 를 반환한다.
+ */
+export const getLatestSimulation = <ThrowOnError extends boolean = false>(
+  options?: Options<GetLatestSimulationData, ThrowOnError>,
+): RequestResult<GetLatestSimulationResponses, GetLatestSimulationErrors, ThrowOnError> =>
+  (options?.client ?? client).get<
+    GetLatestSimulationResponses,
+    GetLatestSimulationErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/simulations/latest',
+    ...options,
+  });
+
+/**
  * 샘플 단건 조회
  *
  * 식별자로 샘플을 조회한다.
@@ -334,9 +406,27 @@ export const getSampleById = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * 온보딩 기반 채널 추천
+ *
+ * 온보딩 응답을 업종·광고 목적·타깃 연령대로 매칭해 적합한 채널을 적합도 순으로 반환한다.
+ *
+ * 적합도가 같으면 집행 가능한 채널을 먼저, 그다음 매체명 순으로 정렬한다.
+ *
+ * 매체별로 단가가 가장 싼 상품을 대표로 삼고, 온보딩 예산의 상한(budgetMax)과 집행 기간을 적용한다. 예산이 최소 단가에 못 미치는 채널도 적합도가 있으면 추천에 넣되, 노출·클릭은 최소 단가로 집행했을 때를 기준으로 채우고 부족액(shortfallWon)을 함께 준다.
+ */
+export const getRecommendations = <ThrowOnError extends boolean = false>(
+  options: Options<GetRecommendationsData, ThrowOnError>,
+): RequestResult<GetRecommendationsResponses, GetRecommendationsErrors, ThrowOnError> =>
+  (options.client ?? client).get<
+    GetRecommendationsResponses,
+    GetRecommendationsErrors,
+    ThrowOnError
+  >({ url: '/api/v1/recommendations', ...options });
+
+/**
  * 채널 목록 조회
  *
- * 채널을 페이지 단위로 조회한다. 미지정 시 이름순 12개. name 지정 시 채널명으로 필터링
+ * 채널을 조회한다. page/size 를 모두 생략하면 페이지네이션 없이 전체 채널을 반환한다. page 또는 size 중 하나라도 지정하면 페이지 조회로 동작한다(생략된 값은 page=0, size=12). size 는 최대 100. name 지정 시 채널명으로 필터링. 정렬은 name, createdAt 만 지원한다(형식: sort=name,desc / 기본값 name,asc)
  */
 export const getChannels = <ThrowOnError extends boolean = false>(
   options?: Options<GetChannelsData, ThrowOnError>,
