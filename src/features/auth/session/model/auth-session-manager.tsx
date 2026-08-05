@@ -17,9 +17,7 @@ export function AuthSessionManager(): JSX.Element | null {
   const refreshMutation = useMutation({
     mutationFn: refreshAuthSession,
     retry: false,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: authSessionQueryKey });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: authSessionQueryKey }),
     onError: async () => {
       // Refresh 결과가 불확실하면 같은 토큰으로 재시도하지 않고 안전하게 재로그인시킨다.
       await logoutAuthSession().catch(() => undefined);
