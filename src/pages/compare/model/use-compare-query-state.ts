@@ -34,11 +34,11 @@ export function useCompareQueryState() {
     );
   };
 
-  const setPage = (nextPage: number, options: { history?: 'push' | 'replace' } = {}) => {
+  const setPage = (nextPage: number) => {
     void setQuery(
       { page: Math.max(1, Math.trunc(nextPage)) },
       {
-        history: options.history ?? 'push',
+        history: 'push',
       },
     );
   };

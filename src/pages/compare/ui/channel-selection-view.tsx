@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, type JSX } from 'react';
+import type { JSX } from 'react';
 import NumberFlow from '@number-flow/react';
 import { Search } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
@@ -144,26 +144,19 @@ export function ChannelSelectionView(): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
   const compareQueryState = useCompareQueryState();
   const channelSelection = useChannelSelection();
-  const { page, setPage } = compareQueryState;
 
   const normalizedQuery = compareQueryState.q.trim().toLocaleLowerCase();
   const filteredChannels = compareChannelList.filter((channel) =>
     matchesChannel(normalizedQuery, compareQueryState.category, channel),
   );
   const totalPages = Math.max(1, Math.ceil(filteredChannels.length / COMPARE_CHANNEL_PAGE_SIZE));
-  const currentPage = Math.min(page, totalPages);
-
-  useEffect(() => {
-    if (page > currentPage) {
-      setPage(currentPage, { history: 'replace' });
-    }
-  }, [currentPage, page, setPage]);
+  const currentPage = Math.min(compareQueryState.page, totalPages);
+  const isPageOutOfRange = compareQueryState.page > totalPages;
 
   const pageStartIndex = (currentPage - 1) * COMPARE_CHANNEL_PAGE_SIZE;
-  const visibleChannels = filteredChannels.slice(
-    pageStartIndex,
-    pageStartIndex + COMPARE_CHANNEL_PAGE_SIZE,
-  );
+  const visibleChannels = isPageOutOfRange
+    ? []
+    : filteredChannels.slice(pageStartIndex, pageStartIndex + COMPARE_CHANNEL_PAGE_SIZE);
 
   const handleCompare = () => {
     if (!channelSelection.canCompare) {
