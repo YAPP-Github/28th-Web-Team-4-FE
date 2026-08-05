@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type JSX } from 'react';
+import { useState, useSyncExternalStore, type JSX } from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { Menu as MenuIcon, X } from 'lucide-react';
 import Link from 'next/link';
@@ -22,22 +22,68 @@ export type PageHeaderMobileSidebarProps = {
 const iconButtonClassName =
   'focus-visible:outline-sys-primary-default -mr-3 flex size-11 cursor-pointer items-center justify-center rounded-[var(--radius-xxs)] outline-none focus-visible:outline-2 focus-visible:outline-offset-2';
 
+const MOBILE_VIEWPORT_QUERY = '(max-width: 1023px)';
+const MOBILE_SIDEBAR_ID = 'page-header-mobile-sidebar';
+const MOBILE_SIDEBAR_TRIGGER_ID = 'page-header-mobile-sidebar-trigger';
+
+function subscribeToMobileViewport(onStoreChange: () => void): () => void {
+  const mediaQueryList = window.matchMedia(MOBILE_VIEWPORT_QUERY);
+
+  mediaQueryList.addEventListener('change', onStoreChange);
+
+  return () => mediaQueryList.removeEventListener('change', onStoreChange);
+}
+
+function getIsMobileViewport(): boolean {
+  return window.matchMedia(MOBILE_VIEWPORT_QUERY).matches;
+}
+
+function getServerIsMobileViewport(): boolean {
+  return true;
+}
+
 export function PageHeaderMobileSidebar({
   isLogin,
   userName,
-}: PageHeaderMobileSidebarProps): JSX.Element {
-  const [open, setOpen] = useState(false);
-  const closeSidebar = () => setOpen(false);
+}: PageHeaderMobileSidebarProps): JSX.Element | null {
+  const [sidebarOpenIntent, setSidebarOpenIntent] = useState(false);
+  const isMobileViewport = useSyncExternalStore(
+    subscribeToMobileViewport,
+    getIsMobileViewport,
+    getServerIsMobileViewport,
+  );
+  const sidebarOpen = sidebarOpenIntent && isMobileViewport;
+  const closeSidebar = () => setSidebarOpenIntent(false);
+
+  if (!isMobileViewport) {
+    return null;
+  }
 
   return (
-    <Drawer.Root open={open} onOpenChange={setOpen} swipeDirection="down" disablePointerDismissal>
-      <Drawer.Trigger aria-label="메뉴 열기" className={iconButtonClassName}>
+    <Drawer.Root
+      open={sidebarOpen}
+      onOpenChange={setSidebarOpenIntent}
+      triggerId={MOBILE_SIDEBAR_TRIGGER_ID}
+      swipeDirection="down"
+      modal
+      disablePointerDismissal
+    >
+      <Drawer.Trigger
+        id={MOBILE_SIDEBAR_TRIGGER_ID}
+        aria-label="메뉴 열기"
+        aria-controls={MOBILE_SIDEBAR_ID}
+        aria-expanded={sidebarOpen}
+        className={iconButtonClassName}
+      >
         <MenuIcon className="size-020 text-icon-higher" strokeWidth={1.5} aria-hidden />
       </Drawer.Trigger>
 
       <Drawer.Portal>
         <Drawer.Viewport className="fixed inset-0 z-50 lg:hidden">
-          <Drawer.Popup className="bg-surface-lowest flex h-full w-full [transform:translateY(var(--drawer-swipe-movement-y))] touch-auto flex-col outline-none">
+          <Drawer.Popup
+            id={MOBILE_SIDEBAR_ID}
+            className="bg-surface-lowest flex h-full w-full [transform:translateY(var(--drawer-swipe-movement-y))] touch-auto flex-col outline-none"
+          >
             <Drawer.Content className="flex min-h-0 flex-1 flex-col">
               <Drawer.Title className="sr-only">전체 메뉴</Drawer.Title>
 
