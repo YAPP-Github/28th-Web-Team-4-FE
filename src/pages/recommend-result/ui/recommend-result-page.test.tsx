@@ -115,7 +115,13 @@ describe('RecommendResultPage', () => {
   it('always shows the cheapest CPC tooltip', () => {
     renderRecommendResultPage();
 
-    expect(screen.getByText('클릭당 비용이 가장 낮아요')).toBeVisible();
+    const tooltipText = screen.getByText('클릭당 비용이 가장 낮아요');
+
+    expect(tooltipText).toBeVisible();
+    expect(tooltipText.parentElement).toHaveClass('bg-surface-toast', 'text-text-lowest');
+    expect(tooltipText.parentElement?.querySelector('[aria-hidden="true"]')).toHaveStyle({
+      bottom: '-4px',
+    });
   });
 
   it('blurs the top two cards and provides login links for guests', () => {

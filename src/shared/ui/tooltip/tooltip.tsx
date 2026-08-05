@@ -35,6 +35,8 @@ export type TooltipRootProps = PropsWithChildren<{
   placement?: Placement;
   offset?: OffsetOptions;
   strategy?: 'absolute' | 'fixed';
+  allowFlip?: boolean;
+  allowShift?: boolean;
 }>;
 
 export type TooltipAnchorProps = ComponentPropsWithoutRef<'span'>;
@@ -66,17 +68,19 @@ const Root = ({
   placement = 'top',
   offset = 8,
   strategy = 'fixed',
+  allowFlip = true,
+  allowShift = true,
   children,
 }: TooltipRootProps): JSX.Element => {
   const arrowRef = useRef<HTMLSpanElement | null>(null);
   const middleware = useMemo(
     () => [
       offsetMiddleware(offset),
-      flipMiddleware(),
-      shiftMiddleware({ padding: SHIFT_PADDING }),
+      ...(allowFlip ? [flipMiddleware()] : []),
+      ...(allowShift ? [shiftMiddleware({ padding: SHIFT_PADDING })] : []),
       arrowMiddleware({ element: arrowRef, padding: ARROW_MIDDLEWARE_PADDING }),
     ],
-    [offset],
+    [allowFlip, allowShift, offset],
   );
   const floating = useFloating({
     placement,
@@ -123,7 +127,7 @@ const Content = ({
       ref={refs.setFloating}
       className={cn(
         'z-50 flex w-max max-w-[min(240px,calc(100vw-32px))] items-center justify-center',
-        'rounded-[var(--radius-s)] bg-surface-high px-012 py-006 text-text-lowest shadow-drop-shadow-01',
+        'rounded-[var(--radius-s)] bg-surface-toast px-012 py-006 text-text-lowest shadow-drop-shadow-01',
         className,
       )}
       style={{ ...floatingStyles, ...style }}
@@ -169,7 +173,7 @@ const Arrow = ({ className, style, ...props }: TooltipArrowProps): JSX.Element =
       as="span"
       aria-hidden="true"
       ref={arrowRef}
-      className={cn('absolute size-008 rotate-45 bg-surface-high', className)}
+      className={cn('absolute size-008 rotate-45 bg-surface-toast', className)}
       style={arrowStyle}
       {...props}
     />
