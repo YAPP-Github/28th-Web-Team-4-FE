@@ -10,6 +10,7 @@ import { RecommendedChannelCard } from './recommended-channel-card';
 type RecommendedChannelGridProps = {
   channels: readonly RecommendedChannel[];
   startDelay?: number;
+  startIndex?: number;
   selectedChannelIds: readonly string[];
   isGuest?: boolean;
   onOpenDetail: (channel: RecommendedChannel) => void;
@@ -19,6 +20,7 @@ type RecommendedChannelGridProps = {
 const MotionList = motion.ul;
 const MotionItem = motion.li;
 const CARD_ENTER_EASE = [0.23, 1, 0.32, 1] as const;
+const CARD_STAGGER_DELAY = 0.07;
 
 const gridVariants = {
   hidden: {},
@@ -48,6 +50,7 @@ const cardVariants = {
 export function RecommendedChannelGrid({
   channels,
   startDelay = 0.04,
+  startIndex = 0,
   selectedChannelIds,
   isGuest = false,
   onOpenDetail,
@@ -57,41 +60,55 @@ export function RecommendedChannelGrid({
 
   if (shouldReduceMotion) {
     return (
-      <ul className="gap-024 grid w-full max-w-[1200px] grid-cols-1 justify-items-center md:grid-cols-2 xl:grid-cols-4">
-        {channels.map((channel, index) => (
-          <li key={channel.id} className="flex w-full justify-center">
-            <RecommendedChannelCard
-              channel={channel}
-              selected={selectedChannelIds.includes(channel.id)}
-              locked={isGuest && index < 2}
-              onOpenDetail={onOpenDetail}
-              onToggleSelection={onToggleSelection}
-            />
-          </li>
-        ))}
+      <ul className="gap-024 grid w-full max-w-[1200px] grid-cols-1 justify-items-center sm:px-[56px] md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:px-0">
+        {channels.map((channel, index) => {
+          const channelIndex = startIndex + index;
+
+          return (
+            <li key={channel.id} className="flex w-full justify-center">
+              <RecommendedChannelCard
+                channel={channel}
+                selected={selectedChannelIds.includes(channel.id)}
+                locked={isGuest && channelIndex < 2}
+                imageLoading={channelIndex < 4 ? 'eager' : 'lazy'}
+                onOpenDetail={onOpenDetail}
+                onToggleSelection={onToggleSelection}
+              />
+            </li>
+          );
+        })}
       </ul>
     );
   }
 
   return (
     <MotionList
-      className="gap-024 grid w-full max-w-[1200px] grid-cols-1 justify-items-center md:grid-cols-2 xl:grid-cols-4"
+      className="gap-024 grid w-full max-w-[1200px] grid-cols-1 justify-items-center sm:px-[56px] md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:px-0"
       variants={gridVariants}
       initial="hidden"
       animate="show"
-      custom={startDelay}
+      custom={startDelay + startIndex * CARD_STAGGER_DELAY}
     >
-      {channels.map((channel, index) => (
-        <MotionItem key={channel.id} variants={cardVariants} className="flex w-full justify-center">
-          <RecommendedChannelCard
-            channel={channel}
-            selected={selectedChannelIds.includes(channel.id)}
-            locked={isGuest && index < 2}
-            onOpenDetail={onOpenDetail}
-            onToggleSelection={onToggleSelection}
-          />
-        </MotionItem>
-      ))}
+      {channels.map((channel, index) => {
+        const channelIndex = startIndex + index;
+
+        return (
+          <MotionItem
+            key={channel.id}
+            variants={cardVariants}
+            className="flex w-full justify-center"
+          >
+            <RecommendedChannelCard
+              channel={channel}
+              selected={selectedChannelIds.includes(channel.id)}
+              locked={isGuest && channelIndex < 2}
+              imageLoading={channelIndex < 4 ? 'eager' : 'lazy'}
+              onOpenDetail={onOpenDetail}
+              onToggleSelection={onToggleSelection}
+            />
+          </MotionItem>
+        );
+      })}
     </MotionList>
   );
 }

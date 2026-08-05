@@ -18,12 +18,14 @@ import {
 import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
 
-import { RecommendedChannelGrid } from './recommended-channel-grid';
+import { RecommendedChannelCarousel } from './recommended-channel-carousel';
 import { RecommendResultSubHeader } from './recommend-result-sub-header';
 
 type RecommendResultPageProps = {
   isGuest?: boolean;
 };
+
+const NUMBER_FLOW_EASE_OUT_CUBIC = 'cubic-bezier(0.215, 0.61, 0.355, 1)';
 
 export function RecommendResultPage({ isGuest = false }: RecommendResultPageProps): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
@@ -54,9 +56,9 @@ export function RecommendResultPage({ isGuest = false }: RecommendResultPageProp
   return (
     <main className="bg-surface-background-default flex flex-1 flex-col items-center">
       <RecommendResultSubHeader serviceName={serviceName} />
-      <Box className="px-016 pb-040 sm:px-032 flex w-full justify-center pt-[60px] lg:px-120">
+      <Box className="px-016 pb-040 sm:px-032 lg:px-064 flex w-full justify-center pt-[60px] xl:px-0">
         <Box className="gap-040 flex w-full max-w-[1200px] flex-col">
-          <RecommendedChannelGrid
+          <RecommendedChannelCarousel
             channels={recommendedChannels}
             startDelay={0.14}
             selectedChannelIds={selectedChannelIds}
@@ -77,8 +79,8 @@ export function RecommendResultPage({ isGuest = false }: RecommendResultPageProp
               value={selectedChannelIds.length}
               trend={0}
               animated={!shouldReduceMotion}
-              transformTiming={{ duration: 600, easing: 'ease-out' }}
-              opacityTiming={{ duration: 300, easing: 'ease-out' }}
+              transformTiming={{ duration: 180, easing: NUMBER_FLOW_EASE_OUT_CUBIC }}
+              opacityTiming={{ duration: 150, easing: NUMBER_FLOW_EASE_OUT_CUBIC }}
             />
             /{MAX_COMPARISON_CHANNELS})
           </Button>
