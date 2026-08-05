@@ -83,7 +83,7 @@ function RecommendSelectStepContent({
     <OnboardingQuestion
       title={step.question}
       description={step.description}
-      className="max-w-[410px]"
+      className={stepId === 'ad-goal' ? 'max-w-[518px]' : 'max-w-[410px]'}
     >
       {stepId === 'age-ranges' ? <AgeRangeQuestion /> : <AdGoalQuestion />}
       <StepActionButton disabled={!isComplete} onClick={onAction}>

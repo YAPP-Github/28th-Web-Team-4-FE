@@ -161,5 +161,18 @@ describe('recommend onboarding rules', () => {
         '광고를 운영해 봤어요 · 메타 광고',
       );
     });
+
+    it('연령대 답변 label을 낮은 연령대부터 정렬한다', () => {
+      const draft = createCompleteRecommendDraft({
+        ageRangeList: ['FORTIES', 'TEENS', 'TWENTIES'],
+      });
+
+      expect(getRecommendOnboardingAnswerLabel('age-ranges', draft)).toBe('10대, 20대, 40대');
+      expect(buildRecommendOnboardingAnswer(draft).ageRangeList).toEqual([
+        'TEENS',
+        'TWENTIES',
+        'FORTIES',
+      ]);
+    });
   });
 });

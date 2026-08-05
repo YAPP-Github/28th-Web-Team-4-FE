@@ -3,7 +3,7 @@
 import type { JSX } from 'react';
 import { Check, Info, X as XIcon } from 'lucide-react';
 
-import type { ChannelDetail } from '@/pages/recommend/model/channel-detail';
+import type { ChannelDetail } from '@/features/channel-detail/model/channel-detail';
 import { Box } from '@/shared/ui/layout/box';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';

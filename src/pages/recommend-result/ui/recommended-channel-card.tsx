@@ -10,16 +10,26 @@ import { Text } from '@/shared/ui/text';
 
 type RecommendedChannelCardProps = {
   channel: RecommendedChannel;
+  onOpenDetail: (channel: RecommendedChannel) => void;
 };
 
-export function RecommendedChannelCard({ channel }: RecommendedChannelCardProps): JSX.Element {
+export function RecommendedChannelCard({
+  channel,
+  onOpenDetail,
+}: RecommendedChannelCardProps): JSX.Element {
   return (
     <Box
       as="article"
-      className="group flex w-full max-w-[282px] cursor-pointer flex-col overflow-hidden rounded-[var(--radius-l)] motion-safe:transition-[translate,box-shadow] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:focus-within:-translate-y-1 motion-safe:focus-within:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)] motion-safe:hover:-translate-y-1 motion-safe:hover:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)]"
-      aria-labelledby={`${channel.id}-title`}
+      className="group relative flex w-full max-w-[282px] cursor-pointer flex-col overflow-hidden rounded-[var(--radius-l)] motion-safe:transition-[translate,box-shadow] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:focus-within:-translate-y-1 motion-safe:focus-within:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)] motion-safe:hover:-translate-y-1 motion-safe:hover:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)]"
     >
-      <Box className="relative h-[124px] w-full overflow-hidden rounded-t-[var(--radius-l)]">
+      <button
+        type="button"
+        aria-labelledby={`${channel.id}-title`}
+        onClick={() => onOpenDetail(channel)}
+        className="focus-visible:outline-outline-high absolute inset-0 z-10 cursor-pointer appearance-none rounded-[var(--radius-l)] border-0 bg-transparent p-0 focus-visible:outline-2 focus-visible:outline-offset-2"
+      />
+
+      <Box className="pointer-events-none relative h-[124px] w-full overflow-hidden rounded-t-[var(--radius-l)]">
         <Image
           src={channel.thumbnailSrc}
           alt=""
@@ -37,7 +47,7 @@ export function RecommendedChannelCard({ channel }: RecommendedChannelCardProps)
         </Badge>
       </Box>
 
-      <Box className="shadow-drop-shadow-02 bg-surface-lowest flex min-h-[416px] w-full flex-col items-center rounded-b-[var(--radius-l)] p-[28px]">
+      <Box className="shadow-drop-shadow-02 bg-surface-lowest pointer-events-none relative flex min-h-[416px] w-full flex-col items-center rounded-b-[var(--radius-l)] p-[28px]">
         <Box className="gap-022 flex w-full flex-1 flex-col items-center">
           <Box className="gap-022 flex w-full flex-col items-center">
             <Box className="gap-010 flex w-full max-w-[175px] flex-col items-center text-center">
@@ -93,7 +103,7 @@ export function RecommendedChannelCard({ channel }: RecommendedChannelCardProps)
           <Button
             frame="button"
             tone="stroke"
-            className="mt-auto w-full"
+            className="pointer-events-auto relative z-20 mt-auto w-full"
             leftIcon={<Plus aria-hidden="true" className="size-016" />}
           >
             비교 목록에 담기

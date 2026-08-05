@@ -139,8 +139,14 @@ export const AdGoal: Story = {
     const canvas = within(canvasElement);
     const option = canvas.getByRole('radio', { name: '구매·결제 전환' });
 
-    await expect(canvas.getByRole('heading', { name: '더 많은 사람에게 알리기' })).toBeVisible();
-    await expect(canvas.getByRole('heading', { name: '고객의 행동 유도하기' })).toBeVisible();
+    await expect(canvas.getByRole('radio', { name: '앱 설치' })).toBeVisible();
+    await expect(canvas.getByRole('radio', { name: '인앱 구매·행동' })).toBeVisible();
+    await expect(
+      canvas.queryByRole('heading', { name: '더 많은 사람에게 알리기' }),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('heading', { name: '고객의 행동 유도하기' }),
+    ).not.toBeInTheDocument();
     await userEvent.click(canvas.getByText('구매·결제 전환'));
     await expect(option).toBeChecked();
     await expect(canvas.getByRole('button', { name: '다음' })).toBeEnabled();
@@ -273,9 +279,9 @@ export const AdExperience: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const firstTime = canvas.getByRole('radio', { name: '집행은 처음이에요' });
+    const firstTime = canvas.getByRole('radio', { name: '광고 운영은 처음이에요' });
 
-    await userEvent.click(canvas.getByText('집행은 처음이에요'));
+    await userEvent.click(canvas.getByText('광고 운영은 처음이에요'));
     await expect(firstTime).toBeChecked();
     await userEvent.click(canvas.getByRole('button', { name: '다음' }));
     await expect(args.onAction).toHaveBeenCalledOnce();
@@ -298,7 +304,7 @@ export const AdExperienceDetails: Story = {
       canvas.getByRole('heading', { name: '진행했던 광고 성과들을 알려 주세요' }),
     ).toBeVisible();
     await expect(canvas.getByRole('button', { name: '건너뛰기' })).toBeEnabled();
-    await expect(canvas.getByRole('button', { name: '다음' })).toBeDisabled();
+    await expect(canvas.getByRole('button', { name: '결과 보기' })).toBeDisabled();
 
     const fileInput = canvasElement.querySelector<HTMLInputElement>('input[type="file"]');
     const file = new File(['performance'], 'meta-performance.csv', {
@@ -313,10 +319,10 @@ export const AdExperienceDetails: Story = {
 
     await userEvent.upload(fileInput, file);
     await expect(canvas.getByText('meta-performance.csv')).toBeVisible();
-    await expect(canvas.getByRole('button', { name: '다음' })).toBeEnabled();
+    await expect(canvas.getByRole('button', { name: '결과 보기' })).toBeEnabled();
 
     await userEvent.click(canvas.getByRole('button', { name: 'meta-performance.csv 삭제' }));
-    await expect(canvas.getByRole('button', { name: '다음' })).toBeDisabled();
+    await expect(canvas.getByRole('button', { name: '결과 보기' })).toBeDisabled();
 
     await userEvent.click(canvas.getByRole('tab', { name: '직접 입력' }));
     const channelCombobox = canvas.getByRole('combobox', { name: '광고 채널' });
@@ -324,6 +330,6 @@ export const AdExperienceDetails: Story = {
     await userEvent.click(body.getByRole('option', { name: '메타 광고' }));
 
     await expect(channelCombobox).toHaveValue('메타 광고');
-    await expect(canvas.getByRole('button', { name: '다음' })).toBeEnabled();
+    await expect(canvas.getByRole('button', { name: '결과 보기' })).toBeEnabled();
   },
 };

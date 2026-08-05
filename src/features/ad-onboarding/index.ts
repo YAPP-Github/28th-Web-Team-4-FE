@@ -3,10 +3,7 @@
  * 질문 옵션, Draft, 규칙, 세부 UI는 슬라이스 내부 구현으로 유지한다.
  */
 
-export type {
-  RecommendOnboardingAnswer,
-  SimulatorOnboardingAnswer,
-} from './model/onboarding-answer';
+export type { RecommendOnboardingAnswer } from './model/onboarding-answer';
 export {
   useRecommendOnboardingStore,
   type RecommendOnboardingStore,

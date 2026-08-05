@@ -18,21 +18,25 @@ describe('PageHeader', () => {
     render(<PageHeader />);
 
     expect(screen.getByRole('banner')).toBeVisible();
+    expect(screen.getByRole('banner')).toHaveClass('border-outline-low', 'border-b');
     expect(screen.getByRole('link', { name: 'chaesozip' })).toHaveAttribute('href', '/');
     expect(screen.getByRole('img', { name: 'chaesozip' })).toBeVisible();
     expect(screen.getByRole('navigation', { name: '주요 메뉴' })).toBeVisible();
-    expect(screen.getByRole('link', { name: '광고 채널 추천' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: '맞춤 채널 추천' })).toHaveAttribute(
       'href',
       '/recommend/onboarding/new',
     );
-    expect(screen.getByRole('link', { name: '광고 채널 추천' })).toHaveClass(
+    expect(screen.getByRole('link', { name: '맞춤 채널 추천' })).toHaveClass(
       'hover:text-text-highest',
       'hover:bg-surface-low',
       'rounded-[var(--radius-xs)]',
       'px-012',
       'py-008',
     );
-    expect(screen.getByRole('link', { name: '채널 비교' })).toHaveAttribute('href', '/compare');
+    expect(screen.getByRole('link', { name: '전체 채널 비교' })).toHaveAttribute(
+      'href',
+      '/compare',
+    );
     expect(screen.getByRole('link', { name: '예산 시뮬레이터' })).toHaveAttribute(
       'href',
       '/simulator',
@@ -46,8 +50,8 @@ describe('PageHeader', () => {
 
     render(<PageHeader />);
 
-    const activeLink = screen.getByRole('link', { name: '채널 비교' });
-    const inactiveLink = screen.getByRole('link', { name: '광고 채널 추천' });
+    const activeLink = screen.getByRole('link', { name: '전체 채널 비교' });
+    const inactiveLink = screen.getByRole('link', { name: '맞춤 채널 추천' });
 
     expect(activeLink).toHaveAttribute('aria-current', 'page');
     expect(activeLink).toHaveClass('text-text-highest');

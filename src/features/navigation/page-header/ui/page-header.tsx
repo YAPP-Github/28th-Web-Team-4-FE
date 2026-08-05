@@ -17,8 +17,8 @@ type NavigationItem = {
 };
 
 const NAVIGATION_ITEMS: readonly NavigationItem[] = [
-  { label: '광고 채널 추천', segment: 'recommend', href: '/recommend/onboarding/new' },
-  { label: '채널 비교', segment: 'compare' },
+  { label: '맞춤 채널 추천', segment: 'recommend', href: '/recommend/onboarding/new' },
+  { label: '전체 채널 비교', segment: 'compare' },
   { label: '예산 시뮬레이터', segment: 'simulator' },
   { label: '마이페이지', segment: 'mypage' },
 ] as const;
@@ -55,23 +55,26 @@ export function PageHeader(props: PageHeaderProps): JSX.Element {
     <HStack
       as="header"
       className={cn(
-        'bg-surface-lowest h-072 w-full justify-center px-016 sm:px-032 lg:px-120',
+        'bg-surface-lowest border-outline-low h-072 w-full justify-center border-b px-016 sm:px-032 lg:px-120',
         className,
       )}
       {...rest}
     >
-      <HStack
-        className={cn('gap-[80px] h-full w-full max-w-[1200px] justify-center', innerClassName)}
+      <Box
+        className={cn(
+          'grid h-full w-full max-w-[1200px] grid-cols-[136px_54px_minmax(0,1fr)] items-center',
+          innerClassName,
+        )}
       >
         <Link
           href="/"
-          className="focus-visible:outline-sys-primary-default focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="focus-visible:outline-sys-primary-default shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           <Logo />
         </Link>
-        <Box className="flex min-w-0 flex-1 items-center gap-[50px]">
-          <Box as="nav" aria-label="주요 메뉴" className="flex min-w-0 flex-1 items-center">
-            <Box className="flex h-full min-w-0 flex-1 items-center gap-[44px]">
+        <Box className="col-start-3 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-[38px]">
+          <Box as="nav" aria-label="주요 메뉴" className="min-w-0">
+            <Box className="flex h-full min-w-0 items-center gap-[26px]">
               {NAVIGATION_ITEMS.map((item) => (
                 <PageHeaderNavLink key={item.label} segment={item.segment} href={item.href}>
                   {item.label}
@@ -90,10 +93,12 @@ export function PageHeader(props: PageHeaderProps): JSX.Element {
               {props.accountAction}
             </Box>
           ) : (
-            <HeaderLoginButton />
+            <Box className="shrink-0">
+              <HeaderLoginButton />
+            </Box>
           )}
         </Box>
-      </HStack>
+      </Box>
     </HStack>
   );
 }
