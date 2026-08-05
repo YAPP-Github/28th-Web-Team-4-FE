@@ -60,7 +60,7 @@ function CompareChannelCardBody({ channel }: { channel: ChannelListItem }): JSX.
         {channel.name}
       </Text>
       <Text as="p" variant="body-lg" className="text-text-medium w-full">
-        <span className="line-clamp-2 block truncate">{channel.description}</span>
+        <span className="line-clamp-2 block">{channel.description}</span>
       </Text>
     </Box>
   );
