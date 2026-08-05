@@ -38,6 +38,12 @@ export const Default: Story = {
   },
 };
 
+export const Small: Story = {
+  args: {
+    type: 's',
+  },
+};
+
 export const Large: Story = {
   args: {
     type: 'l',

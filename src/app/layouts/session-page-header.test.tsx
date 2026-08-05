@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { authSessionQueryKey } from '@/features/auth/session/model/auth-session-query';
 
@@ -37,11 +38,15 @@ function renderHeader(authenticated: boolean) {
 }
 
 describe('SessionPageHeader', () => {
-  it('uses the hydrated authenticated session immediately', () => {
+  it('uses the hydrated authenticated session and shows the logout menu item', async () => {
+    const user = userEvent.setup();
     renderHeader(true);
 
-    expect(screen.getByRole('button', { name: '로그아웃' })).toBeVisible();
+    expect(screen.getByRole('button', { name: '계정 메뉴 열기' })).toBeVisible();
     expect(screen.queryByRole('button', { name: '시작하기' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '계정 메뉴 열기' }));
+    expect(await screen.findByRole('menuitem', { name: '로그아웃' })).toBeVisible();
   });
 
   it('uses the hydrated guest session immediately', () => {
