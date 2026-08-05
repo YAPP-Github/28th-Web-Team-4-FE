@@ -37,7 +37,7 @@ function CompareChannelCardHeader({
       <Box
         aria-hidden
         className={cn(
-          'size-016 flex shrink-0 items-center justify-center rounded-[999px]',
+          'size-016 motion-safe:ease-out-cubic motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none flex shrink-0 items-center justify-center rounded-[999px]',
           checked ? 'bg-btn-primary' : 'bg-outline-low',
         )}
       >
@@ -80,7 +80,12 @@ function CompareChannelCardFooter({
 }): JSX.Element {
   return (
     <Box as="footer">
-      <Badge frame="indicator" tone={checked ? 'orange' : 'gray'} size="s">
+      <Badge
+        frame="indicator"
+        tone={checked ? 'orange' : 'gray'}
+        size="s"
+        className="motion-safe:ease-out-cubic motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none"
+      >
         {channel.category}
       </Badge>
     </Box>
@@ -100,7 +105,7 @@ export function CompareChannelCard({
         [
           'bg-surface-lowest relative flex h-[176px] w-full max-w-[282px] cursor-pointer flex-col rounded-[var(--radius-m)]',
           'border-2 border-transparent p-[18px]',
-          'transition-[border-color,box-shadow] duration-150 ease-out',
+          'motion-safe:ease-out-cubic motion-safe:transition-[border-color,box-shadow,outline-color,background-color] motion-safe:duration-150 motion-reduce:transition-none',
           'has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-sys-primary-default',
         ],
         checked ? 'border-outline-selected' : 'hover:shadow-drop-shadow-02',
