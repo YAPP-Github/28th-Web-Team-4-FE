@@ -65,19 +65,24 @@ export async function postRefresh(request: Request): Promise<Response> {
     return new Response(null, { status: 401 });
   }
 
-  const result = await requestRefreshSingleFlight(session.refreshToken);
+  let result: RefreshResult;
+
+  try {
+    result = await requestRefreshSingleFlight(session.refreshToken);
+  } catch (error) {
+    await clearAuthSession();
+    return upstreamErrorResponse(error);
+  }
 
   if ('error' in result) {
-    if (result.response?.status === 401) {
-      await clearAuthSession();
-    }
-
+    await clearAuthSession();
     return upstreamErrorResponse(result.error, result.response?.status);
   }
 
   const tokens = extractTokenResponse(result.data.data);
 
   if (!tokens) {
+    await clearAuthSession();
     return upstreamErrorResponse(null);
   }
 

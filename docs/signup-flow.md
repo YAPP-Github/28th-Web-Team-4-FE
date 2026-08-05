@@ -142,39 +142,9 @@ Google 버튼은 `NEXT_PUBLIC_GOOGLE_CLIENT_ID`로 Google Identity Services를 �
 
 ## 로그인 세션
 
-백엔드를 인증의 단일 기준으로 유지하며, Next.js Route Handler가 BFF로서 서비스
-`accessToken`과 `refreshToken`을 브라우저 JavaScript에서 숨깁니다.
-
-```text
-브라우저 → /api/auth/* → 백엔드 인증 API
-             │
-             └─ AES-256-GCM 암호화 → HttpOnly 쿠키
-```
-
-- `POST /api/auth/google`: Google ID token을 백엔드에 전달하고 `LOGIN`이면 세션 저장
-- `POST /api/auth/signup/google`: Google 최종 가입 후 발급된 서비스 토큰 저장
-- `POST /api/auth/login`: 로컬 로그인 후 발급된 서비스 토큰 저장
-- `POST /api/auth/refresh`: 쿠키의 refresh token으로 토큰을 회전하고 쿠키 교체
-- `POST /api/auth/logout`: 백엔드 세션을 폐기하고 쿠키 삭제
-- `GET /api/auth/session`: 토큰을 노출하지 않고 로그인 여부와 access token 만료 시각만 반환
-
-세션 쿠키는 `HttpOnly`, `SameSite=Lax`, `Path=/`이며 운영 환경에서는 `Secure`와
-`__Host-` prefix를 함께 사용합니다. 쿠키 평문은 서버 전용 `SESSION_ENCRYPTION_KEY`로
-AES-256-GCM 인증 암호화합니다.
-
-`SESSION_ENCRYPTION_KEY`는 32바이트 base64url 문자열이어야 하며 Doppler에서 주입합니다.
-로컬에서 새 값을 생성할 때는 아래 명령을 사용할 수 있습니다.
-
-```bash
-node -p "require('node:crypto').randomBytes(32).toString('base64url')"
-```
-
-키를 변경하면 기존 세션 쿠키를 복호화할 수 없어 사용자가 다시 로그인해야 합니다. 무중단
-키 회전이 필요해지면 현재 키와 이전 키를 함께 읽는 key ring으로 확장합니다.
-
-동일한 서버 프로세스에서는 refresh token fingerprint 기반 single-flight로 동시 refresh 요청이
-하나의 회전 결과를 공유합니다. 다중 서버 인스턴스 사이에는 메모리가 공유되지 않으므로,
-서버 전체의 강한 동시성 보장이 필요하면 Redis 기반 세션으로 전환해야 합니다.
+로그인·회원가입으로 발급된 토큰은 Next.js BFF가 암호화된 HttpOnly 쿠키에 저장합니다. BFF를
+통한 인증 API 호출, 세션 갱신, 접근 제어 및 보안 규칙은 [`auth.md`](./auth.md)를 기준으로
+구현합니다.
 
 ## 테스트 위치
 
