@@ -3,24 +3,12 @@ import { cookies } from 'next/headers';
 import type { TokenResponse } from '@/shared/api/generated/types.gen';
 import {
   createAuthSession,
-  decryptAuthSession,
   encryptAuthSession,
-  getSessionCookieName,
   getSessionCookieOptions,
   type AuthSession,
 } from '@/shared/lib/auth/session';
 
-export async function readAuthSession(): Promise<AuthSession | null> {
-  const encryptedSession = (await cookies()).get(getSessionCookieName())?.value;
-
-  return encryptedSession ? decryptAuthSession(encryptedSession) : null;
-}
-
-export async function hasActiveAuthSession(now = Date.now()): Promise<boolean> {
-  const session = await readAuthSession();
-
-  return session !== null && session.refreshTokenExpiresAt > now;
-}
+export { hasActiveAuthSession, readAuthSession } from '@/shared/lib/auth/session-cookie';
 
 export async function writeAuthSession(tokens: TokenResponse): Promise<AuthSession> {
   const session = createAuthSession(tokens);

@@ -1,10 +1,10 @@
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 
-import { hasActiveAuthSession } from '@/app/api-routes/auth/session-cookie';
+import { hasActiveAuthSession } from '@/shared/lib/auth/session-cookie';
 
 import { AuthLayout } from './auth-layout';
 
-vi.mock('@/app/api-routes/auth/session-cookie', () => ({
+vi.mock('@/shared/lib/auth/session-cookie', () => ({
   hasActiveAuthSession: vi.fn<() => Promise<boolean>>(),
 }));
 
