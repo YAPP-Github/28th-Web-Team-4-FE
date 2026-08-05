@@ -1,6 +1,6 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { withNuqsTestingAdapter, type OnUrlUpdateFunction } from 'nuqs/adapters/testing';
+import { withNuqsTestingAdapter } from 'nuqs/adapters/testing';
 
 import { ComparePage } from './compare-page';
 
@@ -20,11 +20,10 @@ vi.mock('motion/react', () => ({
   useReducedMotion: () => false,
 }));
 
-function renderComparePage(searchParams = '', onUrlUpdate: OnUrlUpdateFunction = () => {}) {
+function renderComparePage(searchParams = '') {
   return render(<ComparePage />, {
     wrapper: withNuqsTestingAdapter({
       searchParams,
-      onUrlUpdate,
     }),
   });
 }
@@ -103,21 +102,16 @@ describe('ComparePage', () => {
     expect(screen.getByText('카카오 키워드 광고')).toBeVisible();
   });
 
-  it('보정이 필요한 deep link 페이지를 마지막 페이지로 제한하고 URL을 replace한다', async () => {
-    const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
+  it('범위를 벗어난 deep link 페이지는 빈 상태를 보여준다', () => {
+    renderComparePage('?page=99');
 
-    renderComparePage('?page=99', onUrlUpdate);
-
+    expect(screen.getByText('검색 결과가 없어요')).toBeVisible();
+    expect(screen.getByText('다른 검색어로 다시 찾아보세요')).toBeVisible();
+    expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
     expect(screen.getByRole('button', { name: '페이지 5' })).toHaveAttribute(
       'aria-current',
       'page',
     );
-
-    await waitFor(() => expect(onUrlUpdate).toHaveBeenCalled());
-
-    const event = onUrlUpdate.mock.lastCall?.[0];
-    expect(event?.searchParams.get('page')).toBe('5');
-    expect(event?.options.history).toBe('replace');
   });
 
   it('moves between pages and disables pagination controls at the boundaries', async () => {
