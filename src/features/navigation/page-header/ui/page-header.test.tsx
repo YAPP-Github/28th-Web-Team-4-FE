@@ -155,10 +155,12 @@ describe('PageHeader', () => {
     render(<PageHeader />);
 
     const trigger = screen.getByRole('button', { name: '메뉴 열기' });
+    const triggerIcon = trigger.querySelector('svg');
     const hamburgerLines = trigger.querySelectorAll('line');
 
     expect(trigger).toHaveAttribute('aria-controls', 'page-header-mobile-sidebar');
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(triggerIcon).toHaveAttribute('data-menu-icon', 'menu');
     expect(hamburgerLines).toHaveLength(4);
     hamburgerLines.forEach((line) => expect(line).toHaveAttribute('stroke-width', '1.5'));
 
@@ -172,6 +174,19 @@ describe('PageHeader', () => {
 
     expect(dialog).toHaveAttribute('id', 'page-header-mobile-sidebar');
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(triggerIcon).toHaveAttribute('data-menu-icon', 'close');
+    const closeIcon = within(dialog)
+      .getByRole('button', { name: '메뉴 닫기' })
+      .querySelector('svg');
+    const closeIconSecondaryLine = closeIcon?.querySelector('[data-menu-line="secondary"]');
+
+    expect(closeIcon).toHaveAttribute('data-menu-icon', 'close');
+    expect(closeIconSecondaryLine).toHaveClass(
+      '-rotate-45',
+      'opacity-100',
+      'starting:rotate-0',
+      'starting:opacity-0',
+    );
     expect(sidebarPanel).not.toContainElement(sidebarLogo);
     expect(sidebarPanel).toContainElement(mobileNavigation);
     mobileNavigationLinks.forEach((link, index) => {

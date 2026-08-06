@@ -27,7 +27,8 @@ const MOBILE_VIEWPORT_QUERY = '(max-width: 1023px)';
 const MOBILE_SIDEBAR_ID = 'page-header-mobile-sidebar';
 const MOBILE_SIDEBAR_TRIGGER_ID = 'page-header-mobile-sidebar-trigger';
 const SIDEBAR_EXIT_EASE = [0.37, 0, 0.63, 1] as const;
-const ICON_EASE = [0.645, 0.045, 0.355, 1] as const;
+const menuIconTransitionClassName =
+  'duration-[180ms] ease-[var(--ease-in-out-cubic,cubic-bezier(0.645,0.045,0.355,1))] motion-reduce:transition-none';
 
 type SidebarItemAnimationStyle = CSSProperties & {
   '--sidebar-item-index': number;
@@ -52,34 +53,11 @@ const sidebarExitVariants = {
   },
 } satisfies Variants;
 
-const iconTransition = {
-  duration: 0.18,
-  ease: ICON_EASE,
-} as const;
-
 type MenuMorphIconProps = {
   open: boolean;
-  animateOnMount?: boolean;
-  shouldReduceMotion: boolean;
 };
 
-function MenuMorphIcon({
-  open,
-  animateOnMount = false,
-  shouldReduceMotion,
-}: MenuMorphIconProps): JSX.Element {
-  const animateFromMenu = animateOnMount && open && !shouldReduceMotion;
-  const showInitialSecondaryLine = open && !animateFromMenu;
-  const initialRotation = animateFromMenu ? { rotate: 0 } : false;
-  const initialSecondaryLine = shouldReduceMotion
-    ? false
-    : {
-        opacity: showInitialSecondaryLine ? 1 : 0,
-        rotate: showInitialSecondaryLine ? -45 : 0,
-      };
-  const initialOuterLine = animateFromMenu ? { opacity: 1 } : false;
-  const transition = shouldReduceMotion ? { duration: 0 } : iconTransition;
-
+function MenuMorphIcon({ open }: MenuMorphIconProps): JSX.Element {
   return (
     <svg
       aria-hidden
@@ -88,10 +66,12 @@ function MenuMorphIcon({
       fill="none"
       className="text-icon-higher size-020 shrink-0"
     >
-      <motion.g
-        initial={initialOuterLine}
-        animate={{ opacity: open ? 0 : 1 }}
-        transition={transition}
+      <g
+        className={cn(
+          menuIconTransitionClassName,
+          'transition-opacity starting:opacity-100',
+          open && 'opacity-0',
+        )}
       >
         <line
           x1="3"
@@ -102,12 +82,13 @@ function MenuMorphIcon({
           strokeWidth="1.5"
           strokeLinecap="round"
         />
-      </motion.g>
-      <motion.g
-        style={{ transformOrigin: '10px 10px' }}
-        initial={initialRotation}
-        animate={{ rotate: open ? 45 : 0 }}
-        transition={transition}
+      </g>
+      <g
+        className={cn(
+          menuIconTransitionClassName,
+          'origin-[10px_10px] transition-[rotate] starting:rotate-0',
+          open && 'rotate-45',
+        )}
       >
         <line
           x1="3"
@@ -118,13 +99,14 @@ function MenuMorphIcon({
           strokeWidth="1.5"
           strokeLinecap="round"
         />
-      </motion.g>
-      <motion.g
+      </g>
+      <g
         data-menu-line="secondary"
-        style={{ transformOrigin: '10px 10px' }}
-        initial={initialSecondaryLine}
-        animate={{ opacity: open ? 1 : 0, rotate: open ? -45 : 0 }}
-        transition={transition}
+        className={cn(
+          menuIconTransitionClassName,
+          'origin-[10px_10px] opacity-0 transition-[opacity,rotate] starting:rotate-0 starting:opacity-0',
+          open && '-rotate-45 opacity-100',
+        )}
       >
         <line
           x1="3"
@@ -135,11 +117,13 @@ function MenuMorphIcon({
           strokeWidth="1.5"
           strokeLinecap="round"
         />
-      </motion.g>
-      <motion.g
-        initial={initialOuterLine}
-        animate={{ opacity: open ? 0 : 1 }}
-        transition={transition}
+      </g>
+      <g
+        className={cn(
+          menuIconTransitionClassName,
+          'transition-opacity starting:opacity-100',
+          open && 'opacity-0',
+        )}
       >
         <line
           x1="3"
@@ -150,7 +134,7 @@ function MenuMorphIcon({
           strokeWidth="1.5"
           strokeLinecap="round"
         />
-      </motion.g>
+      </g>
     </svg>
   );
 }
@@ -227,7 +211,7 @@ export function PageHeaderMobileSidebar({
         aria-expanded={sidebarOpen}
         className={`${iconButtonClassName} -mr-3`}
       >
-        <MenuMorphIcon open={sidebarOpen} shouldReduceMotion={shouldReduceMotion} />
+        <MenuMorphIcon open={sidebarOpen} />
       </Drawer.Trigger>
 
       <Drawer.Portal>
@@ -249,11 +233,7 @@ export function PageHeaderMobileSidebar({
                   <Logo type="s" alt="" />
                 </Link>
                 <Drawer.Close aria-label="메뉴 닫기" className={`${iconButtonClassName} -mr-3`}>
-                  <MenuMorphIcon
-                    open={sidebarOpen}
-                    animateOnMount
-                    shouldReduceMotion={shouldReduceMotion}
-                  />
+                  <MenuMorphIcon open={sidebarOpen} />
                 </Drawer.Close>
               </Box>
 
