@@ -13,6 +13,18 @@
     {
       "name": "nextjs-ecs-container",
       "image": "953138073651.dkr.ecr.ap-northeast-2.amazonaws.com/nextjs-ecr:latest",
+      "environment": [
+        {
+          "name": "BFF_ALLOWED_ORIGINS",
+          "value": "https://chaeso-zip.com,http://localhost:3000"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "SESSION_ENCRYPTION_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:953138073651:secret:/chaeso-zip/production/SESSION_ENCRYPTION_KEY-qCgSR4"
+        }
+      ],
       "essential": true,
       "portMappings": [
         {

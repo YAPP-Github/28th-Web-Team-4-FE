@@ -18,6 +18,10 @@
 flowchart LR
   login["/login<br/>가입 방식 선택"] --> verify["/signup?email=...<br/>이메일 인증"]
   login --> google["Google Identity Services<br/>Google 인증"]
+  google --> link{"기존 이메일 계정과<br/>연동 필요?"}
+  link -->|연동하기| home
+  link -->|나중에 하기| localLogin["로컬 비밀번호 로그인"]
+  link -->|Escape·외부 클릭| login
   verify --> password["/signup/password<br/>비밀번호"]
   password --> name["/signup/name<br/>이름"]
   google --> name
@@ -138,7 +142,11 @@ Google 버튼은 `NEXT_PUBLIC_GOOGLE_CLIENT_ID`로 Google Identity Services를 �
 
 - `LOGIN`: BFF가 서비스 토큰을 암호화된 `HttpOnly` 쿠키에 저장한 뒤 `/`로 이동
 - `SIGNUP_REQUIRED`: `signupToken`과 프리필을 저장하고 `/signup/name`으로 이동
-- `LINK_REQUIRED`: 아직 계정 연결 화면이 없어 오류로 안내
+- `LINK_REQUIRED`: 동일 이메일의 로컬 계정이 있으면 연결 확인 모달을 표시
+  - `나중에 하기`: 기존 이메일을 유지한 채 로컬 비밀번호 로그인으로 이동
+  - `연동하기`: `/api/auth/google/link`로 Google ID token을 보내고, BFF가 새 세션 쿠키를 저장하면 `/`로 이동해 성공 토스트 표시
+  - Escape 또는 외부 클릭: 연결 여부를 선택하지 않고 모달 직전의 이메일 인증 진입 화면으로 복귀
+  - 연결 요청 중에는 중복 요청과 중도 종료를 막기 위해 두 버튼과 모달 닫기를 비활성화
 
 ## 로그인 세션
 
@@ -158,6 +166,10 @@ Google 버튼은 `NEXT_PUBLIC_GOOGLE_CLIENT_ID`로 Google Identity Services를 �
 | `signup-email-verification-*.test.ts(x)` | 발송·재발송·검증 상태 전이 |
 | `submit-signup.test.ts` | 최종 API 요청 |
 | `signup-terms-form.test.tsx` | 필수 약관, 중복 제출 방지, 성공·실패 처리 |
+| `auth-entry-page.test.tsx` | Google 연결 모달의 연동·보류·닫기 및 실패 처리 |
+| `google-link.test.ts` | 연결 BFF의 요청 검증, 세션 저장, upstream 오류 처리 |
+| `google-link-feedback.test.ts` | 성공 토스트 신호의 일회성 소비와 저장소 예외 격리 |
+| `google-link-success-toast.test.tsx` | 연결 성공 신호가 있을 때만 홈 토스트 표시 |
 
 검증 명령:
 
@@ -171,3 +183,4 @@ node --run build
 ## 후속 작업
 
 - 약관별 `보기` 버튼에 실제 약관 콘텐츠 또는 상세 화면을 연결합니다.
+- 명시적인 Google 로그인 CTA는 One Tap `prompt()` 대신 GIS가 렌더링하는 Sign in with Google 버튼으로 전환하고, One Tap은 보조 진입점으로만 유지하는 방안을 검토합니다.
