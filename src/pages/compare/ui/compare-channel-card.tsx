@@ -13,22 +13,17 @@ import { Text } from '@/shared/ui/text';
 type CompareChannelCardProps = {
   channel: ChannelListItem;
   checked: boolean;
+  onOpenDetail: (channel: ChannelListItem) => void;
   onToggle: (channelId: string) => void;
 };
 
-function CompareChannelCardHeader({
-  channel,
-  checked,
-}: {
-  channel: ChannelListItem;
-  checked: boolean;
-}): JSX.Element {
+function CompareChannelCardHeader({ channel }: { channel: ChannelListItem }): JSX.Element {
   const logoUrl = channel.logoUrl?.trim() ?? '';
   const [failedLogoUrl, setFailedLogoUrl] = useState<string | null>(null);
   const shouldShowLogo = logoUrl.length > 0 && failedLogoUrl !== logoUrl;
 
   return (
-    <Box as="header" className="flex w-full items-start justify-between">
+    <Box as="header" className="flex w-full items-start">
       <Box className="bg-surface-low flex size-[33px] items-center justify-center overflow-hidden rounded-[5.333px]">
         {shouldShowLogo ? (
           <Image
@@ -46,21 +41,6 @@ function CompareChannelCardHeader({
             {Array.from(channel.name.trim())[0] ?? '?'}
           </Text>
         )}
-      </Box>
-      <Box
-        aria-hidden
-        className={cn(
-          'size-016 flex shrink-0 items-center justify-center rounded-[999px]',
-          checked ? 'bg-btn-primary' : 'bg-outline-low',
-        )}
-      >
-        <Image
-          src="/compare-assets/check.svg"
-          alt=""
-          width={9}
-          height={7}
-          className="h-[7px] w-[9px]"
-        />
       </Box>
     </Box>
   );
@@ -98,38 +78,50 @@ function CompareChannelCardFooter({
 export function CompareChannelCard({
   channel,
   checked,
+  onOpenDetail,
   onToggle,
 }: CompareChannelCardProps): JSX.Element {
   const checkboxLabel = `${channel.name} 선택`;
 
   return (
-    <label
+    <Box
+      data-testid="compare-channel-card"
       className={cn(
         [
-          'bg-surface-lowest relative flex h-[176px] w-full max-w-[282px] cursor-pointer flex-col justify-between gap-012 rounded-[var(--radius-m)] p-020 outline outline-2 outline-transparent',
+          'bg-surface-lowest relative h-[176px] w-full max-w-[282px] rounded-[var(--radius-m)] outline outline-2 outline-transparent',
           'transition-[outline-color,box-shadow] duration-150 ease-out',
-          'has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-sys-primary-default',
         ],
         checked ? 'outline-outline-selected' : 'hover:shadow-drop-shadow-02',
       )}
     >
+      <button
+        type="button"
+        aria-label={`${channel.name} 상세보기`}
+        onClick={() => {
+          onOpenDetail(channel);
+        }}
+        className={[
+          'flex size-full cursor-pointer flex-col justify-between gap-012 rounded-[var(--radius-m)] p-020 text-left',
+          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sys-primary-default',
+        ].join(' ')}
+      >
+        <CompareChannelCardHeader channel={channel} />
+
+        <Box className="gap-008 flex w-full flex-col items-start">
+          <CompareChannelCardBody channel={channel} />
+          <CompareChannelCardFooter channel={channel} checked={checked} />
+        </Box>
+      </button>
+
       <Checkbox
-        renderMode="label-control"
         checked={checked}
         onCheckedChange={() => {
           onToggle(channel.id);
         }}
         aria-label={checkboxLabel}
         value={channel.id}
-        className="sr-only"
+        className="bg-outline-low top-020 right-020 size-024 absolute z-10 rounded-full border-0"
       />
-
-      <CompareChannelCardHeader channel={channel} checked={checked} />
-
-      <Box className="gap-008 flex w-full flex-col items-start">
-        <CompareChannelCardBody channel={channel} />
-        <CompareChannelCardFooter channel={channel} checked={checked} />
-      </Box>
-    </label>
+    </Box>
   );
 }

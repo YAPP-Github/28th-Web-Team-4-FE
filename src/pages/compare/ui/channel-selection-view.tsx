@@ -6,6 +6,7 @@ import { Search } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
 import { Input as BaseInput } from '@base-ui/react/input';
 
+import { ChannelDetailContentSkeleton, openChannelDetailModal } from '@/features/channel-detail';
 import { useCompareChannels } from '@/pages/compare/api/use-compare-channels';
 import {
   CHANNEL_CATEGORY_OPTION_LIST,
@@ -138,6 +139,7 @@ type CompareChannelContentProps = {
   channels: ChannelListItem[];
   hasInitialError: boolean;
   isInitialLoading: boolean;
+  onOpenDetail: (channel: ChannelListItem) => void;
   onResetFilters: () => void;
   onRetry: () => void;
   onToggle: (channelId: string) => void;
@@ -148,6 +150,7 @@ function CompareChannelContent({
   channels,
   hasInitialError,
   isInitialLoading,
+  onOpenDetail,
   onResetFilters,
   onRetry,
   onToggle,
@@ -175,6 +178,7 @@ function CompareChannelContent({
           <CompareChannelCard
             channel={channel}
             checked={selectedIds.includes(channel.id)}
+            onOpenDetail={onOpenDetail}
             onToggle={onToggle}
           />
         </Box>
@@ -214,6 +218,13 @@ export function ChannelSelectionView(): JSX.Element {
     void channelsQuery.refetch();
   };
 
+  const handleOpenDetail = (channel: ChannelListItem) => {
+    openChannelDetailModal({
+      channel,
+      fallback: <ChannelDetailContentSkeleton />,
+    });
+  };
+
   const handleCompare = () => {
     if (!channelSelection.canCompare) {
       return;
@@ -246,6 +257,7 @@ export function ChannelSelectionView(): JSX.Element {
             channels={channels}
             hasInitialError={hasInitialError}
             isInitialLoading={isInitialLoading}
+            onOpenDetail={handleOpenDetail}
             onResetFilters={compareQueryState.resetFilters}
             onRetry={handleRetry}
             onToggle={channelSelection.toggleChannel}
