@@ -59,12 +59,15 @@ describe('useCompareQueryState', () => {
 
     expect(screen.getByTestId('query')).toHaveTextContent('새 검색어');
     expect(screen.getByTestId('page')).toHaveTextContent('1');
-    await waitFor(() => expect(onUrlUpdate).toHaveBeenCalled());
+    await waitFor(() => {
+      const event = onUrlUpdate.mock.lastCall?.[0];
+
+      expect(event?.searchParams.get('q')).toBe('새 검색어');
+      expect(event?.searchParams.get('category')).toBe('GAME');
+      expect(event?.searchParams.has('page')).toBe(false);
+    });
 
     const event = onUrlUpdate.mock.lastCall?.[0];
-    expect(event?.searchParams.get('q')).toBe('새 검색어');
-    expect(event?.searchParams.get('category')).toBe('GAME');
-    expect(event?.searchParams.has('page')).toBe(false);
     expect(event?.options.history).toBe('replace');
   });
 
