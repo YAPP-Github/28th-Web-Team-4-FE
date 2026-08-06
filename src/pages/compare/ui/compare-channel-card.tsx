@@ -1,10 +1,9 @@
 'use client';
 
-import type { JSX } from 'react';
+import { useState, type JSX } from 'react';
 import Image from 'next/image';
 
 import { getChannelCategoryLabel, type ChannelListItem } from '@/pages/compare/model/channel-page';
-import { Avatar } from '@/shared/ui/avatar';
 import { Badge } from '@/shared/ui/badge';
 import { Checkbox } from '@/shared/ui/checkbox';
 import { cn } from '@/shared/ui/cn';
@@ -24,14 +23,29 @@ function CompareChannelCardHeader({
   channel: ChannelListItem;
   checked: boolean;
 }): JSX.Element {
+  const logoUrl = channel.logoUrl?.trim() ?? '';
+  const [failedLogoUrl, setFailedLogoUrl] = useState<string | null>(null);
+  const shouldShowLogo = logoUrl.length > 0 && failedLogoUrl !== logoUrl;
+
   return (
     <Box as="header" className="flex w-full items-start justify-between">
-      <Box className="size-[33px] overflow-hidden rounded-[5.333px]">
-        <Avatar
-          src={channel.logoUrl ?? undefined}
-          alt=""
-          className="size-[33px] rounded-[5.333px] hover:ring-0"
-        />
+      <Box className="bg-surface-low flex size-[33px] items-center justify-center overflow-hidden rounded-[5.333px]">
+        {shouldShowLogo ? (
+          <Image
+            src={logoUrl}
+            alt=""
+            width={33}
+            height={33}
+            onError={() => {
+              setFailedLogoUrl(logoUrl);
+            }}
+            className="size-full object-cover"
+          />
+        ) : (
+          <Text aria-hidden variant="subtitle-xxs" className="text-text-medium">
+            {Array.from(channel.name.trim())[0] ?? '?'}
+          </Text>
+        )}
       </Box>
       <Box
         aria-hidden
@@ -45,7 +59,6 @@ function CompareChannelCardHeader({
           alt=""
           width={9}
           height={7}
-          unoptimized
           className="h-[7px] w-[9px]"
         />
       </Box>
@@ -59,8 +72,8 @@ function CompareChannelCardBody({ channel }: { channel: ChannelListItem }): JSX.
       <Text as="h2" variant="subtitle-lg" className="text-text-high line-clamp-1 w-full">
         {channel.name}
       </Text>
-      <Text as="p" variant="body-lg" className="text-text-medium w-full">
-        <span className="line-clamp-2 block">{channel.description}</span>
+      <Text as="p" variant="body-lg" className="text-text-medium line-clamp-2 w-full break-keep">
+        {channel.description ?? '채널 설명이 아직 없어요.'}
       </Text>
     </Box>
   );
