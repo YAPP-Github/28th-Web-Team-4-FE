@@ -1,5 +1,6 @@
 import { signup } from '@/shared/api/generated';
 import type { GoogleSignupRequest, SignupRequest } from '@/shared/api/generated/types.gen';
+import { authenticateLocal } from '@/shared/lib/auth/authenticate-local';
 import { ensureResponseOk } from '@/shared/api/response';
 
 export type SubmitSignupRequest =
@@ -20,4 +21,5 @@ export async function submitSignup(request: SubmitSignupRequest): Promise<void> 
   }
 
   await signup({ body: request.body, throwOnError: true });
+  await authenticateLocal(request.body.email, request.body.password);
 }
