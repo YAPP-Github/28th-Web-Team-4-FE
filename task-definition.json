@@ -19,6 +19,12 @@
           "value": "https://chaeso-zip.com,http://localhost:3000"
         }
       ],
+      "secrets": [
+        {
+          "name": "SESSION_ENCRYPTION_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:953138073651:secret:/chaeso-zip/production/SESSION_ENCRYPTION_KEY-qCgSR4"
+        }
+      ],
       "essential": true,
       "portMappings": [
         {
