@@ -55,6 +55,7 @@ function errorResponse(status: number): Awaited<ReturnType<typeof linkGoogle>> {
 
 describe('Google account link BFF', () => {
   beforeEach(() => {
+    vi.stubEnv('BFF_ALLOWED_ORIGINS', 'https://chaeso-zip.com,http://localhost:3000');
     vi.clearAllMocks();
     linkGoogleMock.mockResolvedValue(successResponse());
     writeAuthSessionMock.mockResolvedValue({
@@ -63,6 +64,10 @@ describe('Google account link BFF', () => {
       refreshToken: tokens.refreshToken,
       refreshTokenExpiresAt: 7_200_000,
     });
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it('links the account and stores the newly issued session', async () => {
