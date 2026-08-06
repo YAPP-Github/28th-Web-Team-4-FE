@@ -24,9 +24,11 @@ const SELECT_TRIGGER_CLASSES = [
 ];
 
 const SELECT_POPUP_CLASSES = [
-  'rounded-m border-outline-default bg-surface-lowest relative max-h-[356px] w-[var(--anchor-width)] overflow-y-auto border py-010 outline-none',
+  'rounded-m border-outline-default bg-surface-lowest relative w-[var(--anchor-width)] overflow-hidden border outline-none',
   ...SELECT_POPUP_ANIMATION_CLASSES,
 ];
+
+const SELECT_LIST_CLASSES = 'max-h-[356px] overflow-y-auto py-010 scroll-pb-[45px]';
 
 const SELECT_OPTION_CLASSES = [
   'typo-subtitle-xxs text-text-high flex min-h-[34px] w-full cursor-pointer items-center gap-010 px-016 py-006 outline-none select-none',
@@ -35,7 +37,7 @@ const SELECT_OPTION_CLASSES = [
 ];
 
 const SELECT_SCROLL_GRADIENT_CLASSES =
-  'pointer-events-none absolute inset-x-px bottom-px h-[45px] rounded-b-m bg-gradient-to-t from-surface-lowest to-transparent';
+  'pointer-events-none absolute inset-x-px bottom-px z-10 h-[45px] rounded-b-m bg-gradient-to-t from-surface-lowest to-transparent';
 
 export type SelectProps<Value extends string = string> = Omit<
   SelectPrimitive.Root.Props<Value, true>,
@@ -68,7 +70,7 @@ export function Select<Value extends string = string>({
 
       <SelectPositioner>
         <SelectPrimitive.Popup className={SELECT_POPUP_CLASSES.join(' ')}>
-          <SelectPrimitive.List>
+          <SelectPrimitive.List className={SELECT_LIST_CLASSES}>
             {options.map((option) => (
               <SelectPrimitive.Item
                 key={option.value}
