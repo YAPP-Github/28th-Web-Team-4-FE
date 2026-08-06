@@ -33,9 +33,13 @@ describe('Select', () => {
     await user.click(trigger);
 
     const designOption = await screen.findByRole('option', { name: /디자인/ });
+    const listbox = screen.getByRole('listbox');
 
     expect(screen.getByRole('checkbox', { name: '개발 선택' })).toBeChecked();
     expect(screen.getByRole('checkbox', { name: '디자인 선택' })).not.toBeChecked();
+    expect(listbox).toHaveClass('overflow-y-auto');
+    expect(listbox.parentElement).toHaveClass('overflow-hidden');
+    expect(listbox.nextElementSibling).toHaveClass('absolute', 'bottom-px');
 
     await user.click(designOption);
 
