@@ -5,7 +5,8 @@ import { withNuqsTestingAdapter, type OnUrlUpdateFunction } from 'nuqs/adapters/
 import { useCompareQueryState } from './use-compare-query-state';
 
 function QueryStateProbe() {
-  const { q, category, page, setSearchQuery, setCategories, setPage } = useCompareQueryState();
+  const { q, category, page, setSearchQuery, setCategories, setPage, resetFilters } =
+    useCompareQueryState();
 
   return (
     <div>
@@ -23,6 +24,9 @@ function QueryStateProbe() {
       </button>
       <button type="button" onClick={() => setPage(3)}>
         페이지 변경
+      </button>
+      <button type="button" onClick={resetFilters}>
+        필터 초기화
       </button>
     </div>
   );
@@ -112,6 +116,26 @@ describe('useCompareQueryState', () => {
 
     const event = onUrlUpdate.mock.lastCall?.[0];
     expect(event?.searchParams.get('page')).toBe('3');
+    expect(event?.options.history).toBe('push');
+  });
+
+  it('필터 초기화 시 검색어, 카테고리, 페이지를 기본값으로 되돌린다', async () => {
+    const user = userEvent.setup();
+    const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
+
+    renderQueryStateProbe('?q=검색&category=GAME&page=4', onUrlUpdate);
+
+    await user.click(screen.getByRole('button', { name: '필터 초기화' }));
+
+    expect(screen.getByTestId('query')).toBeEmptyDOMElement();
+    expect(screen.getByTestId('category')).toBeEmptyDOMElement();
+    expect(screen.getByTestId('page')).toHaveTextContent('1');
+    await waitFor(() => expect(onUrlUpdate).toHaveBeenCalled());
+
+    const event = onUrlUpdate.mock.lastCall?.[0];
+    expect(event?.searchParams.has('q')).toBe(false);
+    expect(event?.searchParams.has('category')).toBe(false);
+    expect(event?.searchParams.has('page')).toBe(false);
     expect(event?.options.history).toBe('push');
   });
 });
