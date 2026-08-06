@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { withNuqsTestingAdapter, type OnUrlUpdateFunction } from 'nuqs/adapters/testing';
 
@@ -45,8 +45,12 @@ function renderQueryStateProbe(
 }
 
 describe('useCompareQueryState', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('URL의 q, category, page를 읽고 검색 변경 시 page를 1로 초기화한다', async () => {
-    const user = userEvent.setup();
+    vi.useFakeTimers();
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
 
     renderQueryStateProbe('?q=기존%20검색어&category=GAME&page=4', onUrlUpdate);
@@ -55,19 +59,22 @@ describe('useCompareQueryState', () => {
     expect(screen.getByTestId('category')).toHaveTextContent('GAME');
     expect(screen.getByTestId('page')).toHaveTextContent('4');
 
-    await user.click(screen.getByRole('button', { name: '검색 변경' }));
+    fireEvent.click(screen.getByRole('button', { name: '검색 변경' }));
 
     expect(screen.getByTestId('query')).toHaveTextContent('새 검색어');
     expect(screen.getByTestId('page')).toHaveTextContent('1');
-    await waitFor(() => {
-      const event = onUrlUpdate.mock.lastCall?.[0];
+    expect(onUrlUpdate).not.toHaveBeenCalled();
 
-      expect(event?.searchParams.get('q')).toBe('새 검색어');
-      expect(event?.searchParams.get('category')).toBe('GAME');
-      expect(event?.searchParams.has('page')).toBe(false);
-    });
+    await act(() => vi.advanceTimersByTimeAsync(299));
+    expect(onUrlUpdate).not.toHaveBeenCalled();
+
+    await act(() => vi.advanceTimersByTimeAsync(1));
+    await act(() => vi.advanceTimersToNextTimerAsync());
 
     const event = onUrlUpdate.mock.lastCall?.[0];
+    expect(event?.searchParams.get('q')).toBe('새 검색어');
+    expect(event?.searchParams.get('category')).toBe('GAME');
+    expect(event?.searchParams.has('page')).toBe(false);
     expect(event?.options.history).toBe('replace');
   });
 
