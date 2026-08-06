@@ -6,40 +6,34 @@ import { Search } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
 import { Input as BaseInput } from '@base-ui/react/input';
 
-import { CATEGORY_OPTION_LIST } from '@/features/ad-onboarding/model/common-onboarding-options';
+import { useCompareChannels } from '@/pages/compare/api/use-compare-channels';
 import {
-  COMPARE_CHANNEL_PAGE_SIZE,
-  compareChannelList,
-  toOnboardingCategoryId,
+  CHANNEL_CATEGORY_OPTION_LIST,
+  createCategoryChannelPage,
   type ChannelListItem,
 } from '@/pages/compare/model/channel-page';
 import { COMPARE_SELECTION_LIMIT } from '@/pages/compare/model/channels';
 import { useChannelSelection } from '@/pages/compare/model/use-channel-selection';
 import { useCompareQueryState } from '@/pages/compare/model/use-compare-query-state';
+import { useDebouncedValue } from '@/shared/lib/use-debounced-value';
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Pagination } from '@/shared/ui/pagination';
-import { Placeholder } from '@/shared/ui/placeholder';
 import { Select } from '@/shared/ui/select';
 import { Text } from '@/shared/ui/text';
 import { showWarningToast } from '@/shared/ui/toast';
 
 import { CompareChannelCard } from './compare-channel-card';
+import {
+  CompareChannelEmptyState,
+  CompareChannelErrorState,
+  CompareChannelLoadingFallback,
+} from './compare-channel-states';
 
-const CATEGORY_FILTER_OPTIONS = CATEGORY_OPTION_LIST;
-
-function matchesChannel(
-  query: string,
-  categories: readonly string[],
-  channel: ChannelListItem,
-): boolean {
-  const matchesName = !query || channel.name.toLocaleLowerCase().includes(query);
-  const matchesCategory =
-    categories.length === 0 || categories.includes(toOnboardingCategoryId(channel.primaryCategory));
-
-  return matchesName && matchesCategory;
-}
+const SEARCH_DEBOUNCE_MS = 300;
+const CATEGORY_FILTER_OPTIONS = CHANNEL_CATEGORY_OPTION_LIST;
+const EMPTY_CHANNELS: ChannelListItem[] = [];
 
 function getCategoryLabel(category: string): string {
   return CATEGORY_FILTER_OPTIONS.find((option) => option.value === category)?.label ?? '전체';
@@ -140,23 +134,85 @@ function CompareSubHeader({
   );
 }
 
+type CompareChannelContentProps = {
+  channels: ChannelListItem[];
+  hasInitialError: boolean;
+  isInitialLoading: boolean;
+  onResetFilters: () => void;
+  onRetry: () => void;
+  onToggle: (channelId: string) => void;
+  selectedIds: readonly string[];
+};
+
+function CompareChannelContent({
+  channels,
+  hasInitialError,
+  isInitialLoading,
+  onResetFilters,
+  onRetry,
+  onToggle,
+  selectedIds,
+}: CompareChannelContentProps): JSX.Element {
+  if (isInitialLoading) {
+    return <CompareChannelLoadingFallback />;
+  }
+
+  if (hasInitialError) {
+    return <CompareChannelErrorState onRetry={onRetry} />;
+  }
+
+  if (channels.length === 0) {
+    return <CompareChannelEmptyState onResetFilters={onResetFilters} />;
+  }
+
+  return (
+    <Box
+      as="ul"
+      className="gap-x-024 gap-y-016 grid w-full grid-cols-1 justify-items-center md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+    >
+      {channels.map((channel) => (
+        <Box key={channel.id} as="li" className="flex w-full justify-center">
+          <CompareChannelCard
+            channel={channel}
+            checked={selectedIds.includes(channel.id)}
+            onToggle={onToggle}
+          />
+        </Box>
+      ))}
+    </Box>
+  );
+}
+
 export function ChannelSelectionView(): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
   const compareQueryState = useCompareQueryState();
   const channelSelection = useChannelSelection();
 
-  const normalizedQuery = compareQueryState.q.trim().toLocaleLowerCase();
-  const filteredChannels = compareChannelList.filter((channel) =>
-    matchesChannel(normalizedQuery, compareQueryState.category, channel),
-  );
-  const totalPages = Math.max(1, Math.ceil(filteredChannels.length / COMPARE_CHANNEL_PAGE_SIZE));
-  const currentPage = Math.min(compareQueryState.page, totalPages);
-  const isPageOutOfRange = compareQueryState.page > totalPages;
+  const normalizedQuery = compareQueryState.q.trim();
+  const debouncedQuery = useDebouncedValue(normalizedQuery, SEARCH_DEBOUNCE_MS);
 
-  const pageStartIndex = (currentPage - 1) * COMPARE_CHANNEL_PAGE_SIZE;
-  const visibleChannels = isPageOutOfRange
-    ? []
-    : filteredChannels.slice(pageStartIndex, pageStartIndex + COMPARE_CHANNEL_PAGE_SIZE);
+  const hasCategoryFilter = compareQueryState.category.length > 0;
+  const apiPage = hasCategoryFilter ? undefined : compareQueryState.page - 1;
+  const channelsQuery = useCompareChannels(debouncedQuery, apiPage);
+
+  const channelPage =
+    hasCategoryFilter && channelsQuery.data
+      ? createCategoryChannelPage(
+          channelsQuery.data.content,
+          compareQueryState.category,
+          compareQueryState.page,
+        )
+      : channelsQuery.data;
+  const channels = channelPage?.content ?? EMPTY_CHANNELS;
+  const totalPages = channelPage?.totalPages ?? 0;
+  const currentPage = Math.min(compareQueryState.page, Math.max(totalPages, 1));
+
+  const isInitialLoading = channelsQuery.isPending;
+  const hasInitialError = channelsQuery.isError;
+
+  const handleRetry = () => {
+    void channelsQuery.refetch();
+  };
 
   const handleCompare = () => {
     if (!channelSelection.canCompare) {
@@ -176,41 +232,38 @@ export function ChannelSelectionView(): JSX.Element {
         query={compareQueryState.q}
         onQueryChange={compareQueryState.setSearchQuery}
       />
-      <Box className="px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto py-[46px] lg:px-120">
+      <Box
+        aria-busy={channelsQuery.isFetching}
+        className="px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto py-[46px] lg:px-120"
+      >
         <Box className="w-full max-w-[1200px]">
-          {visibleChannels.length > 0 ? (
-            <Box
-              as="ul"
-              className="gap-x-024 gap-y-016 grid w-full grid-cols-1 justify-items-center md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-            >
-              {visibleChannels.map((channel) => (
-                <Box key={channel.id} as="li" className="flex w-full justify-center">
-                  <CompareChannelCard
-                    channel={channel}
-                    checked={channelSelection.selectedIds.includes(channel.id)}
-                    onToggle={channelSelection.toggleChannel}
-                  />
-                </Box>
-              ))}
-            </Box>
-          ) : (
-            <Placeholder
-              className="min-h-[360px] justify-center"
-              title="검색 결과가 없어요"
-              subtitle="다른 검색어로 다시 찾아보세요"
-            />
-          )}
+          {channelsQuery.isFetching && !isInitialLoading ? (
+            <span role="status" className="sr-only">
+              채널 목록을 불러오는 중이에요
+            </span>
+          ) : null}
+          <CompareChannelContent
+            channels={channels}
+            hasInitialError={hasInitialError}
+            isInitialLoading={isInitialLoading}
+            onResetFilters={compareQueryState.resetFilters}
+            onRetry={handleRetry}
+            onToggle={channelSelection.toggleChannel}
+            selectedIds={channelSelection.selectedIds}
+          />
         </Box>
       </Box>
       <Box className="border-outline-low bg-surface-lowest px-016 sm:px-032 flex h-[102px] w-full shrink-0 justify-center border-t lg:px-120">
         <Box className="gap-016 py-020 md:py-000 grid w-full max-w-[1200px] grid-cols-1 items-center md:grid-cols-[1fr_auto_1fr]">
           <Box className="hidden md:block" />
           <Box className="flex justify-center">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={compareQueryState.setPage}
-            />
+            {totalPages > 0 ? (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={compareQueryState.setPage}
+              />
+            ) : null}
           </Box>
           <Box className="flex justify-center md:justify-end">
             <Button

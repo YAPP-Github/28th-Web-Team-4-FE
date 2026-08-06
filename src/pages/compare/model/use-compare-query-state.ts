@@ -43,6 +43,15 @@ export function useCompareQueryState() {
     );
   };
 
+  const resetFilters = () => {
+    void setQuery(
+      { q: null, category: null, page: null },
+      {
+        history: 'push',
+      },
+    );
+  };
+
   return {
     q,
     category,
@@ -50,5 +59,6 @@ export function useCompareQueryState() {
     setSearchQuery,
     setCategories,
     setPage,
+    resetFilters,
   };
 }
