@@ -42,8 +42,13 @@ export function ChannelDetailAudiencePanel({
     <Box as="dl" className="gap-008 m-0 grid w-full grid-cols-2">
       <AudienceMetricCard label="주요 연령대" value={audience.primaryAgeBand} />
       <AudienceMetricCard label="주요 성별" value={audience.primaryGender} />
-      <AudienceMetricCard label="사용자 규모" value={audience.userScale} />
-      <AudienceMetricCard label="하루 활성 사용자" value={audience.dailyActiveUsers} />
+      {audience.metrics.map((metric, index) => (
+        <AudienceMetricCard
+          key={`${metric.label}-${index}`}
+          label={metric.label}
+          value={metric.value}
+        />
+      ))}
       <AudienceMetricCard label="유저 특성" value={audience.traits} className="col-span-2" />
     </Box>
   );

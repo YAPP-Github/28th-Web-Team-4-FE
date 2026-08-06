@@ -1,10 +1,9 @@
 'use client';
 
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 import { X } from 'lucide-react';
 
-import type { ChannelDetail } from '@/features/channel-detail/model/channel-detail';
-import { ChannelDetailContent } from '@/features/channel-detail/ui/channel-detail-content';
+import type { ChannelListItem } from '@/features/channel-detail/model/channel-list-item';
 import { ChannelDetailHeader } from '@/features/channel-detail/ui/channel-detail-header';
 import { Box } from '@/shared/ui/layout/box';
 import { HStack } from '@/shared/ui/layout/h-stack';
@@ -13,7 +12,8 @@ import { Modal } from '@/shared/ui/modal';
 import { Text } from '@/shared/ui/text';
 
 export type ChannelDetailModalProps = {
-  channel: ChannelDetail;
+  channel: ChannelListItem;
+  children: ReactNode;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onExit?: () => void;
@@ -28,6 +28,7 @@ export type ChannelDetailModalProps = {
  */
 export function ChannelDetailModal({
   channel,
+  children,
   open,
   onOpenChange,
   onExit,
@@ -65,7 +66,7 @@ export function ChannelDetailModal({
                       render={<Text as="p" variant="subtitle-xxs" className="line-clamp-2" />}
                       className="text-text-low m-0 text-left"
                     >
-                      {channel.tagline}
+                      {channel.description ?? '채널 설명이 아직 없어요.'}
                     </Modal.Description>
                   }
                 />
@@ -82,7 +83,7 @@ export function ChannelDetailModal({
               </Modal.Close>
             </HStack>
 
-            <ChannelDetailContent channel={channel} />
+            {children}
           </Stack>
         </Modal.Popup>
       </Modal.Portal>

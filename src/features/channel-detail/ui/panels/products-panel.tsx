@@ -1,7 +1,7 @@
 'use client';
 
 import type { JSX } from 'react';
-import { Check, Info, X as XIcon } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 import type { ChannelDetail } from '@/features/channel-detail/model/channel-detail';
 import { Box } from '@/shared/ui/layout/box';
@@ -9,13 +9,7 @@ import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
-const PRODUCT_TABLE_HEADERS = [
-  '상품',
-  '예산 범위',
-  '예상 노출',
-  '예상 클릭률(CTR)',
-  '집행 가능',
-] as const;
+const PRODUCT_TABLE_HEADERS = ['상품', '예산 범위', '예상 노출', '예상 클릭률(CTR)'] as const;
 
 export type ChannelDetailProductsPanelProps = {
   channel: ChannelDetail;
@@ -54,7 +48,7 @@ export function ChannelDetailProductsPanel({
           </thead>
           <tbody>
             {channel.products.map((product) => (
-              <tr key={product.name} className="border-outline-low border-b last:border-b-0">
+              <tr key={product.id} className="border-outline-low border-b last:border-b-0">
                 <td className="px-014 py-008">
                   <Text as="span" variant="body-sm" className="text-text-default">
                     {product.name}
@@ -74,13 +68,6 @@ export function ChannelDetailProductsPanel({
                   <Text as="span" variant="body-sm" className="text-text-default">
                     {product.ctr ?? '-'}
                   </Text>
-                </td>
-                <td className="px-014 py-008">
-                  {product.available ? (
-                    <Check className="text-sys-success-default size-020" aria-label="집행 가능" />
-                  ) : (
-                    <XIcon className="text-icon-medium size-020" aria-label="집행 불가" />
-                  )}
                 </td>
               </tr>
             ))}
