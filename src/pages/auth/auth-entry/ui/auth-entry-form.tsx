@@ -15,29 +15,9 @@ import { InputField } from '@/shared/ui/input-field';
 import { Text } from '@/shared/ui/text';
 import { authEntrySchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
 import { authenticateLocal } from '@/pages/auth/auth-entry/api/authenticate-local';
-import { linkGoogleAccount } from '@/pages/auth/auth-entry/api/link-google-account';
-import { useGoogleAuth } from '@/pages/auth/auth-entry/model/use-google-auth';
+import { useGoogleAuthFlow } from '@/pages/auth/auth-entry/model/use-google-auth-flow';
 import { useResolveAuthEmail } from '@/pages/auth/auth-entry/model/use-resolve-auth-email';
-import { markGoogleLinkFeedbackPending } from '@/shared/lib/auth/google-link-feedback';
-import { Modal, TextModal } from '@/shared/ui/modal';
-
-type GoogleCredentialResponse = { credential?: string };
-type GooglePromptMomentNotification = {
-  isSkippedMoment: () => boolean;
-};
-type GoogleIdentity = {
-  accounts: {
-    id: {
-      initialize: (options: {
-        callback: (response: GoogleCredentialResponse) => void;
-        client_id: string;
-      }) => void;
-      prompt: (momentListener?: (notification: GooglePromptMomentNotification) => void) => void;
-    };
-  };
-};
-
-const getGoogleIdentity = () => (window as typeof window & { google?: GoogleIdentity }).google;
+import { GoogleLinkModal } from '@/pages/auth/auth-entry/ui/google-link-modal';
 
 type AuthEntryInput = z.input<typeof authEntrySchema>;
 type AuthEntryOutput = z.output<typeof authEntrySchema>;
@@ -139,16 +119,22 @@ function ExistingAccountForm({
 export function AuthEntryForm(): JSX.Element {
   const router = useRouter();
   const [existingAccountEmail, setExistingAccountEmail] = useState<string>();
-  const [isGoogleReady, setIsGoogleReady] = useState(false);
-  const [googleInitializationError, setGoogleInitializationError] = useState<string>();
-  const [googleLinkRequest, setGoogleLinkRequest] = useState<{
-    email: string;
-    idToken: string;
-  }>();
-  const [googleLinkError, setGoogleLinkError] = useState<string>();
-  const [isGoogleLinkPending, setIsGoogleLinkPending] = useState(false);
   const resolveEmailMutation = useResolveAuthEmail();
-  const googleAuthMutation = useGoogleAuth();
+  const {
+    confirmGoogleLink,
+    deferGoogleLink,
+    dismissGoogleLink,
+    googleErrorMessage,
+    googleLinkError,
+    googleLinkRequest,
+    initializeGoogleIdentity,
+    isGoogleAuthPending,
+    isGoogleLinkPending,
+    isGoogleReady,
+    promptGoogleIdentity,
+  } = useGoogleAuthFlow({
+    onDeferLink: (email) => setExistingAccountEmail(email),
+  });
   const {
     clearErrors,
     formState: { errors },
@@ -189,94 +175,6 @@ export function AuthEntryForm(): JSX.Element {
       },
     });
   });
-  const initializeGoogleIdentity = () => {
-    const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim();
-    const google = getGoogleIdentity();
-
-    if (!googleClientId) {
-      setIsGoogleReady(false);
-      setGoogleInitializationError('Google 로그인 설정을 확인해 주세요.');
-      return;
-    }
-
-    if (!google) {
-      return;
-    }
-
-    google.accounts.id.initialize({
-      client_id: googleClientId,
-      callback: ({ credential }) => {
-        if (credential) {
-          googleAuthMutation.mutate(credential, {
-            onSuccess: (resolution) => {
-              if (resolution.type === 'link') {
-                setGoogleLinkError(undefined);
-                setGoogleLinkRequest({ email: resolution.email, idToken: credential });
-              }
-            },
-          });
-        }
-      },
-    });
-    setGoogleInitializationError(undefined);
-    setIsGoogleReady(true);
-  };
-  const promptGoogleIdentity = () => {
-    const google = getGoogleIdentity();
-
-    if (!google) {
-      setIsGoogleReady(false);
-      setGoogleInitializationError('Google 로그인을 불러오지 못했습니다. 다시 시도해 주세요.');
-      return;
-    }
-
-    setGoogleInitializationError(undefined);
-    google.accounts.id.prompt((notification) => {
-      if (notification.isSkippedMoment()) {
-        setGoogleInitializationError('Google 로그인을 진행하지 못했습니다. 다시 시도해 주세요.');
-      }
-    });
-  };
-  const googleErrorMessage =
-    googleInitializationError ??
-    (googleAuthMutation.error
-      ? getApiErrorMessage(googleAuthMutation.error, 'Google 인증 중 문제가 발생했습니다.')
-      : undefined);
-  const deferGoogleLink = () => {
-    if (!googleLinkRequest) {
-      return;
-    }
-
-    setExistingAccountEmail(googleLinkRequest.email);
-    setGoogleLinkRequest(undefined);
-    setGoogleLinkError(undefined);
-  };
-  const dismissGoogleLink = () => {
-    if (isGoogleLinkPending) {
-      return;
-    }
-
-    setGoogleLinkRequest(undefined);
-    setGoogleLinkError(undefined);
-  };
-  const confirmGoogleLink = async () => {
-    if (!googleLinkRequest || isGoogleLinkPending) {
-      return;
-    }
-
-    setGoogleLinkError(undefined);
-    setIsGoogleLinkPending(true);
-
-    try {
-      await linkGoogleAccount(googleLinkRequest.idToken);
-      markGoogleLinkFeedbackPending();
-      router.replace('/');
-    } catch (error) {
-      setGoogleLinkError(getApiErrorMessage(error, 'Google 계정을 연결하지 못했습니다.'));
-      setIsGoogleLinkPending(false);
-    }
-  };
-
   if (existingAccountEmail) {
     return (
       <ExistingAccountForm
@@ -319,9 +217,7 @@ export function AuthEntryForm(): JSX.Element {
               frame="button"
               tone="social"
               type="button"
-              disabled={
-                resolveEmailMutation.isPending || googleAuthMutation.isPending || !isGoogleReady
-              }
+              disabled={resolveEmailMutation.isPending || isGoogleAuthPending || !isGoogleReady}
               leftIcon={<GoogleLogo alt="" />}
               onClick={promptGoogleIdentity}
             >
@@ -352,64 +248,14 @@ export function AuthEntryForm(): JSX.Element {
           {...register('email')}
         />
       </AuthForm>
-      <Modal.Root
+      <GoogleLinkModal
         open={googleLinkRequest !== undefined}
-        onOpenChange={(open) => {
-          if (!open) {
-            dismissGoogleLink();
-          }
-        }}
-      >
-        <TextModal
-          className="gap-024 px-030 pb-024 pt-030 items-center"
-          title={
-            <span className="flex flex-col items-center gap-[18px]">
-              <span
-                aria-hidden
-                className="typo-heading-lg bg-surface-high text-text-lowest flex size-9 items-center justify-center rounded-full"
-              >
-                ?
-              </span>
-              <span>Google 계정을 연동할까요?</span>
-            </span>
-          }
-          description={
-            <>
-              입력하신 이메일과 동일한 Google 계정이 있어요.
-              <br />
-              계정을 연동하고 간편하게 로그인해요.
-              {googleLinkError ? (
-                <span className="typo-body-lg text-sys-error-default mt-012 block" role="alert">
-                  {googleLinkError}
-                </span>
-              ) : null}
-            </>
-          }
-          actions={
-            <>
-              <Button
-                frame="button"
-                tone="stroke"
-                className="h-12 flex-1"
-                disabled={isGoogleLinkPending}
-                onClick={deferGoogleLink}
-              >
-                나중에 하기
-              </Button>
-              <Button
-                frame="button"
-                tone="secondary"
-                size="m"
-                className="h-12 flex-1"
-                disabled={isGoogleLinkPending}
-                onClick={() => void confirmGoogleLink()}
-              >
-                연동하기
-              </Button>
-            </>
-          }
-        />
-      </Modal.Root>
+        errorMessage={googleLinkError}
+        isPending={isGoogleLinkPending}
+        onConfirm={() => void confirmGoogleLink()}
+        onDefer={deferGoogleLink}
+        onDismiss={dismissGoogleLink}
+      />
     </>
   );
 }
