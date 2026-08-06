@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { withNuqsTestingAdapter } from 'nuqs/adapters/testing';
@@ -190,6 +190,10 @@ describe('ComparePage', () => {
     );
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('첫 요청 동안 12개 스켈레톤을 보여주고 API 첫 페이지를 조회한다', async () => {
     const responseGate = createDeferred<void>();
     let requestedUrl: URL | undefined;
@@ -244,18 +248,23 @@ describe('ComparePage', () => {
       }),
     );
 
-    const user = userEvent.setup();
     renderComparePage();
     expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
 
-    await user.type(screen.getByLabelText('채널 검색'), '메타 광고');
+    vi.useFakeTimers();
+    fireEvent.change(screen.getByLabelText('채널 검색'), { target: { value: '메타 광고' } });
 
     expect(screen.getByText('네이버 검색 광고')).toBeVisible();
-    await waitFor(() => {
-      expect(searchRequests).toEqual(['메타 광고']);
-    });
+    expect(searchRequests).toHaveLength(0);
+
+    await act(() => vi.advanceTimersByTimeAsync(299));
+    expect(searchRequests).toHaveLength(0);
+
+    await act(() => vi.advanceTimersByTimeAsync(1));
+    expect(searchRequests).toEqual(['메타 광고']);
     expect(screen.getByText('네이버 검색 광고')).toBeVisible();
 
+    vi.useRealTimers();
     searchResponseGate.resolve(undefined);
 
     expect(await screen.findByText('메타 신규 광고')).toBeVisible();
