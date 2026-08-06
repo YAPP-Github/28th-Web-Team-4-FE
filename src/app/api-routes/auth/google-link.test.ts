@@ -57,7 +57,12 @@ describe('Google account link BFF', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     linkGoogleMock.mockResolvedValue(successResponse());
-    writeAuthSessionMock.mockResolvedValue();
+    writeAuthSessionMock.mockResolvedValue({
+      accessToken: tokens.accessToken,
+      accessTokenExpiresAt: 1_800_000,
+      refreshToken: tokens.refreshToken,
+      refreshTokenExpiresAt: 7_200_000,
+    });
   });
 
   it('links the account and stores the newly issued session', async () => {
