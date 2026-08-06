@@ -252,10 +252,18 @@ BFF 인증 검사 ──── 실제 데이터 보호
 | --- | --- | --- |
 | `NEXT_PUBLIC_API_BASE_URL` | 백엔드 API base URL | 브라우저 포함 |
 | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Google Identity Services | 브라우저 포함 |
+| `BFF_ALLOWED_ORIGINS` | mutation BFF가 허용할 요청 origin 목록(쉼표 구분) | 서버 전용 |
 | `SESSION_ENCRYPTION_KEY` | 세션 쿠키 암복호화 | 서버 전용 |
 
-`SESSION_ENCRYPTION_KEY`는 32바이트 base64url 문자열이어야 합니다. 값은 Doppler로만 관리하고
-저장소나 클라이언트 코드에 추가하지 않습니다.
+`BFF_ALLOWED_ORIGINS`는 다음 값으로 Doppler의 서버 환경에 추가합니다.
+
+```text
+BFF_ALLOWED_ORIGINS=https://chaeso-zip.com,http://localhost:3000
+```
+
+`BFF_ALLOWED_ORIGINS`와 `SESSION_ENCRYPTION_KEY`는 Doppler로만 관리하고 저장소나 클라이언트
+코드에 추가하지 않습니다. `BFF_ALLOWED_ORIGINS`는 프록시 내부 host가 아닌 브라우저가 접근하는
+공개 origin을 사용해야 합니다.
 
 ```bash
 doppler run -- node --run dev

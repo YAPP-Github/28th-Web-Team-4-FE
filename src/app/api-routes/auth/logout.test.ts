@@ -70,6 +70,7 @@ function errorResponse(
 
 describe('logout BFF', () => {
   beforeEach(() => {
+    vi.stubEnv('BFF_ALLOWED_ORIGINS', 'https://chaeso-zip.com,http://localhost:3000');
     vi.spyOn(Date, 'now').mockReturnValue(now);
     readAuthSessionMock.mockResolvedValue(session);
     clearAuthSessionMock.mockResolvedValue();
@@ -78,6 +79,7 @@ describe('logout BFF', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
   });
 
   it('revokes with the current token while the access token is usable', async () => {

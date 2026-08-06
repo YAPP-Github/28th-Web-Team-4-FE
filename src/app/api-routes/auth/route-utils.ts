@@ -11,8 +11,14 @@ const apiErrorSchema = z.object({
 export function isTrustedMutation(request: Request): boolean {
   const origin = request.headers.get('origin');
   const fetchSite = request.headers.get('sec-fetch-site');
+  const allowedOrigins = new Set(
+    (process.env.BFF_ALLOWED_ORIGINS ?? '')
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean),
+  );
 
-  if (origin && origin !== new URL(request.url).origin) {
+  if (origin && !allowedOrigins.has(origin)) {
     return false;
   }
 
