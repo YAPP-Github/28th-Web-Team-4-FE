@@ -12,6 +12,7 @@ type CreatePageMetadataOptions = {
   image: string;
 };
 
+/** Creates static page metadata with matching Open Graph and Twitter/X cards. */
 export function createPageMetadata({
   title,
   description,
