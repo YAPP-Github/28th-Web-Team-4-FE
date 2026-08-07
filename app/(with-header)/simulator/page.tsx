@@ -1,1 +1,1 @@
-export { SimulatorPage as default } from '@/pages/simulator';
+export { metadata, SimulatorPage as default } from '@/pages/simulator';
