@@ -2,6 +2,7 @@
 
 import type { JSX } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
@@ -29,6 +30,8 @@ function LoggedInEmptyState(): JSX.Element {
         frame="button"
         tone="secondary"
         size="s"
+        nativeButton={false}
+        render={<Link href="/simulator/channels" />}
         leftIcon={<Image src="/simulator-assets/plus.svg" alt="" width={12} height={12} />}
       >
         채널 추가하기
