@@ -1,1 +1,1 @@
-export { authenticateLocal } from '@/shared/lib/auth/authenticate-local';
+export { authenticateLocal } from '@/shared/api/authenticate-local';

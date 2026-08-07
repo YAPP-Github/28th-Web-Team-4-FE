@@ -1,5 +1,5 @@
 import { signup } from '@/shared/api/generated';
-import { authenticateLocal } from '@/shared/lib/auth/authenticate-local';
+import { authenticateLocal } from '@/shared/api/authenticate-local';
 
 import { submitSignup } from './submit-signup';
 
@@ -7,7 +7,7 @@ vi.mock('@/shared/api/generated', () => ({
   signup: vi.fn<typeof signup>(),
 }));
 
-vi.mock('@/shared/lib/auth/authenticate-local', () => ({
+vi.mock('@/shared/api/authenticate-local', () => ({
   authenticateLocal: vi.fn<typeof authenticateLocal>(),
 }));
 

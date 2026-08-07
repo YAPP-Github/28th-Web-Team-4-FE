@@ -1,6 +1,6 @@
 import { signup } from '@/shared/api/generated';
 import type { GoogleSignupRequest, SignupRequest } from '@/shared/api/generated/types.gen';
-import { authenticateLocal } from '@/shared/lib/auth/authenticate-local';
+import { authenticateLocal } from '@/shared/api/authenticate-local';
 import { ensureResponseOk } from '@/shared/api/response';
 
 export type SubmitSignupRequest =
