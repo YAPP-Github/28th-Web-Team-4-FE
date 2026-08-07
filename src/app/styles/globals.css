@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import '../../styles/tokens/index.css';
+@import './easings.css';
 
 @theme inline {
   /* next/font가 주입한 값을 토큰 `--font-pre`에 연결 (typography.css의 문자열 값 override) */
