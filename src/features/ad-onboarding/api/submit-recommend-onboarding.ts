@@ -85,7 +85,9 @@ function mapAgeRangeList(ageRangeList: AgeRangeId[]): ApiAgeBand[] {
     return ALL_API_AGE_BANDS;
   }
 
-  return ageRangeList.map((ageRange) => AGE_RANGE_MAP[ageRange]);
+  return ageRangeList.flatMap((ageRange) =>
+    ageRange === 'UNKNOWN' ? [] : [AGE_RANGE_MAP[ageRange]],
+  );
 }
 
 function getPerformanceChannelLabel(channelId: string): string {
