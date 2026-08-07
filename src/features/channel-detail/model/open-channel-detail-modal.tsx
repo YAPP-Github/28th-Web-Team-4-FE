@@ -1,11 +1,10 @@
 import { Suspense, type ReactNode } from 'react';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
-import { overlay } from 'overlay-kit';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import type { ChannelListItem } from '@/features/channel-detail/model/channel-list-item';
+import { openChannelDetailOverlay } from '@/features/channel-detail/model/open-channel-detail-overlay';
 import { ChannelDetailError } from '@/features/channel-detail/ui/channel-detail-error';
-import { ChannelDetailModal } from '@/features/channel-detail/ui/channel-detail-modal';
 import { ChannelDetailQuery } from '@/features/channel-detail/ui/channel-detail-query';
 
 export type OpenChannelDetailModalOptions = {
@@ -17,17 +16,9 @@ export function openChannelDetailModal({
   channel,
   fallback,
 }: OpenChannelDetailModalOptions): string {
-  return overlay.open(({ isOpen, close, unmount }) => (
-    <ChannelDetailModal
-      channel={channel}
-      open={isOpen}
-      onOpenChange={(nextOpen) => {
-        if (!nextOpen) {
-          close();
-        }
-      }}
-      onExit={unmount}
-    >
+  return openChannelDetailOverlay({
+    channel,
+    children: (
       <QueryErrorResetBoundary>
         {({ reset }) => (
           <ErrorBoundary
@@ -42,6 +33,6 @@ export function openChannelDetailModal({
           </ErrorBoundary>
         )}
       </QueryErrorResetBoundary>
-    </ChannelDetailModal>
-  ));
+    ),
+  });
 }

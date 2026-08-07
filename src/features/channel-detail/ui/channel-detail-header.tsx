@@ -2,14 +2,14 @@
 
 import type { JSX } from 'react';
 
-import type { ChannelListItem } from '@/features/channel-detail/model/channel-list-item';
+import type { ChannelDetailHeaderData } from '@/features/channel-detail/model/channel-list-item';
 import { Avatar } from '@/shared/ui/avatar';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 export type ChannelDetailHeaderProps = {
-  channel: ChannelListItem;
+  channel: ChannelDetailHeaderData;
   title?: JSX.Element;
   description?: JSX.Element;
 };

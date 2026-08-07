@@ -3,7 +3,7 @@
 import type { JSX, ReactNode } from 'react';
 import { X } from 'lucide-react';
 
-import type { ChannelListItem } from '@/features/channel-detail/model/channel-list-item';
+import type { ChannelDetailHeaderData } from '@/features/channel-detail/model/channel-list-item';
 import { ChannelDetailHeader } from '@/features/channel-detail/ui/channel-detail-header';
 import { Box } from '@/shared/ui/layout/box';
 import { HStack } from '@/shared/ui/layout/h-stack';
@@ -12,7 +12,7 @@ import { Modal } from '@/shared/ui/modal';
 import { Text } from '@/shared/ui/text';
 
 export type ChannelDetailModalProps = {
-  channel: ChannelListItem;
+  channel: ChannelDetailHeaderData;
   children: ReactNode;
   open: boolean;
   onOpenChange: (open: boolean) => void;
