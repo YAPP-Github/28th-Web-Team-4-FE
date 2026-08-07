@@ -13,7 +13,6 @@ vi.mock('@/shared/api/generated', () => ({
 
 const presignOnboardingPerformanceFilesMock = vi.mocked(presignOnboardingPerformanceFiles);
 const submitOnboardingMock = vi.mocked(submitOnboarding);
-const fetchMock = vi.fn<typeof fetch>();
 
 const baseAnswer = {
   serviceName: '채소집',
@@ -80,19 +79,11 @@ describe('createSubmitOnboardingRequest', () => {
 
 describe('submitRecommendOnboarding', () => {
   beforeEach(() => {
-    vi.stubGlobal('fetch', fetchMock);
-    fetchMock.mockReset();
     presignOnboardingPerformanceFilesMock.mockReset();
     submitOnboardingMock.mockReset();
   });
 
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
-  it('uploads performance files and submits only successful file keys', async () => {
-    const firstFile = new File(['one'], 'first.csv', { type: 'text/csv' });
-    const secondFile = new File(['two'], 'second.csv', { type: 'text/csv' });
+  it('requests performance file keys and passes them to the onboarding submit API', async () => {
     const answer = {
       ...baseAnswer,
       adExperience: {
@@ -100,8 +91,8 @@ describe('submitRecommendOnboarding', () => {
         performanceInput: {
           mode: 'UPLOAD',
           fileList: [
-            { id: 'first', name: 'first.csv', size: firstFile.size, file: firstFile },
-            { id: 'second', name: 'second.csv', size: secondFile.size, file: secondFile },
+            { id: 'first', name: 'first.csv', size: 3 },
+            { id: 'second', name: 'second.csv', size: 3 },
           ],
         },
       },
@@ -127,9 +118,6 @@ describe('submitRecommendOnboarding', () => {
       },
       response: new Response(null, { status: 200 }),
     });
-    fetchMock
-      .mockResolvedValueOnce(new Response(null, { status: 200 }))
-      .mockResolvedValueOnce(new Response(null, { status: 500 }));
     submitOnboardingMock.mockResolvedValue({
       data: {
         success: true,
@@ -147,23 +135,15 @@ describe('submitRecommendOnboarding', () => {
     expect(presignOnboardingPerformanceFilesMock).toHaveBeenCalledWith({
       body: {
         files: [
-          { fileName: 'first.csv', fileSizeBytes: firstFile.size },
-          { fileName: 'second.csv', fileSizeBytes: secondFile.size },
+          { fileName: 'first.csv', fileSizeBytes: 3 },
+          { fileName: 'second.csv', fileSizeBytes: 3 },
         ],
       },
       throwOnError: true,
     });
-    expect(fetchMock).toHaveBeenCalledWith('https://storage.example/first', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'text/csv',
-        'x-amz-tagging': 'retain=pending',
-      },
-      body: firstFile,
-    });
     expect(submitOnboardingMock).toHaveBeenCalledWith({
       body: expect.objectContaining({
-        rawFileKeys: ['raw/first.csv'],
+        rawFileKeys: ['raw/first.csv', 'raw/second.csv'],
       }),
       throwOnError: true,
     });

@@ -152,6 +152,5 @@ function createUploadedPerformanceFile(
     id,
     name: file.name,
     size: file.size,
-    file,
   };
 }

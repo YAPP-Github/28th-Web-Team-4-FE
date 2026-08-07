@@ -42,7 +42,6 @@ export type UploadedPerformanceFile = {
   id: string;
   name: string;
   size: number;
-  file?: File;
 };
 
 /**

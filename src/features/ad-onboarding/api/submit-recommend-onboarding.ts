@@ -2,7 +2,6 @@ import { presignOnboardingPerformanceFiles, submitOnboarding } from '@/shared/ap
 import type {
   AdHistoryRequest,
   OnboardingSubmitResponse,
-  PresignedFileUploadResult,
   SubmitOnboardingRequest,
 } from '@/shared/api/generated/types.gen';
 import type { RecommendOnboardingAnswer } from '@/features/ad-onboarding/model/onboarding-answer';
@@ -107,23 +106,7 @@ function mapManualAdHistory(answer: RecommendOnboardingAnswer): AdHistoryRequest
   return [{ channelNameRaw: getPerformanceChannelLabel(performanceInput.channel) }];
 }
 
-async function uploadPerformanceFile(
-  file: File,
-  presignedFile: PresignedFileUploadResult,
-): Promise<string | undefined> {
-  const response = await fetch(presignedFile.uploadUrl, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': presignedFile.contentType,
-      'x-amz-tagging': 'retain=pending',
-    },
-    body: file,
-  });
-
-  return response.ok ? presignedFile.key : undefined;
-}
-
-async function uploadPerformanceFileList(answer: RecommendOnboardingAnswer): Promise<string[]> {
+async function getPerformanceFileKeyList(answer: RecommendOnboardingAnswer): Promise<string[]> {
   const performanceInput =
     answer.adExperience.type === 'EXPERIENCED' ? answer.adExperience.performanceInput : undefined;
 
@@ -131,9 +114,7 @@ async function uploadPerformanceFileList(answer: RecommendOnboardingAnswer): Pro
     return [];
   }
 
-  const fileList = performanceInput.fileList.flatMap((uploadedFile) =>
-    uploadedFile.file ? [uploadedFile.file] : [],
-  );
+  const fileList = performanceInput.fileList;
 
   if (fileList.length === 0) {
     return [];
@@ -149,21 +130,8 @@ async function uploadPerformanceFileList(answer: RecommendOnboardingAnswer): Pro
     throwOnError: true,
   });
   const presignedFileList = presignedResponse.data.data ?? [];
-  const uploadResultList = await Promise.allSettled(
-    fileList.map((file, index) => {
-      const presignedFile = presignedFileList[index];
 
-      if (!presignedFile) {
-        return Promise.resolve(undefined);
-      }
-
-      return uploadPerformanceFile(file, presignedFile);
-    }),
-  );
-
-  return uploadResultList.flatMap((result) =>
-    result.status === 'fulfilled' && result.value ? [result.value] : [],
-  );
+  return presignedFileList.map((presignedFile) => presignedFile.key);
 }
 
 export function createSubmitOnboardingRequest(
@@ -188,7 +156,7 @@ export function createSubmitOnboardingRequest(
 export async function submitRecommendOnboarding(
   answer: RecommendOnboardingAnswer,
 ): Promise<OnboardingSubmitResponse> {
-  const rawFileKeys = await uploadPerformanceFileList(answer);
+  const rawFileKeys = await getPerformanceFileKeyList(answer);
   const response = await submitOnboarding({
     body: createSubmitOnboardingRequest(answer, rawFileKeys),
     throwOnError: true,
