@@ -41,7 +41,7 @@ export function GuestChannelResults(): JSX.Element {
   return (
     <>
       <ChannelPerformanceContent channels={simulatorPreviewChannels} />
-      {/* <GuestLockOverlay /> */}
+      <GuestLockOverlay />
     </>
   );
 }
