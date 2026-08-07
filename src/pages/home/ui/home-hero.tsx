@@ -85,9 +85,9 @@ export function HomeHero(): JSX.Element {
                     alt=""
                     width={64}
                     height={64}
-                    quality={100}
                     className="size-full object-contain"
                     loading="eager"
+                    unoptimized
                   />
                 </Box>
                 <Stack className="gap-004 min-w-0">
