@@ -1,3 +1,8 @@
+import type {
+  CountRangeResponse,
+  RecommendationItemResponse,
+} from '@/shared/api/generated/types.gen';
+
 export type RecommendedChannelMetric = {
   label: string;
   value: string;
@@ -12,6 +17,93 @@ export type RecommendedChannel = {
   thumbnailSrc: string;
   metrics: RecommendedChannelMetric[];
 };
+
+const PRICING_MODEL_LABEL_MAP = {
+  CPM: '노출당(CPM)',
+  CPC: '클릭당(CPC)',
+  CPA: '전환당(CPA)',
+  CPI: '설치당(CPI)',
+  CPV: '조회당(CPV)',
+  CPP: '게시당(CPP)',
+  DB: 'DB당',
+  SLOT: '구좌',
+  FLAT: '고정비',
+  PACKAGE: '패키지',
+  PER_UNIT: '단위당',
+  OTHER: '기타',
+} as const satisfies Record<NonNullable<RecommendationItemResponse['pricingModel']>, string>;
+
+function formatWon(value: number): string {
+  if (value >= 10000) {
+    return `${Math.round(value / 10000).toLocaleString('ko-KR')}만`;
+  }
+
+  return value.toLocaleString('ko-KR');
+}
+
+function formatCount(value: number): string {
+  return value.toLocaleString('ko-KR');
+}
+
+function formatCountRange(range: CountRangeResponse | undefined): string {
+  if (!range) {
+    return '정보 없음';
+  }
+
+  return `${formatCount(range.min)}~${formatCount(range.max)}회`;
+}
+
+function getRecommendationThumbnailSrc(item: RecommendationItemResponse): string {
+  const channelName = item.channelName.toLowerCase();
+
+  if (channelName.includes('카카오')) {
+    return '/recommend-assets/kakao-ad.png';
+  }
+
+  if (channelName.includes('유튜브') || channelName.includes('youtube')) {
+    return '/recommend-assets/youtube-ad.png';
+  }
+
+  if (channelName.includes('메타') || channelName.includes('instagram')) {
+    return '/recommend-assets/meta-ad.png';
+  }
+
+  return '/recommend-assets/naver-search-ad.png';
+}
+
+function formatCpcPrice(cpcWon: number): string {
+  return `클릭 1회당 ${cpcWon.toLocaleString('ko-KR')}원~`;
+}
+
+function getCpcPriceLabel(cpcWon: RecommendationItemResponse['cpcWon']): string {
+  return typeof cpcWon === 'number' ? formatCpcPrice(cpcWon) : '클릭당 비용 정보 없음';
+}
+
+export function mapRecommendationItemsToChannels(
+  itemList: readonly RecommendationItemResponse[],
+): RecommendedChannel[] {
+  return itemList.map((item) => ({
+    id: item.channelId,
+    name: item.channelName,
+    description: item.recommendationReason,
+    cpcPrice: getCpcPriceLabel(item.cpcWon),
+    matchRate: item.matchRate,
+    thumbnailSrc: getRecommendationThumbnailSrc(item),
+    metrics: [
+      { label: '예상 노출', value: formatCountRange(item.estImpressions) },
+      { label: '예상 클릭', value: formatCountRange(item.estClicks) },
+      {
+        label: '최소 예산',
+        value: typeof item.minBudgetWon === 'number' ? formatWon(item.minBudgetWon) : '정보 없음',
+      },
+      { label: '주요 타깃', value: item.primaryTarget },
+      {
+        label: '과금 방식',
+        value: item.pricingModel ? PRICING_MODEL_LABEL_MAP[item.pricingModel] : '정보 없음',
+      },
+    ],
+  }));
+}
 
 export const recommendedChannels = [
   {

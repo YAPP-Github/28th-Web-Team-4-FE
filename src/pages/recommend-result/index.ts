@@ -1,1 +1,4 @@
-export { RecommendResultPage } from './ui/recommend-result-page';
+export {
+  RecommendResultPage,
+  RecommendResultWithRecommendations,
+} from './ui/recommend-result-page';

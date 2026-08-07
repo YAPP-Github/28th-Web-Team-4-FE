@@ -2,10 +2,18 @@ import { OverlayProvider } from 'overlay-kit';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
 
 import { RecommendResultPage } from './recommend-result-page';
+
+vi.mock('@/shared/api/hey-api', () => ({
+  createClientConfig: (config?: Record<string, unknown>) => ({
+    ...config,
+    baseUrl: 'http://localhost',
+  }),
+}));
 
 vi.mock('@number-flow/react', () => ({
   default: ({ value }: { value: number }) => <span>{value}</span>,
@@ -14,10 +22,19 @@ vi.mock('@number-flow/react', () => ({
 const initialStore = useRecommendOnboardingStore.getState();
 
 function renderRecommendResultPage(props?: { isGuest?: boolean }) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
+
   return render(
-    <OverlayProvider>
-      <RecommendResultPage {...props} />
-    </OverlayProvider>,
+    <QueryClientProvider client={queryClient}>
+      <OverlayProvider>
+        <RecommendResultPage {...props} />
+      </OverlayProvider>
+    </QueryClientProvider>,
   );
 }
 
