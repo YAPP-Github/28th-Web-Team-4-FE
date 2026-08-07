@@ -28,7 +28,7 @@ export function RecommendOnboardingPage(): JSX.Element {
   };
 
   return (
-    <div className="flex h-[calc(100dvh-72px)] min-h-0 flex-col overflow-clip">
+    <div className="flex min-h-0 flex-1 flex-col overflow-clip">
       <RecommendOnboardingSubHeader currentStep={currentStep} />
 
       <main

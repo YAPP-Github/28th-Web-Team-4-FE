@@ -121,12 +121,12 @@ export const AgeRanges: Story = {
 
     await userEvent.click(canvas.getByText('20대'));
     await expect(twenties).toBeChecked();
-    await expect(unknown).toHaveAttribute('aria-disabled', 'true');
+    await expect(unknown).toBeDisabled();
 
     await userEvent.click(canvas.getByText('20대'));
     await userEvent.click(canvas.getByText('잘 모르겠어요'));
     await expect(unknown).toBeChecked();
-    await expect(teens).toHaveAttribute('aria-disabled', 'true');
+    await expect(teens).toBeDisabled();
     await expect(canvas.getByRole('button', { name: '다음' })).toBeEnabled();
   },
 };

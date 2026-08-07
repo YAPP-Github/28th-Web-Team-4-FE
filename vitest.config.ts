@@ -35,8 +35,11 @@ export default defineConfig({
         extends: true,
         optimizeDeps: {
           include: [
+            '@base-ui/react/dialog',
+            '@base-ui/react/drawer',
             '@base-ui/react/field',
             '@base-ui/react/input',
+            '@base-ui/react/menu',
             '@base-ui/react/slider',
             'motion/react',
             '@number-flow/react',

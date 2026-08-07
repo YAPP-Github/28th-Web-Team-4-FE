@@ -1,1 +1,1 @@
-export { ComparePage as default } from '@/pages/compare';
+export { ComparePage as default, metadata } from '@/pages/compare';

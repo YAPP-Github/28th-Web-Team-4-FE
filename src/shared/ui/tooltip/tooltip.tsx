@@ -34,11 +34,15 @@ const SHIFT_PADDING = 8;
 export type TooltipRootProps = PropsWithChildren<{
   placement?: Placement;
   offset?: OffsetOptions;
+  strategy?: 'absolute' | 'fixed';
+  allowFlip?: boolean;
+  allowShift?: boolean;
 }>;
 
 export type TooltipAnchorProps = ComponentPropsWithoutRef<'span'>;
 
 export type TooltipContentProps = ComponentPropsWithoutRef<'div'> & {
+  arrowClassName?: string;
   showArrow?: boolean;
 };
 
@@ -60,20 +64,27 @@ const useTooltipContext = () => {
   return context;
 };
 
-const Root = ({ placement = 'top', offset = 8, children }: TooltipRootProps): JSX.Element => {
+const Root = ({
+  placement = 'top',
+  offset = 8,
+  strategy = 'fixed',
+  allowFlip = true,
+  allowShift = true,
+  children,
+}: TooltipRootProps): JSX.Element => {
   const arrowRef = useRef<HTMLSpanElement | null>(null);
   const middleware = useMemo(
     () => [
       offsetMiddleware(offset),
-      flipMiddleware(),
-      shiftMiddleware({ padding: SHIFT_PADDING }),
+      ...(allowFlip ? [flipMiddleware()] : []),
+      ...(allowShift ? [shiftMiddleware({ padding: SHIFT_PADDING })] : []),
       arrowMiddleware({ element: arrowRef, padding: ARROW_MIDDLEWARE_PADDING }),
     ],
-    [offset],
+    [allowFlip, allowShift, offset],
   );
   const floating = useFloating({
     placement,
-    strategy: 'fixed',
+    strategy,
     middleware,
     whileElementsMounted: autoUpdate,
   });
@@ -102,6 +113,7 @@ const Anchor = ({ className, ...props }: TooltipAnchorProps): JSX.Element => {
 };
 
 const Content = ({
+  arrowClassName,
   className,
   style,
   children,
@@ -110,12 +122,12 @@ const Content = ({
 }: TooltipContentProps): JSX.Element => {
   const { refs, floatingStyles } = useTooltipContext();
 
-  return (
+  const content = (
     <Box
       ref={refs.setFloating}
       className={cn(
         'z-50 flex w-max max-w-[min(240px,calc(100vw-32px))] items-center justify-center',
-        'rounded-s bg-surface-high px-012 py-006 text-text-lowest shadow-drop-shadow-01',
+        'rounded-[var(--radius-s)] bg-surface-toast px-012 py-006 text-text-lowest shadow-drop-shadow-01',
         className,
       )}
       style={{ ...floatingStyles, ...style }}
@@ -124,9 +136,11 @@ const Content = ({
       <Text variant="caption-lg" className="text-center break-words">
         {children}
       </Text>
-      {showArrow ? <Arrow /> : null}
+      {showArrow ? <Arrow className={arrowClassName} /> : null}
     </Box>
   );
+
+  return content;
 };
 
 const STATIC_SIDE_BY_PLACEMENT = {
@@ -159,7 +173,7 @@ const Arrow = ({ className, style, ...props }: TooltipArrowProps): JSX.Element =
       as="span"
       aria-hidden="true"
       ref={arrowRef}
-      className={cn('absolute size-008 rotate-45 bg-surface-high', className)}
+      className={cn('absolute size-008 rotate-45 bg-surface-toast', className)}
       style={arrowStyle}
       {...props}
     />

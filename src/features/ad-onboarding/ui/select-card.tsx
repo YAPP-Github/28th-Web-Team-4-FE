@@ -4,7 +4,7 @@
  * 광고 온보딩의 라디오/체크박스 선택지를 Figma 카드 형태로 표시한다.
  */
 
-import type { JSX, ReactNode } from 'react';
+import { useId, type JSX, type ReactNode } from 'react';
 
 import { Checkbox, type CheckboxProps } from '@/shared/ui/checkbox';
 import { cn } from '@/shared/ui/cn';
@@ -34,6 +34,7 @@ export type CheckboxSelectCardProps = SelectCardBaseProps &
 export type SelectCardProps = RadioSelectCardProps | CheckboxSelectCardProps;
 
 type SelectCardLayoutProps = SelectCardBaseProps & {
+  controlId: string;
   selectionControl: ReactNode;
 };
 
@@ -41,13 +42,15 @@ function SelectCardLayout({
   label,
   description,
   className,
+  controlId,
   selectionControl,
 }: SelectCardLayoutProps): JSX.Element {
   return (
     <label
+      htmlFor={controlId}
       className={cn(
         [
-          'group flex min-h-[58px] w-full cursor-pointer items-center gap-014',
+          'group relative flex min-h-[58px] w-full cursor-pointer items-center gap-014',
           'rounded-[var(--radius-s)] border border-primitive-gray-250 px-014 py-010',
           'transition-colors hover:bg-surface-lower',
           'has-[[data-checked]]:border-outline-selected',
@@ -81,6 +84,8 @@ function SelectCardLayout({
 }
 
 export function SelectCard(props: SelectCardProps): JSX.Element {
+  const controlId = useId();
+
   if (props.control === 'radio') {
     const { control: _control, label, description, className, ...radioProps } = props;
 
@@ -89,9 +94,11 @@ export function SelectCard(props: SelectCardProps): JSX.Element {
         label={label}
         description={description}
         className={className}
+        controlId={controlId}
         selectionControl={
           <RadioGroupItem
-            renderMode="label-control"
+            id={controlId}
+            renderMode="button"
             className="focus-visible:outline-none"
             {...radioProps}
           />
@@ -107,9 +114,11 @@ export function SelectCard(props: SelectCardProps): JSX.Element {
       label={label}
       description={description}
       className={className}
+      controlId={controlId}
       selectionControl={
         <Checkbox
-          renderMode="label-control"
+          id={controlId}
+          renderMode="button"
           className="focus-visible:outline-none"
           {...checkboxProps}
         />

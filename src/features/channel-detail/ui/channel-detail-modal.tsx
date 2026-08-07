@@ -73,8 +73,8 @@ export function ChannelDetailModal({
               <Modal.Close
                 aria-label="닫기"
                 className={[
-                  'inline-flex size-032 shrink-0 items-center justify-center rounded-[var(--radius-s)]',
-                  'text-icon-high transition-colors hover:not-data-disabled:text-icon-higher',
+                  'inline-flex size-032 shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-s)]',
+                  'text-icon-high motion-safe:transition-colors motion-safe:duration-150 motion-safe:ease-out-cubic motion-reduce:transition-none hover:not-data-disabled:text-icon-higher',
                   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sys-primary-default',
                 ].join(' ')}
               >

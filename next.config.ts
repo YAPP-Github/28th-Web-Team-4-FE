@@ -7,6 +7,16 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
   output: 'standalone',
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'assets.chaeso-zip.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
   rewrites() {
     return [
       {
