@@ -2,11 +2,11 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { withNuqsTestingAdapter, type OnUrlUpdateFunction } from 'nuqs/adapters/testing';
 
-import { useCompareQueryState } from './use-compare-query-state';
+import { useChannelSelectionQueryState } from './use-channel-selection-query-state';
 
 function QueryStateProbe() {
   const { q, category, page, setSearchQuery, setCategories, setPage, resetFilters } =
-    useCompareQueryState();
+    useChannelSelectionQueryState();
 
   return (
     <div>
@@ -44,7 +44,7 @@ function renderQueryStateProbe(
   });
 }
 
-describe('useCompareQueryState', () => {
+describe('useChannelSelectionQueryState', () => {
   afterEach(() => {
     vi.useRealTimers();
   });

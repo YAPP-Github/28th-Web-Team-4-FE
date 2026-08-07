@@ -2,11 +2,11 @@ import type { JSX } from 'react';
 
 import { Box } from '@/shared/ui/layout/box';
 
-export function CompareChannelCardSkeleton(): JSX.Element {
+export function ChannelCardSkeleton(): JSX.Element {
   return (
     <Box
       aria-hidden
-      data-testid="compare-channel-card-skeleton"
+      data-testid="channel-card-skeleton"
       className="bg-surface-lowest flex h-[176px] w-full max-w-[282px] flex-col rounded-[var(--radius-m)] border-2 border-transparent p-[18px] motion-safe:animate-pulse"
     >
       <Box className="flex w-full items-start justify-between">

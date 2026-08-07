@@ -2,12 +2,13 @@
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
-import { COMPARE_CHANNEL_PAGE_SIZE } from '@/pages/compare/model/channel-page';
 import { getChannelsOptions } from '@/shared/api/generated/@tanstack/react-query.gen';
 import type {
   GetChannelsResponse,
   PageResponseChannelListItemResponse,
 } from '@/shared/api/generated';
+
+import { CHANNEL_PAGE_SIZE } from '@/features/channel-selection/model/channel-page';
 
 function selectChannelPage(
   data: GetChannelsResponse,
@@ -15,12 +16,12 @@ function selectChannelPage(
   return data.data;
 }
 
-export function useCompareChannels(searchKeyword: string, page?: number) {
+export function useChannels(searchKeyword: string, page?: number) {
   const queryOptions = getChannelsOptions({
     query: {
       name: searchKeyword || undefined,
       page,
-      size: page === undefined ? undefined : COMPARE_CHANNEL_PAGE_SIZE,
+      size: page === undefined ? undefined : CHANNEL_PAGE_SIZE,
     },
   });
 

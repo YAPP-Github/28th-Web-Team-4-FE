@@ -212,7 +212,7 @@ describe('ComparePage', () => {
     expect(screen.getByText('최대 3개까지 선택할 수 있어요')).toBeVisible();
     expect(screen.getByRole('combobox', { name: '채널 카테고리' })).toHaveTextContent('전체');
     expect(screen.getByLabelText('채널 검색')).toHaveAttribute('placeholder', '검색');
-    expect(screen.getAllByTestId('compare-channel-card-skeleton')).toHaveLength(12);
+    expect(screen.getAllByTestId('channel-card-skeleton')).toHaveLength(12);
 
     responseGate.resolve(undefined);
 

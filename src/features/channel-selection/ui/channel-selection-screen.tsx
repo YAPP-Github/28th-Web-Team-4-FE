@@ -6,15 +6,15 @@ import { Search } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
 import { Input as BaseInput } from '@base-ui/react/input';
 
-import { useCompareChannels } from '@/pages/compare/api/use-compare-channels';
+import { useChannels } from '@/features/channel-selection/api/use-channels';
 import {
   CHANNEL_CATEGORY_OPTION_LIST,
-  createCategoryChannelPage,
   type ChannelListItem,
-} from '@/pages/compare/model/channel-page';
-import { COMPARE_SELECTION_LIMIT } from '@/pages/compare/model/channels';
-import { useChannelSelection } from '@/pages/compare/model/use-channel-selection';
-import { useCompareQueryState } from '@/pages/compare/model/use-compare-query-state';
+  createCategoryChannelPage,
+} from '@/features/channel-selection/model/channel-page';
+import { CHANNEL_SELECTION_LIMIT } from '@/features/channel-selection/model/channels';
+import { useChannelSelection } from '@/features/channel-selection/model/use-channel-selection';
+import { useChannelSelectionQueryState } from '@/features/channel-selection/model/use-channel-selection-query-state';
 import { useDebouncedValue } from '@/shared/lib/use-debounced-value';
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/shared/ui/cn';
@@ -22,21 +22,33 @@ import { Box } from '@/shared/ui/layout/box';
 import { Pagination } from '@/shared/ui/pagination';
 import { Select } from '@/shared/ui/select';
 import { Text } from '@/shared/ui/text';
-import { showWarningToast } from '@/shared/ui/toast';
 
-import { CompareChannelCard } from './compare-channel-card';
+import { ChannelCard } from './channel-card';
 import {
-  CompareChannelEmptyState,
-  CompareChannelErrorState,
-  CompareChannelLoadingFallback,
-} from './compare-channel-states';
+  ChannelSelectionEmptyState,
+  ChannelSelectionErrorState,
+  ChannelSelectionLoadingFallback,
+} from './channel-selection-states';
 
 const SEARCH_DEBOUNCE_MS = 300;
-const CATEGORY_FILTER_OPTIONS = CHANNEL_CATEGORY_OPTION_LIST;
 const EMPTY_CHANNELS: ChannelListItem[] = [];
+const DEFAULT_LIMIT_TOAST = {
+  id: 'channel-selection-limit',
+  message: '채널은 최대 3개까지 선택할 수 있어요.',
+} as const;
+
+export type ChannelSelectionScreenProps = {
+  title: string;
+  submitLabel: string;
+  onComplete: (channelIds: readonly string[]) => void;
+  limitToast?: {
+    id: string;
+    message: string;
+  };
+};
 
 function getCategoryLabel(category: string): string {
-  return CATEGORY_FILTER_OPTIONS.find((option) => option.value === category)?.label ?? '전체';
+  return CHANNEL_CATEGORY_OPTION_LIST.find((option) => option.value === category)?.label ?? '전체';
 }
 
 function getCategoryTriggerLabel(categories: readonly string[]): string {
@@ -51,7 +63,7 @@ function getCategoryTriggerLabel(categories: readonly string[]): string {
     : `${firstCategoryLabel} 외 ${categories.length - 1}개`;
 }
 
-function CompareCategoryMultiSelect({
+function ChannelCategoryMultiSelect({
   value,
   onValueChange,
 }: {
@@ -60,7 +72,7 @@ function CompareCategoryMultiSelect({
 }): JSX.Element {
   return (
     <Select
-      options={CATEGORY_FILTER_OPTIONS}
+      options={CHANNEL_CATEGORY_OPTION_LIST}
       placeholder="전체"
       triggerAriaLabel="채널 카테고리"
       value={[...value]}
@@ -71,10 +83,7 @@ function CompareCategoryMultiSelect({
   );
 }
 
-const COMPARE_COMING_SOON_TOAST_ID = 'compare-coming-soon';
-const COMPARE_COMING_SOON_TOAST_MESSAGE = '채널 비교 기능은 준비 중이에요.';
-
-function CompareSearchInput({
+function ChannelSearchInput({
   value,
   onChange,
 }: {
@@ -103,12 +112,14 @@ function CompareSearchInput({
   );
 }
 
-function CompareSubHeader({
+function ChannelSelectionSubHeader({
+  title,
   category,
   onCategoryChange,
   query,
   onQueryChange,
 }: {
+  title: string;
   category: readonly string[];
   onCategoryChange: (category: string[]) => void;
   query: string;
@@ -119,22 +130,22 @@ function CompareSubHeader({
       <Box className="gap-016 py-016 flex w-full max-w-[1200px] flex-col md:flex-row md:items-center md:justify-between md:py-0">
         <Box className="gap-006 flex min-w-0 flex-col sm:flex-row sm:items-center sm:gap-[52px]">
           <Text as="h1" variant="heading-lg" className="text-text-highest">
-            비교할 채널을 선택해 주세요
+            {title}
           </Text>
           <Text as="p" variant="subtitle-xxs" className="text-text-low">
             최대 3개까지 선택할 수 있어요
           </Text>
         </Box>
         <Box className="gap-016 flex w-full flex-col sm:w-auto sm:flex-row sm:items-center">
-          <CompareCategoryMultiSelect value={category} onValueChange={onCategoryChange} />
-          <CompareSearchInput value={query} onChange={onQueryChange} />
+          <ChannelCategoryMultiSelect value={category} onValueChange={onCategoryChange} />
+          <ChannelSearchInput value={query} onChange={onQueryChange} />
         </Box>
       </Box>
     </Box>
   );
 }
 
-type CompareChannelContentProps = {
+type ChannelSelectionContentProps = {
   channels: ChannelListItem[];
   hasInitialError: boolean;
   isInitialLoading: boolean;
@@ -144,7 +155,7 @@ type CompareChannelContentProps = {
   selectedIds: readonly string[];
 };
 
-function CompareChannelContent({
+function ChannelSelectionContent({
   channels,
   hasInitialError,
   isInitialLoading,
@@ -152,17 +163,17 @@ function CompareChannelContent({
   onRetry,
   onToggle,
   selectedIds,
-}: CompareChannelContentProps): JSX.Element {
+}: ChannelSelectionContentProps): JSX.Element {
   if (isInitialLoading) {
-    return <CompareChannelLoadingFallback />;
+    return <ChannelSelectionLoadingFallback />;
   }
 
   if (hasInitialError) {
-    return <CompareChannelErrorState onRetry={onRetry} />;
+    return <ChannelSelectionErrorState onRetry={onRetry} />;
   }
 
   if (channels.length === 0) {
-    return <CompareChannelEmptyState onResetFilters={onResetFilters} />;
+    return <ChannelSelectionEmptyState onResetFilters={onResetFilters} />;
   }
 
   return (
@@ -172,7 +183,7 @@ function CompareChannelContent({
     >
       {channels.map((channel) => (
         <Box key={channel.id} as="li" className="flex w-full justify-center">
-          <CompareChannelCard
+          <ChannelCard
             channel={channel}
             checked={selectedIds.includes(channel.id)}
             onToggle={onToggle}
@@ -183,30 +194,32 @@ function CompareChannelContent({
   );
 }
 
-export function ChannelSelectionView(): JSX.Element {
+export function ChannelSelectionScreen({
+  title,
+  submitLabel,
+  onComplete,
+  limitToast = DEFAULT_LIMIT_TOAST,
+}: ChannelSelectionScreenProps): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
-  const compareQueryState = useCompareQueryState();
-  const channelSelection = useChannelSelection();
+  const queryState = useChannelSelectionQueryState();
+  const channelSelection = useChannelSelection({
+    limitToastId: limitToast.id,
+    limitToastMessage: limitToast.message,
+  });
 
-  const normalizedQuery = compareQueryState.q.trim();
+  const normalizedQuery = queryState.q.trim();
   const debouncedQuery = useDebouncedValue(normalizedQuery, SEARCH_DEBOUNCE_MS);
-
-  const hasCategoryFilter = compareQueryState.category.length > 0;
-  const apiPage = hasCategoryFilter ? undefined : compareQueryState.page - 1;
-  const channelsQuery = useCompareChannels(debouncedQuery, apiPage);
+  const hasCategoryFilter = queryState.category.length > 0;
+  const apiPage = hasCategoryFilter ? undefined : queryState.page - 1;
+  const channelsQuery = useChannels(debouncedQuery, apiPage);
 
   const channelPage =
     hasCategoryFilter && channelsQuery.data
-      ? createCategoryChannelPage(
-          channelsQuery.data.content,
-          compareQueryState.category,
-          compareQueryState.page,
-        )
+      ? createCategoryChannelPage(channelsQuery.data.content, queryState.category, queryState.page)
       : channelsQuery.data;
   const channels = channelPage?.content ?? EMPTY_CHANNELS;
   const totalPages = channelPage?.totalPages ?? 0;
-  const currentPage = Math.min(compareQueryState.page, Math.max(totalPages, 1));
-
+  const currentPage = Math.min(queryState.page, Math.max(totalPages, 1));
   const isInitialLoading = channelsQuery.isPending;
   const hasInitialError = channelsQuery.isError;
 
@@ -214,23 +227,22 @@ export function ChannelSelectionView(): JSX.Element {
     void channelsQuery.refetch();
   };
 
-  const handleCompare = () => {
-    if (!channelSelection.canCompare) {
+  const handleComplete = () => {
+    if (!channelSelection.canSubmit) {
       return;
     }
 
-    showWarningToast(COMPARE_COMING_SOON_TOAST_MESSAGE, {
-      id: COMPARE_COMING_SOON_TOAST_ID,
-    });
+    onComplete(channelSelection.selectedIds);
   };
 
   return (
     <Box className="flex min-h-0 flex-1 flex-col">
-      <CompareSubHeader
-        category={compareQueryState.category}
-        onCategoryChange={compareQueryState.setCategories}
-        query={compareQueryState.q}
-        onQueryChange={compareQueryState.setSearchQuery}
+      <ChannelSelectionSubHeader
+        title={title}
+        category={queryState.category}
+        onCategoryChange={queryState.setCategories}
+        query={queryState.q}
+        onQueryChange={queryState.setSearchQuery}
       />
       <Box
         aria-busy={channelsQuery.isFetching}
@@ -242,11 +254,11 @@ export function ChannelSelectionView(): JSX.Element {
               채널 목록을 불러오는 중이에요
             </span>
           ) : null}
-          <CompareChannelContent
+          <ChannelSelectionContent
             channels={channels}
             hasInitialError={hasInitialError}
             isInitialLoading={isInitialLoading}
-            onResetFilters={compareQueryState.resetFilters}
+            onResetFilters={queryState.resetFilters}
             onRetry={handleRetry}
             onToggle={channelSelection.toggleChannel}
             selectedIds={channelSelection.selectedIds}
@@ -261,7 +273,7 @@ export function ChannelSelectionView(): JSX.Element {
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
-                onPageChange={compareQueryState.setPage}
+                onPageChange={queryState.setPage}
               />
             ) : null}
           </Box>
@@ -270,12 +282,12 @@ export function ChannelSelectionView(): JSX.Element {
               frame="button"
               tone="secondary"
               size="m"
-              disabled={!channelSelection.canCompare}
-              onClick={handleCompare}
+              disabled={!channelSelection.canSubmit}
+              onClick={handleComplete}
               className="h-[44px] w-full max-w-[320px]"
             >
               <span className="inline-flex items-center">
-                선택한 채널 비교하기 (
+                {submitLabel} (
                 <span className="inline-flex translate-y-px">
                   <NumberFlow
                     value={channelSelection.selectedCount}
@@ -286,7 +298,7 @@ export function ChannelSelectionView(): JSX.Element {
                     opacityTiming={{ duration: 50, easing: 'ease-out' }}
                   />
                 </span>
-                /{COMPARE_SELECTION_LIMIT})
+                /{CHANNEL_SELECTION_LIMIT})
               </span>
             </Button>
           </Box>

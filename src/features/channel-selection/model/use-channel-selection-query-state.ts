@@ -4,14 +4,14 @@ import { debounce, parseAsArrayOf, parseAsInteger, parseAsString, useQueryStates
 
 const SEARCH_URL_UPDATE_LIMIT = debounce(300);
 
-const compareQueryParsers = {
+const channelSelectionQueryParsers = {
   q: parseAsString.withDefault(''),
   category: parseAsArrayOf(parseAsString).withDefault([]),
   page: parseAsInteger.withDefault(1),
 };
 
-export function useCompareQueryState() {
-  const [{ q, category, page }, setQuery] = useQueryStates(compareQueryParsers, {
+export function useChannelSelectionQueryState() {
+  const [{ q, category, page }, setQuery] = useQueryStates(channelSelectionQueryParsers, {
     history: 'replace',
   });
 

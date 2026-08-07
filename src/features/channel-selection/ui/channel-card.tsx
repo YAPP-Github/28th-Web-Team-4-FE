@@ -3,20 +3,23 @@
 import { useState, type JSX } from 'react';
 import Image from 'next/image';
 
-import { getChannelCategoryLabel, type ChannelListItem } from '@/pages/compare/model/channel-page';
+import {
+  getChannelCategoryLabel,
+  type ChannelListItem,
+} from '@/features/channel-selection/model/channel-page';
 import { Badge } from '@/shared/ui/badge';
 import { Checkbox } from '@/shared/ui/checkbox';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
-type CompareChannelCardProps = {
+type ChannelCardProps = {
   channel: ChannelListItem;
   checked: boolean;
   onToggle: (channelId: string) => void;
 };
 
-function CompareChannelCardHeader({
+function ChannelCardHeader({
   channel,
   checked,
 }: {
@@ -55,7 +58,7 @@ function CompareChannelCardHeader({
         )}
       >
         <Image
-          src="/compare-assets/check.svg"
+          src="/channel-selection-assets/check.svg"
           alt=""
           width={9}
           height={7}
@@ -66,7 +69,7 @@ function CompareChannelCardHeader({
   );
 }
 
-function CompareChannelCardBody({ channel }: { channel: ChannelListItem }): JSX.Element {
+function ChannelCardBody({ channel }: { channel: ChannelListItem }): JSX.Element {
   return (
     <Box className="gap-002 flex w-full flex-col items-start">
       <Text as="h2" variant="subtitle-lg" className="text-text-high line-clamp-1 w-full">
@@ -79,7 +82,7 @@ function CompareChannelCardBody({ channel }: { channel: ChannelListItem }): JSX.
   );
 }
 
-function CompareChannelCardFooter({
+function ChannelCardFooter({
   channel,
   checked,
 }: {
@@ -100,11 +103,7 @@ function CompareChannelCardFooter({
   );
 }
 
-export function CompareChannelCard({
-  channel,
-  checked,
-  onToggle,
-}: CompareChannelCardProps): JSX.Element {
+export function ChannelCard({ channel, checked, onToggle }: ChannelCardProps): JSX.Element {
   const checkboxLabel = `${channel.name} 선택`;
 
   return (
@@ -129,11 +128,11 @@ export function CompareChannelCard({
         className="sr-only"
       />
 
-      <CompareChannelCardHeader channel={channel} checked={checked} />
+      <ChannelCardHeader channel={channel} checked={checked} />
 
       <Box className="gap-008 flex w-full flex-col items-start">
-        <CompareChannelCardBody channel={channel} />
-        <CompareChannelCardFooter channel={channel} checked={checked} />
+        <ChannelCardBody channel={channel} />
+        <ChannelCardFooter channel={channel} checked={checked} />
       </Box>
     </label>
   );

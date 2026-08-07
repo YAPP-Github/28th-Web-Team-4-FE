@@ -6,7 +6,7 @@ import type {
 export type ChannelListItem = ChannelListItemResponse;
 export type ChannelPage = NonNullable<PageResponseChannelListItemResponse>;
 
-export const COMPARE_CHANNEL_PAGE_SIZE = 12;
+export const CHANNEL_PAGE_SIZE = 12;
 export const CHANNEL_CATEGORY_OPTION_LIST = [
   { value: 'GAME', label: '게임' },
   { value: 'ENTERTAINMENT', label: '엔터테인먼트' },
@@ -50,17 +50,17 @@ export function createCategoryChannelPage(
   const currentPage = Math.max(1, Math.trunc(page));
   const pageIndex = currentPage - 1;
   const totalElements = filteredChannels.length;
-  const totalPages = Math.ceil(totalElements / COMPARE_CHANNEL_PAGE_SIZE);
-  const pageStartIndex = pageIndex * COMPARE_CHANNEL_PAGE_SIZE;
+  const totalPages = Math.ceil(totalElements / CHANNEL_PAGE_SIZE);
+  const pageStartIndex = pageIndex * CHANNEL_PAGE_SIZE;
   const content =
     pageIndex < totalPages
-      ? filteredChannels.slice(pageStartIndex, pageStartIndex + COMPARE_CHANNEL_PAGE_SIZE)
+      ? filteredChannels.slice(pageStartIndex, pageStartIndex + CHANNEL_PAGE_SIZE)
       : [];
 
   return {
     content,
     number: pageIndex,
-    size: COMPARE_CHANNEL_PAGE_SIZE,
+    size: CHANNEL_PAGE_SIZE,
     totalElements,
     totalPages,
     first: pageIndex === 0,

@@ -1,0 +1,1 @@
+export const CHANNEL_SELECTION_LIMIT = 3;
