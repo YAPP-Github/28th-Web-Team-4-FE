@@ -1,9 +1,9 @@
 'use client';
 
-import type { JSX } from 'react';
+import { useState, type JSX } from 'react';
 import Image from 'next/image';
 
-import type { CompareChannel } from '@/pages/compare/model/channels';
+import { getChannelCategoryLabel, type ChannelListItem } from '@/pages/compare/model/channel-page';
 import { Badge } from '@/shared/ui/badge';
 import { Checkbox } from '@/shared/ui/checkbox';
 import { cn } from '@/shared/ui/cn';
@@ -11,7 +11,7 @@ import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
 type CompareChannelCardProps = {
-  channel: CompareChannel;
+  channel: ChannelListItem;
   checked: boolean;
   onToggle: (channelId: string) => void;
 };
@@ -20,19 +20,32 @@ function CompareChannelCardHeader({
   channel,
   checked,
 }: {
-  channel: CompareChannel;
+  channel: ChannelListItem;
   checked: boolean;
 }): JSX.Element {
+  const logoUrl = channel.logoUrl?.trim() ?? '';
+  const [failedLogoUrl, setFailedLogoUrl] = useState<string | null>(null);
+  const shouldShowLogo = logoUrl.length > 0 && failedLogoUrl !== logoUrl;
+
   return (
     <Box as="header" className="flex w-full items-start justify-between">
-      <Box className="size-[33px] overflow-hidden rounded-[5.333px]">
-        <Image
-          src={channel.iconSrc}
-          alt=""
-          width={33}
-          height={33}
-          className="size-full object-cover"
-        />
+      <Box className="bg-surface-low flex size-[33px] items-center justify-center overflow-hidden rounded-[5.333px]">
+        {shouldShowLogo ? (
+          <Image
+            src={logoUrl}
+            alt=""
+            width={33}
+            height={33}
+            onError={() => {
+              setFailedLogoUrl(logoUrl);
+            }}
+            className="size-full object-cover"
+          />
+        ) : (
+          <Text aria-hidden variant="subtitle-xxs" className="text-text-medium">
+            {Array.from(channel.name.trim())[0] ?? '?'}
+          </Text>
+        )}
       </Box>
       <Box
         aria-hidden
@@ -46,7 +59,6 @@ function CompareChannelCardHeader({
           alt=""
           width={9}
           height={7}
-          unoptimized
           className="h-[7px] w-[9px]"
         />
       </Box>
@@ -54,18 +66,14 @@ function CompareChannelCardHeader({
   );
 }
 
-function CompareChannelCardBody({ channel }: { channel: CompareChannel }): JSX.Element {
+function CompareChannelCardBody({ channel }: { channel: ChannelListItem }): JSX.Element {
   return (
     <Box className="gap-002 flex w-full flex-col items-start">
       <Text as="h2" variant="subtitle-lg" className="text-text-high line-clamp-1 w-full">
         {channel.name}
       </Text>
-      <Text as="p" variant="body-lg" className="text-text-medium w-full">
-        {channel.descriptionLines.map((line) => (
-          <span key={line} className="block truncate">
-            {line}
-          </span>
-        ))}
+      <Text as="p" variant="body-lg" className="text-text-medium line-clamp-2 w-full break-keep">
+        {channel.description ?? '채널 설명이 아직 없어요.'}
       </Text>
     </Box>
   );
@@ -75,7 +83,7 @@ function CompareChannelCardFooter({
   channel,
   checked,
 }: {
-  channel: CompareChannel;
+  channel: ChannelListItem;
   checked: boolean;
 }): JSX.Element {
   return (
@@ -86,7 +94,7 @@ function CompareChannelCardFooter({
         size="s"
         className="motion-safe:ease-out-cubic motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none"
       >
-        {channel.category}
+        {getChannelCategoryLabel(channel.primaryCategory)}
       </Badge>
     </Box>
   );
@@ -103,12 +111,11 @@ export function CompareChannelCard({
     <label
       className={cn(
         [
-          'bg-surface-lowest relative flex h-[176px] w-full max-w-[282px] cursor-pointer flex-col rounded-[var(--radius-m)]',
-          'border-2 border-transparent p-[18px]',
-          'motion-safe:ease-out-cubic motion-safe:transition-[border-color,box-shadow,outline-color,background-color] motion-safe:duration-150 motion-reduce:transition-none',
+          'bg-surface-lowest relative flex h-[176px] w-full max-w-[282px] cursor-pointer flex-col justify-between gap-012 rounded-[var(--radius-m)] p-020 outline outline-2 outline-transparent',
+          'transition-[outline-color,box-shadow] duration-150 ease-out',
           'has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-sys-primary-default',
         ],
-        checked ? 'border-outline-selected' : 'hover:shadow-drop-shadow-02',
+        checked ? 'outline-outline-selected' : 'hover:shadow-drop-shadow-02',
       )}
     >
       <Checkbox
@@ -124,7 +131,7 @@ export function CompareChannelCard({
 
       <CompareChannelCardHeader channel={channel} checked={checked} />
 
-      <Box className="mt-012 gap-008 flex w-full flex-col items-start">
+      <Box className="gap-008 flex w-full flex-col items-start">
         <CompareChannelCardBody channel={channel} />
         <CompareChannelCardFooter channel={channel} checked={checked} />
       </Box>
