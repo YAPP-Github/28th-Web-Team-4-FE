@@ -4,6 +4,7 @@ import { Box } from '@/shared/ui/layout/box';
 
 import { SimulatorCalculationNote } from './simulator-calculation-note';
 import { SimulatorChannelResults } from './simulator-channel-results';
+import { SimulatorChannelSelectionButton } from './simulator-channel-selection-button';
 import { SimulatorResultSummary } from './simulator-result-summary';
 import { SimulatorSubHeader } from './simulator-sub-header';
 
@@ -29,6 +30,7 @@ export function SimulatorPage({
           <SimulatorCalculationNote />
         </Box>
       </Box>
+      {isLogin && isChannelSelectionComplete ? <SimulatorChannelSelectionButton /> : null}
     </main>
   );
 }

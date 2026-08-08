@@ -1,10 +1,1 @@
-import { SimulatorPage } from '@/pages/simulator';
-import { hasActiveAuthSession } from '@/shared/lib/auth/session-cookie';
-
-export { metadata } from '@/pages/simulator';
-
-export default async function SimulatorRoute() {
-  const isLogin = await hasActiveAuthSession();
-
-  return <SimulatorPage isLogin={isLogin} />;
-}
+export { default, metadata } from '@/app/simulator/page';
