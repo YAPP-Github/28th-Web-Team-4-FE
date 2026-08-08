@@ -150,6 +150,17 @@ describe('PageHeader', () => {
     expect(screen.queryByRole('button', { name: '시작하기' })).not.toBeInTheDocument();
   });
 
+  it('calls the logout handler from the account menu', async () => {
+    const user = userEvent.setup();
+    const onLogout = vi.fn<() => void>();
+    render(<PageHeader isLogin onLogout={onLogout} />);
+
+    await user.click(screen.getByRole('button', { name: '계정 메뉴 열기' }));
+    await user.click(await screen.findByRole('menuitem', { name: '로그아웃' }));
+
+    expect(onLogout).toHaveBeenCalledOnce();
+  });
+
   it('opens and closes the basic guest sidebar', async () => {
     const user = userEvent.setup();
     render(<PageHeader />);
