@@ -4,10 +4,8 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { withNuqsTestingAdapter } from 'nuqs/adapters/testing';
-import { OverlayProvider } from 'overlay-kit';
 
 import type {
-  ChannelDetailResponse,
   ChannelListItemResponse,
   PageResponseChannelListItemResponse,
 } from '@/shared/api/generated';
@@ -32,6 +30,10 @@ vi.mock('@number-flow/react', () => ({
 
 vi.mock('@/shared/ui/toast', () => ({
   showWarningToast: showWarningToastMock,
+}));
+
+vi.mock('motion/react', () => ({
+  useReducedMotion: () => false,
 }));
 
 function createChannel(
@@ -136,22 +138,6 @@ function defaultChannelResponse(url: URL) {
   );
 }
 
-function createChannelDetailResponse(
-  overrides: Partial<NonNullable<ChannelDetailResponse>> = {},
-): NonNullable<ChannelDetailResponse> {
-  return {
-    id: 'channel-naver',
-    name: '네이버 검색 광고',
-    description: '네이버 상세 API 설명',
-    primaryCategory: 'EDUCATION',
-    advantages: ['검색 의도가 높은 사용자에게 도달해요.'],
-    products: [],
-    audienceMetrics: [],
-    references: [],
-    ...overrides,
-  };
-}
-
 function createDeferred<T>() {
   let resolve!: (value: T) => void;
   const promise = new Promise<T>((resolvePromise) => {
@@ -174,9 +160,7 @@ function renderComparePage(searchParams = '') {
   function Wrapper({ children }: { children: ReactNode }) {
     return (
       <NuqsTestingAdapter>
-        <QueryClientProvider client={queryClient}>
-          <OverlayProvider>{children}</OverlayProvider>
-        </QueryClientProvider>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       </NuqsTestingAdapter>
     );
   }
@@ -228,7 +212,7 @@ describe('ComparePage', () => {
     expect(screen.getByText('최대 3개까지 선택할 수 있어요')).toBeVisible();
     expect(screen.getByRole('combobox', { name: '채널 카테고리' })).toHaveTextContent('전체');
     expect(screen.getByLabelText('채널 검색')).toHaveAttribute('placeholder', '검색');
-    expect(screen.getAllByTestId('compare-channel-card-skeleton')).toHaveLength(12);
+    expect(screen.getAllByTestId('channel-card-skeleton')).toHaveLength(12);
 
     responseGate.resolve(undefined);
 
@@ -458,69 +442,23 @@ describe('ComparePage', () => {
   });
 
   it('카드 선택을 토글하고 CTA 개수를 갱신한다', async () => {
-    let detailRequestCount = 0;
-    server.use(
-      http.get(/\/api\/v1\/channels\/[^/]+$/, () => {
-        detailRequestCount += 1;
-        return HttpResponse.json({ success: true, data: createChannelDetailResponse() });
-      }),
-    );
-
     const user = userEvent.setup();
     renderComparePage();
     expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
 
     const naverCheckbox = getChannelCheckbox('네이버 검색 광고');
-    const naverCard = naverCheckbox.closest('[data-testid="compare-channel-card"]');
-
-    expect(naverCheckbox).toHaveClass('size-024', 'rounded-full');
+    const naverCard = screen.getByText('네이버 검색 광고').closest('label');
 
     await user.click(naverCheckbox);
 
     expect(naverCheckbox).toBeChecked();
     expect(naverCard).toHaveClass('outline-outline-selected');
-    expect(screen.queryByRole('dialog', { name: '네이버 검색 광고' })).not.toBeInTheDocument();
-    expect(detailRequestCount).toBe(0);
     expect(getCompareButton()).toHaveTextContent('선택한 채널 비교하기 (1/3)');
 
     await user.click(naverCheckbox);
 
     expect(naverCheckbox).not.toBeChecked();
     expect(getCompareButton()).toHaveTextContent('선택한 채널 비교하기 (0/3)');
-  });
-
-  it('카드 본문 클릭은 선택을 바꾸지 않고 상세 모달만 연다', async () => {
-    const responseGate = createDeferred<void>();
-    let detailRequestCount = 0;
-
-    server.use(
-      http.get(/\/api\/v1\/channels\/channel-naver$/, async () => {
-        detailRequestCount += 1;
-        await responseGate.promise;
-        return HttpResponse.json({ success: true, data: createChannelDetailResponse() });
-      }),
-    );
-
-    const user = userEvent.setup();
-    renderComparePage();
-    expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
-
-    const naverCheckbox = getChannelCheckbox('네이버 검색 광고');
-    expect(getCompareButton()).toHaveTextContent('선택한 채널 비교하기 (0/3)');
-    await user.click(screen.getByRole('button', { name: '네이버 검색 광고 상세보기' }));
-
-    const dialog = await screen.findByRole('dialog', { name: '네이버 검색 광고' });
-    expect(dialog).toBeVisible();
-    expect(
-      screen.getByRole('status', { name: '채널 상세 정보를 불러오는 중이에요' }),
-    ).toBeVisible();
-    expect(naverCheckbox).not.toBeChecked();
-    expect(detailRequestCount).toBe(1);
-
-    responseGate.resolve(undefined);
-
-    expect(await screen.findByText('네이버 상세 API 설명')).toBeVisible();
-    expect(screen.getByRole('dialog', { name: '네이버 검색 광고' })).toBe(dialog);
   });
 
   it('선택 한도를 3개로 유지하고 경고 토스트를 보여준다', async () => {

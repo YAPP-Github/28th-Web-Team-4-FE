@@ -1,1 +1,0 @@
-export const COMPARE_SELECTION_LIMIT = 3;

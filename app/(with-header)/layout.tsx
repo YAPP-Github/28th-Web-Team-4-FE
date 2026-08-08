@@ -19,11 +19,11 @@ export default async function WithHeaderLayout({ children }: { children: ReactNo
   queryClient.setQueryData(authSessionQueryKey, sessionState);
 
   return (
-    <>
+    <div className="flex h-dvh min-h-0 flex-none flex-col">
       <HydrationBoundary state={dehydrate(queryClient)}>
         <SessionPageHeader />
       </HydrationBoundary>
-      {children}
-    </>
+      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+    </div>
   );
 }

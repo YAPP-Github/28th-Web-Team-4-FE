@@ -1,24 +1,23 @@
 /**
- * 추천과 시뮬레이터가 공유하는 5단계 Draft 검증, label, 완료 답변 변환 규칙이다.
+ * 추천 온보딩 공통 5단계 Draft 검증과 답변 label 규칙이다.
  */
 
 import { formatBudgetRange, isBudgetRangeEmpty } from '@/features/ad-onboarding/lib/budget-snap';
 
-import type { SimulatorOnboardingAnswer } from './onboarding-answer';
 import {
   CAMPAIGN_PERIOD_OPTION_LIST,
   CATEGORY_OPTION_LIST,
   SERVICE_TYPE_OPTION_LIST,
   type OnboardingOption,
 } from './common-onboarding-options';
-import type { CommonOnboardingDraft, SimulatorOnboardingDraft } from './onboarding-draft';
-import { SIMULATOR_ONBOARDING_STEP_ID_LIST, type CommonOnboardingStepId } from './onboarding-step';
+import type { CommonOnboardingDraft } from './onboarding-draft';
+import type { CommonOnboardingStepId } from './onboarding-step';
 
 /**
  * 공통 step의 필수 입력이 채워졌는지 판단한다.
  *
  * @param stepId 완료 여부를 확인할 공통 단계 ID
- * @param draft 추천과 시뮬레이터가 공유하는 현재 Draft
+ * @param draft 추천 온보딩 공통 현재 Draft
  * @returns 해당 단계의 필수 입력 충족 여부
  */
 export function isCommonOnboardingStepComplete(
@@ -37,27 +36,6 @@ export function isCommonOnboardingStepComplete(
     case 'campaign-period':
       return Boolean(draft.campaignPeriod);
   }
-}
-
-/**
- * 완료된 시뮬레이터 Draft를 공통 5개 필드의 확정 답변으로 변환한다.
- *
- * @param draft 시뮬레이터 입력 상태
- * @returns budget을 포함하고 ageRangeList를 포함하지 않는 시뮬레이터 답변
- * @throws 공통 5단계 중 완료되지 않은 단계가 있으면 Error를 던진다.
- */
-export function buildSimulatorOnboardingAnswer(
-  draft: SimulatorOnboardingDraft,
-): SimulatorOnboardingAnswer {
-  assertCommonOnboardingDraftComplete(draft);
-
-  return {
-    serviceName: draft.serviceName.trim(),
-    category: draft.category,
-    serviceType: draft.serviceType,
-    budget: draft.budget,
-    campaignPeriod: draft.campaignPeriod,
-  };
 }
 
 /**
@@ -97,26 +75,4 @@ export function getOnboardingOptionLabel<TValue extends string>(
   value?: TValue,
 ): string {
   return optionList.find((option) => option.value === value)?.label ?? '';
-}
-
-/**
- * 공통 완료 답변 변환 전 필수값을 검증하고 optional 필드 타입을 좁힌다.
- *
- * @param draft 검증할 공통 Draft
- * @throws 완료되지 않은 단계가 있으면 해당 단계 ID를 포함한 Error를 던진다.
- */
-function assertCommonOnboardingDraftComplete(
-  draft: CommonOnboardingDraft,
-): asserts draft is CommonOnboardingDraft & {
-  category: NonNullable<CommonOnboardingDraft['category']>;
-  serviceType: NonNullable<CommonOnboardingDraft['serviceType']>;
-  campaignPeriod: NonNullable<CommonOnboardingDraft['campaignPeriod']>;
-} {
-  const incompleteStepId = SIMULATOR_ONBOARDING_STEP_ID_LIST.find(
-    (stepId) => !isCommonOnboardingStepComplete(stepId, draft),
-  );
-
-  if (incompleteStepId) {
-    throw new Error(`Simulator onboarding draft is incomplete: ${incompleteStepId}`);
-  }
 }

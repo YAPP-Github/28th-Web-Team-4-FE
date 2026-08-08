@@ -4,9 +4,6 @@
 
 import type { OnboardingOption } from './common-onboarding-options';
 
-/** 광고 목표 선택지를 화면의 두 섹션으로 나누기 위한 그룹. */
-export type AdGoalGroupId = 'AWARENESS' | 'ACTION';
-
 /** 광고할 주요 연령대. */
 export type AgeRangeId =
   | 'TEENS'
@@ -22,7 +19,9 @@ export type AdGoalId =
   | 'VIDEO_VIRAL'
   | 'TRAFFIC'
   | 'LEAD_GENERATION'
-  | 'PURCHASE_CONVERSION';
+  | 'PURCHASE_CONVERSION'
+  | 'APP_INSTALL'
+  | 'IN_APP_ACTION';
 
 /** 기존 광고 집행 경험 여부. */
 export type AdExperienceType = 'FIRST_TIME' | 'EXPERIENCED';
@@ -37,11 +36,6 @@ export type PerformanceChannelId =
   | 'META_ADS'
   | 'YOUTUBE_VIDEO_ADS'
   | 'KAKAO_BIZBOARD';
-
-/** 광고 목표 option은 화면 그룹 정보를 함께 가진다. */
-export type AdGoalOption = OnboardingOption<AdGoalId> & {
-  group: AdGoalGroupId;
-};
 
 /** 파일 파싱 전 UI와 최종 답변에서 사용하는 업로드 파일 메타데이터. */
 export type UploadedPerformanceFile = {
@@ -66,20 +60,17 @@ export const AGE_RANGE_OPTION_LIST = [
 ] as const satisfies readonly OnboardingOption<AgeRangeId>[];
 
 export const AD_GOAL_OPTION_LIST = [
-  { value: 'BRAND_AWARENESS', label: '브랜드 인지·노출 확대', group: 'AWARENESS' },
-  { value: 'VIDEO_VIRAL', label: '영상 조회·바이럴 확산', group: 'AWARENESS' },
-  { value: 'TRAFFIC', label: '클릭·트래픽 유입', group: 'ACTION' },
-  { value: 'LEAD_GENERATION', label: '회원가입·리드 수집', group: 'ACTION' },
-  { value: 'PURCHASE_CONVERSION', label: '구매·결제 전환', group: 'ACTION' },
-] as const satisfies readonly AdGoalOption[];
-
-export const AD_GOAL_GROUP_LIST = [
-  { value: 'AWARENESS', label: '더 많은 사람에게 알리기' },
-  { value: 'ACTION', label: '고객의 행동 유도하기' },
-] as const satisfies readonly OnboardingOption<AdGoalGroupId>[];
+  { value: 'BRAND_AWARENESS', label: '브랜드 인지·노출 확대' },
+  { value: 'VIDEO_VIRAL', label: '영상 조회·바이럴 확산' },
+  { value: 'TRAFFIC', label: '클릭·트래픽 유입' },
+  { value: 'LEAD_GENERATION', label: '회원가입·리드 수집' },
+  { value: 'PURCHASE_CONVERSION', label: '구매·결제 전환' },
+  { value: 'APP_INSTALL', label: '앱 설치' },
+  { value: 'IN_APP_ACTION', label: '인앱 구매·행동' },
+] as const satisfies readonly OnboardingOption<AdGoalId>[];
 
 export const AD_EXPERIENCE_OPTION_LIST = [
-  { value: 'FIRST_TIME', label: '집행은 처음이에요' },
+  { value: 'FIRST_TIME', label: '광고 운영은 처음이에요' },
   { value: 'EXPERIENCED', label: '광고를 운영해 봤어요' },
 ] as const satisfies readonly OnboardingOption<AdExperienceType>[];
 

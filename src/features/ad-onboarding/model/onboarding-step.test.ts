@@ -1,14 +1,12 @@
 /**
- * 추천·시뮬레이터 단계 순서와 StepBar 진행률 계약을 검증한다.
+ * 추천 단계 순서와 StepBar 진행률 계약을 검증한다.
  */
 
 import {
+  ONBOARDING_STEP_DEFINITION_MAP,
   RECOMMEND_ONBOARDING_PROGRESS_LABEL_LIST,
   RECOMMEND_ONBOARDING_STEP_ID_LIST,
   RECOMMEND_ONBOARDING_TOTAL_STEP_COUNT,
-  SIMULATOR_ONBOARDING_PROGRESS_LABEL_LIST,
-  SIMULATOR_ONBOARDING_STEP_ID_LIST,
-  SIMULATOR_ONBOARDING_TOTAL_STEP_COUNT,
 } from './onboarding-step';
 
 describe('onboarding step configuration', () => {
@@ -30,21 +28,11 @@ describe('onboarding step configuration', () => {
     );
   });
 
-  it('시뮬레이터는 age-ranges 없이 budget을 포함한 5개 질문을 사용한다', () => {
-    expect(SIMULATOR_ONBOARDING_STEP_ID_LIST).toEqual([
-      'service-name',
-      'category',
-      'service-type',
-      'budget',
-      'campaign-period',
-    ]);
-    expect(SIMULATOR_ONBOARDING_STEP_ID_LIST).not.toContain('age-ranges');
-    expect(SIMULATOR_ONBOARDING_STEP_ID_LIST).not.toContain('ad-goal');
-    expect(SIMULATOR_ONBOARDING_STEP_ID_LIST).not.toContain('ad-experience');
-    expect(SIMULATOR_ONBOARDING_TOTAL_STEP_COUNT).toBe(5);
-    expect(SIMULATOR_ONBOARDING_PROGRESS_LABEL_LIST).toEqual([0, 20, 40, 60, 80, 100]);
-    expect(SIMULATOR_ONBOARDING_PROGRESS_LABEL_LIST).toHaveLength(
-      SIMULATOR_ONBOARDING_TOTAL_STEP_COUNT + 1,
+  it('Figma에서 변경된 단계 라벨과 질문 문구를 사용한다', () => {
+    expect(ONBOARDING_STEP_DEFINITION_MAP.category.title).toBe('업종 선택');
+    expect(ONBOARDING_STEP_DEFINITION_MAP['ad-goal'].question).toBe(
+      '이번 광고를 통해 달성하고 싶은 가장 큰 목표는 무엇인가요?',
     );
+    expect(ONBOARDING_STEP_DEFINITION_MAP.budget.title).toBe('광고 예산');
   });
 });

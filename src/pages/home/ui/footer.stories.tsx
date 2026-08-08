@@ -5,18 +5,9 @@ import { Box } from '@/shared/ui/layout/box';
 
 import { Footer } from './footer';
 
-const FOOTER_ARGS = {
-  title: 'Chaeso.zip',
-  descriptionLines: [
-    '채소집 설명 어쩌고저쩌고 채소집 설명 어쩌고저쩌고',
-    '채소집 설명 어쩌고저쩌고',
-  ],
-};
-
 const meta = {
   title: 'pages/home/Footer',
   component: Footer,
-  args: FOOTER_ARGS,
   parameters: {
     layout: 'fullscreen',
   },
@@ -35,11 +26,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Basic: Story = {
-  args: FOOTER_ARGS,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
     await expect(canvas.getByRole('contentinfo')).toBeVisible();
-    await expect(canvas.getByText('Chaeso.zip')).toBeVisible();
+    await expect(canvas.getByText('내게 맞는 광고 채널을 한눈에! 채소집')).toBeVisible();
+    await expect(canvas.getByText('문의 : channelsogae.zip@gmail.com')).toBeVisible();
   },
 };

@@ -68,6 +68,7 @@ function refreshErrorResponse(status: number): Awaited<ReturnType<typeof refresh
 
 describe('refresh BFF single-flight', () => {
   beforeEach(() => {
+    vi.stubEnv('BFF_ALLOWED_ORIGINS', 'https://chaeso-zip.com,http://localhost:3000');
     vi.spyOn(Date, 'now').mockReturnValue(now);
     clearAuthSessionMock.mockResolvedValue();
     writeAuthSessionMock.mockResolvedValue(sessionWith('new-refresh-token'));
@@ -75,6 +76,7 @@ describe('refresh BFF single-flight', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
   });
 
   it('shares one upstream refresh result across concurrent requests', async () => {

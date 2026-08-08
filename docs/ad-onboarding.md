@@ -1,7 +1,7 @@
 # 광고 온보딩
 
-`src/features/ad-onboarding`은 채널 추천과 예산 시뮬레이터가 공유하는 광고 정보 입력
-행동을 소유한다. 질문을 표시하는 페이지나 결과를 조회하는 feature와는 분리한다.
+`src/features/ad-onboarding`은 채널 추천용 광고 정보 입력 행동을 소유한다. 질문을 표시하는
+페이지나 결과를 조회하는 feature와는 분리한다.
 
 ## FSD 경계
 
@@ -27,7 +27,6 @@ src/features/ad-onboarding/
 ## 완료 답변
 
 공통 완료 답변은 서비스 이름, 업종, 서비스 형태, 예산 범위, 집행 기간으로 구성한다.
-시뮬레이터 답변은 이 공통 계약과 동일하며 연령대, 광고 목표, 광고 경험을 포함하지 않는다.
 추천 답변은 공통 계약에 연령대 목록, 광고 목표, 광고 경험을 추가한다.
 
 Draft는 `Pick`과 `Partial`로 완료 답변에서 파생한다. 예산 input의 편집 값, 성과 입력 모드,
@@ -36,21 +35,20 @@ Draft는 `Pick`과 `Partial`로 완료 답변에서 파생한다. 예산 input�
 
 ## 단계 구성
 
-| 순서 | 추천 | 시뮬레이터 |
-| ---: | --- | --- |
-| 1 | `service-name` | `service-name` |
-| 2 | `category` | `category` |
-| 3 | `service-type` | `service-type` |
-| 4 | `age-ranges` | `budget` |
-| 5 | `ad-goal` | `campaign-period` |
-| 6 | `budget` |  |
-| 7 | `campaign-period` |  |
-| 8 | `ad-experience` |  |
+| 순서 | 추천 |
+| ---: | --- |
+| 1 | `service-name` |
+| 2 | `category` |
+| 3 | `service-type` |
+| 4 | `age-ranges` |
+| 5 | `ad-goal` |
+| 6 | `budget` |
+| 7 | `campaign-period` |
+| 8 | `ad-experience` |
 
 질문 메타데이터는 ID 기반 definition map 하나에서 관리한다. 순서와 진행률은 flow별 ID
 배열 index에서 파생하며 별도 step number는 저장하지 않는다. 추천 진행률은
-`[0, 12, 25, 37, 50, 62, 75, 87, 100]`, 시뮬레이터 진행률은
-`[0, 20, 40, 60, 80, 100]`이다.
+`[0, 12, 25, 37, 50, 62, 75, 87, 100]`이다.
 
 ## 입력 정책
 
@@ -69,9 +67,8 @@ Draft는 `Pick`과 `Partial`로 완료 답변에서 파생한다. 예산 input�
 
 ## 후속 플로우
 
-후속 PR에서 `RecommendOnboardingFlow`와 `SimulatorOnboardingFlow` facade를 제공한다.
-feature는 React Hook Form, 현재/수정 단계, 진행률, 답변 Bubble을 소유하고 페이지는 인사말,
-완료 콘텐츠, 제출 콜백과 라우팅을 제공한다.
+`RecommendOnboardingFlow`는 React Hook Form, 현재/수정 단계, 진행률, 답변 Bubble을
+소유하고 페이지는 인사말, 완료 콘텐츠, 제출 콜백과 라우팅을 제공한다.
 
 - 답변 완료 후 질문 Bubble만 남기고 입력과 액션은 접는다.
 - 수정 중에는 수정 대상 질문만 열고 나머지 질문과 답변을 닫는다.
@@ -89,7 +86,6 @@ feature는 React Hook Form, 현재/수정 단계, 진행률, 답변 Bubble을 �
 key에 응답을 저장한다. 결과 페이지는 같은 options를 `useSuspenseQuery`에 전달한다.
 
 - 추천 결과 경로: `/recommend/result/[requestId]`
-- 시뮬레이터 결과 경로: `/simulator/result/[requestId]`
 - 완료 결과는 `staleTime: Infinity`, 기본 `gcTime`을 사용한다.
 - 결과는 URL ID와 서버 응답만으로 새로고침 복원이 가능해야 한다.
 - 404는 재시도하지 않고 온보딩 CTA를 표시한다. 일시 오류는 결과 GET만 재시도한다.
@@ -97,9 +93,8 @@ key에 응답을 저장한다. 결과 페이지는 같은 options를 `useSuspens
 
 ## 현재 범위 제외
 
-- `/recommend`와 시뮬레이터의 전체 페이지 조합
-- 시뮬레이터 Zustand store
+- `/recommend` 전체 페이지 조합
 - 실제 제출 및 결과 조회 API
-- 추천·시뮬레이션 결과 화면과 결과 필터
+- 추천 결과 화면과 결과 필터
 - 추천 알고리즘, 파일 파싱과 서버 업로드
 - 신규 UI 의존성과 전역 디자인 토큰 변경

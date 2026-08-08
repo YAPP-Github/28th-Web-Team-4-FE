@@ -7,6 +7,7 @@ import { cn } from '@/shared/ui/cn';
 import { LogoMark } from './logo-mark';
 
 const TYPE_MAP = {
+  s: 's',
   m: 'm',
   l: 'l',
 } as const;
@@ -30,6 +31,7 @@ const logoVariants = cva(
   {
     variants: {
       type: {
+        s: 'aspect-[110/30] w-[110px]',
         m: 'aspect-[136/36] w-[136px]',
         l: 'aspect-[440/149] w-[440px]',
       },
@@ -40,10 +42,11 @@ const logoVariants = cva(
   },
 );
 
-/** 프레임 대비 그래픽 폭 비율 (Figma: m 126/136, l 308/440) */
+/** 프레임 대비 그래픽 폭 비율 (Figma: s 103.91/110, m 126/136, l 308/440) */
 const markVariants = cva('h-auto max-w-none', {
   variants: {
     type: {
+      s: 'w-[calc(103.91/110*100%)]',
       m: 'w-[calc(126/136*100%)]',
       l: 'w-[calc(308/440*100%)]',
     },
