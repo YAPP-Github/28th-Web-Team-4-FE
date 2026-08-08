@@ -90,6 +90,23 @@ describe('SimulatorChannelSelectionButton', () => {
     expect(await screen.findByRole('button', { name: '적용하기' })).toBeDisabled();
   });
 
+  it('초기화 버튼을 누르면 모든 필터를 최초 상태로 되돌린다', async () => {
+    const user = userEvent.setup();
+    render(<SimulatorChannelSelectionButton />);
+
+    await user.click(screen.getByRole('button', { name: '필터 조정하기' }));
+
+    const slider = await screen.findByRole('slider', { name: '총 광고 예산 슬라이더' });
+    slider.focus();
+    await user.keyboard('{ArrowRight}');
+    await user.click(screen.getByRole('button', { name: '2~3주' }));
+    await user.click(screen.getByRole('button', { name: '초기화' }));
+
+    expect(slider).toHaveAttribute('aria-valuetext', '10만 원');
+    expect(screen.getByRole('button', { name: '2~3주' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: '적용하기' })).toBeDisabled();
+  });
+
   it('적용하기를 누르면 필터 패널을 닫는다', async () => {
     const user = userEvent.setup();
     render(<SimulatorChannelSelectionButton />);

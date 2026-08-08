@@ -280,22 +280,29 @@ function FilterChannelSection({
 function FilterLoadRecommendationButton({
   isDirty,
   onApply,
+  onReset,
 }: {
   isDirty: boolean;
   onApply: () => void;
+  onReset: () => void;
 }): JSX.Element {
   return (
-    <Button
-      frame="cta"
-      tone="secondary"
-      size="m"
-      type="button"
-      className="mt-auto"
-      disabled={!isDirty}
-      onClick={onApply}
-    >
-      적용하기
-    </Button>
+    <Box className="gap-008 mt-auto flex w-full items-start">
+      <Button frame="cta" tone="third" type="button" className="w-[70px]" onClick={onReset}>
+        초기화
+      </Button>
+      <Button
+        frame="cta"
+        tone="secondary"
+        size="m"
+        type="button"
+        className="h-12 min-w-0 flex-1 py-0"
+        disabled={!isDirty}
+        onClick={onApply}
+      >
+        적용하기
+      </Button>
+    </Box>
   );
 }
 
@@ -317,6 +324,7 @@ export function SimulatorFilterPanel({
     setPeriod,
     setTotalBudget,
     resetChannelBudget,
+    resetFilters,
     totalBudget,
     totalBudgetMin,
   } = useSimulatorFilter();
@@ -373,6 +381,7 @@ export function SimulatorFilterPanel({
             <FilterLoadRecommendationButton
               isDirty={hasChanges}
               onApply={() => onOpenChange(false)}
+              onReset={resetFilters}
             />
           </Box>
         </Modal.Popup>

@@ -101,6 +101,10 @@ export function useSimulatorFilter() {
     }));
   }, []);
 
+  const resetFilters = useCallback(() => {
+    setState(INITIAL_SIMULATOR_FILTER_STATE);
+  }, []);
+
   const getChannelMaxBudgetForType = useCallback(
     (channelType: SimulatorFilterChannelType) => getChannelBudgetMax(state, channelType),
     [state],
@@ -116,6 +120,7 @@ export function useSimulatorFilter() {
     setPeriod,
     setTotalBudget,
     resetChannelBudget,
+    resetFilters,
     totalBudgetMin: SIMULATOR_FILTER_TOTAL_BUDGET_MIN,
   };
 }

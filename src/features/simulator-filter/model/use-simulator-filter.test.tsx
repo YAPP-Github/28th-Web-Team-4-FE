@@ -45,4 +45,22 @@ describe('useSimulatorFilter', () => {
       meta: 0,
     });
   });
+
+  it('resets every filter value to its initial state', () => {
+    const { result } = renderHook(() => useSimulatorFilter());
+
+    act(() => result.current.setTotalBudget(100));
+    act(() => result.current.setPeriod('one-month'));
+    act(() => result.current.setChannelBudget('naver', 60));
+    act(() => result.current.resetFilters());
+
+    expect(result.current.totalBudget).toBe(10);
+    expect(result.current.period).toBeNull();
+    expect(result.current.channelBudgets).toEqual({
+      naver: 0,
+      newscash: 0,
+      meta: 0,
+    });
+    expect(result.current.hasChanges).toBe(false);
+  });
 });
