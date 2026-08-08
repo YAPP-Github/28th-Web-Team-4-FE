@@ -278,7 +278,7 @@ function FilterLoadRecommendationButton({
 }): JSX.Element {
   if (isDirty) {
     return (
-      <Button frame="cta" tone="primary" type="button" onClick={onApply}>
+      <Button frame="cta" tone="primary" type="button" onClick={onApply} className="mt-auto">
         적용하기
       </Button>
     );
@@ -290,6 +290,7 @@ function FilterLoadRecommendationButton({
       tone="secondary"
       size="m"
       type="button"
+      className="mt-auto"
       leftIcon={<BarChart3 aria-hidden className="size-full" strokeWidth={1.8} />}
     >
       추천 결과 불러오기
@@ -334,7 +335,7 @@ export function SimulatorFilterPanel({
             'motion-reduce:transition-none',
           ].join(' ')}
         >
-          <Box className="flex min-h-[820px] flex-1 flex-col justify-between">
+          <Box className="gap-032 flex min-h-[820px] flex-1 flex-col">
             <Box className="flex w-full items-start justify-between">
               <Modal.Title
                 render={
