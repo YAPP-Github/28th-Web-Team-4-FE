@@ -7,6 +7,20 @@ import type {
 import type { ChannelDetail, ChannelProductRow } from './channel-detail';
 
 const EMPTY_VALUE = '-';
+const NO_INFO = '정보 없음';
+
+type ChannelDetailApiModel = NonNullable<ChannelDetailResponse>;
+type PrimaryGender = ChannelDetailApiModel['primaryGender'] | null;
+type ChannelDetailResponseForAdapter = Omit<
+  ChannelDetailApiModel,
+  'primaryGender' | 'audienceTraits'
+> & {
+  primaryGender?: PrimaryGender;
+  audienceTraits?: string | null;
+};
+
+const USER_SCALE_METRIC_NAME = 'MAU';
+const DAILY_ACTIVE_USER_METRIC_NAME = 'DAU';
 
 function getNonEmptyText(value?: string | null): string | undefined {
   const trimmedValue = value?.trim();
@@ -91,7 +105,7 @@ function toProductRow(product: ProductResponse): ChannelProductRow {
   };
 }
 
-function formatPrimaryGender(gender: NonNullable<ChannelDetailResponse>['primaryGender']): string {
+function formatPrimaryGender(gender: PrimaryGender): string {
   switch (gender) {
     case 'MALE':
       return '남성';
@@ -99,52 +113,42 @@ function formatPrimaryGender(gender: NonNullable<ChannelDetailResponse>['primary
       return '여성';
     case 'ALL':
       return '전체';
+    case null:
     case undefined:
-      return EMPTY_VALUE;
+      return NO_INFO;
   }
 }
 
-function formatAudienceMetric(metric: AudienceMetricResponse): string {
-  const textValue = metric.valueText?.trim();
-  if (textValue) {
-    return textValue;
-  }
-
-  if (metric.valueNumeric === null || metric.valueNumeric === undefined) {
-    return EMPTY_VALUE;
-  }
-
-  return `${formatNumber(metric.valueNumeric)}${metric.unit?.trim() ?? ''}`;
+function findAudienceMetricText(
+  metrics: readonly AudienceMetricResponse[],
+  metricName: string,
+): string {
+  const metric = metrics.find((candidate) => candidate.metricName.trim() === metricName);
+  return getNonEmptyText(metric?.valueText) ?? NO_INFO;
 }
 
-export function toChannelDetailViewModel(
-  channel: NonNullable<ChannelDetailResponse>,
-): ChannelDetail {
+export function toChannelDetailViewModel(channel: ChannelDetailResponseForAdapter): ChannelDetail {
+  const description = getNonEmptyText(channel.description);
+
   return {
     id: channel.id,
     name: channel.name,
     logoUrl: channel.logoUrl?.trim() ?? '',
-    tagline: channel.description?.trim() ?? '',
+    tagline: description ?? '',
     summary: {
-      paragraphs: [channel.description, ...(channel.advantages ?? [])]
-        .map((paragraph) => paragraph?.trim())
-        .filter((paragraph): paragraph is string => Boolean(paragraph)),
+      paragraphs: description ? [description] : [],
     },
     products: channel.products.map(toProductRow),
     productsNote: '일부 채널은 해당 지표를 공개하지 않아요.',
     audience: {
-      primaryAgeBand: getNonEmptyText(channel.primaryAgeBand) ?? EMPTY_VALUE,
+      primaryAgeBand: getNonEmptyText(channel.primaryAgeBand) ?? NO_INFO,
       primaryGender: formatPrimaryGender(channel.primaryGender),
-      traits:
-        getNonEmptyText(channel.audienceTraits) ??
-        getNonEmptyText(channel.audienceSummary) ??
-        EMPTY_VALUE,
-      metrics: channel.audienceMetrics.map((metric) => ({
-        label: metric.period?.trim()
-          ? `${metric.metricName} (${metric.period.trim()})`
-          : metric.metricName,
-        value: formatAudienceMetric(metric),
-      })),
+      userScale: findAudienceMetricText(channel.audienceMetrics, USER_SCALE_METRIC_NAME),
+      dailyActiveUsers: findAudienceMetricText(
+        channel.audienceMetrics,
+        DAILY_ACTIVE_USER_METRIC_NAME,
+      ),
+      traits: getNonEmptyText(channel.audienceTraits) ?? NO_INFO,
     },
     similarCases: channel.references,
   };

@@ -6,23 +6,27 @@ import type { ChannelDetail } from '@/features/channel-detail/model/channel-deta
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Stack } from '@/shared/ui/layout/stack';
-import { Text } from '@/shared/ui/text';
+import { Text, type TextVariant } from '@/shared/ui/text';
 
 function AudienceMetricCard({
   label,
   value,
   className,
+  valueVariant = 'display-lg',
 }: {
   label: string;
   value: string;
   className?: string;
+  valueVariant?: TextVariant;
 }): JSX.Element {
   return (
-    <Stack className={cn('bg-surface-lower gap-012 rounded-[var(--radius-m)] p-016', className)}>
+    <Stack
+      className={cn('bg-surface-lower justify-between rounded-[var(--radius-m)] p-020', className)}
+    >
       <Text as="dt" variant="subtitle-sm" className="text-text-low m-0">
         {label}
       </Text>
-      <Text as="dd" variant="display-lg" className="text-text-highest m-0 self-end text-right">
+      <Text as="dd" variant={valueVariant} className="text-text-highest m-0 self-end text-right">
         {value}
       </Text>
     </Stack>
@@ -39,17 +43,17 @@ export function ChannelDetailAudiencePanel({
   const { audience } = channel;
 
   return (
-    <Box as="dl" className="gap-008 m-0 grid w-full grid-cols-2">
+    <Box as="dl" className="gap-016 m-0 grid w-full grid-cols-2">
       <AudienceMetricCard label="주요 연령대" value={audience.primaryAgeBand} />
       <AudienceMetricCard label="주요 성별" value={audience.primaryGender} />
-      {audience.metrics.map((metric, index) => (
-        <AudienceMetricCard
-          key={`${metric.label}-${index}`}
-          label={metric.label}
-          value={metric.value}
-        />
-      ))}
-      <AudienceMetricCard label="유저 특성" value={audience.traits} className="col-span-2" />
+      <AudienceMetricCard label="사용자 규모" value={audience.userScale} />
+      <AudienceMetricCard label="하루 활성 사용자" value={audience.dailyActiveUsers} />
+      <AudienceMetricCard
+        label="유저 특성"
+        value={audience.traits}
+        valueVariant="heading-md"
+        className="col-span-2"
+      />
     </Box>
   );
 }

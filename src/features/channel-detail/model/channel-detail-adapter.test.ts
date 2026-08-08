@@ -3,10 +3,12 @@ import type { ChannelDetailResponse } from '@/shared/api/generated';
 import { toChannelDetailViewModel } from './channel-detail-adapter';
 
 type ChannelDetailApiModel = NonNullable<ChannelDetailResponse>;
+type ChannelDetailFixture = Omit<ChannelDetailApiModel, 'primaryGender' | 'audienceTraits'> & {
+  primaryGender?: ChannelDetailApiModel['primaryGender'] | null;
+  audienceTraits?: string | null;
+};
 
-function createChannelDetail(
-  overrides: Partial<ChannelDetailApiModel> = {},
-): ChannelDetailApiModel {
+function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): ChannelDetailFixture {
   return {
     id: 'channel-meta',
     name: '메타 광고',
@@ -39,13 +41,14 @@ function createChannelDetail(
     ],
     audienceMetrics: [
       {
-        metricName: '월간 사용자',
+        metricName: 'MAU',
         valueNumeric: 160_000,
+        valueText: '16만 명',
         unit: '명',
         period: '최근 30일',
       },
       {
-        metricName: '일 활성 사용자',
+        metricName: 'DAU',
         valueNumeric: 12_000,
         valueText: ' 약 1.2만 명 ',
         unit: '명',
@@ -66,20 +69,14 @@ describe('toChannelDetailViewModel', () => {
       logoUrl: 'https://cdn.example.com/meta.png',
       tagline: '정교한 관심사 타기팅을 제공해요.',
       summary: {
-        paragraphs: [
-          '정교한 관심사 타기팅을 제공해요.',
-          '높은 전환 효율',
-          '다양한 크리에이티브 포맷',
-        ],
+        paragraphs: ['정교한 관심사 타기팅을 제공해요.'],
       },
       audience: {
         primaryAgeBand: '20~40대',
         primaryGender: '여성',
+        userScale: '16만 명',
+        dailyActiveUsers: '약 1.2만 명',
         traits: '구매 의도가 높은 사용자',
-        metrics: [
-          { label: '월간 사용자 (최근 30일)', value: '160,000명' },
-          { label: '일 활성 사용자', value: '약 1.2만 명' },
-        ],
       },
       similarCases: ['브랜드 캠페인 A', '전환 캠페인 B'],
     });
@@ -108,11 +105,11 @@ describe('toChannelDetailViewModel', () => {
         description: undefined,
         primaryAgeBand: undefined,
         primaryGender: undefined,
-        audienceSummary: undefined,
+        audienceSummary: '짧은 오디언스 요약은 유저 특성으로 쓰지 않는다',
         audienceTraits: undefined,
         advantages: undefined,
         products: [{ id: 'product-unknown', pricing: [] }],
-        audienceMetrics: [{ metricName: '구독자', valueNumeric: null }],
+        audienceMetrics: [],
       }),
     );
 
@@ -129,20 +126,51 @@ describe('toChannelDetailViewModel', () => {
       },
     ]);
     expect(result.audience).toEqual({
-      primaryAgeBand: '-',
-      primaryGender: '-',
-      traits: '-',
-      metrics: [{ label: '구독자', value: '-' }],
+      primaryAgeBand: '정보 없음',
+      primaryGender: '정보 없음',
+      userScale: '정보 없음',
+      dailyActiveUsers: '정보 없음',
+      traits: '정보 없음',
     });
   });
 
-  it('상품, 지표와 집행 사례의 빈 배열을 유지한다', () => {
+  it('대표 성별이 null이면 정보 없음으로 표시한다', () => {
+    const result = toChannelDetailViewModel(createChannelDetail({ primaryGender: null }));
+
+    expect(result.audience.primaryGender).toBe('정보 없음');
+  });
+
+  it('MAU와 DAU의 valueText를 고정 지표에 표시한다', () => {
     const result = toChannelDetailViewModel(
-      createChannelDetail({ products: [], audienceMetrics: [], references: [] }),
+      createChannelDetail({
+        audienceMetrics: [
+          { metricName: 'MAU', valueNumeric: 160_000, valueText: '16만 명' },
+          { metricName: 'DAU', valueNumeric: 12_000, valueText: '1.2만 명' },
+        ],
+      }),
     );
 
-    expect(result.products).toEqual([]);
-    expect(result.audience.metrics).toEqual([]);
-    expect(result.similarCases).toEqual([]);
+    expect(result.audience.userScale).toBe('16만 명');
+    expect(result.audience.dailyActiveUsers).toBe('1.2만 명');
+  });
+
+  it('MAU와 DAU의 valueText가 없으면 정보 없음으로 표시한다', () => {
+    const result = toChannelDetailViewModel(
+      createChannelDetail({
+        audienceMetrics: [
+          { metricName: 'MAU', valueNumeric: 160_000 },
+          { metricName: 'DAU', valueNumeric: 12_000 },
+        ],
+      }),
+    );
+
+    expect(result.audience.userScale).toBe('정보 없음');
+    expect(result.audience.dailyActiveUsers).toBe('정보 없음');
+  });
+
+  it('대표 연령대 텍스트를 그대로 표시한다', () => {
+    const result = toChannelDetailViewModel(createChannelDetail({ primaryAgeBand: '30대 이상' }));
+
+    expect(result.audience.primaryAgeBand).toBe('30대 이상');
   });
 });

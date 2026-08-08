@@ -6,16 +6,12 @@ export type ChannelProductRow = {
   ctr: string | null;
 };
 
-export type ChannelAudienceMetric = {
-  label: string;
-  value: string;
-};
-
 export type ChannelAudience = {
   primaryAgeBand: string;
   primaryGender: string;
+  userScale: string;
+  dailyActiveUsers: string;
   traits: string;
-  metrics: ChannelAudienceMetric[];
 };
 
 export type ChannelDetail = {
