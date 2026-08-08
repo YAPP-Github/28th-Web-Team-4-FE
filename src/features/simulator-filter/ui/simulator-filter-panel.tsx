@@ -334,7 +334,7 @@ export function SimulatorFilterPanel({
         <Modal.Backdrop className="backdrop-blur-[4px]" />
         <Modal.Popup
           className={[
-            'right-0 left-auto top-0 translate-x-0 translate-y-0 h-dvh w-[448px] max-w-[100vw] items-stretch justify-start rounded-tl-[var(--radius-l)] rounded-tr-none rounded-br-none rounded-bl-[var(--radius-l)] p-040',
+            'right-0 left-auto top-0 translate-x-0 translate-y-0 h-dvh w-[448px] max-w-[100vw] items-stretch justify-start rounded-tl-[var(--radius-l)] rounded-tr-none rounded-br-none rounded-bl-[var(--radius-l)] p-0',
             'max-h-dvh overflow-y-auto overscroll-contain',
             'transition-[translate,opacity] duration-300 ease-out',
             'data-starting-style:translate-x-full data-ending-style:translate-x-full',
@@ -343,7 +343,7 @@ export function SimulatorFilterPanel({
             'motion-reduce:transition-none',
           ].join(' ')}
         >
-          <Box className="gap-032 flex min-h-[820px] flex-1 flex-col">
+          <Box className="gap-032 p-040 box-border flex min-h-dvh w-full shrink-0 flex-col">
             <Box className="flex w-full items-start justify-between">
               <Modal.Title
                 render={
