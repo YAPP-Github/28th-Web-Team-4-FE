@@ -1,11 +1,10 @@
 'use client';
 
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 import { X } from 'lucide-react';
 
-import { ChannelDetailContent } from '@/features/channel-detail/ui/channel-detail-content';
+import type { ChannelDetailHeaderData } from '@/features/channel-detail/model/channel-list-item';
 import { ChannelDetailHeader } from '@/features/channel-detail/ui/channel-detail-header';
-import type { ChannelDetail } from '@/features/channel-detail/model/channel-detail';
 import { Box } from '@/shared/ui/layout/box';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
@@ -13,7 +12,8 @@ import { Modal } from '@/shared/ui/modal';
 import { Text } from '@/shared/ui/text';
 
 export type ChannelDetailModalProps = {
-  channel: ChannelDetail;
+  channel: ChannelDetailHeaderData;
+  children: ReactNode;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onExit?: () => void;
@@ -28,6 +28,7 @@ export type ChannelDetailModalProps = {
  */
 export function ChannelDetailModal({
   channel,
+  children,
   open,
   onOpenChange,
   onExit,
@@ -65,7 +66,7 @@ export function ChannelDetailModal({
                       render={<Text as="p" variant="subtitle-xxs" className="line-clamp-2" />}
                       className="text-text-low m-0 text-left"
                     >
-                      {channel.tagline}
+                      {channel.description ?? '채널 설명이 아직 없어요.'}
                     </Modal.Description>
                   }
                 />
@@ -73,8 +74,8 @@ export function ChannelDetailModal({
               <Modal.Close
                 aria-label="닫기"
                 className={[
-                  'inline-flex size-032 shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-s)]',
-                  'text-icon-high motion-safe:transition-colors motion-safe:duration-150 motion-safe:ease-out-cubic motion-reduce:transition-none hover:not-data-disabled:text-icon-higher',
+                  'inline-flex size-032 shrink-0 items-center justify-center rounded-[var(--radius-s)]',
+                  'text-icon-high transition-colors hover:not-data-disabled:text-icon-higher',
                   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sys-primary-default',
                 ].join(' ')}
               >
@@ -82,7 +83,7 @@ export function ChannelDetailModal({
               </Modal.Close>
             </HStack>
 
-            <ChannelDetailContent channel={channel} />
+            {children}
           </Stack>
         </Modal.Popup>
       </Modal.Portal>

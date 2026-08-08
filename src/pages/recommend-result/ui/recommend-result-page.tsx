@@ -5,7 +5,7 @@ import NumberFlow from '@number-flow/react';
 import { useReducedMotion } from 'motion/react';
 
 import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
-import { openChannelDetailModal } from '@/features/channel-detail';
+import { openResolvedChannelDetailModal } from '@/features/channel-detail/resolved';
 import {
   MAX_COMPARISON_CHANNELS,
   toggleComparisonChannel,
@@ -45,7 +45,7 @@ export function RecommendResultPage({ isGuest = false }: RecommendResultPageProp
   };
 
   const handleOpenDetail = (channel: RecommendedChannel): void => {
-    openChannelDetailModal(getRecommendedChannelDetail(channel));
+    openResolvedChannelDetailModal(getRecommendedChannelDetail(channel));
   };
 
   const handleCompare = (): void => {

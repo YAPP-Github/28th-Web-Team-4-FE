@@ -1,9 +1,9 @@
-import type { ChannelDetail } from '@/features/channel-detail';
+import type { ChannelDetail } from '@/features/channel-detail/resolved';
 
 import type { RecommendedChannel } from './recommended-channels';
 
 function getMetricValue(channel: RecommendedChannel, label: string): string {
-  return channel.metrics.find((metric) => metric.label === label)?.value ?? '정보 없음';
+  return channel.metrics.find((metric) => metric.label === label)?.value ?? '-';
 }
 
 /** 추천 결과 카드의 요약 데이터를 상세 모달에서 사용할 채널 상세 형태로 변환한다. */
@@ -22,26 +22,16 @@ export function getRecommendedChannelDetail(channel: RecommendedChannel): Channe
       paragraphs: [
         `${channel.name}은(는) ${channel.description}`,
         `${channel.cpcPrice} 기준으로 광고를 운영할 수 있어요.`,
-      ],
-      highlights: [
-        {
-          segments: [
-            { type: 'text', value: '추천 결과 기준 ' },
-            { type: 'tag', value: targetAudience },
-            { type: 'text', value: ' 타깃에게 ' },
-            { type: 'tag', value: expectedImpressions },
-            { type: 'text', value: ' 규모로 도달할 수 있어요.' },
-          ],
-        },
+        `추천 결과 기준 ${targetAudience} 타깃에게 ${expectedImpressions} 규모로 도달할 수 있어요.`,
       ],
     },
     products: [
       {
+        id: `${channel.id}-default`,
         name: '기본 광고 상품',
         budgetRange: `${minimumBudget}부터`,
         expectedImpressions,
         ctr: null,
-        available: true,
       },
     ],
     productsNote: `${billingMethod} 기준 예상 데이터이며 실제 성과는 캠페인 설정에 따라 달라질 수 있어요.`,

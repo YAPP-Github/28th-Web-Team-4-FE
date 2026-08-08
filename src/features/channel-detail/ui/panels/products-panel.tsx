@@ -1,7 +1,7 @@
 'use client';
 
 import type { JSX } from 'react';
-import { Check, Info, X as XIcon } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 import type { ChannelDetail } from '@/features/channel-detail/model/channel-detail';
 import { Box } from '@/shared/ui/layout/box';
@@ -9,13 +9,9 @@ import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
-const PRODUCT_TABLE_HEADERS = [
-  '상품',
-  '예산 범위',
-  '예상 노출',
-  '예상 클릭률(CTR)',
-  '집행 가능',
-] as const;
+// TODO(api): 백엔드가 CTR(ctr) → 예상 클릭수(expectedClicks)로 전환 예정.
+// 전환되면 마지막 헤더를 '예상 클릭'으로 바꾸고, 아래 Info 아이콘 노출 조건도 함께 정리한다.
+const PRODUCT_TABLE_HEADERS = ['상품', '예산 범위', '예상 노출', '예상 클릭률(CTR)'] as const;
 
 export type ChannelDetailProductsPanelProps = {
   channel: ChannelDetail;
@@ -54,7 +50,7 @@ export function ChannelDetailProductsPanel({
           </thead>
           <tbody>
             {channel.products.map((product) => (
-              <tr key={product.name} className="border-outline-low border-b last:border-b-0">
+              <tr key={product.id} className="border-outline-low border-b last:border-b-0">
                 <td className="px-014 py-008">
                   <Text as="span" variant="body-sm" className="text-text-default">
                     {product.name}
@@ -70,17 +66,12 @@ export function ChannelDetailProductsPanel({
                     {product.expectedImpressions}
                   </Text>
                 </td>
+                {/* TODO(api): expectedClicks로 전환되면 값을 포맷팅 없이 그대로 렌더한다
+                    (지금은 어댑터 formatCtr가 CTR을 '%'로 포맷). */}
                 <td className="px-014 py-008">
                   <Text as="span" variant="body-sm" className="text-text-default">
                     {product.ctr ?? '-'}
                   </Text>
-                </td>
-                <td className="px-014 py-008">
-                  {product.available ? (
-                    <Check className="text-sys-success-default size-020" aria-label="집행 가능" />
-                  ) : (
-                    <XIcon className="text-icon-medium size-020" aria-label="집행 불가" />
-                  )}
                 </td>
               </tr>
             ))}

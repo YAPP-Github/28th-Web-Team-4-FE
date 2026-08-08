@@ -3,6 +3,10 @@
 import type { JSX } from 'react';
 
 import { ChannelSelectionScreen } from '@/features/channel-selection';
+import {
+  ChannelDetailContentSkeleton,
+  openChannelDetailModal,
+} from '@/features/channel-detail';
 import { showWarningToast } from '@/shared/ui/toast';
 
 const COMPARE_COMING_SOON_TOAST_ID = 'compare-coming-soon';
@@ -25,6 +29,12 @@ export function CompareChannelSelection(): JSX.Element {
       submitLabel="선택한 채널 비교하기"
       onComplete={handleComplete}
       limitToast={COMPARE_SELECTION_LIMIT_TOAST}
+      onViewDetail={(channel) => {
+        openChannelDetailModal({
+          channel,
+          fallback: <ChannelDetailContentSkeleton />,
+        });
+      }}
     />
   );
 }

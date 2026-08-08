@@ -2,7 +2,10 @@
 
 import type { JSX } from 'react';
 
-import { openChannelDetailModal } from '@/features/channel-detail/model/open-channel-detail-modal';
+import {
+  CHANNEL_DETAIL_FIXTURE,
+  openResolvedChannelDetailModal,
+} from '@/features/channel-detail/resolved';
 import { Button } from '@/shared/ui/button';
 import { Stack } from '@/shared/ui/layout/stack';
 
@@ -16,7 +19,7 @@ export function RecommendPage(): JSX.Element {
           tone="secondary"
           size="m"
           onClick={() => {
-            openChannelDetailModal();
+            openResolvedChannelDetailModal(CHANNEL_DETAIL_FIXTURE);
           }}
         >
           상세보기
