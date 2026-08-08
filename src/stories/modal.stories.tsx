@@ -69,6 +69,7 @@ const TextModalExample = () => (
       }
     />
     <TextModal
+      backdropClassName="backdrop-blur-[2px]"
       title="추천받은 기록이 있어요"
       description={
         <>
