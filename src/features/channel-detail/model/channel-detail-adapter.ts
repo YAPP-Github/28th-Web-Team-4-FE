@@ -62,6 +62,8 @@ function formatBudgetRange(minBudgetWon?: number, maxBudgetWon?: number): string
   return EMPTY_VALUE;
 }
 
+// TODO(api): 백엔드가 ctr(CTR) → expectedClicks(예상 클릭수)로 전환 예정.
+// 전환되면 이 '%' 포맷을 제거하고 값을 그대로 표시하도록 바꾼다(테이블 라벨도 '예상 클릭').
 function formatCtr(product: ProductResponse): string | null {
   // API가 값 없음을 null로 내려주므로 undefined와 함께 nullish로 정규화한다.
   const ctr = product.ctr ?? undefined;
