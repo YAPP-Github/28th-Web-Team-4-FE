@@ -1,7 +1,10 @@
+import ky from 'ky';
+
 import { presignOnboardingPerformanceFiles, submitOnboarding } from '@/shared/api/generated';
 import type {
   AdHistoryRequest,
   OnboardingSubmitResponse,
+  PresignedFileUploadResult,
   SubmitOnboardingRequest,
 } from '@/shared/api/generated/types.gen';
 import type { RecommendOnboardingAnswer } from '@/features/ad-onboarding/model/onboarding-answer';
@@ -9,6 +12,7 @@ import {
   PERFORMANCE_CHANNEL_OPTION_LIST,
   type AgeRangeId,
   type AdGoalId,
+  type UploadedPerformanceFile,
 } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import type {
   CampaignPeriodId,
@@ -120,6 +124,10 @@ async function getPerformanceFileKeyList(answer: RecommendOnboardingAnswer): Pro
     return [];
   }
 
+  if (fileList.some((file) => !file.file)) {
+    throw new Error('성과 파일을 읽지 못했어요. 파일을 다시 선택해 주세요.');
+  }
+
   const presignedResponse = await presignOnboardingPerformanceFiles({
     body: {
       files: fileList.map((file) => ({
@@ -131,7 +139,40 @@ async function getPerformanceFileKeyList(answer: RecommendOnboardingAnswer): Pro
   });
   const presignedFileList = presignedResponse.data.data ?? [];
 
+  if (presignedFileList.length !== fileList.length) {
+    throw new Error('성과 파일 업로드 정보를 모두 받지 못했어요. 다시 시도해 주세요.');
+  }
+
+  await uploadPerformanceFiles(fileList, presignedFileList);
+
   return presignedFileList.map((presignedFile) => presignedFile.key);
+}
+
+async function uploadPerformanceFiles(
+  fileList: UploadedPerformanceFile[],
+  presignedFileList: PresignedFileUploadResult[],
+): Promise<void> {
+  await Promise.all(
+    fileList.map(async (uploadedFile, index) => {
+      const presignedFile = presignedFileList[index];
+
+      if (!presignedFile || !uploadedFile.file) {
+        throw new Error('성과 파일을 읽지 못했어요. 파일을 다시 선택해 주세요.');
+      }
+
+      try {
+        await ky.put(presignedFile.uploadUrl, {
+          headers: {
+            'Content-Type': presignedFile.contentType,
+            'x-amz-tagging': 'retain=pending',
+          },
+          body: uploadedFile.file,
+        });
+      } catch {
+        throw new Error('성과 파일 업로드에 실패했어요. 다시 시도해 주세요.');
+      }
+    }),
+  );
 }
 
 export function createSubmitOnboardingRequest(

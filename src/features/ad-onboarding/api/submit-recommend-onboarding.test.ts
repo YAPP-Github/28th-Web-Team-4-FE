@@ -1,3 +1,5 @@
+import ky from 'ky';
+
 import { presignOnboardingPerformanceFiles, submitOnboarding } from '@/shared/api/generated';
 import type { RecommendOnboardingAnswer } from '@/features/ad-onboarding/model/onboarding-answer';
 
@@ -13,6 +15,7 @@ vi.mock('@/shared/api/generated', () => ({
 
 const presignOnboardingPerformanceFilesMock = vi.mocked(presignOnboardingPerformanceFiles);
 const submitOnboardingMock = vi.mocked(submitOnboarding);
+const kyPutMock = vi.spyOn(ky, 'put');
 
 const baseAnswer = {
   serviceName: '채소집',
@@ -81,9 +84,13 @@ describe('submitRecommendOnboarding', () => {
   beforeEach(() => {
     presignOnboardingPerformanceFilesMock.mockReset();
     submitOnboardingMock.mockReset();
+    kyPutMock.mockReset();
+    kyPutMock.mockResolvedValue(new Response(null, { status: 200 }) as never);
   });
 
   it('requests performance file keys and passes them to the onboarding submit API', async () => {
+    const firstFile = new File(['one'], 'first.csv', { type: 'text/csv' });
+    const secondFile = new File(['two'], 'second.csv', { type: 'text/csv' });
     const answer = {
       ...baseAnswer,
       adExperience: {
@@ -91,8 +98,8 @@ describe('submitRecommendOnboarding', () => {
         performanceInput: {
           mode: 'UPLOAD',
           fileList: [
-            { id: 'first', name: 'first.csv', size: 3 },
-            { id: 'second', name: 'second.csv', size: 3 },
+            { id: 'first', name: 'first.csv', size: 3, file: firstFile },
+            { id: 'second', name: 'second.csv', size: 3, file: secondFile },
           ],
         },
       },
@@ -141,11 +148,60 @@ describe('submitRecommendOnboarding', () => {
       },
       throwOnError: true,
     });
+    expect(kyPutMock).toHaveBeenNthCalledWith(1, 'https://storage.example/first', {
+      headers: {
+        'Content-Type': 'text/csv',
+        'x-amz-tagging': 'retain=pending',
+      },
+      body: firstFile,
+    });
+    expect(kyPutMock).toHaveBeenNthCalledWith(2, 'https://storage.example/second', {
+      headers: {
+        'Content-Type': 'text/csv',
+        'x-amz-tagging': 'retain=pending',
+      },
+      body: secondFile,
+    });
     expect(submitOnboardingMock).toHaveBeenCalledWith({
       body: expect.objectContaining({
         rawFileKeys: ['raw/first.csv', 'raw/second.csv'],
       }),
       throwOnError: true,
     });
+  });
+
+  it('does not submit onboarding when a performance file upload fails', async () => {
+    const file = new File(['one'], 'first.csv', { type: 'text/csv' });
+    const answer = {
+      ...baseAnswer,
+      adExperience: {
+        type: 'EXPERIENCED',
+        performanceInput: {
+          mode: 'UPLOAD',
+          fileList: [{ id: 'first', name: 'first.csv', size: 3, file }],
+        },
+      },
+    } as const satisfies RecommendOnboardingAnswer;
+
+    presignOnboardingPerformanceFilesMock.mockResolvedValue({
+      data: {
+        success: true,
+        data: [
+          {
+            key: 'raw/first.csv',
+            uploadUrl: 'https://storage.example/first',
+            contentType: 'text/csv',
+            expiresAt: '2026-08-07T00:00:00Z',
+          },
+        ],
+      },
+      response: new Response(null, { status: 200 }),
+    });
+    kyPutMock.mockRejectedValue(new Error('upload failed'));
+
+    await expect(submitRecommendOnboarding(answer)).rejects.toThrow(
+      '성과 파일 업로드에 실패했어요.',
+    );
+    expect(submitOnboardingMock).not.toHaveBeenCalled();
   });
 });

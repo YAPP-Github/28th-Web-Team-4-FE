@@ -45,4 +45,36 @@ describe('recommendedChannels', () => {
       },
     ]);
   });
+
+  it('keeps non-round budget values exact and falls back for missing API values', () => {
+    expect(
+      mapRecommendationItemsToChannels([
+        {
+          channelId: 'unknown-1',
+          channelName: '새로운 광고 채널',
+          matchRate: 42,
+          recommendationReason: '조건에 맞는 채널이에요.',
+          primaryTarget: '정보 없음',
+          cpcWon: null,
+          pricingModel: undefined,
+          minBudgetWon: 15000,
+          estImpressions: undefined,
+          estClicks: undefined,
+          isExecutable: false,
+        },
+      ]),
+    ).toMatchObject([
+      {
+        cpcPrice: '클릭당 비용 정보 없음',
+        thumbnailSrc: '/recommend-assets/naver-search-ad.png',
+        metrics: [
+          { label: '예상 노출', value: '정보 없음' },
+          { label: '예상 클릭', value: '정보 없음' },
+          { label: '최소 예산', value: '15,000' },
+          { label: '주요 타깃', value: '정보 없음' },
+          { label: '과금 방식', value: '정보 없음' },
+        ],
+      },
+    ]);
+  });
 });

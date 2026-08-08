@@ -34,8 +34,8 @@ const PRICING_MODEL_LABEL_MAP = {
 } as const satisfies Record<NonNullable<RecommendationItemResponse['pricingModel']>, string>;
 
 function formatWon(value: number): string {
-  if (value >= 10000) {
-    return `${Math.round(value / 10000).toLocaleString('ko-KR')}만`;
+  if (value >= 10000 && value % 10000 === 0) {
+    return `${(value / 10000).toLocaleString('ko-KR')}만`;
   }
 
   return value.toLocaleString('ko-KR');
@@ -79,6 +79,10 @@ function getCpcPriceLabel(cpcWon: RecommendationItemResponse['cpcWon']): string 
   return typeof cpcWon === 'number' ? formatCpcPrice(cpcWon) : '클릭당 비용 정보 없음';
 }
 
+function getPricingModelLabel(pricingModel: RecommendationItemResponse['pricingModel']): string {
+  return pricingModel ? (PRICING_MODEL_LABEL_MAP[pricingModel] ?? '정보 없음') : '정보 없음';
+}
+
 export function mapRecommendationItemsToChannels(
   itemList: readonly RecommendationItemResponse[],
 ): RecommendedChannel[] {
@@ -99,7 +103,7 @@ export function mapRecommendationItemsToChannels(
       { label: '주요 타깃', value: item.primaryTarget },
       {
         label: '과금 방식',
-        value: item.pricingModel ? PRICING_MODEL_LABEL_MAP[item.pricingModel] : '정보 없음',
+        value: getPricingModelLabel(item.pricingModel),
       },
     ],
   }));
