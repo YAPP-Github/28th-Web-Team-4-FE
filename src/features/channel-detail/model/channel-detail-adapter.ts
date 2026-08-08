@@ -63,31 +63,38 @@ function formatBudgetRange(minBudgetWon?: number, maxBudgetWon?: number): string
 }
 
 function formatCtr(product: ProductResponse): string | null {
-  if (product.ctr !== undefined) {
-    return `${formatNumber(product.ctr)}%`;
+  // API가 값 없음을 null로 내려주므로 undefined와 함께 nullish로 정규화한다.
+  const ctr = product.ctr ?? undefined;
+  const ctrMin = product.ctrMin ?? undefined;
+  const ctrMax = product.ctrMax ?? undefined;
+
+  if (ctr !== undefined) {
+    return `${formatNumber(ctr)}%`;
   }
 
-  if (product.ctrMin !== undefined && product.ctrMax !== undefined) {
-    return `${formatNumber(product.ctrMin)}~${formatNumber(product.ctrMax)}%`;
+  if (ctrMin !== undefined && ctrMax !== undefined) {
+    return `${formatNumber(ctrMin)}~${formatNumber(ctrMax)}%`;
   }
 
-  if (product.ctrMin !== undefined) {
-    return `${formatNumber(product.ctrMin)}% 이상`;
+  if (ctrMin !== undefined) {
+    return `${formatNumber(ctrMin)}% 이상`;
   }
 
-  if (product.ctrMax !== undefined) {
-    return `${formatNumber(product.ctrMax)}% 이하`;
+  if (ctrMax !== undefined) {
+    return `${formatNumber(ctrMax)}% 이하`;
   }
 
   return null;
 }
 
 function formatExpectedImpressions(product: ProductResponse): string {
-  if (product.expectedImpressions === undefined) {
+  const expectedImpressions = product.expectedImpressions ?? undefined;
+
+  if (expectedImpressions === undefined) {
     return EMPTY_VALUE;
   }
 
-  const impressions = `${formatNumber(product.expectedImpressions)}회`;
+  const impressions = `${formatNumber(expectedImpressions)}회`;
   return product.expectedPeriod ? `${impressions} / ${product.expectedPeriod}` : impressions;
 }
 
@@ -98,7 +105,8 @@ function toProductRow(product: ProductResponse): ChannelProductRow {
   return {
     id: product.id,
     name: productName ?? inventoryType ?? '상품명 미제공',
-    budgetRange: formatBudgetRange(product.minBudgetWon, product.maxBudgetWon),
+    // null → undefined 정규화 후 포맷 (null이 0으로 표시되던 문제 방지)
+    budgetRange: formatBudgetRange(product.minBudgetWon ?? undefined, product.maxBudgetWon ?? undefined),
     expectedImpressions: formatExpectedImpressions(product),
     ctr: formatCtr(product),
   };

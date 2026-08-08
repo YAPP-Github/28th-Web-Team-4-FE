@@ -134,6 +134,33 @@ describe('toChannelDetailViewModel', () => {
     });
   });
 
+  it('상품의 예산·CTR·노출이 null이면 0이 아니라 기본 표시값으로 변환한다', () => {
+    // 실 API는 값 없음을 undefined가 아니라 null로 내려준다.
+    const nullProduct = {
+      id: 'product-null',
+      productName: '집행 정보 미제공 상품',
+      minBudgetWon: null,
+      maxBudgetWon: null,
+      ctr: null,
+      ctrMin: null,
+      ctrMax: null,
+      expectedImpressions: null,
+      pricing: [],
+    } as unknown as ChannelDetailApiModel['products'][number];
+
+    const result = toChannelDetailViewModel(createChannelDetail({ products: [nullProduct] }));
+
+    expect(result.products).toEqual([
+      {
+        id: 'product-null',
+        name: '집행 정보 미제공 상품',
+        budgetRange: '-',
+        expectedImpressions: '-',
+        ctr: null,
+      },
+    ]);
+  });
+
   it('대표 성별이 null이면 -로 표시한다', () => {
     const result = toChannelDetailViewModel(createChannelDetail({ primaryGender: null }));
 
