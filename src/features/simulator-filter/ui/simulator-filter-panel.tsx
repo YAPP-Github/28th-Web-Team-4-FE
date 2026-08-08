@@ -61,7 +61,6 @@ function FilterBudgetSection({
           step={10}
           value={totalBudget}
           valueText={totalBudgetText}
-          showTooltip
           onValueChange={onTotalBudgetChange}
         />
         <Box aria-hidden className="flex w-full items-start justify-between">

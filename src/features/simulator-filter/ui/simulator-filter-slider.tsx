@@ -4,7 +4,6 @@ import { useState, type JSX } from 'react';
 import { Slider } from '@base-ui/react/slider';
 
 import { cn } from '@/shared/ui/cn';
-import { Tooltip } from '@/shared/ui/tooltip';
 
 export type SimulatorFilterSliderProps = {
   compact?: boolean;
@@ -14,7 +13,6 @@ export type SimulatorFilterSliderProps = {
   min: number;
   onValueChange?: (value: number) => void;
   onValueCommitted?: (value: number) => void;
-  showTooltip?: boolean;
   step?: number;
   value: number;
   valueText: string;
@@ -28,32 +26,28 @@ export function SimulatorFilterSlider({
   min,
   onValueChange,
   onValueCommitted,
-  showTooltip = false,
   step = 1,
   value,
   valueText,
 }: SimulatorFilterSliderProps): JSX.Element {
-  const [isInteracting, setIsInteracting] = useState(false);
+  const [isPointerDragging, setIsPointerDragging] = useState(false);
   const sliderMax = Math.max(max, min + Math.max(step, 1));
-  const valuePercentage = Math.min(100, Math.max(0, ((value - min) / (sliderMax - min)) * 100));
 
   return (
     <Slider.Root
       min={min}
       max={sliderMax}
       step={step}
-      value={[value]}
+      value={value}
       disabled={disabled}
       className={cn(disabled && 'opacity-40')}
-      onValueChange={(values) => {
-        setIsInteracting(true);
-        onValueChange?.(values[0] ?? value);
+      onValueChange={(nextValue, eventDetails) => {
+        setIsPointerDragging(eventDetails.reason === 'drag');
+        onValueChange?.(nextValue);
       }}
-      onValueCommitted={(values) => {
-        const committedValue = values[0] ?? value;
-
-        onValueCommitted?.(committedValue);
-        setIsInteracting(false);
+      onValueCommitted={(nextValue) => {
+        setIsPointerDragging(false);
+        onValueCommitted?.(nextValue);
       }}
     >
       <Slider.Control
@@ -68,38 +62,27 @@ export function SimulatorFilterSlider({
             compact ? 'h-006' : 'h-010',
           )}
         >
-          <Slider.Indicator className="bg-surface-highest h-full rounded-[var(--radius-max)]" />
+          <Slider.Indicator
+            className={cn(
+              'bg-surface-highest h-full rounded-[var(--radius-max)]',
+              'transition-[inset-inline-start,width] duration-150 ease-in-out',
+              'motion-reduce:transition-none',
+              isPointerDragging && 'transition-none',
+            )}
+          />
           <Slider.Thumb
-            index={0}
             aria-label={label}
             aria-valuetext={valueText}
             className={cn(
-              'bg-surface-lowest border-outline-default shadow-drop-shadow-01 relative rounded-[var(--radius-max)] border',
+              'bg-surface-lowest border-outline-default shadow-drop-shadow-01 relative cursor-grab rounded-[var(--radius-max)] border active:cursor-grabbing',
+              'transition-[inset-inline-start,transform] duration-150 ease-in-out',
+              'motion-reduce:transition-none',
+              'has-[:focus-visible]:border-sys-primary-default',
+              isPointerDragging && 'transition-none',
               compact ? 'size-016' : 'size-022',
             )}
           />
         </Slider.Track>
-        {showTooltip && !disabled && isInteracting ? (
-          <Tooltip.Root
-            placement="top"
-            offset={8}
-            strategy="absolute"
-            allowFlip={false}
-            allowShift={false}
-          >
-            <Tooltip.Anchor
-              aria-hidden
-              className="pointer-events-none absolute top-1/2 size-px"
-              style={{ left: `${valuePercentage}%` }}
-            />
-            <Tooltip.Content
-              className="bg-surface-highest px-012 py-006"
-              arrowClassName="bg-surface-highest"
-            >
-              {valueText}
-            </Tooltip.Content>
-          </Tooltip.Root>
-        ) : null}
       </Slider.Control>
     </Slider.Root>
   );
