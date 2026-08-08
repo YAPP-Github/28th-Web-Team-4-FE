@@ -1,7 +1,7 @@
 'use client';
 
 import type { JSX } from 'react';
-import { BarChart3, Check, X } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/shared/ui/cn';
@@ -284,14 +284,6 @@ function FilterLoadRecommendationButton({
   isDirty: boolean;
   onApply: () => void;
 }): JSX.Element {
-  if (isDirty) {
-    return (
-      <Button frame="cta" tone="primary" type="button" onClick={onApply} className="mt-auto">
-        적용하기
-      </Button>
-    );
-  }
-
   return (
     <Button
       frame="cta"
@@ -299,9 +291,10 @@ function FilterLoadRecommendationButton({
       size="m"
       type="button"
       className="mt-auto"
-      leftIcon={<BarChart3 aria-hidden className="size-full" strokeWidth={1.8} />}
+      disabled={!isDirty}
+      onClick={onApply}
     >
-      추천 결과 불러오기
+      적용하기
     </Button>
   );
 }

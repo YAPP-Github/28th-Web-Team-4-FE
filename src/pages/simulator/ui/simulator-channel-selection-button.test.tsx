@@ -81,6 +81,15 @@ describe('SimulatorChannelSelectionButton', () => {
     expect(newscashSlider).toBeDisabled();
   });
 
+  it('필터를 변경하지 않으면 적용하기 버튼을 비활성화한다', async () => {
+    const user = userEvent.setup();
+    render(<SimulatorChannelSelectionButton />);
+
+    await user.click(screen.getByRole('button', { name: '필터 조정하기' }));
+
+    expect(await screen.findByRole('button', { name: '적용하기' })).toBeDisabled();
+  });
+
   it('적용하기를 누르면 필터 패널을 닫는다', async () => {
     const user = userEvent.setup();
     render(<SimulatorChannelSelectionButton />);
