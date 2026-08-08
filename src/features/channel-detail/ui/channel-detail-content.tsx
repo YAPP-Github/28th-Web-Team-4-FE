@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type JSX, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type JSX, type ReactNode } from 'react';
 import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'motion/react';
 import useMeasure from 'react-use-measure';
 
@@ -65,14 +65,32 @@ function ChannelDetailAnimatedPanel({
 }): JSX.Element {
   const [measureRef, bounds] = useMeasure({ offsetSize: true });
   const reduceMotion = useReducedMotion();
-  const height = bounds.height || 'auto';
+  const [height, setHeight] = useState<number | 'auto'>('auto');
+  const previousHeightRef = useRef<number | 'auto'>('auto');
+
+  useEffect(() => {
+    if (bounds.height > 0) {
+      setHeight(bounds.height);
+    }
+  }, [bounds.height]);
+
+  useEffect(() => {
+    previousHeightRef.current = height;
+  }, [height]);
+
+  // auto → 숫자(최초 측정)는 스냅하고, 숫자 → 숫자(탭 전환)만 높이 애니메이션을 준다.
+  const shouldSnapHeight = previousHeightRef.current === 'auto' && typeof height === 'number';
 
   return (
     <MotionConfig transition={reduceMotion ? { duration: 0 } : PANEL_HEIGHT_TRANSITION}>
       <motion.div
         initial={false}
         animate={{ height }}
-        transition={reduceMotion || height === 'auto' ? { duration: 0 } : PANEL_HEIGHT_TRANSITION}
+        transition={
+          reduceMotion || shouldSnapHeight || height === 'auto'
+            ? { duration: 0 }
+            : PANEL_HEIGHT_TRANSITION
+        }
         className={cn('overflow-hidden', className)}
       >
         <div ref={measureRef} className="w-full">
