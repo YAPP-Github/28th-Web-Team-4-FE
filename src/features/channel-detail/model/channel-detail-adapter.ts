@@ -7,7 +7,6 @@ import type {
 import type { ChannelDetail, ChannelProductRow } from './channel-detail';
 
 const EMPTY_VALUE = '-';
-const NO_INFO = '정보 없음';
 
 type ChannelDetailApiModel = NonNullable<ChannelDetailResponse>;
 type PrimaryGender = ChannelDetailApiModel['primaryGender'] | null;
@@ -115,7 +114,7 @@ function formatPrimaryGender(gender: PrimaryGender): string {
       return '전체';
     case null:
     case undefined:
-      return NO_INFO;
+      return EMPTY_VALUE;
   }
 }
 
@@ -124,7 +123,7 @@ function findAudienceMetricText(
   metricName: string,
 ): string {
   const metric = metrics.find((candidate) => candidate.metricName.trim() === metricName);
-  return getNonEmptyText(metric?.valueText) ?? NO_INFO;
+  return getNonEmptyText(metric?.valueText) ?? EMPTY_VALUE;
 }
 
 export function toChannelDetailViewModel(channel: ChannelDetailResponseForAdapter): ChannelDetail {
@@ -141,14 +140,14 @@ export function toChannelDetailViewModel(channel: ChannelDetailResponseForAdapte
     products: channel.products.map(toProductRow),
     productsNote: '일부 채널은 해당 지표를 공개하지 않아요.',
     audience: {
-      primaryAgeBand: getNonEmptyText(channel.primaryAgeBand) ?? NO_INFO,
+      primaryAgeBand: getNonEmptyText(channel.primaryAgeBand) ?? EMPTY_VALUE,
       primaryGender: formatPrimaryGender(channel.primaryGender),
       userScale: findAudienceMetricText(channel.audienceMetrics, USER_SCALE_METRIC_NAME),
       dailyActiveUsers: findAudienceMetricText(
         channel.audienceMetrics,
         DAILY_ACTIVE_USER_METRIC_NAME,
       ),
-      traits: getNonEmptyText(channel.audienceTraits) ?? NO_INFO,
+      traits: getNonEmptyText(channel.audienceTraits) ?? EMPTY_VALUE,
     },
     similarCases: channel.references,
   };

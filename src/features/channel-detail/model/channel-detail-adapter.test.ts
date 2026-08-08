@@ -126,18 +126,18 @@ describe('toChannelDetailViewModel', () => {
       },
     ]);
     expect(result.audience).toEqual({
-      primaryAgeBand: '정보 없음',
-      primaryGender: '정보 없음',
-      userScale: '정보 없음',
-      dailyActiveUsers: '정보 없음',
-      traits: '정보 없음',
+      primaryAgeBand: '-',
+      primaryGender: '-',
+      userScale: '-',
+      dailyActiveUsers: '-',
+      traits: '-',
     });
   });
 
-  it('대표 성별이 null이면 정보 없음으로 표시한다', () => {
+  it('대표 성별이 null이면 -로 표시한다', () => {
     const result = toChannelDetailViewModel(createChannelDetail({ primaryGender: null }));
 
-    expect(result.audience.primaryGender).toBe('정보 없음');
+    expect(result.audience.primaryGender).toBe('-');
   });
 
   it('MAU와 DAU의 valueText를 고정 지표에 표시한다', () => {
@@ -154,7 +154,7 @@ describe('toChannelDetailViewModel', () => {
     expect(result.audience.dailyActiveUsers).toBe('1.2만 명');
   });
 
-  it('MAU와 DAU의 valueText가 없으면 정보 없음으로 표시한다', () => {
+  it('MAU와 DAU의 valueText가 없으면 -로 표시한다', () => {
     const result = toChannelDetailViewModel(
       createChannelDetail({
         audienceMetrics: [
@@ -164,8 +164,8 @@ describe('toChannelDetailViewModel', () => {
       }),
     );
 
-    expect(result.audience.userScale).toBe('정보 없음');
-    expect(result.audience.dailyActiveUsers).toBe('정보 없음');
+    expect(result.audience.userScale).toBe('-');
+    expect(result.audience.dailyActiveUsers).toBe('-');
   });
 
   it('대표 연령대 텍스트를 그대로 표시한다', () => {

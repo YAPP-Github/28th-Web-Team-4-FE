@@ -3,7 +3,7 @@ import type { ChannelDetail } from '@/features/channel-detail/resolved';
 import type { RecommendedChannel } from './recommended-channels';
 
 function getMetricValue(channel: RecommendedChannel, label: string): string {
-  return channel.metrics.find((metric) => metric.label === label)?.value ?? '정보 없음';
+  return channel.metrics.find((metric) => metric.label === label)?.value ?? '-';
 }
 
 /** 추천 결과 카드의 요약 데이터를 상세 모달에서 사용할 채널 상세 형태로 변환한다. */
