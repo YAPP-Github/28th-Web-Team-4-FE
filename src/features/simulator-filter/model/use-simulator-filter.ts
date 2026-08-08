@@ -49,7 +49,6 @@ export function useSimulatorFilter() {
   const [state, setState] = useState(INITIAL_SIMULATOR_FILTER_STATE);
 
   const allocatedBudget = useMemo(() => getAllocatedBudget(state), [state]);
-  const totalBudgetMin = Math.max(SIMULATOR_FILTER_TOTAL_BUDGET_MIN, allocatedBudget);
   const selectedPeriod = useMemo(
     () => FILTER_PERIOD_OPTIONS.find((option) => option.value === state.period),
     [state.period],
@@ -57,15 +56,20 @@ export function useSimulatorFilter() {
 
   const setTotalBudget = useCallback((totalBudget: number) => {
     setState((currentState) => {
-      const currentAllocatedBudget = getAllocatedBudget(currentState);
+      const nextTotalBudget = clamp(
+        totalBudget,
+        SIMULATOR_FILTER_TOTAL_BUDGET_MIN,
+        SIMULATOR_FILTER_TOTAL_BUDGET_MAX,
+      );
+
+      if (nextTotalBudget === currentState.totalBudget) {
+        return currentState;
+      }
 
       return {
         ...currentState,
-        totalBudget: clamp(
-          totalBudget,
-          Math.max(SIMULATOR_FILTER_TOTAL_BUDGET_MIN, currentAllocatedBudget),
-          SIMULATOR_FILTER_TOTAL_BUDGET_MAX,
-        ),
+        totalBudget: nextTotalBudget,
+        channelBudgets: INITIAL_SIMULATOR_FILTER_STATE.channelBudgets,
       };
     });
   }, []);
@@ -112,6 +116,6 @@ export function useSimulatorFilter() {
     setPeriod,
     setTotalBudget,
     resetChannelBudget,
-    totalBudgetMin,
+    totalBudgetMin: SIMULATOR_FILTER_TOTAL_BUDGET_MIN,
   };
 }

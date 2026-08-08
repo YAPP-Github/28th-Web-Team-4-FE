@@ -156,18 +156,20 @@ function FilterChannelBudgetCard({
   channelName,
   channelType,
   budget,
-  maxBudget,
+  maxAllowedBudget,
+  totalBudget,
   onBudgetChange,
   onReset,
 }: {
   channelName: string;
   channelType: SimulatorFilterChannelType;
   budget: number;
-  maxBudget: number;
+  maxAllowedBudget: number;
+  totalBudget: number;
   onBudgetChange: (channelType: SimulatorFilterChannelType, value: number) => void;
   onReset: (channelType: SimulatorFilterChannelType) => void;
 }): JSX.Element {
-  const isDisabled = maxBudget === 0 && budget === 0;
+  const isDisabled = maxAllowedBudget === 0 && budget === 0;
   const budgetText = formatSimulatorBudget(budget);
 
   return (
@@ -207,7 +209,7 @@ function FilterChannelBudgetCard({
         compact
         label={`${channelName} 예산 슬라이더`}
         min={0}
-        max={maxBudget}
+        max={totalBudget}
         value={budget}
         valueText={budgetText}
         disabled={isDisabled}
@@ -220,11 +222,13 @@ function FilterChannelBudgetCard({
 function FilterChannelSection({
   channelBudgets,
   getChannelMaxBudget,
+  totalBudget,
   onBudgetChange,
   onReset,
 }: {
   channelBudgets: Record<SimulatorFilterChannelType, number>;
   getChannelMaxBudget: (channelType: SimulatorFilterChannelType) => number;
+  totalBudget: number;
   onBudgetChange: (channelType: SimulatorFilterChannelType, value: number) => void;
   onReset: (channelType: SimulatorFilterChannelType) => void;
 }): JSX.Element {
@@ -254,7 +258,8 @@ function FilterChannelSection({
             channelName={channel.name}
             channelType={channel.type}
             budget={channelBudgets[channel.type]}
-            maxBudget={getChannelMaxBudget(channel.type)}
+            maxAllowedBudget={getChannelMaxBudget(channel.type)}
+            totalBudget={totalBudget}
             onBudgetChange={onBudgetChange}
             onReset={onReset}
           />
@@ -359,6 +364,7 @@ export function SimulatorFilterPanel({
             <FilterChannelSection
               channelBudgets={channelBudgets}
               getChannelMaxBudget={getChannelMaxBudget}
+              totalBudget={totalBudget}
               onBudgetChange={setChannelBudget}
               onReset={resetChannelBudget}
             />
