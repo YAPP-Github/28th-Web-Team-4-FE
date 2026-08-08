@@ -137,15 +137,23 @@ function FilterPeriodSection({
           >
             <Check className="text-sys-primary-low size-010" strokeWidth={2} />
           </Box>
-          <Text variant="body-sm" className="text-text-high whitespace-nowrap">
-            이 기간이면 하루 당 약
-          </Text>
-          <Text variant="subtitle-sm" className="text-text-primary whitespace-nowrap">
-            {formatSimulatorDailyBudget(totalBudget, selectedOption?.days ?? null)}
-          </Text>
-          <Text variant="body-sm" className="text-text-high whitespace-nowrap">
-            이에요
-          </Text>
+          {selectedOption ? (
+            <>
+              <Text variant="body-sm" className="text-text-high whitespace-nowrap">
+                이 기간이면 하루 당 약
+              </Text>
+              <Text variant="subtitle-sm" className="text-text-primary whitespace-nowrap">
+                {formatSimulatorDailyBudget(totalBudget, selectedOption.days)}
+              </Text>
+              <Text variant="body-sm" className="text-text-high whitespace-nowrap">
+                이에요
+              </Text>
+            </>
+          ) : (
+            <Text variant="body-sm" className="text-text-high whitespace-nowrap">
+              광고 집행 기간을 선택해주세요
+            </Text>
+          )}
         </Box>
       </Box>
     </Box>
