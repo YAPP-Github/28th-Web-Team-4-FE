@@ -108,7 +108,10 @@ function toProductRow(product: ProductResponse): ChannelProductRow {
     id: product.id,
     name: productName ?? inventoryType ?? '상품명 미제공',
     // null → undefined 정규화 후 포맷 (null이 0으로 표시되던 문제 방지)
-    budgetRange: formatBudgetRange(product.minBudgetWon ?? undefined, product.maxBudgetWon ?? undefined),
+    budgetRange: formatBudgetRange(
+      product.minBudgetWon ?? undefined,
+      product.maxBudgetWon ?? undefined,
+    ),
     expectedImpressions: formatExpectedImpressions(product),
     ctr: formatCtr(product),
   };
