@@ -1,6 +1,6 @@
 'use client';
 
-import type { JSX } from 'react';
+import { createContext, useContext, useState, type JSX } from 'react';
 import { Tabs as TabsPrimitive } from '@base-ui/react/tabs';
 
 import { cn } from '@/shared/ui/cn';
@@ -25,19 +25,33 @@ const tabClassName = [
 const indicatorClassName = [
   'bg-text-highest absolute bottom-0 left-0 z-0 h-[2px]',
   'w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)]',
-  'transition-[width,transform] duration-150 ease-out',
+  'transition-[translate] duration-[180ms] ease-[cubic-bezier(0.77,0,0.175,1)] motion-reduce:transition-none',
 ].join(' ');
 
 const panelClassName = 'w-full outline-none';
 
-const TabsRoot = ({ className, ...props }: TabsRootProps): JSX.Element => {
+const TabsKeyboardActivationContext = createContext(false);
+
+function isKeyboardActivationEvent(event: Event): boolean {
+  return event instanceof KeyboardEvent || (event instanceof MouseEvent && event.detail === 0);
+}
+
+const TabsRoot = ({ className, onValueChange, ...props }: TabsRootProps): JSX.Element => {
+  const [keyboardActivation, setKeyboardActivation] = useState(false);
+
   return (
-    <TabsPrimitive.Root
-      className={(state) =>
-        cn(rootClassName, typeof className === 'function' ? className(state) : className)
-      }
-      {...props}
-    />
+    <TabsKeyboardActivationContext value={keyboardActivation}>
+      <TabsPrimitive.Root
+        className={(state) =>
+          cn(rootClassName, typeof className === 'function' ? className(state) : className)
+        }
+        onValueChange={(value, details) => {
+          setKeyboardActivation(isKeyboardActivationEvent(details.event));
+          onValueChange?.(value, details);
+        }}
+        {...props}
+      />
+    </TabsKeyboardActivationContext>
   );
 };
 
@@ -64,10 +78,16 @@ const TabsTab = ({ className, ...props }: TabsTabProps): JSX.Element => {
 };
 
 const TabsIndicator = ({ className, ...props }: TabsIndicatorProps): JSX.Element => {
+  const keyboardActivation = useContext(TabsKeyboardActivationContext);
+
   return (
     <TabsPrimitive.Indicator
       className={(state) =>
-        cn(indicatorClassName, typeof className === 'function' ? className(state) : className)
+        cn(
+          indicatorClassName,
+          keyboardActivation && 'transition-none',
+          typeof className === 'function' ? className(state) : className,
+        )
       }
       {...props}
     />

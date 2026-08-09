@@ -62,5 +62,9 @@ export const Default: Story = {
     await userEvent.click(canvas.getByRole('tab', { name: '광고 상품' }));
     await expect(canvas.getByRole('tab', { name: '광고 상품' })).toHaveAttribute('data-active');
     await expect(canvas.getByText('광고 상품 패널 내용입니다.')).toBeVisible();
+
+    await userEvent.keyboard('{ArrowLeft}{Enter}');
+    await expect(canvas.getByRole('tab', { name: '핵심 요약' })).toHaveAttribute('data-active');
+    await expect(canvas.getByRole('presentation', { hidden: true })).toHaveClass('transition-none');
   },
 };
