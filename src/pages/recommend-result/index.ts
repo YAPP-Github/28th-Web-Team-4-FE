@@ -1,3 +1,4 @@
+export { RecommendResultRoute } from './ui/recommend-result-route';
 export {
   RecommendResultPage,
   RecommendResultWithRecommendations,
