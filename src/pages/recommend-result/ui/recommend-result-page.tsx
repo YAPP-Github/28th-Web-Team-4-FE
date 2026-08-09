@@ -6,6 +6,7 @@ import { useReducedMotion } from 'motion/react';
 
 import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
 import { openResolvedChannelDetailModal } from '@/features/channel-detail/resolved';
+import { useRecommendations } from '@/pages/recommend-result/api/use-recommendations';
 import {
   MAX_COMPARISON_CHANNELS,
   toggleComparisonChannel,
@@ -22,12 +23,21 @@ import { RecommendedChannelCarousel } from './recommended-channel-carousel';
 import { RecommendResultSubHeader } from './recommend-result-sub-header';
 
 type RecommendResultPageProps = {
+  channels?: readonly RecommendedChannel[];
   isGuest?: boolean;
+};
+
+type RecommendResultWithRecommendationsProps = {
+  isGuest?: boolean;
+  onboardingId: string;
 };
 
 const NUMBER_FLOW_EASE_OUT_CUBIC = 'cubic-bezier(0.215, 0.61, 0.355, 1)';
 
-export function RecommendResultPage({ isGuest = false }: RecommendResultPageProps): JSX.Element {
+export function RecommendResultPage({
+  channels = recommendedChannels,
+  isGuest = false,
+}: RecommendResultPageProps): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
   const serviceName = useRecommendOnboardingStore((state) => state.answer?.serviceName ?? '채소집');
   const [selectedChannelIds, setSelectedChannelIds] = useState<readonly string[]>([]);
@@ -59,7 +69,7 @@ export function RecommendResultPage({ isGuest = false }: RecommendResultPageProp
       <Box className="px-016 pb-040 sm:px-032 lg:px-064 flex w-full justify-center pt-[60px] xl:px-0">
         <Box className="gap-040 flex w-full max-w-[1200px] flex-col">
           <RecommendedChannelCarousel
-            channels={recommendedChannels}
+            channels={channels}
             startDelay={0.14}
             selectedChannelIds={selectedChannelIds}
             isGuest={isGuest}
@@ -88,4 +98,13 @@ export function RecommendResultPage({ isGuest = false }: RecommendResultPageProp
       </Box>
     </main>
   );
+}
+
+export function RecommendResultWithRecommendations({
+  isGuest = false,
+  onboardingId,
+}: RecommendResultWithRecommendationsProps): JSX.Element {
+  const recommendationsQuery = useRecommendations(onboardingId);
+
+  return <RecommendResultPage channels={recommendationsQuery.data} isGuest={isGuest} />;
 }

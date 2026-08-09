@@ -3,10 +3,7 @@
 import type { JSX } from 'react';
 
 import { ChannelSelectionScreen } from '@/features/channel-selection';
-import {
-  ChannelDetailContentSkeleton,
-  openChannelDetailModal,
-} from '@/features/channel-detail';
+import { ChannelDetailContentSkeleton, openChannelDetailModal } from '@/features/channel-detail';
 import { showWarningToast } from '@/shared/ui/toast';
 
 const COMPARE_COMING_SOON_TOAST_ID = 'compare-coming-soon';

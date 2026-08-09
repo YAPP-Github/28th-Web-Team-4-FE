@@ -1,15 +1,19 @@
 'use client';
 
 import { useState, type JSX } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
 import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
+import { submitRecommendOnboarding } from '@/features/ad-onboarding/api/submit-recommend-onboarding';
 import { useResetScrollOnEntry } from '@/features/ad-onboarding/lib/use-reset-scroll-on-entry';
 import type { RecommendOnboardingAnswer } from '@/features/ad-onboarding/model/onboarding-answer';
 import { RecommendOnboardingFlow } from '@/features/ad-onboarding/ui/recommend-onboarding-flow';
+import { getApiErrorMessage } from '@/shared/api/api-error';
 import { Bubble } from '@/shared/ui/bubble';
 import { Box } from '@/shared/ui/layout/box';
 import { Stack } from '@/shared/ui/layout/stack';
+import { showWarningToast } from '@/shared/ui/toast';
 
 import { RecommendOnboardingSubHeader } from './recommend-onboarding-sub-header';
 
@@ -19,12 +23,25 @@ export function RecommendOnboardingPage(): JSX.Element {
   const router = useRouter();
   const setAnswer = useRecommendOnboardingStore((state) => state.setAnswer);
   const [currentStep, setCurrentStep] = useState(0);
+  const submitMutation = useMutation({
+    mutationFn: submitRecommendOnboarding,
+    onSuccess: (result) => {
+      router.push(`/recommend/onboarding/${result.onboardingId}`);
+    },
+    onError: (error) => {
+      showWarningToast(getApiErrorMessage(error, '온보딩 제출 중 문제가 발생했습니다.'), {
+        id: 'recommend-onboarding-submit-error',
+      });
+    },
+  });
 
   const handleComplete = (answer: RecommendOnboardingAnswer) => {
-    const onboardingId = crypto.randomUUID();
+    if (submitMutation.isPending) {
+      return;
+    }
 
     setAnswer(answer);
-    router.push(`/recommend/result/${onboardingId}`);
+    submitMutation.mutate(answer);
   };
 
   return (

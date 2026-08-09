@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createElement } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { RecommendOnboardingPage } from './recommend-onboarding-page';
 
@@ -11,10 +12,32 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: pushMock }),
 }));
 
+vi.mock('@/shared/api/hey-api', () => ({
+  createClientConfig: (config?: Record<string, unknown>) => ({
+    ...config,
+    baseUrl: 'http://localhost',
+  }),
+}));
+
 vi.mock('@number-flow/react', () => ({
   default: ({ value, suffix = '' }: { value: number; suffix?: string }) =>
     createElement('span', undefined, `${value}${suffix}`),
 }));
+
+function renderRecommendOnboardingPage() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <RecommendOnboardingPage />
+    </QueryClientProvider>,
+  );
+}
 
 describe('RecommendOnboardingPage', () => {
   beforeEach(() => {
@@ -47,7 +70,7 @@ describe('RecommendOnboardingPage', () => {
   });
 
   it('renders the first onboarding question', () => {
-    render(<RecommendOnboardingPage />);
+    renderRecommendOnboardingPage();
 
     expect(screen.getByRole('main')).toBeVisible();
     expect(screen.getByText('1')).toBeVisible();
@@ -68,7 +91,7 @@ describe('RecommendOnboardingPage', () => {
   it('moves to the next step after the current question is completed', async () => {
     const user = userEvent.setup();
 
-    render(<RecommendOnboardingPage />);
+    renderRecommendOnboardingPage();
 
     await user.type(screen.getByRole('textbox', { name: '서비스 이름' }), '채소집');
     await user.click(screen.getByRole('button', { name: '다음' }));
@@ -87,7 +110,7 @@ describe('RecommendOnboardingPage', () => {
   it('reopens a completed step when the edit button is clicked', async () => {
     const user = userEvent.setup();
 
-    render(<RecommendOnboardingPage />);
+    renderRecommendOnboardingPage();
 
     await user.type(screen.getByRole('textbox', { name: '서비스 이름' }), '채소집');
     await user.click(screen.getByRole('button', { name: '다음' }));
@@ -104,7 +127,7 @@ describe('RecommendOnboardingPage', () => {
   it('keeps the other completed question screens visible while editing one step', async () => {
     const user = userEvent.setup();
 
-    render(<RecommendOnboardingPage />);
+    renderRecommendOnboardingPage();
 
     await user.type(screen.getByRole('textbox', { name: '서비스 이름' }), '채소집');
     await user.click(screen.getByRole('button', { name: '다음' }));
