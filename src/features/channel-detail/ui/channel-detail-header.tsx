@@ -2,14 +2,14 @@
 
 import type { JSX } from 'react';
 
-import type { ChannelDetail } from '@/features/channel-detail/model/channel-detail';
+import type { ChannelDetailHeaderData } from '@/features/channel-detail/model/channel-list-item';
 import { Avatar } from '@/shared/ui/avatar';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 export type ChannelDetailHeaderProps = {
-  channel: ChannelDetail;
+  channel: ChannelDetailHeaderData;
   title?: JSX.Element;
   description?: JSX.Element;
 };
@@ -22,7 +22,7 @@ export function ChannelDetailHeader({
   return (
     <HStack className="gap-012 min-w-0 flex-1 items-center">
       <Avatar
-        src={channel.logoUrl}
+        src={channel.logoUrl?.trim()}
         alt={`${channel.name} 로고`}
         className="border-outline-low size-040 rounded-[var(--radius-m)] border hover:ring-0"
       />
@@ -34,7 +34,7 @@ export function ChannelDetailHeader({
         )}
         {description ?? (
           <Text as="p" variant="subtitle-xxs" className="text-text-low m-0 line-clamp-2">
-            {channel.tagline}
+            {channel.description ?? '채널 설명이 아직 없어요.'}
           </Text>
         )}
       </Stack>
