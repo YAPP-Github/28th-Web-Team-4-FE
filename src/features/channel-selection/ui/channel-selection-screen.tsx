@@ -252,9 +252,9 @@ export function ChannelSelectionScreen({
       />
       <Box
         aria-busy={channelsQuery.isFetching}
-        className="px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto py-[46px] lg:px-120"
+        className="px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto lg:px-120"
       >
-        <Box className="w-full max-w-[1200px]">
+        <Box className="w-full max-w-[1200px] self-start pt-[32px] pb-[38px]">
           {channelsQuery.isFetching && !isInitialLoading ? (
             <span role="status" className="sr-only">
               채널 목록을 불러오는 중이에요
