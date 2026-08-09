@@ -1,8 +1,8 @@
 import { Suspense, type JSX } from 'react';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
-import { getQueryClient } from '@/app/providers/query-client';
 import { getRecommendationsOptions } from '@/shared/api/generated/@tanstack/react-query.gen';
+import { getQueryClient } from '@/shared/lib/query-client';
 import { Placeholder } from '@/shared/ui/placeholder';
 
 import { RecommendOnboardingProcessingClient } from './recommend-onboarding-processing-client';
