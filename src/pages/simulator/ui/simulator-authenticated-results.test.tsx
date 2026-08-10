@@ -1,9 +1,40 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { SimulationResponse } from '@/shared/api/generated';
 
 import { AuthenticatedChannelResults } from './simulator-authenticated-results';
 
 const SELECTED_CHANNEL_IDS = ['channel-a', 'channel-b', 'channel-c'] as const;
+
+const SIMULATION_RESULT: SimulationResponse = {
+  totalBudgetWon: 1_000_000,
+  period: 'M1',
+  totalEstImpressions: 38_000,
+  totalEstClicks: 1_100,
+  executableChannelCount: 2,
+  items: [
+    {
+      channelId: 'channel-a',
+      channelName: '채널 A',
+      allocatedBudgetWon: 500_000,
+      allocationPct: 50,
+      estImpressions: { min: 10_000, max: 20_000 },
+      estClicks: { min: 300, max: 400 },
+      isExecutable: true,
+      basisNote: '기준 데이터',
+    },
+    {
+      channelId: 'channel-b',
+      channelName: '채널 B',
+      allocatedBudgetWon: 500_000,
+      allocationPct: 50,
+      estImpressions: { min: 15_000, max: 25_000 },
+      estClicks: { min: 200, max: 200 },
+      isExecutable: true,
+      basisNote: '기준 데이터',
+    },
+  ],
+};
 
 vi.mock('@/features/simulator-filter/api/use-simulator-filter-channels', () => ({
   useSimulatorFilterChannels: () => ({
@@ -67,5 +98,20 @@ describe('AuthenticatedChannelResults', () => {
     expect(screen.getByText('채널 A')).toBeVisible();
     expect(screen.getByText('채널 B')).toBeVisible();
     expect(screen.getByText('채널 C')).toBeVisible();
+  });
+
+  it('시뮬레이션 응답의 채널별 노출·클릭 범위와 횟수를 보여준다', () => {
+    render(
+      <AuthenticatedChannelResults
+        isChannelSelectionComplete
+        selectedChannelIds={SELECTED_CHANNEL_IDS}
+        simulationResult={SIMULATION_RESULT}
+      />,
+    );
+
+    expect(screen.getByText('10,000~20,000회')).toBeVisible();
+    expect(screen.getByText('300~400회')).toBeVisible();
+    expect(screen.getByText('15,000~25,000회')).toBeVisible();
+    expect(screen.getByText('200회')).toBeVisible();
   });
 });

@@ -1,8 +1,10 @@
 import type { JSX, ReactNode } from 'react';
 import Image from 'next/image';
 
+import type { SimulationResponse } from '@/shared/api/generated';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
+import { formatSimulatorCount } from '@/pages/simulator/model/simulator-channel';
 
 type MetricIconType = 'channels' | 'impressions' | 'clicks';
 
@@ -80,7 +82,15 @@ function MetricDivider(): ReactNode {
   return <Box aria-hidden className="bg-outline-low hidden h-[50px] w-px shrink-0 sm:block" />;
 }
 
-export function SimulatorResultSummary(): JSX.Element {
+export function SimulatorResultSummary({
+  simulationResult = null,
+}: {
+  simulationResult?: SimulationResponse | null;
+}): JSX.Element {
+  const executableChannelCount = simulationResult?.executableChannelCount ?? 0;
+  const totalImpressions = simulationResult?.totalEstImpressions ?? 0;
+  const totalClicks = simulationResult?.totalEstClicks ?? 0;
+
   return (
     <Box
       as="section"
@@ -91,11 +101,23 @@ export function SimulatorResultSummary(): JSX.Element {
         총 예상 성과
       </Text>
       <Box className="gap-016 flex w-full flex-col sm:flex-row sm:items-center sm:justify-between">
-        <SummaryMetric icon="channels" value="0개" label="집행 가능 채널" />
+        <SummaryMetric
+          icon="channels"
+          value={`${executableChannelCount}개`}
+          label="집행 가능 채널"
+        />
         <MetricDivider />
-        <SummaryMetric icon="impressions" value="0회" label="예상 총 노출" />
+        <SummaryMetric
+          icon="impressions"
+          value={formatSimulatorCount(totalImpressions)}
+          label="예상 총 노출"
+        />
         <MetricDivider />
-        <SummaryMetric icon="clicks" value="0회" label="예상 총 클릭" />
+        <SummaryMetric
+          icon="clicks"
+          value={formatSimulatorCount(totalClicks)}
+          label="예상 총 클릭"
+        />
       </Box>
     </Box>
   );

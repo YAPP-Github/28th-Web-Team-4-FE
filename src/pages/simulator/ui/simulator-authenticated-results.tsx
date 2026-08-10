@@ -8,9 +8,9 @@ import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
 import { Modal, TextModal } from '@/shared/ui/modal';
 import { Text } from '@/shared/ui/text';
+import type { SimulationResponse } from '@/shared/api/generated';
 import { useSimulatorFilterChannels } from '@/features/simulator-filter/api/use-simulator-filter-channels';
-import type { SimulatorFilterChannel } from '@/features/simulator-filter/model/simulator-filter-options';
-import type { ChannelResult } from '@/pages/simulator/model/simulator-channel';
+import { createChannelResults } from '@/pages/simulator/model/simulator-channel';
 
 import { ChannelPerformanceContent } from './simulator-channel-performance';
 
@@ -92,23 +92,14 @@ function LoggedInEmptyState(): JSX.Element {
   );
 }
 
-function createInitialChannelResults(
-  channels: readonly SimulatorFilterChannel[],
-): readonly ChannelResult[] {
-  return channels.map((channel) => ({
-    channelId: channel.id,
-    name: channel.name,
-    impressions: { value: '0회', fillPercentage: 0 },
-    clicks: { value: '0회', fillPercentage: 0 },
-  }));
-}
-
 export function AuthenticatedChannelResults({
   isChannelSelectionComplete,
   selectedChannelIds = [],
+  simulationResult = null,
 }: {
   isChannelSelectionComplete: boolean;
   selectedChannelIds?: readonly string[];
+  simulationResult?: SimulationResponse | null;
 }): JSX.Element {
   const { channels, isError, isPending } = useSimulatorFilterChannels(selectedChannelIds);
 
@@ -132,5 +123,5 @@ export function AuthenticatedChannelResults({
     );
   }
 
-  return <ChannelPerformanceContent channels={createInitialChannelResults(channels)} />;
+  return <ChannelPerformanceContent channels={createChannelResults(channels, simulationResult)} />;
 }
