@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react';
 
-import { values } from '@/shared/lib/object';
+import { entries, values } from '@/shared/lib/object';
 
 import {
   FILTER_PERIOD_OPTIONS,
@@ -24,7 +24,7 @@ const getChannelBudgetMax = (
   state: SimulatorFilterState,
   channelType: SimulatorFilterChannelType,
 ): number => {
-  const otherChannelsBudget = Object.entries(state.channelBudgets).reduce(
+  const otherChannelsBudget = entries(state.channelBudgets).reduce(
     (total, [type, budget]) => (type === channelType ? total : total + budget),
     0,
   );
