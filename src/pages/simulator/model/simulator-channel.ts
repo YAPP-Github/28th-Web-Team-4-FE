@@ -6,8 +6,9 @@ export type ChannelMetric = {
 };
 
 export type ChannelResult = {
+  channelId?: string;
   name: string;
-  type: ChannelType;
+  type?: ChannelType;
   impressions: ChannelMetric;
   clicks: ChannelMetric;
   unavailable?: boolean;
