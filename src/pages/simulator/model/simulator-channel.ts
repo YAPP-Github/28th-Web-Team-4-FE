@@ -56,7 +56,9 @@ function getFillPercentage(value: number, maxValue: number): number {
     return 0;
   }
 
-  return Math.min(100, Math.max(0, (value / maxValue) * 100));
+  const normalizedValue = Math.min(1, Math.max(0, value / maxValue));
+
+  return Math.sqrt(normalizedValue) * 100;
 }
 
 export function createChannelResults(
@@ -91,11 +93,6 @@ export function createChannelResults(
     ...channelItems.map(({ item }) => getRangeCenter(getMetricRange(item, 'impressions'))),
     0,
   );
-  const maxClicks = Math.max(
-    ...channelItems.map(({ item }) => getRangeCenter(getMetricRange(item, 'clicks'))),
-    0,
-  );
-
   return channelItems.map(({ channel, item }) => {
     const impressions = getMetricRange(item, 'impressions');
     const clicks = getMetricRange(item, 'clicks');
@@ -110,7 +107,7 @@ export function createChannelResults(
       },
       clicks: {
         value: formatSimulatorCountRange(clicks),
-        fillPercentage: getFillPercentage(getRangeCenter(clicks), maxClicks),
+        fillPercentage: getFillPercentage(getRangeCenter(clicks), maxImpressions),
         range: clicks ?? { min: 0, max: 0 },
       },
       unavailable: item ? !item.isExecutable : true,
