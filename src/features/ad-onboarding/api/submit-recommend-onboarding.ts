@@ -110,6 +110,20 @@ function mapManualAdHistory(answer: RecommendOnboardingAnswer): AdHistoryRequest
   return [{ channelNameRaw: getPerformanceChannelLabel(performanceInput.channel) }];
 }
 
+function mapAdExperience(
+  answer: RecommendOnboardingAnswer,
+  rawFileKeys: string[],
+): SubmitOnboardingRequest['adExperience'] {
+  if (answer.adExperience.type === 'FIRST_TIME') {
+    return 'NONE';
+  }
+
+  const hasManualPerformanceInput = answer.adExperience.performanceInput?.mode === 'MANUAL';
+  const hasUploadedPerformanceInput = rawFileKeys.length > 0;
+
+  return hasManualPerformanceInput || hasUploadedPerformanceInput ? 'EXPERIENCED' : 'NONE';
+}
+
 async function getPerformanceFileKeyList(answer: RecommendOnboardingAnswer): Promise<string[]> {
   const performanceInput =
     answer.adExperience.type === 'EXPERIENCED' ? answer.adExperience.performanceInput : undefined;
@@ -188,7 +202,7 @@ export function createSubmitOnboardingRequest(
     budgetMin: answer.budget.minAmount,
     budgetMax: answer.budget.maxAmount,
     period: CAMPAIGN_PERIOD_MAP[answer.campaignPeriod],
-    adExperience: answer.adExperience.type === 'FIRST_TIME' ? 'NONE' : 'EXPERIENCED',
+    adExperience: mapAdExperience(answer, rawFileKeys),
     adHistory: mapManualAdHistory(answer),
     rawFileKeys,
   };

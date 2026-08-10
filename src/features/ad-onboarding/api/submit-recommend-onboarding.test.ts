@@ -78,6 +78,38 @@ describe('createSubmitOnboardingRequest', () => {
     expect(request.adExperience).toBe('EXPERIENCED');
     expect(request.adHistory).toEqual([{ channelNameRaw: '네이버 SA' }]);
   });
+
+  it('maps skipped experienced ad performance input to API NONE', () => {
+    const request = createSubmitOnboardingRequest({
+      ...baseAnswer,
+      adExperience: {
+        type: 'EXPERIENCED',
+      },
+    });
+
+    expect(request.adExperience).toBe('NONE');
+    expect(request.adHistory).toEqual([]);
+    expect(request.rawFileKeys).toEqual([]);
+  });
+
+  it('maps uploaded ad performance input to API EXPERIENCED when file keys exist', () => {
+    const request = createSubmitOnboardingRequest(
+      {
+        ...baseAnswer,
+        adExperience: {
+          type: 'EXPERIENCED',
+          performanceInput: {
+            mode: 'UPLOAD',
+            fileList: [{ id: 'first', name: 'first.csv', size: 3 }],
+          },
+        },
+      },
+      ['raw/first.csv'],
+    );
+
+    expect(request.adExperience).toBe('EXPERIENCED');
+    expect(request.rawFileKeys).toEqual(['raw/first.csv']);
+  });
 });
 
 describe('submitRecommendOnboarding', () => {
