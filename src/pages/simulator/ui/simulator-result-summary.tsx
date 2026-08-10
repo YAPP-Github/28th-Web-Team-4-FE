@@ -1,10 +1,13 @@
+'use client';
+
 import type { JSX, ReactNode } from 'react';
 import Image from 'next/image';
+import NumberFlow from '@number-flow/react';
+import { useReducedMotion } from 'motion/react';
 
 import type { SimulationResponse } from '@/shared/api/generated';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
-import { formatSimulatorCount } from '@/pages/simulator/model/simulator-channel';
 
 type MetricIconType = 'channels' | 'impressions' | 'clicks';
 
@@ -57,17 +60,27 @@ function MetricIcon({ type }: { type: MetricIconType }): JSX.Element {
 function SummaryMetric({
   icon,
   value,
+  suffix,
   label,
+  shouldReduceMotion,
 }: {
   icon: MetricIconType;
-  value: string;
+  value: number;
+  suffix: string;
   label: string;
+  shouldReduceMotion: boolean | null;
 }): JSX.Element {
   return (
     <Box className="gap-010 flex min-w-0 flex-1 items-center justify-between">
       <Box className="gap-002 flex min-w-0 flex-col">
         <Text variant="display-lg" className="text-text-high whitespace-nowrap">
-          {value}
+          <NumberFlow
+            value={value}
+            locales="ko-KR"
+            suffix={suffix}
+            trend={1}
+            animated={!shouldReduceMotion}
+          />
         </Text>
         <Text variant="subtitle-xxs" className="text-text-low whitespace-nowrap">
           {label}
@@ -87,6 +100,7 @@ export function SimulatorResultSummary({
 }: {
   simulationResult?: SimulationResponse | null;
 }): JSX.Element {
+  const shouldReduceMotion = useReducedMotion();
   const executableChannelCount = simulationResult?.executableChannelCount ?? 0;
   const totalImpressions = simulationResult?.totalEstImpressions ?? 0;
   const totalClicks = simulationResult?.totalEstClicks ?? 0;
@@ -103,20 +117,26 @@ export function SimulatorResultSummary({
       <Box className="gap-016 flex w-full flex-col sm:flex-row sm:items-center sm:justify-between">
         <SummaryMetric
           icon="channels"
-          value={`${executableChannelCount}개`}
+          value={executableChannelCount}
+          suffix="개"
           label="집행 가능 채널"
+          shouldReduceMotion={shouldReduceMotion}
         />
         <MetricDivider />
         <SummaryMetric
           icon="impressions"
-          value={formatSimulatorCount(totalImpressions)}
+          value={totalImpressions}
+          suffix="회"
           label="예상 총 노출"
+          shouldReduceMotion={shouldReduceMotion}
         />
         <MetricDivider />
         <SummaryMetric
           icon="clicks"
-          value={formatSimulatorCount(totalClicks)}
+          value={totalClicks}
+          suffix="회"
           label="예상 총 클릭"
+          shouldReduceMotion={shouldReduceMotion}
         />
       </Box>
     </Box>
