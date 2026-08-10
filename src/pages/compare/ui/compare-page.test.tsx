@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { withNuqsTestingAdapter } from 'nuqs/adapters/testing';
 
@@ -194,6 +194,22 @@ describe('ComparePage', () => {
     vi.useRealTimers();
   });
 
+  it('스크롤 내부 콘텐츠에 상단 32px과 하단 38px 안전 여백을 둔다', async () => {
+    renderComparePage();
+
+    expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
+
+    const channelGrid = screen.getByRole('list');
+    const safeArea = channelGrid.parentElement;
+    const scrollContainer = safeArea?.parentElement;
+
+    expect(safeArea).toHaveClass('self-start', 'pt-[32px]', 'pb-[38px]');
+    expect(scrollContainer).toHaveClass('overflow-y-auto');
+    expect(scrollContainer).not.toHaveClass('py-[46px]');
+    expect(scrollContainer).not.toHaveClass('pt-[32px]');
+    expect(scrollContainer).not.toHaveClass('pb-[38px]');
+  });
+
   it('첫 요청 동안 12개 스켈레톤을 보여주고 API 첫 페이지를 조회한다', async () => {
     const responseGate = createDeferred<void>();
     let requestedUrl: URL | undefined;
@@ -212,7 +228,7 @@ describe('ComparePage', () => {
     expect(screen.getByText('최대 3개까지 선택할 수 있어요')).toBeVisible();
     expect(screen.getByRole('combobox', { name: '채널 카테고리' })).toHaveTextContent('전체');
     expect(screen.getByLabelText('채널 검색')).toHaveAttribute('placeholder', '검색');
-    expect(screen.getAllByTestId('compare-channel-card-skeleton')).toHaveLength(12);
+    expect(screen.getAllByTestId('channel-card-skeleton')).toHaveLength(12);
 
     responseGate.resolve(undefined);
 

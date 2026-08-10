@@ -21,12 +21,18 @@ import type {
   GetLatestSimulationData,
   GetLatestSimulationErrors,
   GetLatestSimulationResponses,
+  GetMySimulationsData,
+  GetMySimulationsErrors,
+  GetMySimulationsResponses,
   GetRecommendationsData,
   GetRecommendationsErrors,
   GetRecommendationsResponses,
   GetSampleByIdData,
   GetSampleByIdErrors,
   GetSampleByIdResponses,
+  GetSimulationData,
+  GetSimulationErrors,
+  GetSimulationResponses,
   GoogleAuthData,
   GoogleAuthErrors,
   GoogleAuthResponses,
@@ -48,6 +54,9 @@ import type {
   RefreshData,
   RefreshErrors,
   RefreshResponses,
+  SaveRecommendationData,
+  SaveRecommendationErrors,
+  SaveRecommendationResponses,
   SaveSimulationData,
   SaveSimulationErrors,
   SaveSimulationResponses,
@@ -85,6 +94,20 @@ export type Options<
    */
   meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta;
 };
+
+/**
+ * 내가 저장한 시뮬레이션 목록
+ *
+ * 로그인한 사용자가 저장한 시뮬레이션을 최신순으로 반환한다. 목록은 요약만 담으며 매체별 항목은 상세 조회에서 받는다. 정렬은 최신순 고정이고 page/size 를 생략하면 0 페이지 5건을 반환한다. 저장된 결과가 없으면 빈 목록으로 200 을 반환한다.
+ */
+export const getMySimulations = <ThrowOnError extends boolean = false>(
+  options?: Options<GetMySimulationsData, ThrowOnError>,
+): RequestResult<GetMySimulationsResponses, GetMySimulationsErrors, ThrowOnError> =>
+  (options?.client ?? client).get<GetMySimulationsResponses, GetMySimulationsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/simulations',
+    ...options,
+  });
 
 /**
  * 예산 시뮬레이션 결과 저장
@@ -150,6 +173,52 @@ export const createSample = <ThrowOnError extends boolean = false>(
   (options.client ?? client).post<CreateSampleResponses, CreateSampleErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/samples',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * 온보딩 기반 채널 추천
+ *
+ * 온보딩 응답을 업종·광고 목적·타깃 연령대로 매칭해 적합한 채널을 적합도 순으로 반환한다.
+ *
+ * 적합도가 같으면 집행 가능한 채널을 먼저, 그다음 매체명 순으로 정렬한다.
+ *
+ * 매체별로 단가가 가장 싼 상품을 대표로 삼고, 온보딩 예산의 상한(budgetMax)과 집행 기간을 적용한다. 예산이 최소 단가에 못 미치는 채널도 적합도가 있으면 추천에 넣되, 노출·클릭은 최소 단가로 집행했을 때를 기준으로 채우고 부족액(shortfallWon)을 함께 준다.
+ */
+export const getRecommendations = <ThrowOnError extends boolean = false>(
+  options: Options<GetRecommendationsData, ThrowOnError>,
+): RequestResult<GetRecommendationsResponses, GetRecommendationsErrors, ThrowOnError> =>
+  (options.client ?? client).get<
+    GetRecommendationsResponses,
+    GetRecommendationsErrors,
+    ThrowOnError
+  >({ url: '/api/v1/recommendations', ...options });
+
+/**
+ * 채널 추천 결과 저장
+ *
+ * 추천을 다시 계산해 그 시점 값을 스냅샷으로 저장한다. 채널 1개가 1행이고, 요청한 온보딩이 저장된 추천 1건을 가리키는 키가 된다.
+ *
+ * 이후 채널의 단가·상품이 바뀌어도 저장된 추천은 변하지 않는다. 마이페이지는 이 저장분을 그대로 읽는다.
+ *
+ * 같은 온보딩으로 다시 저장하면 이전 추천을 지우고 다시 넣는다. 온보딩 응답은 불변이고 추천도 결정적이라 결과는 같으며, 재요청·재시도로 행이 쌓이지 않는다.
+ *
+ * 본인이 제출한 온보딩만 저장할 수 있다. 맞는 채널이 없으면 저장할 것도 없으므로 channelCount 0 과 빈 배열을 반환한다.
+ */
+export const saveRecommendation = <ThrowOnError extends boolean = false>(
+  options: Options<SaveRecommendationData, ThrowOnError>,
+): RequestResult<SaveRecommendationResponses, SaveRecommendationErrors, ThrowOnError> =>
+  (options.client ?? client).post<
+    SaveRecommendationResponses,
+    SaveRecommendationErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/recommendations',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -374,6 +443,20 @@ export const linkGoogle = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * 저장된 시뮬레이션 상세
+ *
+ * 저장된 시뮬레이션 하나를 매체별 항목까지 재계산 없이 그대로 반환한다. 본인이 저장한 것만 조회할 수 있고, 다른 사용자의 시뮬레이션은 그 id 가 존재한다는 사실을 숨기기 위해 없는 것과 같은 404(SIM-001) 로 응답한다.
+ */
+export const getSimulation = <ThrowOnError extends boolean = false>(
+  options: Options<GetSimulationData, ThrowOnError>,
+): RequestResult<GetSimulationResponses, GetSimulationErrors, ThrowOnError> =>
+  (options.client ?? client).get<GetSimulationResponses, GetSimulationErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/simulations/{simulationId}',
+    ...options,
+  });
+
+/**
  * 최신 시뮬레이션 결과 불러오기
  *
  * 사용자가 가장 최근에 저장한 결과를 재계산 없이 그대로 반환한다. 저장된 결과가 없으면 본문 없이 204 를 반환한다.
@@ -406,27 +489,9 @@ export const getSampleById = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * 온보딩 기반 채널 추천
- *
- * 온보딩 응답을 업종·광고 목적·타깃 연령대로 매칭해 적합한 채널을 적합도 순으로 반환한다.
- *
- * 적합도가 같으면 집행 가능한 채널을 먼저, 그다음 매체명 순으로 정렬한다.
- *
- * 매체별로 단가가 가장 싼 상품을 대표로 삼고, 온보딩 예산의 상한(budgetMax)과 집행 기간을 적용한다. 예산이 최소 단가에 못 미치는 채널도 적합도가 있으면 추천에 넣되, 노출·클릭은 최소 단가로 집행했을 때를 기준으로 채우고 부족액(shortfallWon)을 함께 준다.
- */
-export const getRecommendations = <ThrowOnError extends boolean = false>(
-  options: Options<GetRecommendationsData, ThrowOnError>,
-): RequestResult<GetRecommendationsResponses, GetRecommendationsErrors, ThrowOnError> =>
-  (options.client ?? client).get<
-    GetRecommendationsResponses,
-    GetRecommendationsErrors,
-    ThrowOnError
-  >({ url: '/api/v1/recommendations', ...options });
-
-/**
  * 채널 목록 조회
  *
- * 채널을 조회한다. page/size 를 모두 생략하면 페이지네이션 없이 전체 채널을 반환한다. page 또는 size 중 하나라도 지정하면 페이지 조회로 동작한다(생략된 값은 page=0, size=12). size 는 최대 100. name 지정 시 채널명으로 필터링. 정렬은 name, createdAt 만 지원한다(형식: sort=name,desc / 기본값 name,asc)
+ * 채널을 조회한다. page/size 를 모두 생략하면 페이지네이션 없이 전체 채널을 반환한다. page 또는 size 중 하나라도 지정하면 페이지 조회로 동작한다(생략된 값은 page=0, size=12). size 는 최대 100. name 지정 시 채널명으로 필터링. primaryCategory 지정 시 그 대표 업종의 채널만 반환한다. 여러 번 넘기거나(primaryCategory=A&primaryCategory=B) 쉼표로 이어(primaryCategory=A,B) 여러 업종을 고를 수 있고, 그중 하나에 해당하면 남는다. 정렬은 name, createdAt 만 지원한다(형식: sort=name,desc / 기본값 name,asc)
  */
 export const getChannels = <ThrowOnError extends boolean = false>(
   options?: Options<GetChannelsData, ThrowOnError>,
