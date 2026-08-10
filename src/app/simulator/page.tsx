@@ -31,6 +31,7 @@ export default async function SimulatorRoute({ searchParams }: SimulatorRoutePro
     <SimulatorPage
       isLogin={isLogin}
       isChannelSelectionComplete={isLogin && selectedChannelIds.length === 3}
+      selectedChannelIds={selectedChannelIds}
     />
   );
 }
