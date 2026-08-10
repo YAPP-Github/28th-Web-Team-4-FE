@@ -1,13 +1,16 @@
 'use client';
 
-import type { JSX } from 'react';
+import { useState, type JSX } from 'react';
 import { Check, X } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
 
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Modal } from '@/shared/ui/modal';
 import { Text } from '@/shared/ui/text';
+import { estimateSimulationMutation } from '@/shared/api/generated/@tanstack/react-query.gen';
+import type { SimulationResponse } from '@/shared/api/generated';
 
 import {
   FILTER_PERIOD_OPTIONS,
@@ -16,6 +19,7 @@ import {
   type SimulatorFilterPeriodValue,
 } from '@/features/simulator-filter/model/simulator-filter-options';
 import { useSimulatorFilterChannels } from '@/features/simulator-filter/api/use-simulator-filter-channels';
+import { createSimulationRequest } from '@/features/simulator-filter/lib/create-simulation-request';
 import { useSimulatorFilter } from '@/features/simulator-filter/model/use-simulator-filter';
 import {
   formatSimulatorBudget,
@@ -306,11 +310,13 @@ function FilterChannelSection({
 function FilterLoadRecommendationButton({
   isDirty,
   disabled = false,
+  isApplying = false,
   onApply,
   onReset,
 }: {
   isDirty: boolean;
   disabled?: boolean;
+  isApplying?: boolean;
   onApply: () => void;
   onReset: () => void;
 }): JSX.Element {
@@ -328,7 +334,7 @@ function FilterLoadRecommendationButton({
         disabled={!isDirty || disabled}
         onClick={onApply}
       >
-        적용하기
+        {isApplying ? '적용 중...' : '적용하기'}
       </Button>
     </Box>
   );
@@ -338,13 +344,17 @@ export type SimulatorFilterPanelProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedChannelIds: readonly string[];
+  onSimulationResult: (result: SimulationResponse) => void;
 };
 
 export function SimulatorFilterPanel({
   open,
   onOpenChange,
   selectedChannelIds,
+  onSimulationResult,
 }: SimulatorFilterPanelProps): JSX.Element {
+  const [applyError, setApplyError] = useState<string | null>(null);
+  const simulationMutation = useMutation(estimateSimulationMutation());
   const { channels, isError, isPending } = useSimulatorFilterChannels(selectedChannelIds);
   const {
     channelBudgets,
@@ -359,6 +369,34 @@ export function SimulatorFilterPanel({
     totalBudget,
     totalBudgetMin,
   } = useSimulatorFilter(selectedChannelIds);
+
+  const isChannelDataReady =
+    !isPending && !isError && channels.length === selectedChannelIds.length;
+  const isApplyDisabled = !isChannelDataReady || period === null || simulationMutation.isPending;
+
+  const handleApply = async () => {
+    if (isApplyDisabled) {
+      return;
+    }
+
+    setApplyError(null);
+
+    try {
+      const response = await simulationMutation.mutateAsync({
+        body: createSimulationRequest({ totalBudget, period, channelBudgets }, selectedChannelIds),
+      });
+
+      onSimulationResult(response.data);
+      onOpenChange(false);
+    } catch {
+      setApplyError('시뮬레이션 결과를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+    }
+  };
+
+  const handleReset = () => {
+    setApplyError(null);
+    resetFilters();
+  };
 
   return (
     <Modal.Root open={open} onOpenChange={onOpenChange}>
@@ -414,10 +452,16 @@ export function SimulatorFilterPanel({
             />
             <FilterLoadRecommendationButton
               isDirty={hasChanges}
-              disabled={isPending || isError || channels.length !== selectedChannelIds.length}
-              onApply={() => onOpenChange(false)}
-              onReset={resetFilters}
+              disabled={isApplyDisabled}
+              isApplying={simulationMutation.isPending}
+              onApply={() => void handleApply()}
+              onReset={handleReset}
             />
+            {applyError ? (
+              <Text role="alert" variant="body-sm" className="text-sys-error-default">
+                {applyError}
+              </Text>
+            ) : null}
           </Box>
         </Modal.Popup>
       </Modal.Portal>

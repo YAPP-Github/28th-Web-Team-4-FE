@@ -30,4 +30,5 @@ export function createInitialSimulatorFilterState(
 }
 
 export const SIMULATOR_FILTER_TOTAL_BUDGET_MIN = 10;
+/** 시뮬레이터에서 선택할 수 있는 총예산 상한(만원 단위). */
 export const SIMULATOR_FILTER_TOTAL_BUDGET_MAX = 1000;

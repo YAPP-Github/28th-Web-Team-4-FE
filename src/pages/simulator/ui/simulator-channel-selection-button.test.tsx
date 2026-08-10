@@ -1,9 +1,13 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { SimulationResponse } from '@/shared/api/generated';
 
 import { SimulatorChannelSelectionButton } from './simulator-channel-selection-button';
 
 const SELECTED_CHANNEL_IDS = ['channel-a', 'channel-b', 'channel-c'] as const;
+const onSimulationResultMock = vi.fn<(result: SimulationResponse) => void>();
+const estimateMutationFnMock = vi.hoisted(() => vi.fn<(options: unknown) => Promise<unknown>>());
 
 vi.mock('@/features/simulator-filter/api/use-simulator-filter-channels', () => ({
   useSimulatorFilterChannels: () => ({
@@ -17,11 +21,37 @@ vi.mock('@/features/simulator-filter/api/use-simulator-filter-channels', () => (
   }),
 }));
 
+vi.mock('@/shared/api/generated/@tanstack/react-query.gen', () => ({
+  estimateSimulationMutation: () => ({ mutationFn: estimateMutationFnMock }),
+}));
+
 function renderSimulatorChannelSelectionButton() {
-  return render(<SimulatorChannelSelectionButton selectedChannelIds={SELECTED_CHANNEL_IDS} />);
+  return render(
+    <QueryClientProvider client={new QueryClient()}>
+      <SimulatorChannelSelectionButton
+        selectedChannelIds={SELECTED_CHANNEL_IDS}
+        onSimulationResult={onSimulationResultMock}
+      />
+    </QueryClientProvider>,
+  );
 }
 
 describe('SimulatorChannelSelectionButton', () => {
+  beforeEach(() => {
+    onSimulationResultMock.mockReset();
+    estimateMutationFnMock.mockReset();
+    estimateMutationFnMock.mockResolvedValue({
+      data: {
+        totalBudgetWon: 100_000,
+        period: 'W2_3',
+        totalEstImpressions: 0,
+        totalEstClicks: 0,
+        executableChannelCount: 0,
+        items: [],
+      },
+    });
+  });
+
   it('필터 조정 버튼을 고정 버튼으로 제공한다', () => {
     renderSimulatorChannelSelectionButton();
 
@@ -136,5 +166,49 @@ describe('SimulatorChannelSelectionButton', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog', { name: '필터' })).not.toBeInTheDocument();
     });
+    expect(onSimulationResultMock).toHaveBeenCalledWith(
+      expect.objectContaining({ totalBudgetWon: 100_000 }),
+    );
+  });
+
+  it('적용하기를 누르면 선택 채널과 필터 값을 API 요청으로 변환한다', async () => {
+    const user = userEvent.setup();
+    renderSimulatorChannelSelectionButton();
+
+    await user.click(screen.getByRole('button', { name: '필터 조정하기' }));
+    const totalBudgetSlider = await screen.findByRole('slider', { name: '총 광고 예산 슬라이더' });
+    totalBudgetSlider.focus();
+    await user.keyboard('{ArrowRight}');
+    await user.click(screen.getByRole('button', { name: '2~3주' }));
+    await user.click(screen.getByRole('button', { name: '적용하기' }));
+
+    await waitFor(() => expect(estimateMutationFnMock).toHaveBeenCalled());
+
+    expect(estimateMutationFnMock.mock.calls[0]?.[0]).toEqual({
+      body: {
+        totalBudgetWon: 200_000,
+        period: 'W2_3',
+        allocations: [
+          { channelId: 'channel-a', budgetWon: 0, allocationPct: 0 },
+          { channelId: 'channel-b', budgetWon: 0, allocationPct: 0 },
+          { channelId: 'channel-c', budgetWon: 0, allocationPct: 0 },
+        ],
+      },
+    });
+  });
+
+  it('API 요청이 실패하면 필터 패널을 유지하고 오류를 보여준다', async () => {
+    const user = userEvent.setup();
+    estimateMutationFnMock.mockRejectedValueOnce(new Error('request failed'));
+    renderSimulatorChannelSelectionButton();
+
+    await user.click(screen.getByRole('button', { name: '필터 조정하기' }));
+    await user.click(screen.getByRole('button', { name: '2~3주' }));
+    await user.click(screen.getByRole('button', { name: '적용하기' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      '시뮬레이션 결과를 불러오지 못했어요',
+    );
+    expect(screen.getByRole('dialog', { name: '필터' })).toBeVisible();
   });
 });
