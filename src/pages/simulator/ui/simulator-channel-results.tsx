@@ -85,7 +85,10 @@ export function SimulatorChannelResults({
         <SimulatorResultsViewToggle />
       </Box>
       {isLogin ? (
-        <AuthenticatedChannelResults isChannelSelectionComplete={isChannelSelectionComplete} />
+        <AuthenticatedChannelResults
+          isChannelSelectionComplete={isChannelSelectionComplete}
+          selectedChannelIds={selectedChannelIds}
+        />
       ) : (
         <GuestChannelResults />
       )}
