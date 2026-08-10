@@ -1,15 +1,15 @@
 ---
 name: github-workflow
 description: >-
-  GitHub 워크플로(이슈 생성, 브랜치 생성, 커밋, 푸시, draft PR)를 gh와 git으로 수행한다.
-  사용자가 이슈·브랜치·커밋·push·PR·gh를 요청하거나 작업이 끝나 커밋이 자연스러울 때 사용한다.
+  Linear 이슈를 기준으로 브랜치 생성, 커밋, 푸시, GitHub draft PR까지 수행한다.
+  사용자가 Linear/GitHub 이슈·브랜치·커밋·push·PR·gh를 요청하거나 작업이 끝나 커밋이 자연스러울 때 사용한다.
 ---
 
 # GitHub workflow
 
 레포 스크립트는 `node --run`, GitHub는 `gh`를 쓴다.
 
-권장 순서: **이슈 → 브랜치 → (작업) → 커밋 → 푸시 → draft PR**
+권장 순서: **Linear 이슈 → 브랜치 → (작업) → 커밋 → 푸시 → draft PR**
 
 ## 공통
 
@@ -20,7 +20,7 @@ description: >-
 - 훅 건너뛰기 (`--no-verify` 등) 금지 (명시 요청 제외).
 - 시크릿(`.env`, Doppler 키 등) 커밋 금지.
 - `--amend`는 명시 요청 전엔 하지 않는다. 훅이 커밋을 거절하면 amend 말고 **새 커밋**.
-- 이슈·PR body는 아래 템플릿 구조를 그대로 쓴다. 임의 Summary/Test plan 형식 금지.
+- GitHub Issue·PR body는 아래 템플릿 구조를 그대로 쓴다. 임의 Summary/Test plan 형식 금지.
 
 | 용도      | 경로                                        |
 | --------- | ------------------------------------------- |
@@ -28,14 +28,22 @@ description: >-
 | 기능 이슈 | `.github/ISSUE_TEMPLATE/feature-request.md` |
 | 버그 이슈 | `.github/ISSUE_TEMPLATE/bug_report.md`      |
 
-## 1. 이슈
+## 1. 이슈 (Linear 우선)
 
-관련 이슈가 없거나 번호/본문이 없으면 먼저 만든다.  
-예외: “이슈 없이/생략”이거나 이미 번호가 있으면 만들지 않는다.
+기본 이슈 관리자는 Linear다. 관련 Linear 이슈가 없거나 ID/본문이 없으면 먼저 만든다.
+
+예외: “이슈 없이/생략”이거나 이미 Linear ID와 본문이 있으면 만들지 않는다.
+
+1. 대화, 첨부 파일, 브랜치명에서 `CHA-68` 형태의 Linear ID와 이슈 URL을 먼저 찾는다.
+2. Linear 연결 도구가 있으면 올바른 팀에 이슈를 생성하고 ID·URL을 확보한다. 팀이 불명확하면 확인한다.
+3. Linear 연결 도구가 없으면 GitHub Issue로 임의 대체하지 말고 Linear 이슈 생성 또는 기존 ID·URL 제공을 요청한다.
+4. 사용자가 GitHub Issue를 명시한 경우에만 저장소 템플릿을 사용해 생성한다.
+
+GitHub Issue를 명시한 경우:
 
 1. 기능·잡일·문서 등 → `feature-request.md` / 버그 → `bug_report.md` (불명확하면 확인)
 2. 제목: `feature: …` / `bug: …`
-3. `gh issue create` body에는 YAML frontmatter 없이 **본문만**
+3. `gh issue create` body에는 YAML frontmatter 없이 **본문만** 넣는다.
 
 ```bash
 gh issue create --title "feature: 짧은 요약" --body "$(cat <<'EOF'
@@ -50,19 +58,26 @@ EOF
 )"
 ```
 
-4. 이슈 번호·URL 확보 → PR에 `Closes #n`
+4. 이슈 번호·URL을 확보하고 PR에 `Closes #n`을 넣는다.
 
 ## 2. 브랜치
 
-형식: **`{prefix}-{kebab-description}`**  
-`prefix`: `feat` / `bug` / `docs` / `chore` / `refactor` (이슈 `feature:` → `feat`)  
-예: `feat-add-ai`, `bug-fix-login-redirect`  
-공백·`_`·PascalCase·prefix 없는 이름 금지. 이슈 번호는 기본 미포함.
+Linear 이슈가 있으면 형식은 **`{linear-id}-{prefix}-{english-kebab-description}`**으로 한다.
+
+`linear-id`: 소문자 Linear ID (예: `cha-68`)
+
+`prefix`: `feat` / `fix` / `docs` / `chore` / `refactor`
+
+예: `cha-68-fix-mobile-subheader-layout`
+
+설명은 영어 소문자 ASCII만 쓴다. 한글·공백·`_`·PascalCase·prefix 없는 이름은 금지한다.
+
+이슈를 명시적으로 생략한 경우에만 `{prefix}-{english-kebab-description}`을 쓴다.
 
 ```bash
 git checkout main
 git pull origin main
-git checkout -b feat-add-ai
+git checkout -b cha-68-fix-mobile-subheader-layout
 ```
 
 작업 브랜치 위에서 따지 말고 `main` 기준 (사용자가 다른 base를 지정한 경우 제외).
@@ -104,22 +119,28 @@ git push -u origin HEAD
 
 1. 이슈·브랜치·미푸시가 필요하면 §1–§4를 확인 후 진행
 2. `git log main...HEAD`, `git diff main...HEAD`로 범위 파악
-3. `.github/pull_request_template.md`를 채워 `--body`로 전달 (`Closes #n` 포함)
+3. `.github/pull_request_template.md`를 채워 `--body`로 전달한다.
+4. Linear 이슈 URL과 `Closes {LINEAR-ID}`를 본문에 각각 명시한다. 여러 이슈면 한 줄에 하나씩 쓴다.
+5. GitHub Issue를 명시적으로 사용한 경우에만 `Closes #n`을 넣는다.
+6. PR 제목의 Linear ID는 권장한다. 브랜치명에 ID가 있으면 생략할 수 있다.
 
 ```bash
 gh pr create --draft --base main --title "제목" --body "$(cat <<'EOF'
 ## 무엇을 변경했나요?
 …
 ## 왜 변경했나요?
-Closes #n
+Linear: https://linear.app/…/issue/CHA-68/…
+
+Closes CHA-68
 ## 확인 사항
 …
 EOF
 )"
 ```
 
-4. draft PR URL을 돌려준다.
+7. 생성 후 PR 본문에 Linear URL과 종료 문구가 실제로 들어갔는지 `gh pr view`로 확인한다.
+8. draft PR URL을 돌려준다.
 
 ## 조회
 
-`gh issue view <n>` / `gh pr view` / `gh pr checks`
+Linear 연결 도구 / `gh issue view <n>` / `gh pr view` / `gh pr checks`

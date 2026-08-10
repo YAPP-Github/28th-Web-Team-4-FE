@@ -116,14 +116,14 @@ describe('RecommendResultPage', () => {
     expect(await screen.findByRole('dialog', { name: '네이버 검색 광고' })).toBeVisible();
   });
 
-  it('shows the CPC explanation popover on hover', async () => {
+  it('shows the CPC explanation tooltip on hover', async () => {
     const user = userEvent.setup();
     renderRecommendResultPage();
 
     const infoButton = screen.getByRole('button', { name: '추천 결과 안내' });
     await user.hover(infoButton);
 
-    expect(screen.getByRole('tooltip')).toHaveTextContent('클릭 1회당 비용이란?');
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('클릭 1회당 비용이란?');
     expect(screen.getByRole('tooltip')).toHaveTextContent(
       '광고 클릭당 비용(CPC)을 말해요. 채소집에서는 쉬운 비교를 위해 단위를 모두 클릭 수 기준으로 통일했어요.',
     );
