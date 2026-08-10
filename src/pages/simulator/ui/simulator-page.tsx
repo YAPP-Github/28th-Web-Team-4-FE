@@ -42,7 +42,9 @@ export function SimulatorPage({
           ) : null}
         </Box>
       </Box>
-      {isLogin && isChannelSelectionComplete ? <SimulatorChannelSelectionButton /> : null}
+      {isLogin && isChannelSelectionComplete ? (
+        <SimulatorChannelSelectionButton selectedChannelIds={selectedChannelIds} />
+      ) : null}
     </main>
   );
 }

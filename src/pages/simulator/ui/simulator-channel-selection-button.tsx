@@ -7,7 +7,11 @@ import { SimulatorFilterPanel } from '@/features/simulator-filter';
 import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
 
-export function SimulatorChannelSelectionButton(): JSX.Element {
+export function SimulatorChannelSelectionButton({
+  selectedChannelIds,
+}: {
+  selectedChannelIds: readonly string[];
+}): JSX.Element {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   return (
@@ -25,7 +29,12 @@ export function SimulatorChannelSelectionButton(): JSX.Element {
           필터 조정하기
         </Button>
       </Box>
-      <SimulatorFilterPanel open={isFilterOpen} onOpenChange={setIsFilterOpen} />
+      <SimulatorFilterPanel
+        key={selectedChannelIds.join(',')}
+        open={isFilterOpen}
+        onOpenChange={setIsFilterOpen}
+        selectedChannelIds={selectedChannelIds}
+      />
     </>
   );
 }
