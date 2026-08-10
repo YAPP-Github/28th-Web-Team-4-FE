@@ -1,5 +1,9 @@
+'use client';
+
 import type { JSX } from 'react';
 import Image from 'next/image';
+import NumberFlow from '@number-flow/react';
+import { motion, useReducedMotion } from 'motion/react';
 
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
@@ -82,19 +86,53 @@ function ChannelMetricRow({
   fillClassName: string;
   valueClassName: string;
 }): JSX.Element {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <Box className="gap-016 pr-030 flex w-full items-center">
       <Box className="bg-surface-low h-010 min-w-0 flex-1 overflow-hidden rounded-[var(--radius-max)]">
-        <Box
-          style={{ width: `${metric.fillPercentage}%` }}
-          className={`${fillClassName} h-full rounded-[var(--radius-max)]`}
+        <motion.div
+          initial={shouldReduceMotion ? false : { transform: 'scaleX(0)' }}
+          animate={{ transform: `scaleX(${metric.fillPercentage / 100})` }}
+          transition={
+            shouldReduceMotion
+              ? { duration: 0 }
+              : {
+                  duration: 0.24,
+                  ease: [0.23, 1, 0.32, 1],
+                }
+          }
+          className={`${fillClassName} h-full w-full origin-left rounded-[var(--radius-max)] will-change-transform`}
         />
       </Box>
       <Text
         variant="body-md"
         className={`${valueClassName} w-[96px] shrink-0 text-left whitespace-nowrap`}
       >
-        {metric.value}
+        {metric.range ? (
+          <>
+            <NumberFlow
+              value={metric.range.min}
+              locales="ko-KR"
+              trend={1}
+              animated={!shouldReduceMotion}
+            />
+            {metric.range.min === metric.range.max ? null : (
+              <>
+                ~
+                <NumberFlow
+                  value={metric.range.max}
+                  locales="ko-KR"
+                  trend={1}
+                  animated={!shouldReduceMotion}
+                />
+              </>
+            )}
+            회
+          </>
+        ) : (
+          metric.value
+        )}
       </Text>
     </Box>
   );

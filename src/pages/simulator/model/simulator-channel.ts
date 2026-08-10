@@ -11,6 +11,7 @@ export type ChannelType = 'naver' | 'newscash' | 'meta';
 export type ChannelMetric = {
   value: string;
   fillPercentage: number;
+  range?: CountRangeResponse;
 };
 
 export type ChannelResult = {
@@ -66,8 +67,16 @@ export function createChannelResults(
     return channels.map((channel) => ({
       channelId: channel.id,
       name: channel.name,
-      impressions: { value: formatSimulatorCount(0), fillPercentage: 0 },
-      clicks: { value: formatSimulatorCount(0), fillPercentage: 0 },
+      impressions: {
+        value: formatSimulatorCount(0),
+        fillPercentage: 0,
+        range: { min: 0, max: 0 },
+      },
+      clicks: {
+        value: formatSimulatorCount(0),
+        fillPercentage: 0,
+        range: { min: 0, max: 0 },
+      },
     }));
   }
 
@@ -97,10 +106,12 @@ export function createChannelResults(
       impressions: {
         value: formatSimulatorCountRange(impressions),
         fillPercentage: getFillPercentage(getRangeCenter(impressions), maxImpressions),
+        range: impressions ?? { min: 0, max: 0 },
       },
       clicks: {
         value: formatSimulatorCountRange(clicks),
         fillPercentage: getFillPercentage(getRangeCenter(clicks), maxClicks),
+        range: clicks ?? { min: 0, max: 0 },
       },
       unavailable: item ? !item.isExecutable : true,
     };

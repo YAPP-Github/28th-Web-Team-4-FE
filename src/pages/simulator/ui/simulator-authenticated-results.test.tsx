@@ -4,6 +4,12 @@ import type { SimulationResponse } from '@/shared/api/generated';
 
 import { AuthenticatedChannelResults } from './simulator-authenticated-results';
 
+vi.mock('@number-flow/react', () => ({
+  default: ({ value }: { value: number }) => (
+    <span>{new Intl.NumberFormat('ko-KR').format(value)}</span>
+  ),
+}));
+
 const SELECTED_CHANNEL_IDS = ['channel-a', 'channel-b', 'channel-c'] as const;
 
 const SIMULATION_RESULT: SimulationResponse = {
@@ -109,9 +115,12 @@ describe('AuthenticatedChannelResults', () => {
       />,
     );
 
-    expect(screen.getByText('10,000~20,000회')).toBeVisible();
-    expect(screen.getByText('300~400회')).toBeVisible();
-    expect(screen.getByText('15,000~25,000회')).toBeVisible();
-    expect(screen.getByText('200회')).toBeVisible();
+    expect(screen.getByText('10,000')).toBeVisible();
+    expect(screen.getByText('20,000')).toBeVisible();
+    expect(screen.getByText('300')).toBeVisible();
+    expect(screen.getByText('400')).toBeVisible();
+    expect(screen.getByText('15,000')).toBeVisible();
+    expect(screen.getByText('25,000')).toBeVisible();
+    expect(screen.getByText('200')).toBeVisible();
   });
 });
