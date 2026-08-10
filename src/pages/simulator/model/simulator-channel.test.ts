@@ -41,20 +41,24 @@ describe('simulator-channel', () => {
     expect(formatSimulatorCountRange({ min: 780, max: 780 })).toBe('780회');
   });
 
-  it('채널별 중앙값을 기준으로 노출·클릭 바 비율을 계산한다', () => {
+  it('노출수 중앙값을 공통 기준으로 노출·클릭 바 비율을 계산한다', () => {
     const results = createChannelResults(CHANNELS, SIMULATION_RESULT);
 
     expect(results).toMatchObject([
       {
         name: '채널 A',
-        impressions: { value: '10,000~20,000회', fillPercentage: 75 },
-        clicks: { value: '300~400회', fillPercentage: 100 },
+        impressions: { value: '10,000~20,000회' },
+        clicks: { value: '300~400회' },
       },
       {
         name: '채널 B',
         impressions: { value: '15,000~25,000회', fillPercentage: 100 },
-        clicks: { value: '200회', fillPercentage: 57.14285714285714 },
+        clicks: { value: '200회' },
       },
     ]);
+
+    expect(results[0]?.impressions.fillPercentage).toBeCloseTo(86.6, 1);
+    expect(results[0]?.clicks.fillPercentage).toBeCloseTo(13.2, 1);
+    expect(results[1]?.clicks.fillPercentage).toBeCloseTo(10, 1);
   });
 });
