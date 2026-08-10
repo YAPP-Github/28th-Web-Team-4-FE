@@ -11,11 +11,13 @@ import { SimulatorSubHeader } from './simulator-sub-header';
 export type SimulatorPageProps = {
   isLogin: boolean;
   isChannelSelectionComplete?: boolean;
+  selectedChannelIds?: readonly string[];
 };
 
 export function SimulatorPage({
   isLogin,
   isChannelSelectionComplete = false,
+  selectedChannelIds = [],
 }: SimulatorPageProps): JSX.Element {
   return (
     <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -32,6 +34,7 @@ export function SimulatorPage({
           <SimulatorChannelResults
             isLogin={isLogin}
             isChannelSelectionComplete={isChannelSelectionComplete}
+            selectedChannelIds={selectedChannelIds}
           />
           <SimulatorCalculationNote />
           {isLogin && isChannelSelectionComplete ? (
