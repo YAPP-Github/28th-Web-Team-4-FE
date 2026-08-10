@@ -2,6 +2,8 @@
 
 import { useCallback, useMemo, useState } from 'react';
 
+import { values } from '@/shared/lib/object';
+
 import {
   FILTER_PERIOD_OPTIONS,
   INITIAL_SIMULATOR_FILTER_STATE,
@@ -16,7 +18,7 @@ const clamp = (value: number, min: number, max: number): number =>
   Math.min(max, Math.max(min, value));
 
 const getAllocatedBudget = (state: SimulatorFilterState): number =>
-  Object.values(state.channelBudgets).reduce((total, budget) => total + budget, 0);
+  values(state.channelBudgets).reduce((total, budget) => total + budget, 0);
 
 const getChannelBudgetMax = (
   state: SimulatorFilterState,
