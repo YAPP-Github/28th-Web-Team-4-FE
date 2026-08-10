@@ -83,14 +83,17 @@ function ChannelMetricRow({
   valueClassName: string;
 }): JSX.Element {
   return (
-    <Box className="gap-016 flex w-full items-center">
+    <Box className="gap-016 pr-030 flex w-full items-center">
       <Box className="bg-surface-low h-010 min-w-0 flex-1 overflow-hidden rounded-[var(--radius-max)]">
         <Box
           style={{ width: `${metric.fillPercentage}%` }}
           className={`${fillClassName} h-full rounded-[var(--radius-max)]`}
         />
       </Box>
-      <Text variant="body-md" className={valueClassName}>
+      <Text
+        variant="body-md"
+        className={`${valueClassName} w-[96px] shrink-0 text-left whitespace-nowrap`}
+      >
         {metric.value}
       </Text>
     </Box>
