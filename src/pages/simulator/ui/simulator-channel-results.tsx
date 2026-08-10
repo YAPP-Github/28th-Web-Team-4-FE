@@ -65,7 +65,7 @@ export function SimulatorChannelResults({
     <Box
       as="section"
       aria-labelledby="simulator-channel-results-title"
-      className="bg-surface-lowest gap-026 px-030 py-024 relative flex w-full flex-col overflow-hidden rounded-[var(--radius-l)]"
+      className="bg-surface-lowest gap-026 px-030 py-024 relative flex w-full shrink-0 flex-col overflow-hidden rounded-[var(--radius-l)]"
     >
       <Box className="flex w-full items-center justify-between">
         <Box className="gap-006 group flex items-center">

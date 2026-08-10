@@ -1,1 +1,1 @@
-export { default, metadata } from '@/app/simulator/channels/page';
+export { default, metadata } from '@/app/api-routes/simulator-channel-selection';
