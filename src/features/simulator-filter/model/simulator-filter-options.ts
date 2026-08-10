@@ -1,11 +1,3 @@
-export const SIMULATOR_FILTER_CHANNELS = [
-  { type: 'naver', name: '네이버 검색 광고' },
-  { type: 'newscash', name: '뉴스캐시' },
-  { type: 'meta', name: '메타 광고' },
-] as const;
-
-export type SimulatorFilterChannelType = (typeof SIMULATOR_FILTER_CHANNELS)[number]['type'];
-
 export const FILTER_PERIOD_OPTIONS = [
   { value: 'one-week', label: '1주 이하', days: 7 },
   { value: 'two-to-three-weeks', label: '2~3주', days: 21 },
@@ -16,21 +8,26 @@ export const FILTER_PERIOD_OPTIONS = [
 
 export type SimulatorFilterPeriodValue = (typeof FILTER_PERIOD_OPTIONS)[number]['value'];
 
+export type SimulatorFilterChannel = {
+  id: string;
+  name: string;
+};
+
 export type SimulatorFilterState = {
   totalBudget: number;
   period: SimulatorFilterPeriodValue | null;
-  channelBudgets: Record<SimulatorFilterChannelType, number>;
+  channelBudgets: Record<string, number>;
 };
 
-export const INITIAL_SIMULATOR_FILTER_STATE: SimulatorFilterState = {
-  totalBudget: 10,
-  period: null,
-  channelBudgets: {
-    naver: 0,
-    newscash: 0,
-    meta: 0,
-  },
-};
+export function createInitialSimulatorFilterState(
+  channelIds: readonly string[],
+): SimulatorFilterState {
+  return {
+    totalBudget: 10,
+    period: null,
+    channelBudgets: Object.fromEntries(channelIds.map((channelId) => [channelId, 0])),
+  };
+}
 
 export const SIMULATOR_FILTER_TOTAL_BUDGET_MIN = 10;
 export const SIMULATOR_FILTER_TOTAL_BUDGET_MAX = 1000;
