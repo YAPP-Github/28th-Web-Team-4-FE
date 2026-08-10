@@ -35,7 +35,7 @@ export function SimulatorPage({
               : 'gap-020 py-040 flex w-full max-w-[792px] flex-col'
           }
         >
-          <SimulatorResultSummary />
+          <SimulatorResultSummary simulationResult={simulationResult} />
           <SimulatorChannelResults
             isLogin={isLogin}
             isChannelSelectionComplete={isChannelSelectionComplete}
