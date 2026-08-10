@@ -1,1 +1,1 @@
-export { RecommendResultPage as default } from '@/pages/recommend-result';
+export { RecommendResultRoute as default } from '@/pages/recommend-result';

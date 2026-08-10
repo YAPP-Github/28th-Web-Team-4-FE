@@ -45,6 +45,8 @@ export type ChannelSelectionScreenProps = {
     id: string;
     message: string;
   };
+  /** 전달되면 각 채널 카드에 "자세히 보기" 버튼을 노출하고, 클릭 시 해당 채널로 호출한다. */
+  onViewDetail?: (channel: ChannelListItem) => void;
 };
 
 function getCategoryLabel(category: string): string {
@@ -152,6 +154,7 @@ type ChannelSelectionContentProps = {
   onResetFilters: () => void;
   onRetry: () => void;
   onToggle: (channelId: string) => void;
+  onViewDetail?: (channel: ChannelListItem) => void;
   selectedIds: readonly string[];
 };
 
@@ -162,6 +165,7 @@ function ChannelSelectionContent({
   onResetFilters,
   onRetry,
   onToggle,
+  onViewDetail,
   selectedIds,
 }: ChannelSelectionContentProps): JSX.Element {
   if (isInitialLoading) {
@@ -187,6 +191,7 @@ function ChannelSelectionContent({
             channel={channel}
             checked={selectedIds.includes(channel.id)}
             onToggle={onToggle}
+            onViewDetail={onViewDetail}
           />
         </Box>
       ))}
@@ -199,6 +204,7 @@ export function ChannelSelectionScreen({
   submitLabel,
   onComplete,
   limitToast = DEFAULT_LIMIT_TOAST,
+  onViewDetail,
 }: ChannelSelectionScreenProps): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
   const queryState = useChannelSelectionQueryState();
@@ -261,6 +267,7 @@ export function ChannelSelectionScreen({
             onResetFilters={queryState.resetFilters}
             onRetry={handleRetry}
             onToggle={channelSelection.toggleChannel}
+            onViewDetail={onViewDetail}
             selectedIds={channelSelection.selectedIds}
           />
         </Box>
