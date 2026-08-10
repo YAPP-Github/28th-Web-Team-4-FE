@@ -45,8 +45,13 @@ export function RecommendOnboardingFlow({
   onComplete,
 }: RecommendOnboardingFlowProps): JSX.Element {
   const form = useRecommendOnboardingForm({ initialDraft });
-  const { activeStepRef, latestAnswerRef, scrollToActiveStep, scrollToLatestAnswer } =
-    useRecommendOnboardingScroll(scrollContainerRef);
+  const {
+    activeStepRef,
+    latestAnswerRef,
+    bottomSpacerHeight,
+    scrollToActiveStep,
+    scrollToLatestAnswer,
+  } = useRecommendOnboardingScroll(scrollContainerRef);
   const [editingStep, setEditingStep] = useState<number | null>(null);
   const [furthestStep, setFurthestStep] = useState(0);
 
@@ -55,6 +60,7 @@ export function RecommendOnboardingFlow({
       <RecommendOnboardingFlowContent
         activeStepRef={activeStepRef}
         latestAnswerRef={latestAnswerRef}
+        bottomSpacerHeight={bottomSpacerHeight}
         currentStep={currentStep}
         editingStep={editingStep}
         furthestStep={furthestStep}
@@ -96,6 +102,7 @@ export function RecommendOnboardingFlow({
 type RecommendOnboardingFlowContentProps = {
   activeStepRef: RefObject<HTMLDivElement | null>;
   latestAnswerRef: RefObject<HTMLDivElement | null>;
+  bottomSpacerHeight: number;
   currentStep: number;
   editingStep: number | null;
   furthestStep: number;
@@ -106,6 +113,7 @@ type RecommendOnboardingFlowContentProps = {
 function RecommendOnboardingFlowContent({
   activeStepRef,
   latestAnswerRef,
+  bottomSpacerHeight,
   currentStep,
   editingStep,
   furthestStep,
@@ -177,6 +185,7 @@ function RecommendOnboardingFlowContent({
             />
           );
         })}
+        <OnboardingBottomSpacer height={bottomSpacerHeight} />
       </Stack>
     );
   }
@@ -206,7 +215,18 @@ function RecommendOnboardingFlowContent({
           onAction={onAdvance}
         />
       </div>
+      <OnboardingBottomSpacer height={bottomSpacerHeight} />
     </Stack>
+  );
+}
+
+function OnboardingBottomSpacer({ height }: { height: number }): JSX.Element {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none shrink-0"
+      style={{ height: Math.max(0, height - 24) }}
+    />
   );
 }
 
