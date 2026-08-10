@@ -2,6 +2,7 @@
 
 import { useState, type JSX } from 'react';
 import { SlidersHorizontal } from 'lucide-react';
+import type { SimulationResponse } from '@/shared/api/generated';
 
 import { SimulatorFilterPanel } from '@/features/simulator-filter';
 import { Button } from '@/shared/ui/button';
@@ -9,8 +10,10 @@ import { Box } from '@/shared/ui/layout/box';
 
 export function SimulatorChannelSelectionButton({
   selectedChannelIds,
+  onSimulationResult,
 }: {
   selectedChannelIds: readonly string[];
+  onSimulationResult: (result: SimulationResponse) => void;
 }): JSX.Element {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -34,6 +37,7 @@ export function SimulatorChannelSelectionButton({
         open={isFilterOpen}
         onOpenChange={setIsFilterOpen}
         selectedChannelIds={selectedChannelIds}
+        onSimulationResult={onSimulationResult}
       />
     </>
   );

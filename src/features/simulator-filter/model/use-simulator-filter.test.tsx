@@ -65,4 +65,12 @@ describe('useSimulatorFilter', () => {
     });
     expect(result.current.hasChanges).toBe(false);
   });
+
+  it('총예산을 1,000만 원까지 허용한다', () => {
+    const { result } = renderHook(() => useSimulatorFilter(CHANNEL_IDS));
+
+    act(() => result.current.setTotalBudget(1000));
+
+    expect(result.current.totalBudget).toBe(1000);
+  });
 });
