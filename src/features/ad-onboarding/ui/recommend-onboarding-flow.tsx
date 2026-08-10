@@ -48,6 +48,7 @@ export function RecommendOnboardingFlow({
   const {
     activeStepRef,
     latestAnswerRef,
+    contentEndRef,
     bottomSpacerHeight,
     scrollToActiveStep,
     scrollToLatestAnswer,
@@ -60,6 +61,7 @@ export function RecommendOnboardingFlow({
       <RecommendOnboardingFlowContent
         activeStepRef={activeStepRef}
         latestAnswerRef={latestAnswerRef}
+        contentEndRef={contentEndRef}
         bottomSpacerHeight={bottomSpacerHeight}
         currentStep={currentStep}
         editingStep={editingStep}
@@ -102,6 +104,7 @@ export function RecommendOnboardingFlow({
 type RecommendOnboardingFlowContentProps = {
   activeStepRef: RefObject<HTMLDivElement | null>;
   latestAnswerRef: RefObject<HTMLDivElement | null>;
+  contentEndRef: RefObject<HTMLDivElement | null>;
   bottomSpacerHeight: number;
   currentStep: number;
   editingStep: number | null;
@@ -113,6 +116,7 @@ type RecommendOnboardingFlowContentProps = {
 function RecommendOnboardingFlowContent({
   activeStepRef,
   latestAnswerRef,
+  contentEndRef,
   bottomSpacerHeight,
   currentStep,
   editingStep,
@@ -159,12 +163,23 @@ function RecommendOnboardingFlowContent({
   if (editingStep !== null) {
     return (
       <Stack className="gap-012 w-full">
-        {completedAnswerList.map((answer) => {
+        {completedAnswerList.map((answer, answerIndex) => {
           const stepIndex = RECOMMEND_ONBOARDING_STEP_ID_LIST.indexOf(answer.stepId);
+          const isLastContent = answerIndex === completedAnswerList.length - 1;
 
           if (stepIndex === editingStep) {
             return (
-              <div key={answer.stepId} ref={activeStepRef} className="scroll-mt-[12px]">
+              <div
+                key={answer.stepId}
+                ref={(element) => {
+                  activeStepRef.current = element;
+
+                  if (isLastContent) {
+                    contentEndRef.current = element;
+                  }
+                }}
+                className="scroll-mt-[12px]"
+              >
                 <RecommendOnboardingStepContent
                   stepId={currentStepId}
                   actionLabel="다음"
@@ -181,6 +196,7 @@ function RecommendOnboardingFlowContent({
               stepId={answer.stepId}
               label={answer.label}
               isEditable={false}
+              contentEndRef={isLastContent ? contentEndRef : undefined}
               onEditStep={onEditStep}
             />
           );
@@ -208,7 +224,13 @@ function RecommendOnboardingFlowContent({
         );
       })}
 
-      <div ref={activeStepRef} className="scroll-mt-[12px]">
+      <div
+        ref={(element) => {
+          activeStepRef.current = element;
+          contentEndRef.current = element;
+        }}
+        className="scroll-mt-[12px]"
+      >
         <RecommendOnboardingStepContent
           stepId={currentStepId}
           actionLabel="다음"
@@ -236,6 +258,7 @@ type RecommendOnboardingAnswerBubbleProps = {
   label: string;
   isEditable: boolean;
   answerRef?: RefObject<HTMLDivElement | null>;
+  contentEndRef?: RefObject<HTMLDivElement | null>;
   onEditStep: (step: number) => void;
 };
 
@@ -245,12 +268,13 @@ function CompletedStepItem({
   label,
   isEditable,
   answerRef,
+  contentEndRef,
   onEditStep,
 }: RecommendOnboardingAnswerBubbleProps): JSX.Element {
   const step = getOnboardingStepDefinition(stepId);
 
   return (
-    <Stack className="gap-012 w-full">
+    <Stack ref={contentEndRef} className="gap-012 w-full">
       <OnboardingQuestion
         title={step.question}
         description={step.description}

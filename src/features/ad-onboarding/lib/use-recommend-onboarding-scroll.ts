@@ -8,6 +8,7 @@ import { useOnboardingBottomSpacerHeight } from './use-onboarding-bottom-spacer-
 export type RecommendOnboardingScroll = {
   activeStepRef: RefObject<HTMLDivElement | null>;
   latestAnswerRef: RefObject<HTMLDivElement | null>;
+  contentEndRef: RefObject<HTMLDivElement | null>;
   bottomSpacerHeight: number;
   scrollToActiveStep: () => void;
   scrollToLatestAnswer: () => void;
@@ -20,12 +21,14 @@ export function useRecommendOnboardingScroll(
 ): RecommendOnboardingScroll {
   const activeStepRef = useRef<HTMLDivElement>(null);
   const latestAnswerRef = useRef<HTMLDivElement>(null);
+  const contentEndRef = useRef<HTMLDivElement>(null);
   const scrollFrameRef = useRef<number | null>(null);
   const shouldReduceMotion = useReducedMotion();
   const bottomSpacerHeight = useOnboardingBottomSpacerHeight({
     scrollContainerRef,
     activeStepRef,
     latestAnswerRef,
+    contentEndRef,
     bottomInset: ONBOARDING_BOTTOM_INSET,
   });
 
@@ -82,6 +85,7 @@ export function useRecommendOnboardingScroll(
   return {
     activeStepRef,
     latestAnswerRef,
+    contentEndRef,
     bottomSpacerHeight,
     scrollToActiveStep,
     scrollToLatestAnswer,
