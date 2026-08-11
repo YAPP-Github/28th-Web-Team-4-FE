@@ -115,12 +115,9 @@ describe('AuthenticatedChannelResults', () => {
       />,
     );
 
-    expect(screen.getByText('10,000')).toBeVisible();
-    expect(screen.getByText('20,000')).toBeVisible();
-    expect(screen.getByText('300')).toBeVisible();
-    expect(screen.getByText('400')).toBeVisible();
-    expect(screen.getByText('15,000')).toBeVisible();
-    expect(screen.getByText('25,000')).toBeVisible();
-    expect(screen.getByText('200')).toBeVisible();
+    expect(screen.getByText('1.0~2.0만 회')).toBeVisible();
+    expect(screen.getByText('300~400회')).toBeVisible();
+    expect(screen.getByText('1.5~2.5만 회')).toBeVisible();
+    expect(screen.getByText('200회')).toBeVisible();
   });
 });

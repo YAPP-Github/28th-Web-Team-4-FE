@@ -6,6 +6,7 @@ import NumberFlow from '@number-flow/react';
 import { useReducedMotion } from 'motion/react';
 
 import type { SimulationResponse } from '@/shared/api/generated';
+import { getSimulatorCountDisplay } from '@/pages/simulator/model/simulator-channel';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
@@ -70,14 +71,17 @@ function SummaryMetric({
   label: string;
   shouldReduceMotion: boolean | null;
 }): JSX.Element {
+  const countDisplay = getSimulatorCountDisplay(value);
+
   return (
     <Box className="gap-010 flex min-w-0 flex-1 items-center justify-between">
       <Box className="gap-002 flex min-w-0 flex-col">
         <Text variant="display-lg" className="text-text-high whitespace-nowrap">
           <NumberFlow
-            value={value}
+            value={countDisplay.value}
             locales="ko-KR"
-            suffix={suffix}
+            suffix={suffix === '회' ? countDisplay.suffix : suffix}
+            format={countDisplay.format}
             trend={1}
             animated={!shouldReduceMotion}
           />

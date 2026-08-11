@@ -24,14 +24,53 @@ export type ChannelResult = {
 };
 
 const NUMBER_FORMATTER = new Intl.NumberFormat('ko-KR');
+const MAN_NUMBER_FORMATTER = new Intl.NumberFormat('ko-KR', {
+  maximumFractionDigits: 1,
+  minimumFractionDigits: 1,
+});
+const COUNT_UNIT = 10_000;
+
+export type SimulatorCountDisplay = {
+  value: number;
+  suffix: string;
+  format?: Intl.NumberFormatOptions;
+};
+
+export function getSimulatorCountDisplay(value: number): SimulatorCountDisplay {
+  if (value >= COUNT_UNIT) {
+    return {
+      value: value / COUNT_UNIT,
+      suffix: '만 회',
+      format: {
+        maximumFractionDigits: 1,
+        minimumFractionDigits: 1,
+      },
+    };
+  }
+
+  return { value, suffix: '회' };
+}
 
 export function formatSimulatorCount(value: number): string {
+  if (value >= COUNT_UNIT) {
+    return `${MAN_NUMBER_FORMATTER.format(value / COUNT_UNIT)}만 회`;
+  }
+
   return `${NUMBER_FORMATTER.format(value)}회`;
 }
 
 export function formatSimulatorCountRange(range?: CountRangeResponse): string {
   if (!range) {
     return formatSimulatorCount(0);
+  }
+
+  const useManUnit = range.min >= COUNT_UNIT || range.max >= COUNT_UNIT;
+
+  if (useManUnit) {
+    const min = MAN_NUMBER_FORMATTER.format(range.min / COUNT_UNIT);
+    const max = MAN_NUMBER_FORMATTER.format(range.max / COUNT_UNIT);
+
+    return range.min === range.max ? `${min}만 회` : `${min}~${max}만 회`;
   }
 
   const min = NUMBER_FORMATTER.format(range.min);
