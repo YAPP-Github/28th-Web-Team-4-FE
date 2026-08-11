@@ -9,9 +9,8 @@ import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
-// TODO(api): 백엔드가 CTR(ctr) → 예상 클릭수(expectedClicks)로 전환 예정.
-// 전환되면 마지막 헤더를 '예상 클릭'으로 바꾸고, 아래 Info 아이콘 노출 조건도 함께 정리한다.
-const PRODUCT_TABLE_HEADERS = ['상품', '예산 범위', '예상 노출', '예상 클릭률(CTR)'] as const;
+const EXPECTED_CLICKS_HEADER = '예상 클릭';
+const PRODUCT_TABLE_HEADERS = ['상품', '예산 범위', '예상 노출', EXPECTED_CLICKS_HEADER] as const;
 
 export type ChannelDetailProductsPanelProps = {
   channel: ChannelDetail;
@@ -40,7 +39,7 @@ export function ChannelDetailProductsPanel({
                     <Text as="span" variant="caption-lg" className="text-text-medium">
                       {header}
                     </Text>
-                    {header.startsWith('예상 클릭률') ? (
+                    {header === EXPECTED_CLICKS_HEADER ? (
                       <Info className="text-icon-medium size-014" aria-hidden />
                     ) : null}
                   </HStack>
@@ -66,11 +65,9 @@ export function ChannelDetailProductsPanel({
                     {product.expectedImpressions}
                   </Text>
                 </td>
-                {/* TODO(api): expectedClicks로 전환되면 값을 포맷팅 없이 그대로 렌더한다
-                    (지금은 어댑터 formatCtr가 CTR을 '%'로 포맷). */}
                 <td className="px-014 py-008">
                   <Text as="span" variant="body-sm" className="text-text-default">
-                    {product.ctr ?? '-'}
+                    {product.expectedClicks}
                   </Text>
                 </td>
               </tr>

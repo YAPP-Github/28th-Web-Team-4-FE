@@ -25,8 +25,8 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
         productName: ' 피드 광고 ',
         minBudgetWon: 200_000,
         maxBudgetWon: 500_000,
-        ctr: 1.2,
         expectedImpressions: 150_000,
+        expectedClicks: 1_800,
         expectedPeriod: '1주',
         pricing: [],
       },
@@ -34,8 +34,7 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
         id: 'product-story',
         inventoryType: '스토리',
         minBudgetWon: 300_000,
-        ctrMin: 0.5,
-        ctrMax: 0.9,
+        expectedClicks: 700,
         pricing: [],
       },
     ],
@@ -86,14 +85,14 @@ describe('toChannelDetailViewModel', () => {
         name: '피드 광고',
         budgetRange: '20만 원~50만 원',
         expectedImpressions: '150,000회 / 1주',
-        ctr: '1.2%',
+        expectedClicks: '1,800회',
       },
       {
         id: 'product-story',
         name: '스토리',
         budgetRange: '30만 원 이상',
         expectedImpressions: '-',
-        ctr: '0.5~0.9%',
+        expectedClicks: '700회',
       },
     ]);
   });
@@ -122,7 +121,7 @@ describe('toChannelDetailViewModel', () => {
         name: '상품명 미제공',
         budgetRange: '-',
         expectedImpressions: '-',
-        ctr: null,
+        expectedClicks: '-',
       },
     ]);
     expect(result.audience).toEqual({
@@ -141,10 +140,8 @@ describe('toChannelDetailViewModel', () => {
       productName: '집행 정보 미제공 상품',
       minBudgetWon: null,
       maxBudgetWon: null,
-      ctr: null,
-      ctrMin: null,
-      ctrMax: null,
       expectedImpressions: null,
+      expectedClicks: null,
       pricing: [],
     } as unknown as ChannelDetailApiModel['products'][number];
 
@@ -156,7 +153,7 @@ describe('toChannelDetailViewModel', () => {
         name: '집행 정보 미제공 상품',
         budgetRange: '-',
         expectedImpressions: '-',
-        ctr: null,
+        expectedClicks: '-',
       },
     ]);
   });

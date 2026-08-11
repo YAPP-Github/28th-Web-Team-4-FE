@@ -10,11 +10,7 @@ const EMPTY_VALUE = '-';
 
 type ChannelDetailApiModel = NonNullable<ChannelDetailResponse>;
 type PrimaryGender = ChannelDetailApiModel['primaryGender'] | null;
-type ChannelDetailResponseForAdapter = Omit<
-  ChannelDetailApiModel,
-  'primaryGender' | 'audienceTraits'
-> & {
-  primaryGender?: PrimaryGender;
+type ChannelDetailResponseForAdapter = Omit<ChannelDetailApiModel, 'audienceTraits'> & {
   audienceTraits?: string | null;
 };
 
@@ -62,33 +58,6 @@ function formatBudgetRange(minBudgetWon?: number, maxBudgetWon?: number): string
   return EMPTY_VALUE;
 }
 
-// TODO(api): 백엔드가 ctr(CTR) → expectedClicks(예상 클릭수)로 전환 예정.
-// 전환되면 이 '%' 포맷을 제거하고 값을 그대로 표시하도록 바꾼다(테이블 라벨도 '예상 클릭').
-function formatCtr(product: ProductResponse): string | null {
-  // API가 값 없음을 null로 내려주므로 undefined와 함께 nullish로 정규화한다.
-  const ctr = product.ctr ?? undefined;
-  const ctrMin = product.ctrMin ?? undefined;
-  const ctrMax = product.ctrMax ?? undefined;
-
-  if (ctr !== undefined) {
-    return `${formatNumber(ctr)}%`;
-  }
-
-  if (ctrMin !== undefined && ctrMax !== undefined) {
-    return `${formatNumber(ctrMin)}~${formatNumber(ctrMax)}%`;
-  }
-
-  if (ctrMin !== undefined) {
-    return `${formatNumber(ctrMin)}% 이상`;
-  }
-
-  if (ctrMax !== undefined) {
-    return `${formatNumber(ctrMax)}% 이하`;
-  }
-
-  return null;
-}
-
 function formatExpectedImpressions(product: ProductResponse): string {
   const expectedImpressions = product.expectedImpressions ?? undefined;
 
@@ -98,6 +67,12 @@ function formatExpectedImpressions(product: ProductResponse): string {
 
   const impressions = `${formatNumber(expectedImpressions)}회`;
   return product.expectedPeriod ? `${impressions} / ${product.expectedPeriod}` : impressions;
+}
+
+function formatExpectedClicks(product: ProductResponse): string {
+  return typeof product.expectedClicks === 'number'
+    ? `${formatNumber(product.expectedClicks)}회`
+    : EMPTY_VALUE;
 }
 
 function toProductRow(product: ProductResponse): ChannelProductRow {
@@ -113,7 +88,7 @@ function toProductRow(product: ProductResponse): ChannelProductRow {
       product.maxBudgetWon ?? undefined,
     ),
     expectedImpressions: formatExpectedImpressions(product),
-    ctr: formatCtr(product),
+    expectedClicks: formatExpectedClicks(product),
   };
 }
 
