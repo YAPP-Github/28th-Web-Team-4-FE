@@ -103,6 +103,7 @@ function mapManualAdHistory(answer: RecommendOnboardingAnswer): AdHistoryRequest
   const performanceInput =
     answer.adExperience.type === 'EXPERIENCED' ? answer.adExperience.performanceInput : undefined;
 
+  // TODO(CHA-56): channelList variant is mapped after the field-array UI replaces this fallback.
   if (performanceInput?.mode !== 'MANUAL' || !('channel' in performanceInput)) {
     return [];
   }

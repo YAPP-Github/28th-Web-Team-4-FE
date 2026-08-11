@@ -7,6 +7,7 @@ import {
   buildRecommendOnboardingAnswer,
   getRecommendOnboardingAnswerLabel,
   isAgeRangeOptionDisabled,
+  isManualPerformanceChannelComplete,
   isRecommendOnboardingStepComplete,
   toggleAgeRange,
 } from './recommend-onboarding-rules';
@@ -126,6 +127,48 @@ describe('recommend onboarding rules', () => {
       });
     });
 
+    it('운영 경험 직접 입력 채널 목록을 최종 답변에 포함한다', () => {
+      expect(
+        buildRecommendOnboardingAnswer(
+          createCompleteRecommendDraft({
+            adExperienceType: 'EXPERIENCED',
+            performanceMode: 'MANUAL',
+            performanceManualChannelList: [
+              {
+                channelId: 'naver-sa',
+                channelNameRaw: '네이버 SA',
+                budgetWon: 1000000,
+                periodDays: 14,
+              },
+              {
+                channelNameRaw: '커스텀 채널',
+                impressions: 10000,
+                clicks: 200,
+              },
+            ],
+          }),
+        ).adExperience,
+      ).toEqual({
+        type: 'EXPERIENCED',
+        performanceInput: {
+          mode: 'MANUAL',
+          channelList: [
+            {
+              channelId: 'naver-sa',
+              channelNameRaw: '네이버 SA',
+              budgetWon: 1000000,
+              periodDays: 14,
+            },
+            {
+              channelNameRaw: '커스텀 채널',
+              impressions: 10000,
+              clicks: 200,
+            },
+          ],
+        },
+      });
+    });
+
     it('운영 경험에서 건너뛴 성과 정보는 생략한다', () => {
       expect(
         buildRecommendOnboardingAnswer(
@@ -173,6 +216,34 @@ describe('recommend onboarding rules', () => {
         'TWENTIES',
         'FORTIES',
       ]);
+    });
+  });
+
+  describe('isManualPerformanceChannelComplete', () => {
+    it('채널명과 성과 필드 2개 이상이 있으면 완료로 본다', () => {
+      expect(
+        isManualPerformanceChannelComplete({
+          channelNameRaw: '네이버 SA',
+          budgetWon: 1000000,
+          periodDays: 14,
+        }),
+      ).toBe(true);
+    });
+
+    it('채널명이 없거나 성과 필드가 2개 미만이면 완료로 보지 않는다', () => {
+      expect(
+        isManualPerformanceChannelComplete({
+          channelNameRaw: '',
+          budgetWon: 1000000,
+          periodDays: 14,
+        }),
+      ).toBe(false);
+      expect(
+        isManualPerformanceChannelComplete({
+          channelNameRaw: '네이버 SA',
+          budgetWon: 1000000,
+        }),
+      ).toBe(false);
     });
   });
 });

@@ -50,6 +50,17 @@ export type ManualPerformanceChannel = {
 
 export const MAX_MANUAL_PERFORMANCE_CHANNEL_COUNT = 3;
 
+export const MANUAL_PERFORMANCE_METRIC_KEY_LIST = [
+  'budgetWon',
+  'periodDays',
+  'impressions',
+  'clicks',
+  'conversions',
+] as const satisfies readonly (keyof Pick<
+  ManualPerformanceChannel,
+  'budgetWon' | 'periodDays' | 'impressions' | 'clicks' | 'conversions'
+>)[];
+
 /** 파일 파싱 전 UI와 presigned 업로드에 사용하는 파일 메타데이터. */
 export type UploadedPerformanceFile = {
   id: string;
