@@ -6,6 +6,7 @@ import type { BudgetInputRange } from './budget-range-input';
 import type { CommonOnboardingAnswer, RecommendOnboardingAnswer } from './onboarding-answer';
 import type {
   AdExperienceType,
+  ManualPerformanceChannel,
   PerformanceChannelId,
   PerformanceMode,
   UploadedPerformanceFile,
@@ -46,7 +47,9 @@ export type RecommendOnboardingDraft = CommonOnboardingDraft &
     adExperienceType?: AdExperienceType;
     performanceMode: PerformanceMode;
     performanceFileList: UploadedPerformanceFile[];
+    /** @deprecated 직접 입력 UI가 field array로 전환되기 전까지 기존 단일 선택 UI 호환용으로 유지한다. */
     performanceChannel?: PerformanceChannelId;
+    performanceManualChannelList: ManualPerformanceChannel[];
   };
 
 /** 공통 5단계를 빈 값으로 시작하는 새 Draft를 만든다. */
@@ -71,5 +74,6 @@ export function createRecommendOnboardingDraft(): RecommendOnboardingDraft {
     ageRangeList: [],
     performanceMode: 'UPLOAD',
     performanceFileList: [],
+    performanceManualChannelList: [],
   };
 }

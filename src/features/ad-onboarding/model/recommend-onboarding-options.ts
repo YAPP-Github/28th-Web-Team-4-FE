@@ -37,6 +37,19 @@ export type PerformanceChannelId =
   | 'YOUTUBE_VIDEO_ADS'
   | 'KAKAO_BIZBOARD';
 
+/** 광고 집행 경험 직접 입력에서 채널별로 입력하는 성과 항목. */
+export type ManualPerformanceChannel = {
+  channelId?: string;
+  channelNameRaw: string;
+  budgetWon?: number;
+  periodDays?: number;
+  impressions?: number;
+  clicks?: number;
+  conversions?: number;
+};
+
+export const MAX_MANUAL_PERFORMANCE_CHANNEL_COUNT = 3;
+
 /** 파일 파싱 전 UI와 presigned 업로드에 사용하는 파일 메타데이터. */
 export type UploadedPerformanceFile = {
   id: string;

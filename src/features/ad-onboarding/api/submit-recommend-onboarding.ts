@@ -103,7 +103,7 @@ function mapManualAdHistory(answer: RecommendOnboardingAnswer): AdHistoryRequest
   const performanceInput =
     answer.adExperience.type === 'EXPERIENCED' ? answer.adExperience.performanceInput : undefined;
 
-  if (performanceInput?.mode !== 'MANUAL') {
+  if (performanceInput?.mode !== 'MANUAL' || !('channel' in performanceInput)) {
     return [];
   }
 

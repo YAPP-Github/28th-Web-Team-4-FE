@@ -12,6 +12,7 @@ import type {
   AdExperienceType,
   AdGoalId,
   AgeRangeId,
+  ManualPerformanceChannel,
   PerformanceChannelId,
   UploadedPerformanceFile,
 } from './recommend-onboarding-options';
@@ -33,7 +34,12 @@ export type PerformanceInput =
     }
   | {
       mode: 'MANUAL';
+      /** @deprecated 직접 입력 UI가 field array로 전환되기 전까지 기존 단일 선택 제출 호환용으로 유지한다. */
       channel: PerformanceChannelId;
+    }
+  | {
+      mode: 'MANUAL';
+      channelList: ManualPerformanceChannel[];
     };
 
 /** 추천 온보딩에서 확정하는 광고 운영 경험 답변. */

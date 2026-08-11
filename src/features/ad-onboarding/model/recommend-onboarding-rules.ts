@@ -240,6 +240,10 @@ function getAdExperienceAnswerLabel(draft: RecommendOnboardingDraft): string {
   }
 
   if (performanceInput?.mode === 'MANUAL') {
+    if ('channelList' in performanceInput) {
+      return label;
+    }
+
     return `${label} · ${getOnboardingOptionLabel(
       PERFORMANCE_CHANNEL_OPTION_LIST,
       performanceInput.channel,
