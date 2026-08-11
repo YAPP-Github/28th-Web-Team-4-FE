@@ -45,7 +45,7 @@ function formatCount(value: number): string {
   return value.toLocaleString('ko-KR');
 }
 
-function formatCountRange(range: CountRangeResponse | undefined): string {
+function formatCountRange(range: CountRangeResponse | null): string {
   if (!range) {
     return '정보 없음';
   }
