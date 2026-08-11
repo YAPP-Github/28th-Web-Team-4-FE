@@ -3,14 +3,22 @@
 import type { JSX } from 'react';
 import { Info } from 'lucide-react';
 
-import type { ChannelDetail } from '@/features/channel-detail/model/channel-detail';
+import type {
+  ChannelDetail,
+  ChannelProductRow,
+} from '@/features/channel-detail/model/channel-detail';
 import { Box } from '@/shared/ui/layout/box';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
+type ProductTableRow = Pick<
+  ChannelProductRow,
+  'name' | 'budgetRange' | 'expectedImpressions' | 'expectedClicks'
+>;
+
 type ProductTableColumn = {
-  key: keyof Omit<ChannelDetail['products'][number], 'id'>;
+  key: keyof ProductTableRow;
   label: string;
   showInfo: boolean;
 };
