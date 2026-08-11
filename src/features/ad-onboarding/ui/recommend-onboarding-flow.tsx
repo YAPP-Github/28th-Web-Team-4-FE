@@ -45,8 +45,14 @@ export function RecommendOnboardingFlow({
   onComplete,
 }: RecommendOnboardingFlowProps): JSX.Element {
   const form = useRecommendOnboardingForm({ initialDraft });
-  const { activeStepRef, latestAnswerRef, scrollToActiveStep, scrollToLatestAnswer } =
-    useRecommendOnboardingScroll(scrollContainerRef);
+  const {
+    activeStepRef,
+    latestAnswerRef,
+    contentEndRef,
+    bottomSpacerHeight,
+    scrollToActiveStep,
+    scrollToLatestAnswer,
+  } = useRecommendOnboardingScroll(scrollContainerRef);
   const [editingStep, setEditingStep] = useState<number | null>(null);
   const [furthestStep, setFurthestStep] = useState(0);
 
@@ -55,6 +61,8 @@ export function RecommendOnboardingFlow({
       <RecommendOnboardingFlowContent
         activeStepRef={activeStepRef}
         latestAnswerRef={latestAnswerRef}
+        contentEndRef={contentEndRef}
+        bottomSpacerHeight={bottomSpacerHeight}
         currentStep={currentStep}
         editingStep={editingStep}
         furthestStep={furthestStep}
@@ -96,6 +104,8 @@ export function RecommendOnboardingFlow({
 type RecommendOnboardingFlowContentProps = {
   activeStepRef: RefObject<HTMLDivElement | null>;
   latestAnswerRef: RefObject<HTMLDivElement | null>;
+  contentEndRef: RefObject<HTMLDivElement | null>;
+  bottomSpacerHeight: number;
   currentStep: number;
   editingStep: number | null;
   furthestStep: number;
@@ -106,6 +116,8 @@ type RecommendOnboardingFlowContentProps = {
 function RecommendOnboardingFlowContent({
   activeStepRef,
   latestAnswerRef,
+  contentEndRef,
+  bottomSpacerHeight,
   currentStep,
   editingStep,
   furthestStep,
@@ -151,12 +163,23 @@ function RecommendOnboardingFlowContent({
   if (editingStep !== null) {
     return (
       <Stack className="gap-012 w-full">
-        {completedAnswerList.map((answer) => {
+        {completedAnswerList.map((answer, answerIndex) => {
           const stepIndex = RECOMMEND_ONBOARDING_STEP_ID_LIST.indexOf(answer.stepId);
+          const isLastContent = answerIndex === completedAnswerList.length - 1;
 
           if (stepIndex === editingStep) {
             return (
-              <div key={answer.stepId} ref={activeStepRef} className="scroll-mt-[12px]">
+              <div
+                key={answer.stepId}
+                ref={(element) => {
+                  activeStepRef.current = element;
+
+                  if (isLastContent) {
+                    contentEndRef.current = element;
+                  }
+                }}
+                className="scroll-mt-[12px]"
+              >
                 <RecommendOnboardingStepContent
                   stepId={currentStepId}
                   actionLabel="다음"
@@ -173,10 +196,12 @@ function RecommendOnboardingFlowContent({
               stepId={answer.stepId}
               label={answer.label}
               isEditable={false}
+              contentEndRef={isLastContent ? contentEndRef : undefined}
               onEditStep={onEditStep}
             />
           );
         })}
+        <OnboardingBottomSpacer height={bottomSpacerHeight} />
       </Stack>
     );
   }
@@ -199,14 +224,31 @@ function RecommendOnboardingFlowContent({
         );
       })}
 
-      <div ref={activeStepRef} className="scroll-mt-[12px]">
+      <div
+        ref={(element) => {
+          activeStepRef.current = element;
+          contentEndRef.current = element;
+        }}
+        className="scroll-mt-[12px]"
+      >
         <RecommendOnboardingStepContent
           stepId={currentStepId}
           actionLabel="다음"
           onAction={onAdvance}
         />
       </div>
+      <OnboardingBottomSpacer height={bottomSpacerHeight} />
     </Stack>
+  );
+}
+
+function OnboardingBottomSpacer({ height }: { height: number }): JSX.Element {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none shrink-0"
+      style={{ height: Math.max(0, height - 24) }}
+    />
   );
 }
 
@@ -216,6 +258,7 @@ type RecommendOnboardingAnswerBubbleProps = {
   label: string;
   isEditable: boolean;
   answerRef?: RefObject<HTMLDivElement | null>;
+  contentEndRef?: RefObject<HTMLDivElement | null>;
   onEditStep: (step: number) => void;
 };
 
@@ -225,12 +268,13 @@ function CompletedStepItem({
   label,
   isEditable,
   answerRef,
+  contentEndRef,
   onEditStep,
 }: RecommendOnboardingAnswerBubbleProps): JSX.Element {
   const step = getOnboardingStepDefinition(stepId);
 
   return (
-    <Stack className="gap-012 w-full">
+    <Stack ref={contentEndRef} className="gap-012 w-full">
       <OnboardingQuestion
         title={step.question}
         description={step.description}
