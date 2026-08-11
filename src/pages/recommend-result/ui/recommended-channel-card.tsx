@@ -106,7 +106,7 @@ export function RecommendedChannelCard({
               aria-hidden
               data-testid="recommend-channel-select-indicator"
               className={cn(
-                'top-018 right-020 motion-safe:ease-out-cubic absolute flex size-020 items-center justify-center rounded-full motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none',
+                'top-018 right-020 absolute flex size-020 items-center justify-center rounded-full motion-safe:transition-colors motion-safe:duration-150 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none',
                 selected ? 'bg-sys-primary-default' : 'bg-icon-low',
               )}
             >
@@ -174,13 +174,15 @@ export function RecommendedChannelCard({
           </VStack>
         </Box>
 
-        {selected ? (
-          <Box
-            aria-hidden
-            data-testid="recommend-channel-selection-outline"
-            className="pointer-events-none absolute inset-0 z-20 rounded-[var(--radius-l)] shadow-[inset_0_0_0_2px_var(--color-outline-selected)]"
-          />
-        ) : null}
+        <Box
+          aria-hidden
+          data-testid="recommend-channel-selection-outline"
+          className={cn(
+            'pointer-events-none absolute inset-0 z-20 rounded-[var(--radius-l)] shadow-[inset_0_0_0_2px_var(--color-outline-selected)]',
+            'motion-safe:transition-opacity motion-safe:duration-150 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none',
+            selected ? 'opacity-100' : 'opacity-0',
+          )}
+        />
 
         {locked && (
           <Box className="bg-sys-blur gap-008 absolute inset-0 z-30 flex flex-col items-center justify-center text-center">
