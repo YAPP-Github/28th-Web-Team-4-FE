@@ -33,7 +33,7 @@ const COUNT_UNIT = 10_000;
 export type SimulatorCountDisplay = {
   value: number;
   suffix: string;
-  format?: Intl.NumberFormatOptions;
+  format?: Pick<Intl.NumberFormatOptions, 'maximumFractionDigits' | 'minimumFractionDigits'>;
 };
 
 export function getSimulatorCountDisplay(value: number): SimulatorCountDisplay {
