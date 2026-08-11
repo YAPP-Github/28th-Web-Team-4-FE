@@ -2,7 +2,6 @@
 
 import type { JSX } from 'react';
 import Image from 'next/image';
-import NumberFlow from '@number-flow/react';
 import { motion, useReducedMotion } from 'motion/react';
 
 import { Box } from '@/shared/ui/layout/box';
@@ -109,30 +108,7 @@ function ChannelMetricRow({
         variant="body-md"
         className={`${valueClassName} w-auto shrink-0 text-left whitespace-nowrap`}
       >
-        {metric.range ? (
-          <>
-            <NumberFlow
-              value={metric.range.min}
-              locales="ko-KR"
-              trend={1}
-              animated={!shouldReduceMotion}
-            />
-            {metric.range.min === metric.range.max ? null : (
-              <>
-                ~
-                <NumberFlow
-                  value={metric.range.max}
-                  locales="ko-KR"
-                  trend={1}
-                  animated={!shouldReduceMotion}
-                />
-              </>
-            )}
-            회
-          </>
-        ) : (
-          metric.value
-        )}
+        {metric.value}
       </Text>
     </Box>
   );
