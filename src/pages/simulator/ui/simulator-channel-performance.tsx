@@ -89,8 +89,8 @@ function ChannelMetricRow({
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <Box className="gap-016 pr-030 flex w-full items-center">
-      <Box className="bg-surface-low h-010 min-w-0 flex-1 overflow-hidden rounded-[var(--radius-max)]">
+    <Box className="gap-016 flex w-full items-center">
+      <Box className="bg-surface-low h-010 w-full min-w-0 flex-1 overflow-hidden rounded-[var(--radius-max)]">
         <motion.div
           initial={shouldReduceMotion ? false : { transform: 'scaleX(0)' }}
           animate={{ transform: `scaleX(${metric.fillPercentage / 100})` }}
@@ -107,7 +107,7 @@ function ChannelMetricRow({
       </Box>
       <Text
         variant="body-md"
-        className={`${valueClassName} w-[96px] shrink-0 text-left whitespace-nowrap`}
+        className={`${valueClassName} w-auto shrink-0 text-left whitespace-nowrap`}
       >
         {metric.range ? (
           <>

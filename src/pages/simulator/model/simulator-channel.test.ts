@@ -67,4 +67,19 @@ describe('simulator-channel', () => {
     expect(results[0]?.clicks.fillPercentage).toBeCloseTo(13.2, 1);
     expect(results[1]?.clicks.fillPercentage).toBeCloseTo(10, 1);
   });
+
+  it('시뮬레이션 전 채널의 노출·클릭 바를 빈 상태로 만든다', () => {
+    const results = createChannelResults(CHANNELS);
+
+    expect(results).toMatchObject([
+      {
+        impressions: { fillPercentage: 0 },
+        clicks: { fillPercentage: 0 },
+      },
+      {
+        impressions: { fillPercentage: 0 },
+        clicks: { fillPercentage: 0 },
+      },
+    ]);
+  });
 });
