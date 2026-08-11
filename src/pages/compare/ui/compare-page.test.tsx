@@ -44,6 +44,7 @@ function createChannel(
   return {
     id,
     name,
+    logoUrl: null,
     description: `${name} 채널 설명`,
     primaryCategory,
   };

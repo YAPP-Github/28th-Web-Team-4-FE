@@ -9,7 +9,7 @@ import type { ChannelDetail, ChannelProductRow } from './channel-detail';
 const EMPTY_VALUE = '-';
 
 type ChannelDetailApiModel = NonNullable<ChannelDetailResponse>;
-type PrimaryGender = ChannelDetailApiModel['primaryGender'] | null;
+type PrimaryGender = ChannelDetailApiModel['primaryGender'];
 type ChannelDetailResponseForAdapter = Omit<ChannelDetailApiModel, 'audienceTraits'> & {
   audienceTraits?: string | null;
 };
@@ -100,9 +100,6 @@ function formatPrimaryGender(gender: PrimaryGender): string {
       return '여성';
     case 'ALL':
       return '전체';
-    case null:
-    case undefined:
-      return EMPTY_VALUE;
   }
 }
 

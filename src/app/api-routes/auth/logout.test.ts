@@ -43,14 +43,14 @@ function logoutRequest(): Request {
 
 function logoutSuccessResponse(): Awaited<ReturnType<typeof logout>> {
   return {
-    data: { success: true, data: undefined },
+    data: { success: true, data: null, error: null, code: null },
     response: new Response(null, { status: 200 }),
   };
 }
 
 function refreshSuccessResponse(): Awaited<ReturnType<typeof refresh>> {
   return {
-    data: { success: true, data: refreshedTokens },
+    data: { success: true, data: refreshedTokens, error: null, code: null },
     response: new Response(null, { status: 200 }),
   };
 }
@@ -62,7 +62,9 @@ function errorResponse(
     data: undefined,
     error: {
       success: false,
+      data: null,
       error: { code: 'AUTH-004', message: '인증 실패', fieldErrors: [] },
+      code: null,
     },
     response: new Response(null, { status }),
   };

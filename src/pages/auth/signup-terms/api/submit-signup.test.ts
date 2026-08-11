@@ -35,7 +35,12 @@ describe('submitSignup', () => {
       marketingAgreed: false,
     } as const;
     signupMock.mockResolvedValue({
-      data: { success: true },
+      data: {
+        success: true,
+        data: { id: 'user-1', email: body.email, nickname: body.nickname },
+        error: null,
+        code: null,
+      },
       response: new Response(null, { status: 201 }),
     });
     authenticateLocalMock.mockResolvedValue();

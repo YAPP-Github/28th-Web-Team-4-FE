@@ -3,10 +3,7 @@ import type { ChannelDetailResponse } from '@/shared/api/generated';
 import { toChannelDetailViewModel } from './channel-detail-adapter';
 
 type ChannelDetailApiModel = NonNullable<ChannelDetailResponse>;
-type ChannelDetailFixture = Omit<ChannelDetailApiModel, 'primaryGender' | 'audienceTraits'> & {
-  primaryGender?: ChannelDetailApiModel['primaryGender'] | null;
-  audienceTraits?: string | null;
-};
+type ChannelDetailFixture = ChannelDetailApiModel;
 
 function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): ChannelDetailFixture {
   return {
@@ -15,14 +12,25 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
     logoUrl: ' https://cdn.example.com/meta.png ',
     description: ' 정교한 관심사 타기팅을 제공해요. ',
     primaryCategory: 'SHOPPING_COMMERCE',
+    mediaType: 'SNS',
+    suitableCategories: ['SHOPPING_COMMERCE'],
+    ageBandCodes: ['AGE_20S', 'AGE_30S', 'AGE_40S'],
     primaryAgeBand: ' 20~40대 ',
     primaryGender: 'FEMALE',
+    audienceSummary: '쇼핑 관심 고객',
     audienceTraits: ' 구매 의도가 높은 사용자 ',
     advantages: [' 높은 전환 효율 ', '다양한 크리에이티브 포맷'],
+    minBudgetWon: 200_000,
+    maxBudgetWon: 500_000,
+    executionType: 'SELF',
+    adFormats: ['피드', '스토리'],
+    targetingMethods: ['관심사'],
     products: [
       {
         id: 'product-feed',
         productName: ' 피드 광고 ',
+        inventoryType: null,
+        supportedObjectives: ['CONVERSION'],
         minBudgetWon: 200_000,
         maxBudgetWon: 500_000,
         expectedImpressions: 150_000,
@@ -32,9 +40,14 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
       },
       {
         id: 'product-story',
+        productName: null,
         inventoryType: '스토리',
+        supportedObjectives: ['AWARENESS'],
         minBudgetWon: 300_000,
+        maxBudgetWon: null,
+        expectedImpressions: null,
         expectedClicks: 700,
+        expectedPeriod: null,
         pricing: [],
       },
     ],
@@ -51,9 +64,11 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
         valueNumeric: 12_000,
         valueText: ' 약 1.2만 명 ',
         unit: '명',
+        period: null,
       },
     ],
     references: ['브랜드 캠페인 A', '전환 캠페인 B'],
+    recommendationBasis: null,
     ...overrides,
   };
 }
@@ -97,17 +112,30 @@ describe('toChannelDetailViewModel', () => {
     ]);
   });
 
-  it('선택 필드가 누락되면 화면에서 사용할 기본 표시값으로 변환한다', () => {
+  it('nullable 필드가 null이면 화면에서 사용할 기본 표시값으로 변환한다', () => {
     const result = toChannelDetailViewModel(
       createChannelDetail({
-        logoUrl: undefined,
-        description: undefined,
-        primaryAgeBand: undefined,
-        primaryGender: undefined,
+        logoUrl: null,
+        description: null,
+        primaryAgeBand: null,
+        primaryGender: 'ALL',
         audienceSummary: '짧은 오디언스 요약은 유저 특성으로 쓰지 않는다',
-        audienceTraits: undefined,
-        advantages: undefined,
-        products: [{ id: 'product-unknown', pricing: [] }],
+        audienceTraits: null,
+        advantages: [],
+        products: [
+          {
+            id: 'product-unknown',
+            productName: null,
+            inventoryType: null,
+            supportedObjectives: [],
+            minBudgetWon: null,
+            maxBudgetWon: null,
+            expectedImpressions: null,
+            expectedClicks: null,
+            expectedPeriod: null,
+            pricing: [],
+          },
+        ],
         audienceMetrics: [],
       }),
     );
@@ -126,7 +154,7 @@ describe('toChannelDetailViewModel', () => {
     ]);
     expect(result.audience).toEqual({
       primaryAgeBand: '-',
-      primaryGender: '-',
+      primaryGender: '전체',
       userScale: '-',
       dailyActiveUsers: '-',
       traits: '-',
@@ -138,12 +166,15 @@ describe('toChannelDetailViewModel', () => {
     const nullProduct = {
       id: 'product-null',
       productName: '집행 정보 미제공 상품',
+      inventoryType: null,
+      supportedObjectives: [],
       minBudgetWon: null,
       maxBudgetWon: null,
       expectedImpressions: null,
       expectedClicks: null,
+      expectedPeriod: null,
       pricing: [],
-    } as unknown as ChannelDetailApiModel['products'][number];
+    } satisfies ChannelDetailApiModel['products'][number];
 
     const result = toChannelDetailViewModel(createChannelDetail({ products: [nullProduct] }));
 
@@ -158,18 +189,24 @@ describe('toChannelDetailViewModel', () => {
     ]);
   });
 
-  it('대표 성별이 null이면 -로 표시한다', () => {
-    const result = toChannelDetailViewModel(createChannelDetail({ primaryGender: null }));
-
-    expect(result.audience.primaryGender).toBe('-');
-  });
-
   it('MAU와 DAU의 valueText를 고정 지표에 표시한다', () => {
     const result = toChannelDetailViewModel(
       createChannelDetail({
         audienceMetrics: [
-          { metricName: 'MAU', valueNumeric: 160_000, valueText: '16만 명' },
-          { metricName: 'DAU', valueNumeric: 12_000, valueText: '1.2만 명' },
+          {
+            metricName: 'MAU',
+            valueNumeric: 160_000,
+            valueText: '16만 명',
+            unit: null,
+            period: null,
+          },
+          {
+            metricName: 'DAU',
+            valueNumeric: 12_000,
+            valueText: '1.2만 명',
+            unit: null,
+            period: null,
+          },
         ],
       }),
     );
@@ -182,8 +219,8 @@ describe('toChannelDetailViewModel', () => {
     const result = toChannelDetailViewModel(
       createChannelDetail({
         audienceMetrics: [
-          { metricName: 'MAU', valueNumeric: 160_000 },
-          { metricName: 'DAU', valueNumeric: 12_000 },
+          { metricName: 'MAU', valueNumeric: 160_000, valueText: null, unit: null, period: null },
+          { metricName: 'DAU', valueNumeric: 12_000, valueText: null, unit: null, period: null },
         ],
       }),
     );
