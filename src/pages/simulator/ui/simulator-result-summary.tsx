@@ -84,6 +84,9 @@ function SummaryMetric({
             format={countDisplay.format}
             trend={1}
             animated={!shouldReduceMotion}
+            transformTiming={{ duration: 500, easing: 'ease-out' }}
+            spinTiming={{ duration: 500, easing: 'ease-out' }}
+            opacityTiming={{ duration: 160, easing: 'ease-out' }}
           />
         </Text>
         <Text variant="subtitle-xxs" className="text-text-low whitespace-nowrap">
