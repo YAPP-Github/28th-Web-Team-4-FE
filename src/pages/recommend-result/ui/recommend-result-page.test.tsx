@@ -1,5 +1,5 @@
 import { OverlayProvider } from 'overlay-kit';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -7,6 +7,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
 
 import { RecommendResultPage } from './recommend-result-page';
+
+const { showWarningToastMock } = vi.hoisted(() => ({
+  showWarningToastMock: vi.fn<(description: string, options?: { id?: string }) => void>(),
+}));
 
 vi.mock('@/shared/api/hey-api', () => ({
   createClientConfig: (config?: Record<string, unknown>) => ({
@@ -17,6 +21,10 @@ vi.mock('@/shared/api/hey-api', () => ({
 
 vi.mock('@number-flow/react', () => ({
   default: ({ value }: { value: number }) => <span>{value}</span>,
+}));
+
+vi.mock('@/shared/ui/toast', () => ({
+  showWarningToast: showWarningToastMock,
 }));
 
 const initialStore = useRecommendOnboardingStore.getState();
@@ -38,10 +46,14 @@ function renderRecommendResultPage(props?: { isGuest?: boolean }) {
   );
 }
 
+function getSelectionCheckbox(name: string) {
+  return screen.getByRole('checkbox', { name: `${name} 비교 목록 선택` });
+}
+
 describe('RecommendResultPage', () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     useRecommendOnboardingStore.setState(initialStore, true);
-    vi.spyOn(window, 'alert').mockImplementation(() => undefined);
   });
 
   afterEach(() => {
@@ -58,58 +70,70 @@ describe('RecommendResultPage', () => {
     const user = userEvent.setup();
     renderRecommendResultPage();
 
-    const naverButton = screen.getAllByRole('button', { name: '비교 목록에 담기' })[0];
-    await user.click(naverButton);
-    expect(screen.getByRole('button', { name: '채널 선택 완료' })).toHaveClass(
-      'bg-sys-primary-lower',
-    );
-    expect(screen.getByRole('button', { name: '채널 선택 완료' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
+    const naverCheckbox = getSelectionCheckbox('네이버 검색 광고');
+    await user.click(naverCheckbox);
+
+    const naverCard = screen.getByRole('article', { name: '네이버 검색 광고' });
+    expect(naverCheckbox).toHaveAttribute('aria-checked', 'true');
+    expect(naverCard).toHaveAttribute('data-selected', 'true');
+    expect(within(naverCard).getByTestId('recommend-channel-selection-outline')).toBeVisible();
+    expect(within(naverCard).getByTestId('recommend-channel-select-indicator')).toHaveClass(
+      'bg-sys-primary-default',
     );
     expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (1/3)' })).toBeDisabled();
 
-    await user.click(screen.getAllByRole('button', { name: '비교 목록에 담기' })[0]);
-    await user.click(screen.getAllByRole('button', { name: '비교 목록에 담기' })[0]);
+    await user.click(getSelectionCheckbox('유튜브 검색 광고'));
+    await user.click(getSelectionCheckbox('카카오 검색 광고'));
 
     expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (3/3)' })).toBeEnabled();
 
-    await user.click(screen.getAllByRole('button', { name: '채널 선택 완료' })[0]);
+    await user.click(naverCheckbox);
     expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (2/3)' })).toBeDisabled();
   });
 
-  it('alerts instead of adding a fourth channel', async () => {
+  it('shows a toast instead of adding a fourth channel', async () => {
     const user = userEvent.setup();
     renderRecommendResultPage();
 
-    for (const button of screen.getAllByRole('button', { name: '비교 목록에 담기' }).slice(0, 3)) {
-      await user.click(button);
+    for (const checkbox of screen
+      .getAllByRole('checkbox', { name: /비교 목록 선택/ })
+      .slice(0, 3)) {
+      await user.click(checkbox);
     }
 
-    await user.click(screen.getAllByRole('button', { name: '비교 목록에 담기' })[0]);
+    await user.click(screen.getAllByRole('checkbox', { name: /비교 목록 선택/ })[3]);
 
-    expect(window.alert).toHaveBeenCalledWith('비교 목록은 최대 3개까지 선택할 수 있어요.');
+    expect(showWarningToastMock).toHaveBeenCalledWith(
+      '비교 목록은 최대 3개까지 선택할 수 있어요.',
+      {
+        id: 'recommend-comparison-limit',
+      },
+    );
     expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (3/3)' })).toBeEnabled();
   });
 
-  it('alerts when the enabled CTA is clicked', async () => {
+  it('shows a toast when the enabled CTA is clicked', async () => {
     const user = userEvent.setup();
     renderRecommendResultPage();
 
-    for (const button of screen.getAllByRole('button', { name: '비교 목록에 담기' }).slice(0, 3)) {
-      await user.click(button);
+    for (const checkbox of screen
+      .getAllByRole('checkbox', { name: /비교 목록 선택/ })
+      .slice(0, 3)) {
+      await user.click(checkbox);
     }
 
     await user.click(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (3/3)' }));
 
-    expect(window.alert).toHaveBeenCalledWith('비교 기능은 준비 중이에요.');
+    expect(showWarningToastMock).toHaveBeenCalledWith('비교 기능은 준비 중이에요.', {
+      id: 'recommend-comparison-coming-soon',
+    });
   });
 
-  it('opens channel details from the card surface but not from the comparison button', async () => {
+  it('opens channel details from the more button but not from card selection', async () => {
     const user = userEvent.setup();
     renderRecommendResultPage();
 
-    await user.click(screen.getAllByRole('button', { name: '비교 목록에 담기' })[0]);
+    await user.click(getSelectionCheckbox('네이버 검색 광고'));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: '네이버 검색 광고 상세 정보 열기' }));
