@@ -63,14 +63,13 @@ function SummaryMetric({
   value,
   suffix,
   label,
-  shouldReduceMotion,
 }: {
   icon: MetricIconType;
   value: number;
   suffix: string;
   label: string;
-  shouldReduceMotion: boolean | null;
 }): JSX.Element {
+  const shouldReduceMotion = useReducedMotion();
   const countDisplay = getSimulatorCountDisplay(value);
 
   return (
@@ -107,7 +106,6 @@ export function SimulatorResultSummary({
 }: {
   simulationResult?: SimulationResponse | null;
 }): JSX.Element {
-  const shouldReduceMotion = useReducedMotion();
   const executableChannelCount = simulationResult?.executableChannelCount ?? 0;
   const totalImpressions = simulationResult?.totalEstImpressions ?? 0;
   const totalClicks = simulationResult?.totalEstClicks ?? 0;
@@ -127,7 +125,6 @@ export function SimulatorResultSummary({
           value={executableChannelCount}
           suffix="개"
           label="집행 가능 채널"
-          shouldReduceMotion={shouldReduceMotion}
         />
         <MetricDivider />
         <SummaryMetric
@@ -135,16 +132,9 @@ export function SimulatorResultSummary({
           value={totalImpressions}
           suffix="회"
           label="예상 총 노출"
-          shouldReduceMotion={shouldReduceMotion}
         />
         <MetricDivider />
-        <SummaryMetric
-          icon="clicks"
-          value={totalClicks}
-          suffix="회"
-          label="예상 총 클릭"
-          shouldReduceMotion={shouldReduceMotion}
-        />
+        <SummaryMetric icon="clicks" value={totalClicks} suffix="회" label="예상 총 클릭" />
       </Box>
     </Box>
   );
