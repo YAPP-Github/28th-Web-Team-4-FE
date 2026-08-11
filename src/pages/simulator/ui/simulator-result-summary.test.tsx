@@ -40,7 +40,7 @@ describe('SimulatorResultSummary', () => {
     render(<SimulatorResultSummary simulationResult={SIMULATION_RESULT} />);
 
     expect(screen.getByText('2개')).toBeVisible();
-    expect(screen.getByText('38,000회')).toBeVisible();
+    expect(screen.getByText('3.8만 회')).toBeVisible();
     expect(screen.getByText('1,100회')).toBeVisible();
     expect(screen.getAllByText('2개')[0]).toHaveAttribute('data-animated', 'true');
     expect(screen.getAllByText('2개')[0]).toHaveAttribute('data-trend', '1');

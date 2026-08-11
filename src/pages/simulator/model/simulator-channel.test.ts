@@ -1,6 +1,10 @@
 import type { SimulationResponse } from '@/shared/api/generated';
 
-import { createChannelResults, formatSimulatorCountRange } from './simulator-channel';
+import {
+  createChannelResults,
+  formatSimulatorCount,
+  formatSimulatorCountRange,
+} from './simulator-channel';
 
 const CHANNELS = [
   { id: 'channel-a', name: '채널 A' },
@@ -37,7 +41,9 @@ const SIMULATION_RESULT: SimulationResponse = {
 
 describe('simulator-channel', () => {
   it('응답 범위를 한국어 횟수 표기로 변환한다', () => {
-    expect(formatSimulatorCountRange({ min: 22_000, max: 32_000 })).toBe('22,000~32,000회');
+    expect(formatSimulatorCount(10_000)).toBe('1.0만 회');
+    expect(formatSimulatorCount(9_999)).toBe('9,999회');
+    expect(formatSimulatorCountRange({ min: 22_000, max: 32_000 })).toBe('2.2~3.2만 회');
     expect(formatSimulatorCountRange({ min: 780, max: 780 })).toBe('780회');
   });
 
@@ -47,12 +53,12 @@ describe('simulator-channel', () => {
     expect(results).toMatchObject([
       {
         name: '채널 A',
-        impressions: { value: '10,000~20,000회' },
+        impressions: { value: '1.0~2.0만 회' },
         clicks: { value: '300~400회' },
       },
       {
         name: '채널 B',
-        impressions: { value: '15,000~25,000회', fillPercentage: 100 },
+        impressions: { value: '1.5~2.5만 회', fillPercentage: 100 },
         clicks: { value: '200회' },
       },
     ]);
