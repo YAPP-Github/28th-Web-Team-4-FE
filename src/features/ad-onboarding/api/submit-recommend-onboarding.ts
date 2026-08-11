@@ -151,7 +151,7 @@ async function getPerformanceFileKeyList(answer: RecommendOnboardingAnswer): Pro
     },
     throwOnError: true,
   });
-  const presignedFileList = presignedResponse.data.data ?? [];
+  const presignedFileList = presignedResponse.data.data;
 
   if (presignedFileList.length !== fileList.length) {
     throw new Error('성과 파일 업로드 정보를 모두 받지 못했어요. 다시 시도해 주세요.');
@@ -216,7 +216,5 @@ export async function submitRecommendOnboarding(
     body: createSubmitOnboardingRequest(answer, rawFileKeys),
     throwOnError: true,
   });
-  const responseData = response.data as { data: OnboardingSubmitResponse };
-
-  return responseData.data;
+  return response.data.data;
 }
