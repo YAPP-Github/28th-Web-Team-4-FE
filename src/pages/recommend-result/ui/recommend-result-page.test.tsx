@@ -79,7 +79,24 @@ function renderRecommendResultPage(props?: { isGuest?: boolean }) {
   return renderWithProviders(<RecommendResultPage headerAction={null} {...props} />);
 }
 
+function getSelectionCheckbox(name: string) {
+  return screen.getByRole('checkbox', { name: `${name} 비교 목록 선택` });
+}
+
+function mockRecommendations() {
+  server.use(
+    http.get(/\/api\/v1\/recommendations$/, () => {
+      return HttpResponse.json({
+        success: true,
+        data: [apiRecommendation],
+      });
+    }),
+  );
+}
+
 function renderRecommendResultWithRecommendations() {
+  mockRecommendations();
+
   return renderWithProviders(
     <Suspense fallback={<div>loading</div>}>
       <RecommendResultWithRecommendations onboardingId={RECOMMENDATION_ONBOARDING_ID} />
@@ -87,22 +104,10 @@ function renderRecommendResultWithRecommendations() {
   );
 }
 
-function getSelectionCheckbox(name: string) {
-  return screen.getByRole('checkbox', { name: `${name} 비교 목록 선택` });
-}
-
 describe('RecommendResultPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     useRecommendOnboardingStore.setState(initialStore, true);
-    server.use(
-      http.get(/\/api\/v1\/recommendations$/, () => {
-        return HttpResponse.json({
-          success: true,
-          data: [apiRecommendation],
-        });
-      }),
-    );
   });
 
   afterEach(() => {
