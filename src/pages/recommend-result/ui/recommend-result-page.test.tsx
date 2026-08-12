@@ -1,12 +1,20 @@
+import { Suspense, type ReactNode } from 'react';
 import { OverlayProvider } from 'overlay-kit';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
+import type { RecommendationItemResponse } from '@/shared/api/generated';
+import { server } from '@/shared/api/mocks/server';
 
-import { RecommendResultPage } from './recommend-result-page';
+import { RecommendResultPage, RecommendResultWithRecommendations } from './recommend-result-page';
+
+const { showWarningToastMock } = vi.hoisted(() => ({
+  showWarningToastMock: vi.fn<(description: string, options?: { id?: string }) => void>(),
+}));
 
 vi.mock('@/shared/api/hey-api', () => ({
   createClientConfig: (config?: Record<string, unknown>) => ({
@@ -19,22 +27,63 @@ vi.mock('@number-flow/react', () => ({
   default: ({ value }: { value: number }) => <span>{value}</span>,
 }));
 
-const initialStore = useRecommendOnboardingStore.getState();
+vi.mock('@/shared/ui/toast', () => ({
+  showWarningToast: showWarningToastMock,
+}));
 
-function renderRecommendResultPage(props?: { isGuest?: boolean }) {
-  const queryClient = new QueryClient({
+const initialStore = useRecommendOnboardingStore.getState();
+const RECOMMENDATION_ONBOARDING_ID = 'onboarding-87';
+const apiRecommendation = {
+  channelId: 'channel-naver',
+  channelName: '네이버 검색 광고',
+  matchRate: 88,
+  recommendationReason: '설정한 목적과 예산에서 유저에게 도달 효율이 가장 높아요',
+  primaryTarget: '20~40대',
+  cpcWon: 320,
+  pricingModel: 'CPC',
+  minBudgetWon: 300000,
+  estImpressions: { min: 12000, max: 15000 },
+  estClicks: { min: 300, max: 450 },
+  isExecutable: true,
+} as const satisfies RecommendationItemResponse;
+
+function createDeferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+
+  return { promise, resolve };
+}
+
+function createQueryClient() {
+  return new QueryClient({
     defaultOptions: {
       queries: { retry: false },
       mutations: { retry: false },
     },
   });
+}
+
+function renderWithProviders(children: ReactNode) {
+  const queryClient = createQueryClient();
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <OverlayProvider>
-        <RecommendResultPage {...props} />
-      </OverlayProvider>
+      <OverlayProvider>{children}</OverlayProvider>
     </QueryClientProvider>,
+  );
+}
+
+function renderRecommendResultPage(props?: { isGuest?: boolean }) {
+  return renderWithProviders(<RecommendResultPage headerAction={null} {...props} />);
+}
+
+function renderRecommendResultWithRecommendations() {
+  return renderWithProviders(
+    <Suspense fallback={<div>loading</div>}>
+      <RecommendResultWithRecommendations onboardingId={RECOMMENDATION_ONBOARDING_ID} />
+    </Suspense>,
   );
 }
 
@@ -42,6 +91,14 @@ describe('RecommendResultPage', () => {
   beforeEach(() => {
     useRecommendOnboardingStore.setState(initialStore, true);
     vi.spyOn(window, 'alert').mockImplementation(() => undefined);
+    server.use(
+      http.get(/\/api\/v1\/recommendations$/, () => {
+        return HttpResponse.json({
+          success: true,
+          data: [apiRecommendation],
+        });
+      }),
+    );
   });
 
   afterEach(() => {
@@ -158,5 +215,75 @@ describe('RecommendResultPage', () => {
     expect(
       screen.getByRole('button', { name: '카카오 검색 광고 상세 정보 열기' }),
     ).toBeInTheDocument();
+  });
+
+  it('saves recommendation results with the onboarding id and disables the button while pending', async () => {
+    const user = userEvent.setup();
+    const saveResponseGate = createDeferred<void>();
+    let requestBody: unknown;
+
+    server.use(
+      http.post(/\/api\/v1\/recommendations$/, async ({ request }) => {
+        requestBody = await request.json();
+        await saveResponseGate.promise;
+
+        return HttpResponse.json(
+          {
+            success: true,
+            data: {
+              onboardingId: RECOMMENDATION_ONBOARDING_ID,
+              channelCount: 1,
+              items: [apiRecommendation],
+            },
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    renderRecommendResultWithRecommendations();
+
+    const saveButton = await screen.findByRole('button', { name: '결과 저장하기' });
+
+    await user.click(saveButton);
+
+    await waitFor(() => {
+      expect(requestBody).toEqual({ onboardingId: RECOMMENDATION_ONBOARDING_ID });
+    });
+    expect(screen.getByRole('button', { name: '저장 중' })).toBeDisabled();
+
+    saveResponseGate.resolve(undefined);
+
+    expect(await screen.findByRole('button', { name: '저장 완료' })).toBeDisabled();
+  });
+
+  it('shows a warning toast when saving recommendation results fails', async () => {
+    const user = userEvent.setup();
+
+    server.use(
+      http.post(/\/api\/v1\/recommendations$/, () => {
+        return HttpResponse.json(
+          {
+            success: false,
+            error: {
+              code: 'ONB-007',
+              message: '저장할 추천 결과를 찾을 수 없어요.',
+            },
+          },
+          { status: 404 },
+        );
+      }),
+    );
+
+    renderRecommendResultWithRecommendations();
+
+    await user.click(await screen.findByRole('button', { name: '결과 저장하기' }));
+
+    await waitFor(() => {
+      expect(showWarningToastMock).toHaveBeenCalledWith('저장할 추천 결과를 찾을 수 없어요.', {
+        id: 'recommend-result-save-error',
+      });
+    });
+    expect(screen.getByRole('button', { name: '결과 저장하기' })).toBeEnabled();
   });
 });
