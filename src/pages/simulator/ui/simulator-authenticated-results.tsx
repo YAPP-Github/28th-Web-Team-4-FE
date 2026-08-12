@@ -8,7 +8,9 @@ import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
 import { Modal, TextModal } from '@/shared/ui/modal';
 import { Text } from '@/shared/ui/text';
-import { simulatorPreviewChannels } from '@/pages/simulator/model/simulator-preview-data';
+import { useSimulatorFilterChannels } from '@/features/simulator-filter/api/use-simulator-filter-channels';
+import type { SimulatorFilterChannel } from '@/features/simulator-filter/model/simulator-filter-options';
+import type { ChannelResult } from '@/pages/simulator/model/simulator-channel';
 
 import { ChannelPerformanceContent } from './simulator-channel-performance';
 
@@ -90,14 +92,45 @@ function LoggedInEmptyState(): JSX.Element {
   );
 }
 
+function createInitialChannelResults(
+  channels: readonly SimulatorFilterChannel[],
+): readonly ChannelResult[] {
+  return channels.map((channel) => ({
+    channelId: channel.id,
+    name: channel.name,
+    impressions: { value: '0회', fillPercentage: 0 },
+    clicks: { value: '0회', fillPercentage: 0 },
+  }));
+}
+
 export function AuthenticatedChannelResults({
   isChannelSelectionComplete,
+  selectedChannelIds = [],
 }: {
   isChannelSelectionComplete: boolean;
+  selectedChannelIds?: readonly string[];
 }): JSX.Element {
-  return isChannelSelectionComplete ? (
-    <ChannelPerformanceContent channels={simulatorPreviewChannels} />
-  ) : (
-    <LoggedInEmptyState />
-  );
+  const { channels, isError, isPending } = useSimulatorFilterChannels(selectedChannelIds);
+
+  if (!isChannelSelectionComplete) {
+    return <LoggedInEmptyState />;
+  }
+
+  if (isPending) {
+    return (
+      <Text role="status" variant="body-lg" className="text-text-low">
+        선택한 채널 정보를 불러오는 중이에요
+      </Text>
+    );
+  }
+
+  if (isError || channels.length !== selectedChannelIds.length) {
+    return (
+      <Text role="alert" variant="body-lg" className="text-text-low">
+        선택한 채널 정보를 불러오지 못했어요
+      </Text>
+    );
+  }
+
+  return <ChannelPerformanceContent channels={createInitialChannelResults(channels)} />;
 }

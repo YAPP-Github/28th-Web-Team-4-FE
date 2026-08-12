@@ -1,21 +1,25 @@
 'use client';
 
-import type { JSX } from 'react';
+import { useState, type JSX } from 'react';
 import { Check, X } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
 
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Modal } from '@/shared/ui/modal';
 import { Text } from '@/shared/ui/text';
+import { estimateSimulationMutation } from '@/shared/api/generated/@tanstack/react-query.gen';
+import type { SimulationResponse } from '@/shared/api/generated';
 
 import {
   FILTER_PERIOD_OPTIONS,
-  SIMULATOR_FILTER_CHANNELS,
   SIMULATOR_FILTER_TOTAL_BUDGET_MAX,
-  type SimulatorFilterChannelType,
+  type SimulatorFilterChannel,
   type SimulatorFilterPeriodValue,
 } from '@/features/simulator-filter/model/simulator-filter-options';
+import { useSimulatorFilterChannels } from '@/features/simulator-filter/api/use-simulator-filter-channels';
+import { createSimulationRequest } from '@/features/simulator-filter/lib/create-simulation-request';
 import { useSimulatorFilter } from '@/features/simulator-filter/model/use-simulator-filter';
 import {
   formatSimulatorBudget,
@@ -161,21 +165,21 @@ function FilterPeriodSection({
 }
 
 function FilterChannelBudgetCard({
+  channelId,
   channelName,
-  channelType,
   budget,
   maxAllowedBudget,
   totalBudget,
   onBudgetChange,
   onReset,
 }: {
+  channelId: string;
   channelName: string;
-  channelType: SimulatorFilterChannelType;
   budget: number;
   maxAllowedBudget: number;
   totalBudget: number;
-  onBudgetChange: (channelType: SimulatorFilterChannelType, value: number) => void;
-  onReset: (channelType: SimulatorFilterChannelType) => void;
+  onBudgetChange: (channelId: string, value: number) => void;
+  onReset: (channelId: string) => void;
 }): JSX.Element {
   const isDisabled = maxAllowedBudget === 0 && budget === 0;
   const budgetText = formatSimulatorBudget(budget);
@@ -206,7 +210,7 @@ function FilterChannelBudgetCard({
             as="button"
             type="button"
             aria-label={`${channelName} 예산 초기화`}
-            onClick={() => onReset(channelType)}
+            onClick={() => onReset(channelId)}
             className="text-icon-default focus-visible:outline-sys-primary-default size-012 flex cursor-pointer items-center justify-center rounded-[var(--radius-xxs)] outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             <X aria-hidden className="size-012" strokeWidth={1.5} />
@@ -221,24 +225,83 @@ function FilterChannelBudgetCard({
         value={budget}
         valueText={budgetText}
         disabled={isDisabled}
-        onValueChange={(value) => onBudgetChange(channelType, value)}
+        onValueChange={(value) => onBudgetChange(channelId, value)}
       />
     </Box>
   );
 }
 
-function FilterChannelSection({
+function FilterChannelContent({
+  channels,
   channelBudgets,
   getChannelMaxBudget,
+  isError,
+  isPending,
   totalBudget,
   onBudgetChange,
   onReset,
 }: {
-  channelBudgets: Record<SimulatorFilterChannelType, number>;
-  getChannelMaxBudget: (channelType: SimulatorFilterChannelType) => number;
+  channels: readonly SimulatorFilterChannel[];
+  channelBudgets: Record<string, number>;
+  getChannelMaxBudget: (channelId: string) => number;
+  isError: boolean;
+  isPending: boolean;
   totalBudget: number;
-  onBudgetChange: (channelType: SimulatorFilterChannelType, value: number) => void;
-  onReset: (channelType: SimulatorFilterChannelType) => void;
+  onBudgetChange: (channelId: string, value: number) => void;
+  onReset: (channelId: string) => void;
+}): JSX.Element {
+  if (isPending) {
+    return (
+      <Text role="status" variant="body-lg" className="text-text-low">
+        채널 정보를 불러오는 중이에요
+      </Text>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Text role="alert" variant="body-lg" className="text-text-low">
+        채널 정보를 불러오지 못했어요
+      </Text>
+    );
+  }
+
+  return (
+    <>
+      {channels.map((channel) => (
+        <FilterChannelBudgetCard
+          key={channel.id}
+          channelId={channel.id}
+          channelName={channel.name}
+          budget={channelBudgets[channel.id] ?? 0}
+          maxAllowedBudget={getChannelMaxBudget(channel.id)}
+          totalBudget={totalBudget}
+          onBudgetChange={onBudgetChange}
+          onReset={onReset}
+        />
+      ))}
+    </>
+  );
+}
+
+function FilterChannelSection({
+  channels,
+  channelBudgets,
+  getChannelMaxBudget,
+  isError,
+  isPending,
+  totalBudget,
+  onBudgetChange,
+  onReset,
+}: {
+  channels: readonly SimulatorFilterChannel[];
+  channelBudgets: Record<string, number>;
+  getChannelMaxBudget: (channelId: string) => number;
+  isError: boolean;
+  isPending: boolean;
+  totalBudget: number;
+  onBudgetChange: (channelId: string, value: number) => void;
+  onReset: (channelId: string) => void;
 }): JSX.Element {
   return (
     <Box
@@ -260,18 +323,16 @@ function FilterChannelSection({
         </Text>
       </Box>
       <Box className="gap-010 flex w-full flex-col">
-        {SIMULATOR_FILTER_CHANNELS.map((channel) => (
-          <FilterChannelBudgetCard
-            key={channel.type}
-            channelName={channel.name}
-            channelType={channel.type}
-            budget={channelBudgets[channel.type]}
-            maxAllowedBudget={getChannelMaxBudget(channel.type)}
-            totalBudget={totalBudget}
-            onBudgetChange={onBudgetChange}
-            onReset={onReset}
-          />
-        ))}
+        <FilterChannelContent
+          channels={channels}
+          channelBudgets={channelBudgets}
+          getChannelMaxBudget={getChannelMaxBudget}
+          isError={isError}
+          isPending={isPending}
+          totalBudget={totalBudget}
+          onBudgetChange={onBudgetChange}
+          onReset={onReset}
+        />
       </Box>
     </Box>
   );
@@ -279,10 +340,14 @@ function FilterChannelSection({
 
 function FilterLoadRecommendationButton({
   isDirty,
+  disabled = false,
+  isApplying = false,
   onApply,
   onReset,
 }: {
   isDirty: boolean;
+  disabled?: boolean;
+  isApplying?: boolean;
   onApply: () => void;
   onReset: () => void;
 }): JSX.Element {
@@ -297,10 +362,10 @@ function FilterLoadRecommendationButton({
         size="m"
         type="button"
         className="h-12 min-w-0 flex-1 py-0"
-        disabled={!isDirty}
+        disabled={!isDirty || disabled}
         onClick={onApply}
       >
-        적용하기
+        {isApplying ? '적용 중...' : '적용하기'}
       </Button>
     </Box>
   );
@@ -309,12 +374,28 @@ function FilterLoadRecommendationButton({
 export type SimulatorFilterPanelProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  selectedChannelIds: readonly string[];
+  onSimulationResult: (result: SimulationResponse) => void;
 };
 
 export function SimulatorFilterPanel({
   open,
   onOpenChange,
+  selectedChannelIds,
+  onSimulationResult,
 }: SimulatorFilterPanelProps): JSX.Element {
+  const [applyError, setApplyError] = useState<string | null>(null);
+  const simulationMutation = useMutation({
+    ...estimateSimulationMutation(),
+    onSuccess: (response) => {
+      onSimulationResult(response.data);
+      onOpenChange(false);
+    },
+    onError: () => {
+      setApplyError('시뮬레이션 결과를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+    },
+  });
+  const { channels, isError, isPending } = useSimulatorFilterChannels(selectedChannelIds);
   const {
     channelBudgets,
     getChannelMaxBudget,
@@ -327,7 +408,28 @@ export function SimulatorFilterPanel({
     resetFilters,
     totalBudget,
     totalBudgetMin,
-  } = useSimulatorFilter();
+  } = useSimulatorFilter(selectedChannelIds);
+
+  const isChannelDataReady =
+    !isPending && !isError && channels.length === selectedChannelIds.length;
+  const isApplyDisabled = !isChannelDataReady || period === null || simulationMutation.isPending;
+
+  const handleApply = () => {
+    if (isApplyDisabled) {
+      return;
+    }
+
+    setApplyError(null);
+
+    simulationMutation.mutate({
+      body: createSimulationRequest({ totalBudget, period, channelBudgets }, selectedChannelIds),
+    });
+  };
+
+  const handleReset = () => {
+    setApplyError(null);
+    resetFilters();
+  };
 
   return (
     <Modal.Root open={open} onOpenChange={onOpenChange}>
@@ -372,17 +474,27 @@ export function SimulatorFilterPanel({
               onPeriodChange={setPeriod}
             />
             <FilterChannelSection
+              channels={channels}
               channelBudgets={channelBudgets}
               getChannelMaxBudget={getChannelMaxBudget}
+              isError={isError}
+              isPending={isPending}
               totalBudget={totalBudget}
               onBudgetChange={setChannelBudget}
               onReset={resetChannelBudget}
             />
             <FilterLoadRecommendationButton
               isDirty={hasChanges}
-              onApply={() => onOpenChange(false)}
-              onReset={resetFilters}
+              disabled={isApplyDisabled}
+              isApplying={simulationMutation.isPending}
+              onApply={handleApply}
+              onReset={handleReset}
             />
+            {applyError ? (
+              <Text role="alert" variant="body-sm" className="text-sys-error-default">
+                {applyError}
+              </Text>
+            ) : null}
           </Box>
         </Modal.Popup>
       </Modal.Portal>

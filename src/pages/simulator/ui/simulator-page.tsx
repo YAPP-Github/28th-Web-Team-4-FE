@@ -1,4 +1,7 @@
-import type { JSX } from 'react';
+'use client';
+
+import { useState, type JSX } from 'react';
+import type { SimulationResponse } from '@/shared/api/generated';
 
 import { Box } from '@/shared/ui/layout/box';
 
@@ -11,12 +14,16 @@ import { SimulatorSubHeader } from './simulator-sub-header';
 export type SimulatorPageProps = {
   isLogin: boolean;
   isChannelSelectionComplete?: boolean;
+  selectedChannelIds?: readonly string[];
 };
 
 export function SimulatorPage({
   isLogin,
   isChannelSelectionComplete = false,
+  selectedChannelIds = [],
 }: SimulatorPageProps): JSX.Element {
+  const [simulationResult, setSimulationResult] = useState<SimulationResponse | null>(null);
+
   return (
     <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-hidden">
       <SimulatorSubHeader />
@@ -32,6 +39,8 @@ export function SimulatorPage({
           <SimulatorChannelResults
             isLogin={isLogin}
             isChannelSelectionComplete={isChannelSelectionComplete}
+            selectedChannelIds={selectedChannelIds}
+            simulationResult={simulationResult}
           />
           <SimulatorCalculationNote />
           {isLogin && isChannelSelectionComplete ? (
@@ -39,7 +48,12 @@ export function SimulatorPage({
           ) : null}
         </Box>
       </Box>
-      {isLogin && isChannelSelectionComplete ? <SimulatorChannelSelectionButton /> : null}
+      {isLogin && isChannelSelectionComplete ? (
+        <SimulatorChannelSelectionButton
+          selectedChannelIds={selectedChannelIds}
+          onSimulationResult={setSimulationResult}
+        />
+      ) : null}
     </main>
   );
 }
