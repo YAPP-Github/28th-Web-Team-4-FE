@@ -28,6 +28,7 @@ export {
   submitOnboarding,
   updateMyProfile,
   verifySignupCode,
+  withdraw,
 } from './sdk.gen';
 export type {
   AdHistoryRequest,
@@ -49,6 +50,7 @@ export type {
   ApiResponseUserProfileResponse,
   ApiResponseUserResponse,
   ApiResponseVoid,
+  ApiResponseWithdrawalResponse,
   AudienceMetricResponse,
   ChannelDetailResponse,
   ChannelListItemResponse,
@@ -220,4 +222,10 @@ export type {
   VerifySignupCodeErrors,
   VerifySignupCodeResponse,
   VerifySignupCodeResponses,
+  WithdrawalResponse,
+  WithdrawData,
+  WithdrawError,
+  WithdrawErrors,
+  WithdrawResponse,
+  WithdrawResponses,
 } from './types.gen';

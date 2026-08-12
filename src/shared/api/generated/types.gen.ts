@@ -1216,6 +1216,10 @@ export type ChannelDetailResponse = {
    */
   name: string;
   /**
+   * 채널명 아래 한 줄 설명
+   */
+  tagline: string | null;
+  /**
    * 로고 이미지 URL
    */
   logoUrl: string | null;
@@ -1482,6 +1486,29 @@ export type RecommendationBasisResponse = {
    * 예산 상한(원)
    */
   budgetMax: number;
+};
+
+export type ApiResponseWithdrawalResponse = {
+  /**
+   * 요청 성공 여부
+   */
+  success: boolean;
+  data: WithdrawalResponse;
+  error: ErrorResponse | null;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 null
+   */
+  code: string | null;
+};
+
+/**
+ * 회원 탈퇴 결과
+ */
+export type WithdrawalResponse = {
+  /**
+   * 탈퇴 시각(UTC)
+   */
+  withdrawnAt: string;
 };
 
 export type GetMySimulationsData = {
@@ -1817,7 +1844,7 @@ export type SignupErrors = {
    */
   400: ApiResponse;
   /**
-   * 이미 사용 중인 이메일
+   * 이미 사용 중이거나 탈퇴 처리 중인 이메일
    */
   409: ApiResponse;
   /**
@@ -1854,7 +1881,7 @@ export type SignupGoogleErrors = {
    */
   401: ApiResponse;
   /**
-   * 가입 처리 중 타인이 먼저 같은 이메일로 가입함(AUTH-002)
+   * 이미 사용 중이거나 탈퇴 처리 중인 이메일
    */
   409: ApiResponse;
   /**
@@ -1887,7 +1914,7 @@ export type SendSignupCodeErrors = {
    */
   400: ApiResponse;
   /**
-   * 이미 사용 중인 이메일
+   * 이미 사용 중이거나 탈퇴 처리 중인 이메일
    */
   409: ApiResponse;
   /**
@@ -2023,6 +2050,10 @@ export type LoginErrors = {
    */
   401: ApiResponse;
   /**
+   * 탈퇴 처리된 계정(AUTH-013)
+   */
+  409: ApiResponse;
+  /**
    * 서버 내부 오류
    */
   500: ApiResponse;
@@ -2089,6 +2120,10 @@ export type GoogleAuthErrors = {
    */
   401: ApiResponse;
   /**
+   * 탈퇴 처리된 계정(AUTH-013)
+   */
+  409: ApiResponse;
+  /**
    * 서버 내부 오류
    */
   500: ApiResponse;
@@ -2137,6 +2172,39 @@ export type LinkGoogleResponses = {
 };
 
 export type LinkGoogleResponse = LinkGoogleResponses[keyof LinkGoogleResponses];
+
+export type WithdrawData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/api/v1/users/me';
+};
+
+export type WithdrawErrors = {
+  /**
+   * 세션 버전 불일치로 인한 토큰 만료(AUTH-001)
+   */
+  401: ApiResponse;
+  /**
+   * 존재하지 않는 회원(USER-001)
+   */
+  404: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type WithdrawError = WithdrawErrors[keyof WithdrawErrors];
+
+export type WithdrawResponses = {
+  /**
+   * 탈퇴 성공
+   */
+  200: ApiResponseWithdrawalResponse;
+};
+
+export type WithdrawResponse = WithdrawResponses[keyof WithdrawResponses];
 
 export type GetMyProfileData = {
   body?: never;

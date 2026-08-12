@@ -36,6 +36,7 @@ import {
   submitOnboarding,
   updateMyProfile,
   verifySignupCode,
+  withdraw,
 } from '../sdk.gen';
 import type {
   CreateSampleData,
@@ -116,6 +117,9 @@ import type {
   VerifySignupCodeData,
   VerifySignupCodeError,
   VerifySignupCodeResponse,
+  WithdrawData,
+  WithdrawError,
+  WithdrawResponse,
 } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
@@ -688,7 +692,7 @@ export const loginMethodsMutation = (
 /**
  * 구글 인증 진입
  *
- * 구글 idToken 을 검증하고 계정 상태에 따라 status 로 분기한다.
+ * 구글 idToken 을 검증하고 계정 상태에 따라 status 로 분기한다. 탈퇴 처리된 계정인 경우 가입 수단과 관계없이 409(AUTH-013) 예외를 반환한다.
  * LOGIN: 토큰 발급. LINK_REQUIRED: linkRequired 와 email 을 내려주며, 사용자 확인 후 POST /auth/google/link 호출. SIGNUP_REQUIRED: signupRequired 와 일회성 signupToken, 프리필 값을 내려준다.
  */
 export const googleAuthMutation = (
@@ -726,6 +730,31 @@ export const linkGoogleMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await linkGoogle({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+/**
+ * 회원 탈퇴
+ *
+ * 회원 계정을 즉시 비활성화하고 탈퇴 시각을 반환한다.
+ */
+export const withdrawMutation = (
+  options?: Partial<Options<WithdrawData>>,
+): UseMutationOptions<WithdrawResponse, WithdrawError, Options<WithdrawData>> => {
+  const mutationOptions: UseMutationOptions<
+    WithdrawResponse,
+    WithdrawError,
+    Options<WithdrawData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await withdraw({
         ...options,
         ...fnOptions,
         throwOnError: true,

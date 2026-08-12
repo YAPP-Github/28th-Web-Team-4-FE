@@ -81,6 +81,9 @@ import type {
   VerifySignupCodeData,
   VerifySignupCodeErrors,
   VerifySignupCodeResponses,
+  WithdrawData,
+  WithdrawErrors,
+  WithdrawResponses,
 } from './types.gen';
 
 export type Options<
@@ -416,7 +419,7 @@ export const loginMethods = <ThrowOnError extends boolean = false>(
 /**
  * 구글 인증 진입
  *
- * 구글 idToken 을 검증하고 계정 상태에 따라 status 로 분기한다.
+ * 구글 idToken 을 검증하고 계정 상태에 따라 status 로 분기한다. 탈퇴 처리된 계정인 경우 가입 수단과 관계없이 409(AUTH-013) 예외를 반환한다.
  * LOGIN: 토큰 발급. LINK_REQUIRED: linkRequired 와 email 을 내려주며, 사용자 확인 후 POST /auth/google/link 호출. SIGNUP_REQUIRED: signupRequired 와 일회성 signupToken, 프리필 값을 내려준다.
  */
 export const googleAuth = <ThrowOnError extends boolean = false>(
@@ -446,6 +449,20 @@ export const linkGoogle = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+
+/**
+ * 회원 탈퇴
+ *
+ * 회원 계정을 즉시 비활성화하고 탈퇴 시각을 반환한다.
+ */
+export const withdraw = <ThrowOnError extends boolean = false>(
+  options?: Options<WithdrawData, ThrowOnError>,
+): RequestResult<WithdrawResponses, WithdrawErrors, ThrowOnError> =>
+  (options?.client ?? client).delete<WithdrawResponses, WithdrawErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/users/me',
+    ...options,
   });
 
 /**
