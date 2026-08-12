@@ -110,6 +110,20 @@ function mapManualAdHistory(answer: RecommendOnboardingAnswer): AdHistoryRequest
   return [{ channelNameRaw: getPerformanceChannelLabel(performanceInput.channel) }];
 }
 
+function mapAdExperience(
+  answer: RecommendOnboardingAnswer,
+  rawFileKeys: string[],
+): SubmitOnboardingRequest['adExperience'] {
+  if (answer.adExperience.type === 'FIRST_TIME') {
+    return 'NONE';
+  }
+
+  const hasManualPerformanceInput = answer.adExperience.performanceInput?.mode === 'MANUAL';
+  const hasUploadedPerformanceInput = rawFileKeys.length > 0;
+
+  return hasManualPerformanceInput || hasUploadedPerformanceInput ? 'EXPERIENCED' : 'NONE';
+}
+
 async function getPerformanceFileKeyList(answer: RecommendOnboardingAnswer): Promise<string[]> {
   const performanceInput =
     answer.adExperience.type === 'EXPERIENCED' ? answer.adExperience.performanceInput : undefined;
@@ -137,7 +151,7 @@ async function getPerformanceFileKeyList(answer: RecommendOnboardingAnswer): Pro
     },
     throwOnError: true,
   });
-  const presignedFileList = presignedResponse.data.data ?? [];
+  const presignedFileList = presignedResponse.data.data;
 
   if (presignedFileList.length !== fileList.length) {
     throw new Error('성과 파일 업로드 정보를 모두 받지 못했어요. 다시 시도해 주세요.');
@@ -188,7 +202,7 @@ export function createSubmitOnboardingRequest(
     budgetMin: answer.budget.minAmount,
     budgetMax: answer.budget.maxAmount,
     period: CAMPAIGN_PERIOD_MAP[answer.campaignPeriod],
-    adExperience: answer.adExperience.type === 'FIRST_TIME' ? 'NONE' : 'EXPERIENCED',
+    adExperience: mapAdExperience(answer, rawFileKeys),
     adHistory: mapManualAdHistory(answer),
     rawFileKeys,
   };
@@ -202,7 +216,5 @@ export async function submitRecommendOnboarding(
     body: createSubmitOnboardingRequest(answer, rawFileKeys),
     throwOnError: true,
   });
-  const responseData = response.data as { data: OnboardingSubmitResponse };
-
-  return responseData.data;
+  return response.data.data;
 }

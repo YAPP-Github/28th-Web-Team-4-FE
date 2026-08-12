@@ -50,7 +50,7 @@ export function RecommendOnboardingPage(): JSX.Element {
 
       <main
         ref={scrollContainerRef}
-        className="bg-surface-background-default px-016 py-024 sm:px-032 min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[max(24px,calc(100dvh-160px))] [overflow-anchor:none] lg:px-120"
+        className="bg-surface-background-default px-016 py-024 sm:px-032 min-h-0 flex-1 overflow-y-auto overscroll-contain [overflow-anchor:none] lg:px-120"
       >
         <Box className="mx-auto w-full max-w-[1200px] lg:grid lg:grid-cols-[204px_minmax(0,792px)_1fr]">
           <Stack className="gap-024 w-full lg:col-start-2">

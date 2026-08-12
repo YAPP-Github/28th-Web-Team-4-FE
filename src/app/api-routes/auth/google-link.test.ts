@@ -37,7 +37,7 @@ function googleLinkRequest(
 
 function successResponse(): Awaited<ReturnType<typeof linkGoogle>> {
   return {
-    data: { success: true, data: tokens },
+    data: { success: true, data: tokens, error: null, code: null },
     response: new Response(null, { status: 200 }),
   };
 }
@@ -47,7 +47,9 @@ function errorResponse(status: number): Awaited<ReturnType<typeof linkGoogle>> {
     data: undefined,
     error: {
       success: false,
+      data: null,
       error: { code: 'AUTH-009', message: '계정 연결에 실패했습니다.', fieldErrors: [] },
+      code: null,
     },
     response: new Response(null, { status }),
   };
@@ -110,20 +112,28 @@ describe('Google account link BFF', () => {
     expect(response.status).toBe(409);
     expect(await response.json()).toEqual({
       success: false,
+      data: null,
       error: {
         code: 'AUTH-009',
         message: '계정 연결에 실패했습니다.',
         fieldErrors: [],
       },
+      code: null,
     });
     expect(writeAuthSessionMock).not.toHaveBeenCalled();
   });
 
   it('rejects a malformed successful response without replacing the current session', async () => {
-    linkGoogleMock.mockResolvedValue({
-      data: { success: true, data: { code: 'GOOGLE_ACCOUNT_LINKED' } },
+    const malformedResponse = {
+      data: {
+        success: true,
+        data: { code: 'GOOGLE_ACCOUNT_LINKED' },
+        error: null,
+        code: null,
+      },
       response: new Response(null, { status: 200 }),
-    });
+    } as unknown as Awaited<ReturnType<typeof linkGoogle>>;
+    linkGoogleMock.mockResolvedValue(malformedResponse);
 
     const response = await postGoogleLink(googleLinkRequest());
 

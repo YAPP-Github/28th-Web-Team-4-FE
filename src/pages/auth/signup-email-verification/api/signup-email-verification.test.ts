@@ -20,7 +20,7 @@ describe('signup email verification API', () => {
 
   it('returns the signup branch after sending the code', async () => {
     sendSignupCodeMock.mockResolvedValue({
-      data: { success: true },
+      data: { success: true, data: null, error: null, code: null },
       response: new Response(null, { status: 200 }),
     });
 
@@ -33,7 +33,7 @@ describe('signup email verification API', () => {
 
   it('returns the Google branch without treating the response as a sent code', async () => {
     sendSignupCodeMock.mockResolvedValue({
-      data: { success: true, code: 'EMAIL_ALREADY_USED_WITH_GOOGLE' },
+      data: { success: true, data: null, error: null, code: 'EMAIL_ALREADY_USED_WITH_GOOGLE' },
       response: new Response(null, { status: 200 }),
     });
 
@@ -51,7 +51,7 @@ describe('signup email verification API', () => {
 
   it('rejects an unexpected send-code response', async () => {
     sendSignupCodeMock.mockResolvedValue({
-      data: { success: true, code: 'UNKNOWN_CODE' },
+      data: { success: true, data: null, error: null, code: 'UNKNOWN_CODE' },
       response: new Response(null, { status: 200 }),
     });
 
@@ -62,7 +62,7 @@ describe('signup email verification API', () => {
 
   it('rejects an unsuccessful send-code response', async () => {
     sendSignupCodeMock.mockResolvedValue({
-      data: { success: false },
+      data: { success: false, data: null, error: null, code: null },
       response: new Response(null, { status: 200 }),
     });
 
@@ -73,7 +73,7 @@ describe('signup email verification API', () => {
 
   it('verifies the signup code', async () => {
     verifySignupCodeMock.mockResolvedValue({
-      data: { success: true },
+      data: { success: true, data: null, error: null, code: null },
       response: new Response(null, { status: 200 }),
     });
 

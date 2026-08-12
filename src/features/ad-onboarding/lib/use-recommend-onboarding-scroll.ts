@@ -3,20 +3,34 @@
 import { useCallback, useEffect, useRef, type RefObject } from 'react';
 import { useReducedMotion } from 'motion/react';
 
+import { useOnboardingBottomSpacerHeight } from './use-onboarding-bottom-spacer-height';
+
 export type RecommendOnboardingScroll = {
   activeStepRef: RefObject<HTMLDivElement | null>;
   latestAnswerRef: RefObject<HTMLDivElement | null>;
+  contentEndRef: RefObject<HTMLDivElement | null>;
+  bottomSpacerHeight: number;
   scrollToActiveStep: () => void;
   scrollToLatestAnswer: () => void;
 };
+
+const ONBOARDING_BOTTOM_INSET = 24;
 
 export function useRecommendOnboardingScroll(
   scrollContainerRef: RefObject<HTMLElement | null>,
 ): RecommendOnboardingScroll {
   const activeStepRef = useRef<HTMLDivElement>(null);
   const latestAnswerRef = useRef<HTMLDivElement>(null);
+  const contentEndRef = useRef<HTMLDivElement>(null);
   const scrollFrameRef = useRef<number | null>(null);
   const shouldReduceMotion = useReducedMotion();
+  const bottomSpacerHeight = useOnboardingBottomSpacerHeight({
+    scrollContainerRef,
+    activeStepRef,
+    latestAnswerRef,
+    contentEndRef,
+    bottomInset: ONBOARDING_BOTTOM_INSET,
+  });
 
   const scheduleScrollToElement = useCallback(
     (elementRef: RefObject<HTMLDivElement | null>): void => {
@@ -71,6 +85,8 @@ export function useRecommendOnboardingScroll(
   return {
     activeStepRef,
     latestAnswerRef,
+    contentEndRef,
+    bottomSpacerHeight,
     scrollToActiveStep,
     scrollToLatestAnswer,
   };

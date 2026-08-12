@@ -1,13 +1,13 @@
-import type { JSX, ReactNode, Ref } from 'react';
+import type { JSX } from 'react';
 
-import { Check, Lock, Plus } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion, type Variants } from 'motion/react';
+import { Check, Lock } from 'lucide-react';
 import Image, { type ImageProps } from 'next/image';
 import Link from 'next/link';
 
 import type { RecommendedChannel } from '@/pages/recommend-result/model/recommended-channels';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
+import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
@@ -23,54 +23,6 @@ type RecommendedChannelCardProps = {
   onOpenDetail: (channel: RecommendedChannel) => void;
   onToggleSelection: (channelId: string) => void;
 };
-
-const SELECTION_EASE_OUT_CUBIC = [0.215, 0.61, 0.355, 1] as const;
-type SelectionMotionType = 'icon' | 'label';
-
-const selectionMotionVariants: Variants = {
-  initial: (type: SelectionMotionType) => ({
-    opacity: 0,
-    filter: 'blur(2px)',
-    scale: type === 'icon' ? 0.9 : 0.98,
-    y: type === 'label' ? 2 : 0,
-  }),
-  animate: { opacity: 1, filter: 'blur(0px)', scale: 1, y: 0 },
-  exit: (type: SelectionMotionType) => ({
-    opacity: 0,
-    filter: 'blur(2px)',
-    scale: type === 'icon' ? 0.9 : 0.98,
-    y: type === 'label' ? 2 : 0,
-  }),
-};
-
-type SelectionMotionProps = {
-  children: ReactNode;
-  className: string;
-  type: SelectionMotionType;
-  ref?: Ref<HTMLSpanElement>;
-};
-
-function SelectionMotion({ children, className, type, ref }: SelectionMotionProps): JSX.Element {
-  const shouldReduceMotion = useReducedMotion();
-
-  return (
-    <motion.span
-      ref={ref}
-      aria-hidden="true"
-      className={className}
-      custom={type}
-      initial={shouldReduceMotion ? false : 'initial'}
-      animate="animate"
-      exit="exit"
-      variants={selectionMotionVariants}
-      transition={
-        shouldReduceMotion ? { duration: 0 } : { duration: 0.18, ease: SELECTION_EASE_OUT_CUBIC }
-      }
-    >
-      {children}
-    </motion.span>
-  );
-}
 
 export function RecommendedChannelCard({
   channel,
@@ -93,7 +45,12 @@ export function RecommendedChannelCard({
   return (
     <Stack
       as="article"
-      className="group relative w-full max-w-[282px] cursor-pointer overflow-visible rounded-[var(--radius-l)] motion-safe:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)] motion-safe:transition-[translate,box-shadow] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:focus-within:-translate-y-1 motion-safe:hover:-translate-y-1 motion-safe:hover:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)] max-sm:max-w-[min(282px,calc(100%_-_80px))]"
+      data-selected={selected ? 'true' : undefined}
+      className={cn(
+        'group relative h-full w-full max-w-[282px] cursor-pointer overflow-visible rounded-[var(--radius-l)]',
+        'motion-safe:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)] motion-safe:transition-[translate,box-shadow] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:focus-within:-translate-y-1 motion-safe:hover:-translate-y-1 motion-safe:hover:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)]',
+        'max-sm:max-w-[min(282px,calc(100%_-_80px))]',
+      )}
       aria-labelledby={`${channel.id}-title`}
     >
       {channel.id === 'kakao-business' ? (
@@ -119,14 +76,16 @@ export function RecommendedChannelCard({
       {!locked && (
         <button
           type="button"
-          aria-label={`${channel.name} 상세 정보 열기`}
-          onClick={() => onOpenDetail(channel)}
+          role="checkbox"
+          aria-checked={selected}
+          aria-label={`${channel.name} 비교 목록 선택`}
+          onClick={() => onToggleSelection(channel.id)}
           className="focus-visible:outline-outline-high absolute inset-0 z-10 cursor-pointer appearance-none rounded-[var(--radius-l)] border-0 bg-transparent p-0 focus-visible:outline-2 focus-visible:outline-offset-2"
         />
       )}
 
-      <Stack className="relative">
-        <Box className={locked ? 'blur-[4px]' : ''}>
+      <Stack className="relative h-full">
+        <Box className={cn('flex h-full flex-col', locked && 'blur-[4px]')}>
           <Box className="pointer-events-none relative h-[124px] w-full overflow-hidden rounded-t-[var(--radius-l)]">
             <Image
               src={channel.thumbnailSrc}
@@ -143,9 +102,19 @@ export function RecommendedChannelCard({
             >
               적합도 {channel.matchRate}%
             </Badge>
+            <Box
+              aria-hidden
+              data-testid="recommend-channel-select-indicator"
+              className={cn(
+                'top-018 right-020 absolute flex size-020 items-center justify-center rounded-full motion-safe:transition-colors motion-safe:duration-150 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none',
+                selected ? 'bg-sys-primary-default' : 'bg-icon-low',
+              )}
+            >
+              <Check className="text-text-lowest size-014" strokeWidth={2.4} />
+            </Box>
           </Box>
 
-          <VStack className="shadow-drop-shadow-02 bg-surface-lowest pointer-events-none relative min-h-[416px] w-full rounded-b-[var(--radius-l)] p-[28px]">
+          <VStack className="shadow-drop-shadow-02 bg-surface-lowest pointer-events-none relative min-h-[416px] w-full flex-1 rounded-b-[var(--radius-l)] p-[28px]">
             <VStack className="gap-022 w-full flex-1">
               <VStack className="gap-022 w-full">
                 <VStack className="gap-010 w-full max-w-[175px] text-center">
@@ -192,45 +161,28 @@ export function RecommendedChannelCard({
               <Button
                 frame="button"
                 tone="stroke"
-                aria-label={selected ? '채널 선택 완료' : '비교 목록에 담기'}
-                aria-pressed={selected}
-                className={`motion-safe:ease-out-cubic pointer-events-auto relative z-20 mt-auto w-full motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none ${
-                  selected
-                    ? 'border-icon-primary-low bg-sys-primary-lower text-icon-primary-low hover:not-data-disabled:bg-sys-primary-lower'
-                    : ''
-                }`}
+                type="button"
+                aria-label={`${channel.name} 상세 정보 열기`}
+                className="pointer-events-auto relative z-20 mt-auto w-full"
                 onClick={() => {
-                  onToggleSelection(channel.id);
+                  onOpenDetail(channel);
                 }}
-                leftIcon={
-                  <AnimatePresence initial={false} mode="popLayout">
-                    <SelectionMotion
-                      key={selected ? 'selected-icon' : 'unselected-icon'}
-                      type="icon"
-                      className="size-016 inline-flex items-center justify-center"
-                    >
-                      {selected ? (
-                        <Check aria-hidden="true" className="size-016" />
-                      ) : (
-                        <Plus aria-hidden="true" className="size-016" />
-                      )}
-                    </SelectionMotion>
-                  </AnimatePresence>
-                }
               >
-                <AnimatePresence initial={false} mode="popLayout">
-                  <SelectionMotion
-                    key={selected ? 'selected-label' : 'unselected-label'}
-                    type="label"
-                    className="inline-block"
-                  >
-                    {selected ? '채널 선택 완료' : '비교 목록에 담기'}
-                  </SelectionMotion>
-                </AnimatePresence>
+                더 보기
               </Button>
             </VStack>
           </VStack>
         </Box>
+
+        <Box
+          aria-hidden
+          data-testid="recommend-channel-selection-outline"
+          className={cn(
+            'pointer-events-none absolute inset-0 z-20 rounded-[var(--radius-l)] shadow-[inset_0_0_0_2px_var(--color-outline-selected)]',
+            'motion-safe:transition-opacity motion-safe:duration-150 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none',
+            selected ? 'opacity-100' : 'opacity-0',
+          )}
+        />
 
         {locked && (
           <Box className="bg-sys-blur gap-008 absolute inset-0 z-30 flex flex-col items-center justify-center text-center">

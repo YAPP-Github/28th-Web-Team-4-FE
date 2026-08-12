@@ -12,6 +12,8 @@ function createChannel(
   return {
     id,
     name: `채널 ${id}`,
+    logoUrl: null,
+    description: null,
     primaryCategory,
   };
 }

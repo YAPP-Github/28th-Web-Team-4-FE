@@ -15,6 +15,7 @@ import {
   getChannel,
   getChannels,
   getLatestSimulation,
+  getMyProfile,
   getMySimulations,
   getRecommendations,
   getSampleById,
@@ -33,6 +34,7 @@ import {
   signup,
   signupGoogle,
   submitOnboarding,
+  updateMyProfile,
   verifySignupCode,
 } from '../sdk.gen';
 import type {
@@ -54,6 +56,9 @@ import type {
   GetLatestSimulationData,
   GetLatestSimulationError,
   GetLatestSimulationResponse,
+  GetMyProfileData,
+  GetMyProfileError,
+  GetMyProfileResponse,
   GetMySimulationsData,
   GetMySimulationsError,
   GetMySimulationsResponse,
@@ -105,6 +110,9 @@ import type {
   SubmitOnboardingData,
   SubmitOnboardingError,
   SubmitOnboardingResponse,
+  UpdateMyProfileData,
+  UpdateMyProfileError,
+  UpdateMyProfileResponse,
   VerifySignupCodeData,
   VerifySignupCodeError,
   VerifySignupCodeResponse,
@@ -728,6 +736,62 @@ export const linkGoogleMutation = (
   return mutationOptions;
 };
 
+export const getMyProfileQueryKey = (options?: Options<GetMyProfileData>) =>
+  createQueryKey('getMyProfile', options);
+
+/**
+ * 내 정보 조회
+ *
+ * 닉네임, 이메일, 회사, 직무를 반환한다.
+ */
+export const getMyProfileOptions = (options?: Options<GetMyProfileData>) =>
+  queryOptions<
+    GetMyProfileResponse,
+    GetMyProfileError,
+    GetMyProfileResponse,
+    ReturnType<typeof getMyProfileQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getMyProfile({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getMyProfileQueryKey(options),
+  });
+
+/**
+ * 내 정보 수정
+ *
+ * 회사와 직무만 수정한다.
+ */
+export const updateMyProfileMutation = (
+  options?: Partial<Options<UpdateMyProfileData>>,
+): UseMutationOptions<
+  UpdateMyProfileResponse,
+  UpdateMyProfileError,
+  Options<UpdateMyProfileData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateMyProfileResponse,
+    UpdateMyProfileError,
+    Options<UpdateMyProfileData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await updateMyProfile({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
 export const getSimulationQueryKey = (options: Options<GetSimulationData>) =>
   createQueryKey('getSimulation', options);
 
@@ -890,6 +954,8 @@ export const getChannelQueryKey = (options: Options<GetChannelData>) =>
  * 채널 상세 조회
  *
  * 채널 단건을 상세 조회한다. 채널 정보와 함께 광고 상품 목록, 오디언스 규모 지표, 집행 사례를 반환한다. 상품이 없는 채널은 products 를 빈 배열로 반환한다.
+ *
+ * 추천 목록에서 들어온 경우 그 추천의 onboardingId 를 함께 넘기면, 추천 근거가 된 온보딩 선택지(광고 목표·업종·예산)를 recommendationBasis 로 반환한다.
  */
 export const getChannelOptions = (options: Options<GetChannelData>) =>
   queryOptions<

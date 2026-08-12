@@ -31,7 +31,7 @@ export function getRecommendedChannelDetail(channel: RecommendedChannel): Channe
         name: '기본 광고 상품',
         budgetRange: `${minimumBudget}부터`,
         expectedImpressions,
-        ctr: null,
+        expectedClicks: getMetricValue(channel, '예상 클릭'),
       },
     ],
     productsNote: `${billingMethod} 기준 예상 데이터이며 실제 성과는 캠페인 설정에 따라 달라질 수 있어요.`,

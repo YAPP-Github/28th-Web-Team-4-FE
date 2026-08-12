@@ -78,6 +78,38 @@ describe('createSubmitOnboardingRequest', () => {
     expect(request.adExperience).toBe('EXPERIENCED');
     expect(request.adHistory).toEqual([{ channelNameRaw: '네이버 SA' }]);
   });
+
+  it('maps skipped experienced ad performance input to API NONE', () => {
+    const request = createSubmitOnboardingRequest({
+      ...baseAnswer,
+      adExperience: {
+        type: 'EXPERIENCED',
+      },
+    });
+
+    expect(request.adExperience).toBe('NONE');
+    expect(request.adHistory).toEqual([]);
+    expect(request.rawFileKeys).toEqual([]);
+  });
+
+  it('maps uploaded ad performance input to API EXPERIENCED when file keys exist', () => {
+    const request = createSubmitOnboardingRequest(
+      {
+        ...baseAnswer,
+        adExperience: {
+          type: 'EXPERIENCED',
+          performanceInput: {
+            mode: 'UPLOAD',
+            fileList: [{ id: 'first', name: 'first.csv', size: 3 }],
+          },
+        },
+      },
+      ['raw/first.csv'],
+    );
+
+    expect(request.adExperience).toBe('EXPERIENCED');
+    expect(request.rawFileKeys).toEqual(['raw/first.csv']);
+  });
 });
 
 describe('submitRecommendOnboarding', () => {
@@ -122,6 +154,8 @@ describe('submitRecommendOnboarding', () => {
             expiresAt: '2026-08-07T00:00:00Z',
           },
         ],
+        error: null,
+        code: null,
       },
       response: new Response(null, { status: 200 }),
     });
@@ -132,6 +166,8 @@ describe('submitRecommendOnboarding', () => {
           onboardingId: 'onboarding-1',
           createdAt: '2026-08-07T00:00:00Z',
         },
+        error: null,
+        code: null,
       },
       response: new Response(null, { status: 201 }),
     });
@@ -194,6 +230,8 @@ describe('submitRecommendOnboarding', () => {
             expiresAt: '2026-08-07T00:00:00Z',
           },
         ],
+        error: null,
+        code: null,
       },
       response: new Response(null, { status: 200 }),
     });
