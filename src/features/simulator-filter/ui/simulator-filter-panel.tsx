@@ -354,7 +354,16 @@ export function SimulatorFilterPanel({
   onSimulationResult,
 }: SimulatorFilterPanelProps): JSX.Element {
   const [applyError, setApplyError] = useState<string | null>(null);
-  const simulationMutation = useMutation(estimateSimulationMutation());
+  const simulationMutation = useMutation({
+    ...estimateSimulationMutation(),
+    onSuccess: (response) => {
+      onSimulationResult(response.data);
+      onOpenChange(false);
+    },
+    onError: () => {
+      setApplyError('시뮬레이션 결과를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+    },
+  });
   const { channels, isError, isPending } = useSimulatorFilterChannels(selectedChannelIds);
   const {
     channelBudgets,
@@ -374,23 +383,16 @@ export function SimulatorFilterPanel({
     !isPending && !isError && channels.length === selectedChannelIds.length;
   const isApplyDisabled = !isChannelDataReady || period === null || simulationMutation.isPending;
 
-  const handleApply = async () => {
+  const handleApply = () => {
     if (isApplyDisabled) {
       return;
     }
 
     setApplyError(null);
 
-    try {
-      const response = await simulationMutation.mutateAsync({
-        body: createSimulationRequest({ totalBudget, period, channelBudgets }, selectedChannelIds),
-      });
-
-      onSimulationResult(response.data);
-      onOpenChange(false);
-    } catch {
-      setApplyError('시뮬레이션 결과를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
-    }
+    simulationMutation.mutate({
+      body: createSimulationRequest({ totalBudget, period, channelBudgets }, selectedChannelIds),
+    });
   };
 
   const handleReset = () => {
@@ -454,7 +456,7 @@ export function SimulatorFilterPanel({
               isDirty={hasChanges}
               disabled={isApplyDisabled}
               isApplying={simulationMutation.isPending}
-              onApply={() => void handleApply()}
+              onApply={handleApply}
               onReset={handleReset}
             />
             {applyError ? (
