@@ -29,35 +29,38 @@ const getChannelBudgetMax = (state: SimulatorFilterState, channelId: string): nu
 };
 
 const hasFilterChanges = (
-  state: SimulatorFilterState,
-  initialState: SimulatorFilterState,
+  filterState: SimulatorFilterState,
+  initialFilterState: SimulatorFilterState,
 ): boolean => {
-  if (state.totalBudget !== initialState.totalBudget) {
+  if (filterState.totalBudget !== initialFilterState.totalBudget) {
     return true;
   }
 
-  if (state.period !== initialState.period) {
+  if (filterState.period !== initialFilterState.period) {
     return true;
   }
 
-  return Object.entries(state.channelBudgets).some(
-    ([type, budget]) => budget !== initialState.channelBudgets[type],
+  return Object.entries(filterState.channelBudgets).some(
+    ([type, budget]) => budget !== initialFilterState.channelBudgets[type],
   );
 };
 
 export function useSimulatorFilter(channelIds: readonly string[]) {
-  const initialState = useMemo(() => createInitialSimulatorFilterState(channelIds), [channelIds]);
-  const [state, setState] = useState(initialState);
+  const initialFilterState = useMemo(
+    () => createInitialSimulatorFilterState(channelIds),
+    [channelIds],
+  );
+  const [filterState, setFilterState] = useState(initialFilterState);
 
-  const allocatedBudget = useMemo(() => getAllocatedBudget(state), [state]);
+  const allocatedBudget = useMemo(() => getAllocatedBudget(filterState), [filterState]);
   const selectedPeriod = useMemo(
-    () => FILTER_PERIOD_OPTIONS.find((option) => option.value === state.period),
-    [state.period],
+    () => FILTER_PERIOD_OPTIONS.find((option) => option.value === filterState.period),
+    [filterState.period],
   );
 
   const setTotalBudget = useCallback(
     (totalBudget: number) => {
-      setState((currentState) => {
+      setFilterState((currentState) => {
         const nextTotalBudget = clamp(
           totalBudget,
           SIMULATOR_FILTER_TOTAL_BUDGET_MIN,
@@ -71,19 +74,19 @@ export function useSimulatorFilter(channelIds: readonly string[]) {
         return {
           ...currentState,
           totalBudget: nextTotalBudget,
-          channelBudgets: initialState.channelBudgets,
+          channelBudgets: initialFilterState.channelBudgets,
         };
       });
     },
-    [initialState],
+    [initialFilterState],
   );
 
   const setPeriod = useCallback((period: SimulatorFilterPeriodValue) => {
-    setState((currentState) => ({ ...currentState, period }));
+    setFilterState((currentState) => ({ ...currentState, period }));
   }, []);
 
   const setChannelBudget = useCallback((channelId: string, budget: number) => {
-    setState((currentState) => ({
+    setFilterState((currentState) => ({
       ...currentState,
       channelBudgets: {
         ...currentState.channelBudgets,
@@ -93,7 +96,7 @@ export function useSimulatorFilter(channelIds: readonly string[]) {
   }, []);
 
   const resetChannelBudget = useCallback((channelId: string) => {
-    setState((currentState) => ({
+    setFilterState((currentState) => ({
       ...currentState,
       channelBudgets: {
         ...currentState.channelBudgets,
@@ -103,20 +106,20 @@ export function useSimulatorFilter(channelIds: readonly string[]) {
   }, []);
 
   const resetFilters = useCallback(() => {
-    setState(initialState);
-  }, [initialState]);
+    setFilterState(initialFilterState);
+  }, [initialFilterState]);
 
   const getChannelMaxBudgetForType = useCallback(
-    (channelId: string) => getChannelBudgetMax(state, channelId),
-    [state],
+    (channelId: string) => getChannelBudgetMax(filterState, channelId),
+    [filterState],
   );
 
   return {
-    ...state,
+    ...filterState,
     allocatedBudget,
     dailyBudgetDays: selectedPeriod?.days ?? null,
     getChannelMaxBudget: getChannelMaxBudgetForType,
-    hasChanges: hasFilterChanges(state, initialState),
+    hasChanges: hasFilterChanges(filterState, initialFilterState),
     setChannelBudget,
     setPeriod,
     setTotalBudget,
