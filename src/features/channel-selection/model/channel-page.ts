@@ -5,6 +5,7 @@ import type {
 
 export type ChannelListItem = ChannelListItemResponse;
 export type ChannelPage = NonNullable<PageResponseChannelListItemResponse>;
+export type ChannelCategory = ChannelListItem['primaryCategory'];
 
 export const CHANNEL_PAGE_SIZE = 12;
 export const CHANNEL_CATEGORY_OPTION_LIST = [
@@ -26,13 +27,19 @@ export const CHANNEL_CATEGORY_OPTION_LIST = [
   { value: 'NEWS_INFORMATION', label: '뉴스·정보' },
   { value: 'OTHERS', label: '기타' },
 ] as const satisfies readonly {
-  value: ChannelListItem['primaryCategory'];
+  value: ChannelCategory;
   label: string;
 }[];
 
-export function getChannelCategoryLabel(
-  primaryCategory: ChannelListItem['primaryCategory'],
-): string {
+export function normalizeChannelCategories(categories: readonly string[]): ChannelCategory[] {
+  const selectedCategories = new Set(categories);
+
+  return CHANNEL_CATEGORY_OPTION_LIST.flatMap(({ value }) =>
+    selectedCategories.has(value) ? [value] : [],
+  );
+}
+
+export function getChannelCategoryLabel(primaryCategory: ChannelCategory): string {
   return (
     CHANNEL_CATEGORY_OPTION_LIST.find((option) => option.value === primaryCategory)?.label ?? '기타'
   );
