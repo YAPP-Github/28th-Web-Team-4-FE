@@ -231,6 +231,59 @@ function FilterChannelBudgetCard({
   );
 }
 
+function FilterChannelContent({
+  channels,
+  channelBudgets,
+  getChannelMaxBudget,
+  isError,
+  isPending,
+  totalBudget,
+  onBudgetChange,
+  onReset,
+}: {
+  channels: readonly SimulatorFilterChannel[];
+  channelBudgets: Record<string, number>;
+  getChannelMaxBudget: (channelId: string) => number;
+  isError: boolean;
+  isPending: boolean;
+  totalBudget: number;
+  onBudgetChange: (channelId: string, value: number) => void;
+  onReset: (channelId: string) => void;
+}): JSX.Element {
+  if (isPending) {
+    return (
+      <Text role="status" variant="body-lg" className="text-text-low">
+        채널 정보를 불러오는 중이에요
+      </Text>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Text role="alert" variant="body-lg" className="text-text-low">
+        채널 정보를 불러오지 못했어요
+      </Text>
+    );
+  }
+
+  return (
+    <>
+      {channels.map((channel) => (
+        <FilterChannelBudgetCard
+          key={channel.id}
+          channelId={channel.id}
+          channelName={channel.name}
+          budget={channelBudgets[channel.id] ?? 0}
+          maxAllowedBudget={getChannelMaxBudget(channel.id)}
+          totalBudget={totalBudget}
+          onBudgetChange={onBudgetChange}
+          onReset={onReset}
+        />
+      ))}
+    </>
+  );
+}
+
 function FilterChannelSection({
   channels,
   channelBudgets,
@@ -250,39 +303,6 @@ function FilterChannelSection({
   onBudgetChange: (channelId: string, value: number) => void;
   onReset: (channelId: string) => void;
 }): JSX.Element {
-  let channelContent: JSX.Element;
-
-  if (isPending) {
-    channelContent = (
-      <Text role="status" variant="body-lg" className="text-text-low">
-        채널 정보를 불러오는 중이에요
-      </Text>
-    );
-  } else if (isError) {
-    channelContent = (
-      <Text role="alert" variant="body-lg" className="text-text-low">
-        채널 정보를 불러오지 못했어요
-      </Text>
-    );
-  } else {
-    channelContent = (
-      <>
-        {channels.map((channel) => (
-          <FilterChannelBudgetCard
-            key={channel.id}
-            channelId={channel.id}
-            channelName={channel.name}
-            budget={channelBudgets[channel.id] ?? 0}
-            maxAllowedBudget={getChannelMaxBudget(channel.id)}
-            totalBudget={totalBudget}
-            onBudgetChange={onBudgetChange}
-            onReset={onReset}
-          />
-        ))}
-      </>
-    );
-  }
-
   return (
     <Box
       as="section"
@@ -302,7 +322,18 @@ function FilterChannelSection({
           슬라이더로 채널별 예산을 조정하세요
         </Text>
       </Box>
-      <Box className="gap-010 flex w-full flex-col">{channelContent}</Box>
+      <Box className="gap-010 flex w-full flex-col">
+        <FilterChannelContent
+          channels={channels}
+          channelBudgets={channelBudgets}
+          getChannelMaxBudget={getChannelMaxBudget}
+          isError={isError}
+          isPending={isPending}
+          totalBudget={totalBudget}
+          onBudgetChange={onBudgetChange}
+          onReset={onReset}
+        />
+      </Box>
     </Box>
   );
 }
