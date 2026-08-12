@@ -83,7 +83,7 @@ function getMetricRange(
   item: SimulationItemResponse | undefined,
   metric: 'impressions' | 'clicks',
 ): CountRangeResponse | undefined {
-  return metric === 'impressions' ? item?.estImpressions : item?.estClicks;
+  return (metric === 'impressions' ? item?.estImpressions : item?.estClicks) ?? undefined;
 }
 
 function getRangeCenter(range?: CountRangeResponse): number {
