@@ -117,24 +117,24 @@ function channelPageResponse(page: PageResponseChannelListItemResponse) {
 }
 
 function defaultChannelResponse(url: URL) {
-  const pageParam = url.searchParams.get('page');
-
-  if (pageParam === null) {
-    return channelPageResponse(
-      createChannelPage(ALL_CHANNELS, {
-        size: ALL_CHANNELS.length,
-        totalElements: ALL_CHANNELS.length,
-      }),
-    );
-  }
-
-  const page = Number(pageParam);
+  const page = Number(url.searchParams.get('page') ?? 0);
+  const size = Number(url.searchParams.get('size') ?? 12);
+  const name = url.searchParams.get('name')?.trim() ?? '';
+  const primaryCategories = url.searchParams.getAll('primaryCategory');
+  const filteredChannels = ALL_CHANNELS.filter(
+    (channel) =>
+      (name.length === 0 || channel.name.includes(name)) &&
+      (primaryCategories.length === 0 || primaryCategories.includes(channel.primaryCategory)),
+  );
+  const pageStart = page * size;
+  const totalPages = Math.ceil(filteredChannels.length / size);
 
   return channelPageResponse(
-    createChannelPage(createPageChannels(page), {
+    createChannelPage(filteredChannels.slice(pageStart, pageStart + size), {
       number: page,
-      totalElements: DEFAULT_CHANNELS.length * TOTAL_PAGE_COUNT,
-      totalPages: TOTAL_PAGE_COUNT,
+      size,
+      totalElements: filteredChannels.length,
+      totalPages,
     }),
   );
 }
@@ -315,14 +315,14 @@ describe('ComparePage', () => {
   });
 
   it('여러 카테고리를 정확히 필터링하고 첫 페이지로 돌아간다', async () => {
-    const unpagedRequests: URL[] = [];
+    const filteredRequests: URL[] = [];
 
     server.use(
       http.get(/\/api\/v1\/channels$/, ({ request }) => {
         const url = new URL(request.url);
 
-        if (!url.searchParams.has('page') && !url.searchParams.has('size')) {
-          unpagedRequests.push(url);
+        if (url.searchParams.has('primaryCategory')) {
+          filteredRequests.push(url);
         }
 
         return defaultChannelResponse(url);
@@ -345,7 +345,10 @@ describe('ComparePage', () => {
 
     await waitFor(() => {
       expect(categoryDropdown).toHaveTextContent('교육 외 1개');
-      expect(unpagedRequests.length).toBeGreaterThan(0);
+      expect(filteredRequests.at(-1)?.searchParams.getAll('primaryCategory')).toEqual([
+        'EDUCATION',
+        'SHOPPING_COMMERCE',
+      ]);
     });
     expect(screen.getByRole('checkbox', { name: '교육 선택' })).toBeChecked();
     expect(screen.getByRole('checkbox', { name: '쇼핑·커머스 선택' })).toBeChecked();
@@ -355,8 +358,8 @@ describe('ComparePage', () => {
     );
     expect(screen.getByText('네이버 검색 광고')).toBeVisible();
     expect(screen.getByText('카카오 키워드 광고')).toBeVisible();
-    expect(unpagedRequests[0]?.searchParams.has('page')).toBe(false);
-    expect(unpagedRequests[0]?.searchParams.has('size')).toBe(false);
+    expect(filteredRequests.at(-1)?.searchParams.get('page')).toBe('0');
+    expect(filteredRequests.at(-1)?.searchParams.get('size')).toBe('12');
   });
 
   it('기타 선택 시 API의 OTHERS 카테고리를 그대로 필터링한다', async () => {

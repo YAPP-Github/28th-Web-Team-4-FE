@@ -1,10 +1,6 @@
-import type {
-  ChannelListItemResponse,
-  PageResponseChannelListItemResponse,
-} from '@/shared/api/generated';
+import type { ChannelListItemResponse } from '@/shared/api/generated';
 
 export type ChannelListItem = ChannelListItemResponse;
-export type ChannelPage = NonNullable<PageResponseChannelListItemResponse>;
 export type ChannelCategory = ChannelListItem['primaryCategory'];
 
 export const CHANNEL_PAGE_SIZE = 12;
@@ -43,34 +39,4 @@ export function getChannelCategoryLabel(primaryCategory: ChannelCategory): strin
   return (
     CHANNEL_CATEGORY_OPTION_LIST.find((option) => option.value === primaryCategory)?.label ?? '기타'
   );
-}
-
-export function createCategoryChannelPage(
-  channels: readonly ChannelListItem[],
-  categories: readonly string[],
-  page: number,
-): ChannelPage {
-  const filteredChannels =
-    categories.length === 0
-      ? [...channels]
-      : channels.filter((channel) => categories.includes(channel.primaryCategory));
-  const currentPage = Math.max(1, Math.trunc(page));
-  const pageIndex = currentPage - 1;
-  const totalElements = filteredChannels.length;
-  const totalPages = Math.ceil(totalElements / CHANNEL_PAGE_SIZE);
-  const pageStartIndex = pageIndex * CHANNEL_PAGE_SIZE;
-  const content =
-    pageIndex < totalPages
-      ? filteredChannels.slice(pageStartIndex, pageStartIndex + CHANNEL_PAGE_SIZE)
-      : [];
-
-  return {
-    content,
-    number: pageIndex,
-    size: CHANNEL_PAGE_SIZE,
-    totalElements,
-    totalPages,
-    first: pageIndex === 0,
-    last: totalPages === 0 || pageIndex >= totalPages - 1,
-  };
 }

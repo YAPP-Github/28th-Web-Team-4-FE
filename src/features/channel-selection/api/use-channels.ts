@@ -8,7 +8,10 @@ import type {
   PageResponseChannelListItemResponse,
 } from '@/shared/api/generated';
 
-import { CHANNEL_PAGE_SIZE } from '@/features/channel-selection/model/channel-page';
+import {
+  type ChannelCategory,
+  CHANNEL_PAGE_SIZE,
+} from '@/features/channel-selection/model/channel-page';
 
 function selectChannelPage(
   data: GetChannelsResponse,
@@ -16,12 +19,19 @@ function selectChannelPage(
   return data.data;
 }
 
-export function useChannels(searchKeyword: string, page?: number) {
+type UseChannelsOptions = {
+  categories: readonly ChannelCategory[];
+  pageIndex: number;
+  searchKeyword: string;
+};
+
+export function useChannels({ categories, pageIndex, searchKeyword }: UseChannelsOptions) {
   const queryOptions = getChannelsOptions({
     query: {
       name: searchKeyword || undefined,
-      page,
-      size: page === undefined ? undefined : CHANNEL_PAGE_SIZE,
+      primaryCategory: categories.length > 0 ? [...categories] : undefined,
+      page: pageIndex,
+      size: CHANNEL_PAGE_SIZE,
     },
   });
 
