@@ -1,18 +1,19 @@
 'use client';
 
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
-import { Download, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 
-import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
 export type RecommendResultSubHeaderProps = {
+  action: ReactNode;
   serviceName: string;
 };
 
 export function RecommendResultSubHeader({
+  action,
   serviceName,
 }: RecommendResultSubHeaderProps): JSX.Element {
   const title = (
@@ -72,14 +73,7 @@ export function RecommendResultSubHeader({
             입력하신 조건으로 분석했어요
           </Text>
         </Box>
-        <Button
-          frame="button"
-          tone="stroke"
-          className="border-outline-low h-044 px-020 py-010 w-full lg:w-auto"
-          leftIcon={<Download aria-hidden="true" className="text-icon-high size-016" />}
-        >
-          결과 저장하기
-        </Button>
+        {action}
       </Box>
     </Box>
   );
