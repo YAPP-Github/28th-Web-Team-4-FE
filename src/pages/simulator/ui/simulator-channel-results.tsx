@@ -92,6 +92,7 @@ export function SimulatorChannelResults({
         <AuthenticatedChannelResults
           isChannelSelectionComplete={isChannelSelectionComplete}
           selectedChannelIds={selectedChannelIds}
+          simulationResult={simulationResult}
         />
       ) : (
         <GuestChannelResults />

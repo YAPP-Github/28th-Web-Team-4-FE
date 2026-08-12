@@ -1,6 +1,12 @@
+'use client';
+
 import type { JSX, ReactNode } from 'react';
 import Image from 'next/image';
+import NumberFlow from '@number-flow/react';
+import { useReducedMotion } from 'motion/react';
 
+import type { SimulationResponse } from '@/shared/api/generated';
+import { getSimulatorCountDisplay } from '@/pages/simulator/model/simulator-channel';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
@@ -55,17 +61,32 @@ function MetricIcon({ type }: { type: MetricIconType }): JSX.Element {
 function SummaryMetric({
   icon,
   value,
+  suffix,
   label,
 }: {
   icon: MetricIconType;
-  value: string;
+  value: number;
+  suffix: string;
   label: string;
 }): JSX.Element {
+  const shouldReduceMotion = useReducedMotion();
+  const countDisplay = getSimulatorCountDisplay(value);
+
   return (
     <Box className="gap-010 flex min-w-0 flex-1 items-center justify-between">
       <Box className="gap-002 flex min-w-0 flex-col">
         <Text variant="display-lg" className="text-text-high whitespace-nowrap">
-          {value}
+          <NumberFlow
+            value={countDisplay.value}
+            locales="ko-KR"
+            suffix={suffix === '회' ? countDisplay.suffix : suffix}
+            format={countDisplay.format}
+            trend={1}
+            animated={!shouldReduceMotion}
+            transformTiming={{ duration: 500, easing: 'ease-out' }}
+            spinTiming={{ duration: 500, easing: 'ease-out' }}
+            opacityTiming={{ duration: 160, easing: 'ease-out' }}
+          />
         </Text>
         <Text variant="subtitle-xxs" className="text-text-low whitespace-nowrap">
           {label}
@@ -80,7 +101,15 @@ function MetricDivider(): ReactNode {
   return <Box aria-hidden className="bg-outline-low hidden h-[50px] w-px shrink-0 sm:block" />;
 }
 
-export function SimulatorResultSummary(): JSX.Element {
+export function SimulatorResultSummary({
+  simulationResult = null,
+}: {
+  simulationResult?: SimulationResponse | null;
+}): JSX.Element {
+  const executableChannelCount = simulationResult?.executableChannelCount ?? 0;
+  const totalImpressions = simulationResult?.totalEstImpressions ?? 0;
+  const totalClicks = simulationResult?.totalEstClicks ?? 0;
+
   return (
     <Box
       as="section"
@@ -91,11 +120,21 @@ export function SimulatorResultSummary(): JSX.Element {
         총 예상 성과
       </Text>
       <Box className="gap-016 flex w-full flex-col sm:flex-row sm:items-center sm:justify-between">
-        <SummaryMetric icon="channels" value="0개" label="집행 가능 채널" />
+        <SummaryMetric
+          icon="channels"
+          value={executableChannelCount}
+          suffix="개"
+          label="집행 가능 채널"
+        />
         <MetricDivider />
-        <SummaryMetric icon="impressions" value="0회" label="예상 총 노출" />
+        <SummaryMetric
+          icon="impressions"
+          value={totalImpressions}
+          suffix="회"
+          label="예상 총 노출"
+        />
         <MetricDivider />
-        <SummaryMetric icon="clicks" value="0회" label="예상 총 클릭" />
+        <SummaryMetric icon="clicks" value={totalClicks} suffix="회" label="예상 총 클릭" />
       </Box>
     </Box>
   );
