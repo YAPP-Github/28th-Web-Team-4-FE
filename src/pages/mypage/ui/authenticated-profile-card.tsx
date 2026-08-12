@@ -10,7 +10,7 @@ export function AuthenticatedProfileCard(): JSX.Element {
     <Box
       as="section"
       aria-labelledby="profile-title"
-      className="bg-surface-lowest gap-018 px-030 py-024 flex w-full flex-col rounded-l"
+      className="bg-surface-lowest gap-018 px-030 py-024 flex w-full flex-col rounded-[var(--radius-l)]"
     >
       <Box className="flex w-full items-center justify-between">
         <Text as="h2" id="profile-title" variant="heading-lg" className="text-text-highest">

@@ -23,7 +23,7 @@ function SavedResultPanel({ isLoggedIn }: { isLoggedIn: boolean }): JSX.Element 
   }
 
   return (
-    <Box className="gap-014 py-020 flex w-full flex-col items-center justify-end">
+    <Box className="gap-014 py-020 mt-018 flex w-full flex-col items-center justify-end">
       <Text as="p" variant="body-xl" className="text-text-low text-center">
         아직 저장된 추천 결과가 없어요
       </Text>
@@ -47,7 +47,7 @@ export function SavedResultsCard({ isLoggedIn }: { isLoggedIn: boolean }): JSX.E
     <Box
       as="section"
       aria-labelledby="saved-results-title"
-      className="bg-surface-lowest gap-018 px-030 py-024 flex w-full flex-col rounded-l"
+      className="bg-surface-lowest gap-018 px-030 py-024 flex w-full flex-col rounded-[var(--radius-l)]"
     >
       <Box className="gap-010 flex w-full flex-col">
         <Text as="h2" id="saved-results-title" variant="heading-lg" className="text-text-highest">
