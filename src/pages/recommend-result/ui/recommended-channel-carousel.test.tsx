@@ -210,12 +210,15 @@ describe('RecommendedChannelCarousel', () => {
     const user = userEvent.setup();
     render(<SelectionHarness />);
 
-    await user.click(screen.getAllByRole('button', { name: '비교 목록에 담기' })[0]);
+    await user.click(screen.getByRole('checkbox', { name: '네이버 검색 광고 비교 목록 선택' }));
     await user.click(screen.getByRole('button', { name: '다음 추천 채널 보기' }));
     await user.click(screen.getByRole('button', { name: '이전 추천 채널 보기' }));
 
-    expect(screen.getByRole('button', { name: '채널 선택 완료' })).toHaveAttribute(
-      'aria-pressed',
+    expect(
+      screen.getByRole('checkbox', { name: '네이버 검색 광고 비교 목록 선택' }),
+    ).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByRole('article', { name: '네이버 검색 광고' })).toHaveAttribute(
+      'data-selected',
       'true',
     );
   });

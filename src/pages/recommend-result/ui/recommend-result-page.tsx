@@ -18,6 +18,7 @@ import {
 } from '@/pages/recommend-result/model/recommended-channels';
 import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
+import { showWarningToast } from '@/shared/ui/toast';
 
 import { RecommendedChannelCarousel } from './recommended-channel-carousel';
 import { RecommendResultSaveAction } from './recommend-result-save-action';
@@ -35,6 +36,8 @@ type RecommendResultWithRecommendationsProps = {
 };
 
 const NUMBER_FLOW_EASE_OUT_CUBIC = 'cubic-bezier(0.215, 0.61, 0.355, 1)';
+const COMPARISON_LIMIT_TOAST_ID = 'recommend-comparison-limit';
+const COMPARISON_COMING_SOON_TOAST_ID = 'recommend-comparison-coming-soon';
 
 export function RecommendResultPage({
   channels = recommendedChannels,
@@ -49,8 +52,9 @@ export function RecommendResultPage({
     const change = toggleComparisonChannel(selectedChannelIds, channelId);
 
     if (change.result === 'max-reached') {
-      // eslint-disable-next-line no-alert -- The design explicitly requires a native alert here.
-      window.alert('비교 목록은 최대 3개까지 선택할 수 있어요.');
+      showWarningToast('비교 목록은 최대 3개까지 선택할 수 있어요.', {
+        id: COMPARISON_LIMIT_TOAST_ID,
+      });
       return;
     }
 
@@ -62,8 +66,9 @@ export function RecommendResultPage({
   };
 
   const handleCompare = (): void => {
-    // eslint-disable-next-line no-alert -- The comparison page is not available yet.
-    window.alert('비교 기능은 준비 중이에요.');
+    showWarningToast('비교 기능은 준비 중이에요.', {
+      id: COMPARISON_COMING_SOON_TOAST_ID,
+    });
   };
 
   return (
