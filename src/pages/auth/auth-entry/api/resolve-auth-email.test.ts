@@ -10,7 +10,7 @@ const loginMethodsMock = vi.mocked(loginMethods);
 
 function loginMethodsResponse(methods: ('LOCAL' | 'GOOGLE')[]) {
   return {
-    data: { success: true, data: { methods } },
+    data: { success: true, data: { methods }, error: null, code: null },
     response: new Response(null, { status: 200 }),
   };
 }

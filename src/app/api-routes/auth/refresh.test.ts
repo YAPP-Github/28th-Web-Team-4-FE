@@ -50,7 +50,7 @@ function sessionWith(refreshToken: string): AuthSession {
 
 function refreshSuccessResponse(): Awaited<ReturnType<typeof refresh>> {
   return {
-    data: { success: true, data: rotatedTokens },
+    data: { success: true, data: rotatedTokens, error: null, code: null },
     response: new Response(null, { status: 200 }),
   };
 }
@@ -60,7 +60,9 @@ function refreshErrorResponse(status: number): Awaited<ReturnType<typeof refresh
     data: undefined,
     error: {
       success: false,
+      data: null,
       error: { code: 'AUTH-004', message: '인증 실패', fieldErrors: [] },
+      code: null,
     },
     response: new Response(null, { status }),
   };

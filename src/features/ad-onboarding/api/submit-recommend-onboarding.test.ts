@@ -154,6 +154,8 @@ describe('submitRecommendOnboarding', () => {
             expiresAt: '2026-08-07T00:00:00Z',
           },
         ],
+        error: null,
+        code: null,
       },
       response: new Response(null, { status: 200 }),
     });
@@ -164,6 +166,8 @@ describe('submitRecommendOnboarding', () => {
           onboardingId: 'onboarding-1',
           createdAt: '2026-08-07T00:00:00Z',
         },
+        error: null,
+        code: null,
       },
       response: new Response(null, { status: 201 }),
     });
@@ -226,6 +230,8 @@ describe('submitRecommendOnboarding', () => {
             expiresAt: '2026-08-07T00:00:00Z',
           },
         ],
+        error: null,
+        code: null,
       },
       response: new Response(null, { status: 200 }),
     });

@@ -21,6 +21,7 @@ vi.mock('@/shared/api/hey-api', () => ({
 const CHANNEL: ChannelListItemResponse = {
   id: 'channel-meta',
   name: '메타 광고',
+  logoUrl: null,
   description: '목적에 맞는 정교한 타기팅 채널',
   primaryCategory: 'SHOPPING_COMMERCE',
 };
@@ -31,20 +32,47 @@ function createDetailResponse(
   return {
     id: CHANNEL.id,
     name: CHANNEL.name,
+    logoUrl: null,
     description: '메타 광고 상세 설명',
     primaryCategory: CHANNEL.primaryCategory,
+    mediaType: 'SNS',
+    suitableCategories: ['SHOPPING_COMMERCE'],
+    ageBandCodes: ['AGE_20S', 'AGE_30S'],
+    primaryAgeBand: '20~30대',
+    primaryGender: 'ALL',
+    audienceSummary: null,
+    audienceTraits: null,
     advantages: ['높은 전환 효율'],
+    minBudgetWon: 200_000,
+    maxBudgetWon: null,
+    executionType: 'SELF',
+    adFormats: ['피드'],
+    targetingMethods: ['관심사'],
     products: [
       {
         id: 'product-feed',
         productName: '피드 광고',
+        inventoryType: null,
+        supportedObjectives: ['CONVERSION'],
         minBudgetWon: 200_000,
+        maxBudgetWon: null,
         expectedImpressions: 100_000,
+        expectedClicks: 1_200,
+        expectedPeriod: null,
         pricing: [],
       },
     ],
-    audienceMetrics: [{ metricName: '월간 사용자', valueNumeric: 160_000, unit: '명' }],
+    audienceMetrics: [
+      {
+        metricName: '월간 사용자',
+        valueNumeric: 160_000,
+        valueText: null,
+        unit: '명',
+        period: null,
+      },
+    ],
     references: ['브랜드 캠페인 A'],
+    recommendationBasis: null,
     ...overrides,
   };
 }
@@ -97,7 +125,12 @@ describe('openChannelDetailModal', () => {
       http.get(/\/api\/v1\/channels\/[^/]+$/, async ({ request }) => {
         requestedId = new URL(request.url).pathname.split('/').at(-1);
         await responseGate.promise;
-        return HttpResponse.json({ success: true, data: createDetailResponse() });
+        return HttpResponse.json({
+          success: true,
+          data: createDetailResponse(),
+          error: null,
+          code: null,
+        });
       }),
     );
 

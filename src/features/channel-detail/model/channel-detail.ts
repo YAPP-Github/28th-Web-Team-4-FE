@@ -3,7 +3,7 @@ export type ChannelProductRow = {
   name: string;
   budgetRange: string;
   expectedImpressions: string;
-  ctr: string | null;
+  expectedClicks: string;
 };
 
 export type ChannelAudience = {

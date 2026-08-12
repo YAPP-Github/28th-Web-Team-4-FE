@@ -25,6 +25,7 @@ describe('recommendedChannels', () => {
           estImpressions: { min: 12000, max: 15000 },
           estClicks: { min: 300, max: 450 },
           isExecutable: true,
+          shortfallWon: null,
         },
       ]),
     ).toEqual([
@@ -56,11 +57,12 @@ describe('recommendedChannels', () => {
           recommendationReason: '조건에 맞는 채널이에요.',
           primaryTarget: '정보 없음',
           cpcWon: null,
-          pricingModel: undefined,
+          pricingModel: 'OTHER',
           minBudgetWon: 15000,
-          estImpressions: undefined,
-          estClicks: undefined,
+          estImpressions: null,
+          estClicks: null,
           isExecutable: false,
+          shortfallWon: null,
         },
       ]),
     ).toMatchObject([
@@ -72,7 +74,7 @@ describe('recommendedChannels', () => {
           { label: '예상 클릭', value: '정보 없음' },
           { label: '최소 예산', value: '15,000' },
           { label: '주요 타깃', value: '정보 없음' },
-          { label: '과금 방식', value: '정보 없음' },
+          { label: '과금 방식', value: '기타' },
         ],
       },
     ]);
