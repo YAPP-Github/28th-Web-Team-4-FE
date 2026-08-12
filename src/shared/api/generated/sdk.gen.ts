@@ -21,6 +21,9 @@ import type {
   GetLatestSimulationData,
   GetLatestSimulationErrors,
   GetLatestSimulationResponses,
+  GetMyProfileData,
+  GetMyProfileErrors,
+  GetMyProfileResponses,
   GetMySimulationsData,
   GetMySimulationsErrors,
   GetMySimulationsResponses,
@@ -72,6 +75,9 @@ import type {
   SubmitOnboardingData,
   SubmitOnboardingErrors,
   SubmitOnboardingResponses,
+  UpdateMyProfileData,
+  UpdateMyProfileErrors,
+  UpdateMyProfileResponses,
   VerifySignupCodeData,
   VerifySignupCodeErrors,
   VerifySignupCodeResponses,
@@ -443,6 +449,38 @@ export const linkGoogle = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * 내 정보 조회
+ *
+ * 닉네임, 이메일, 회사, 직무를 반환한다.
+ */
+export const getMyProfile = <ThrowOnError extends boolean = false>(
+  options?: Options<GetMyProfileData, ThrowOnError>,
+): RequestResult<GetMyProfileResponses, GetMyProfileErrors, ThrowOnError> =>
+  (options?.client ?? client).get<GetMyProfileResponses, GetMyProfileErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/users/me',
+    ...options,
+  });
+
+/**
+ * 내 정보 수정
+ *
+ * 회사와 직무만 수정한다.
+ */
+export const updateMyProfile = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateMyProfileData, ThrowOnError>,
+): RequestResult<UpdateMyProfileResponses, UpdateMyProfileErrors, ThrowOnError> =>
+  (options.client ?? client).patch<UpdateMyProfileResponses, UpdateMyProfileErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/users/me',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
  * 저장된 시뮬레이션 상세
  *
  * 저장된 시뮬레이션 하나를 매체별 항목까지 재계산 없이 그대로 반환한다. 본인이 저장한 것만 조회할 수 있고, 다른 사용자의 시뮬레이션은 그 id 가 존재한다는 사실을 숨기기 위해 없는 것과 같은 404(SIM-001) 로 응답한다.
@@ -505,11 +543,14 @@ export const getChannels = <ThrowOnError extends boolean = false>(
  * 채널 상세 조회
  *
  * 채널 단건을 상세 조회한다. 채널 정보와 함께 광고 상품 목록, 오디언스 규모 지표, 집행 사례를 반환한다. 상품이 없는 채널은 products 를 빈 배열로 반환한다.
+ *
+ * 추천 목록에서 들어온 경우 그 추천의 onboardingId 를 함께 넘기면, 추천 근거가 된 온보딩 선택지(광고 목표·업종·예산)를 recommendationBasis 로 반환한다.
  */
 export const getChannel = <ThrowOnError extends boolean = false>(
   options: Options<GetChannelData, ThrowOnError>,
 ): RequestResult<GetChannelResponses, GetChannelErrors, ThrowOnError> =>
   (options.client ?? client).get<GetChannelResponses, GetChannelErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/channels/{id}',
     ...options,
   });
