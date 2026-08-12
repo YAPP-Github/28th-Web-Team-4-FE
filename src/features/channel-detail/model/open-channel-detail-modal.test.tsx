@@ -198,9 +198,13 @@ describe('openChannelDetailModal', () => {
     expect(await screen.findByText('메타 광고 상세 설명')).toBeVisible();
 
     await user.click(screen.getByRole('tab', { name: '광고 상품' }));
-    expect(await screen.findByText('등록된 광고 상품이 없습니다.')).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText('등록된 광고 상품이 없습니다.')).toBeVisible();
+    });
 
     await user.click(screen.getByRole('tab', { name: '유사 사례' }));
-    expect(await screen.findByText('등록된 유사 사례가 없습니다.')).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText('등록된 유사 사례가 없습니다.')).toBeVisible();
+    });
   });
 });
