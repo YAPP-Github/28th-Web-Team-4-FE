@@ -25,13 +25,13 @@ describe('channel comparison query', () => {
 
   it('비교 페이지 URL에 정규화한 채널 ID를 직렬화한다', () => {
     expect(createChannelComparisonHref(['channel-a', 'channel-b'])).toBe(
-      '/compare?channels=channel-a,channel-b',
+      '/compare/result?channels=channel-a,channel-b',
     );
     expect(
       createChannelComparisonHref(['channel-a', 'channel-b', 'channel-c'], {
         onboardingId: 'onboarding 87',
       }),
-    ).toBe('/compare?channels=channel-a,channel-b,channel-c&onboardingId=onboarding+87');
-    expect(createChannelComparisonHref([])).toBe('/compare');
+    ).toBe('/compare/result?channels=channel-a,channel-b,channel-c&onboardingId=onboarding+87');
+    expect(createChannelComparisonHref([])).toBe('/compare/result');
   });
 });

@@ -224,7 +224,7 @@ describe('RecommendResultPage', () => {
     await user.click(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (3/3)' }));
 
     expect(pushMock).toHaveBeenCalledWith(
-      '/compare?channels=channel-naver,channel-youtube,channel-kakao&onboardingId=onboarding-87',
+      '/compare/result?channels=channel-naver,channel-youtube,channel-kakao&onboardingId=onboarding-87',
     );
   });
 

@@ -30,7 +30,7 @@ export function createChannelComparisonHref(
 ): string {
   const normalizedChannelIds = normalizeComparisonChannelIds(channelIds);
 
-  return serializeChannelComparisonSearchParams('/compare', {
+  return serializeChannelComparisonSearchParams('/compare/result', {
     channels: normalizedChannelIds.length > 0 ? normalizedChannelIds : null,
     onboardingId: options.onboardingId ?? null,
   });
