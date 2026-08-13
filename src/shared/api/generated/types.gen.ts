@@ -446,11 +446,11 @@ export type SubmitOnboardingRequest = {
     | 'APP_INSTALL'
     | 'IN_APP_ACTION';
   /**
-   * 최소 예산(원)
+   * 최소 예산(원). 0 이상 1,000만 이하
    */
   budgetMin: number;
   /**
-   * 최대 예산(원)
+   * 최대 예산(원). 0 이상 1,000만 이하
    */
   budgetMax: number;
   /**
@@ -1488,6 +1488,87 @@ export type RecommendationBasisResponse = {
   budgetMax: number;
 };
 
+export type ApiResponseChannelComparisonResponse = {
+  /**
+   * 요청 성공 여부
+   */
+  success: boolean;
+  data: ChannelComparisonResponse;
+  error: ErrorResponse | null;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 null
+   */
+  code: string | null;
+};
+
+/**
+ * 채널별 비교 항목
+ */
+export type ChannelComparisonItemResponse = {
+  /**
+   * 채널 식별자
+   */
+  channelId: string;
+  /**
+   * 채널명
+   */
+  channelName: string;
+  /**
+   * 채널의 주요 오디언스. 등록된 정보가 없으면 null
+   */
+  audienceSummary: string | null;
+  /**
+   * 지원 광고 형태. 등록된 정보가 없으면 빈 배열
+   */
+  adFormats: Array<string>;
+  /**
+   * 지원 타기팅 방식. 등록된 정보가 없으면 빈 배열
+   */
+  targetingMethods: Array<string>;
+  /**
+   * 최소 광고비(원). 등록된 정보가 없으면 null
+   */
+  minBudgetWon: number | null;
+  /**
+   * 채널 장점. 등록된 정보가 없으면 빈 배열
+   */
+  advantages: Array<string>;
+  /**
+   * 채널 인사이트 태그. 온보딩이 없으면 기본 태그 전체, 있으면 조건과 일치한 CATEGORY, OBJECTIVE, AGE_BAND 중 최대 2개를 반환한다. 없으면 빈 배열
+   */
+  tags: Array<string>;
+  /**
+   * 클릭당 비용(원). 클릭당 과금 매체는 대표 단가 그대로, 그 외 매체는 온보딩 예산 / 예상 클릭 수(중앙값)로 환산한다. 환산할 수 없으면 null
+   */
+  cpcWon: number | null;
+  /**
+   * 1,000회 노출당 단가(원). 대표 단가가 CPM일 때만 채워진다
+   */
+  cpmWon: number | null;
+  /**
+   * 온보딩 조건과의 적합도(%). 온보딩이 없으면 null
+   */
+  matchRate: number | null;
+  /**
+   * 예상 노출 수 범위. 온보딩이 없거나 예산 부족 또는 추정 불가 시 null
+   */
+  estImpressions: CountRangeResponse | null;
+  /**
+   * 예상 클릭 수 범위. 온보딩이 없거나 예산 부족 또는 추정 불가 시 null
+   */
+  estClicks: CountRangeResponse | null;
+};
+
+/**
+ * 채널 비교 응답
+ */
+export type ChannelComparisonResponse = {
+  /**
+   * 채널별 비교 목록
+   */
+  items: Array<ChannelComparisonItemResponse>;
+};
+
 export type ApiResponseWithdrawalResponse = {
   /**
    * 요청 성공 여부
@@ -2492,3 +2573,47 @@ export type GetChannelResponses = {
 };
 
 export type GetChannelResponse = GetChannelResponses[keyof GetChannelResponses];
+
+export type GetChannelComparisonData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * 비교할 채널 식별자 목록. 1개 이상 3개 이하이며, 전달한 순서대로 결과를 반환한다
+     */
+    channelIds: Array<string>;
+    /**
+     * 온보딩 기반 비교에 사용할 온보딩 응답 식별자. 생략하면 일반 채널 비교로 조회한다
+     */
+    onboardingId?: string;
+  };
+  url: '/api/v1/channel-comparisons';
+};
+
+export type GetChannelComparisonErrors = {
+  /**
+   * 입력값 검증 실패(C-001). 채널을 1개 이상 3개 이하로 중복 없이 선택한다
+   */
+  400: ApiResponse;
+  /**
+   * 존재하지 않는 채널 또는 온보딩(CH-001 또는 ONB-007)
+   */
+  404: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type GetChannelComparisonError =
+  GetChannelComparisonErrors[keyof GetChannelComparisonErrors];
+
+export type GetChannelComparisonResponses = {
+  /**
+   * 조회 성공
+   */
+  200: ApiResponseChannelComparisonResponse;
+};
+
+export type GetChannelComparisonResponse =
+  GetChannelComparisonResponses[keyof GetChannelComparisonResponses];

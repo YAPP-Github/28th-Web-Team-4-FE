@@ -12,6 +12,9 @@ import type {
   GetAllSamplesData,
   GetAllSamplesErrors,
   GetAllSamplesResponses,
+  GetChannelComparisonData,
+  GetChannelComparisonErrors,
+  GetChannelComparisonResponses,
   GetChannelData,
   GetChannelErrors,
   GetChannelResponses,
@@ -571,3 +574,17 @@ export const getChannel = <ThrowOnError extends boolean = false>(
     url: '/api/v1/channels/{id}',
     ...options,
   });
+
+/**
+ * 채널 비교 조회
+ *
+ * 채널을 1~3개까지 비교한다. onboardingId 가 있으면 온보딩 조건으로 적합도, 태그(최대 2개), 예상 노출·클릭 수를 계산한다. onboardingId 가 없으면 기본 태그 전체를 반환하고 적합도와 예상 노출·클릭 수는 null이다. 예산이 부족하면 예상 노출·클릭 수는 null이며, 등록된 CPC·CPM 단가를 반환한다. 회원이 만든 온보딩은 해당 회원만 사용할 수 있다.
+ */
+export const getChannelComparison = <ThrowOnError extends boolean = false>(
+  options: Options<GetChannelComparisonData, ThrowOnError>,
+): RequestResult<GetChannelComparisonResponses, GetChannelComparisonErrors, ThrowOnError> =>
+  (options.client ?? client).get<
+    GetChannelComparisonResponses,
+    GetChannelComparisonErrors,
+    ThrowOnError
+  >({ url: '/api/v1/channel-comparisons', ...options });
