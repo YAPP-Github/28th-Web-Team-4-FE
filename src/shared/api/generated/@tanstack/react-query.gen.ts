@@ -13,6 +13,7 @@ import {
   estimateSimulation,
   getAllSamples,
   getChannel,
+  getChannelComparison,
   getChannels,
   getLatestSimulation,
   getMyProfile,
@@ -48,6 +49,9 @@ import type {
   GetAllSamplesData,
   GetAllSamplesError,
   GetAllSamplesResponse,
+  GetChannelComparisonData,
+  GetChannelComparisonError,
+  GetChannelComparisonResponse,
   GetChannelData,
   GetChannelError,
   GetChannelResponse,
@@ -1003,4 +1007,31 @@ export const getChannelOptions = (options: Options<GetChannelData>) =>
       return data;
     },
     queryKey: getChannelQueryKey(options),
+  });
+
+export const getChannelComparisonQueryKey = (options: Options<GetChannelComparisonData>) =>
+  createQueryKey('getChannelComparison', options);
+
+/**
+ * 채널 비교 조회
+ *
+ * 채널을 1~3개까지 비교한다. onboardingId 가 있으면 온보딩 조건으로 적합도, 태그(최대 2개), 예상 노출·클릭 수를 계산한다. onboardingId 가 없으면 기본 태그 전체를 반환하고 적합도와 예상 노출·클릭 수는 null이다. 예산이 부족하면 예상 노출·클릭 수는 null이며, 등록된 CPC·CPM 단가를 반환한다. 회원이 만든 온보딩은 해당 회원만 사용할 수 있다.
+ */
+export const getChannelComparisonOptions = (options: Options<GetChannelComparisonData>) =>
+  queryOptions<
+    GetChannelComparisonResponse,
+    GetChannelComparisonError,
+    GetChannelComparisonResponse,
+    ReturnType<typeof getChannelComparisonQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getChannelComparison({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getChannelComparisonQueryKey(options),
   });
