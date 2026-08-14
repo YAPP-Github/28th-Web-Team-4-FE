@@ -29,10 +29,22 @@ export type PerformanceInputQuestionProps = {
   onSkip: NonNullable<StepActionButtonProps['onClick']>;
 };
 
+/**
+ * 업로드 탭의 완료 여부를 판단한다.
+ *
+ * @param draft 현재 추천 온보딩 draft
+ * @returns 성과 파일이 1개 이상 있으면 true
+ */
 function hasUploadedPerformanceFile(draft: RecommendOnboardingDraft): boolean {
   return draft.performanceFileList.length > 0;
 }
 
+/**
+ * 직접 입력 탭의 완료 여부를 판단한다.
+ *
+ * @param draft 현재 추천 온보딩 draft
+ * @returns 직접 입력 채널이 있고 모든 채널 row가 완료됐으면 true
+ */
 function hasCompleteManualPerformanceInput(draft: RecommendOnboardingDraft): boolean {
   const { performanceManualChannelList } = draft;
 
@@ -42,6 +54,12 @@ function hasCompleteManualPerformanceInput(draft: RecommendOnboardingDraft): boo
   );
 }
 
+/**
+ * 현재 활성 성과 입력 방식에 맞춰 다음 버튼 활성화 조건을 계산한다.
+ *
+ * @param draft 현재 추천 온보딩 draft
+ * @returns 성과 입력 step을 제출할 수 있으면 true
+ */
 function isPerformanceInputComplete(draft: RecommendOnboardingDraft): boolean {
   if (draft.performanceMode === 'UPLOAD') {
     return hasUploadedPerformanceFile(draft);

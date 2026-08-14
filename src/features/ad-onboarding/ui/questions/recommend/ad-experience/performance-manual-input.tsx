@@ -22,6 +22,12 @@ import { SelectedPerformanceChannelTags } from './selected-performance-channel-t
 
 const EMPTY_MANUAL_CHANNEL_LIST: ManualPerformanceChannel[] = [];
 
+/**
+ * 직접 입력 탭에서 채널 검색, 선택 채널 태그, 채널별 성과 입력 패널을 조합한다.
+ *
+ * @param props.searchKeyword 채널 검색어
+ * @param props.onSearchKeywordChange 채널 검색어 변경 콜백
+ */
 export function PerformanceManualInput({
   searchKeyword,
   onSearchKeywordChange,

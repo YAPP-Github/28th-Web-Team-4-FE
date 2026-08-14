@@ -1,5 +1,9 @@
 'use client';
 
+/**
+ * 광고 성과 직접 입력에서 사용하는 숫자 입력 필드와 필드 메타데이터를 제공한다.
+ */
+
 import { Input as BaseInput } from '@base-ui/react/input';
 import { type JSX } from 'react';
 import { useController, useFormContext, type FieldPath } from 'react-hook-form';
@@ -21,6 +25,7 @@ type ManualPerformanceField = {
   rightAddon?: string;
 };
 
+/** 채널별 성과 입력 폼에 렌더링할 숫자 필드 목록이다. */
 export const MANUAL_PERFORMANCE_FIELD_LIST: ManualPerformanceField[] = [
   {
     key: 'budgetWon',
@@ -55,16 +60,37 @@ export const MANUAL_PERFORMANCE_FIELD_LIST: ManualPerformanceField[] = [
   },
 ];
 
+/**
+ * 숫자 draft 값을 한국어 locale 문자열로 표시한다.
+ *
+ * @param value 포맷할 숫자 값
+ * @returns input에 표시할 문자열
+ */
 function formatNumber(value: number | undefined): string {
   return typeof value === 'number' ? value.toLocaleString('ko-KR') : '';
 }
 
+/**
+ * 숫자 입력 문자열에서 숫자가 아닌 문자를 제거해 draft 숫자 값으로 변환한다.
+ *
+ * @param value 사용자가 입력한 문자열
+ * @returns 숫자 값 또는 빈 입력일 때 undefined
+ */
 function parseNumericInput(value: string): number | undefined {
   const digits = value.replace(/\D/g, '');
 
   return digits.length > 0 ? Number(digits) : undefined;
 }
 
+/**
+ * RHF field path와 연결된 채널 성과 숫자 입력을 렌더링한다.
+ *
+ * @param props.name 연결할 RHF field path
+ * @param props.label 입력 label과 aria-label
+ * @param props.placeholder 입력 placeholder
+ * @param props.rightAddon 입력 오른쪽 부가 텍스트
+ * @param props.className 필드 wrapper className
+ */
 export function NumericPerformanceInput({
   name,
   label,

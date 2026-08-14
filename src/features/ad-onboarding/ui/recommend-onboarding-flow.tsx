@@ -40,6 +40,15 @@ export type RecommendOnboardingFlowProps = {
 
 const LAST_RECOMMEND_ONBOARDING_STEP_INDEX = RECOMMEND_ONBOARDING_STEP_ID_LIST.length - 1;
 
+/**
+ * 추천 온보딩 전체 폼 컨텍스트와 단계 이동/완료 흐름을 관리한다.
+ *
+ * @param props.initialDraft 초기 추천 온보딩 draft
+ * @param props.scrollContainerRef 스크롤 대상 컨테이너 ref
+ * @param props.currentStep 현재 step index
+ * @param props.onStepChange step 변경 콜백
+ * @param props.onComplete 모든 step 완료 콜백
+ */
 export function RecommendOnboardingFlow({
   initialDraft,
   scrollContainerRef,
@@ -116,6 +125,19 @@ type RecommendOnboardingFlowContentProps = {
   onAdvance: () => void;
 };
 
+/**
+ * 현재 step, 완료 답변, 편집 상태에 따라 추천 온보딩 본문을 렌더링한다.
+ *
+ * @param props.activeStepRef 현재 활성 step ref
+ * @param props.latestAnswerRef 가장 최근 완료 답변 ref
+ * @param props.contentEndRef 스크롤 보정용 본문 끝 ref
+ * @param props.bottomSpacerHeight 하단 spacer 높이
+ * @param props.currentStep 현재 step index
+ * @param props.editingStep 편집 중인 step index
+ * @param props.furthestStep 사용자가 도달한 가장 먼 step index
+ * @param props.onEditStep 완료 답변 편집 콜백
+ * @param props.onAdvance 다음 step 진행 콜백
+ */
 function RecommendOnboardingFlowContent({
   activeStepRef,
   latestAnswerRef,
@@ -248,6 +270,11 @@ function RecommendOnboardingFlowContent({
   );
 }
 
+/**
+ * 마지막 콘텐츠가 viewport 하단에 가려지지 않도록 스크롤 여백을 만든다.
+ *
+ * @param props.height 계산된 spacer 높이
+ */
 function OnboardingBottomSpacer({ height }: { height: number }): JSX.Element {
   return (
     <div
@@ -268,6 +295,17 @@ type RecommendOnboardingAnswerBubbleProps = {
   onEditStep: (step: number) => void;
 };
 
+/**
+ * 완료된 질문과 답변 버블을 한 묶음으로 렌더링한다.
+ *
+ * @param props.stepIndex 완료된 step index
+ * @param props.stepId 완료된 step id
+ * @param props.label 완료 답변 label
+ * @param props.isEditable 편집 가능 여부
+ * @param props.answerRef 답변 버블 ref
+ * @param props.contentEndRef 스크롤 끝 ref
+ * @param props.onEditStep 편집 시작 콜백
+ */
 function CompletedStepItem({
   stepIndex,
   stepId,
@@ -301,6 +339,14 @@ function CompletedStepItem({
 
 type CollapsedAnswerItemProps = Omit<RecommendOnboardingAnswerBubbleProps, 'stepId'>;
 
+/**
+ * 완료 답변을 사용자 버블로 표시하고 편집 가능 상태를 연결한다.
+ *
+ * @param props.stepIndex 완료된 step index
+ * @param props.label 완료 답변 label
+ * @param props.isEditable 편집 가능 여부
+ * @param props.onEditStep 편집 시작 콜백
+ */
 function CollapsedAnswerItem({
   stepIndex,
   label,
@@ -327,6 +373,12 @@ function CollapsedAnswerItem({
   );
 }
 
+/**
+ * step 종류에 맞는 질문 Bubble 최대 너비 className을 반환한다.
+ *
+ * @param stepId 추천 온보딩 step id
+ * @returns 질문 Bubble 너비 className
+ */
 function getQuestionWidthClassName(stepId: RecommendOnboardingStepId): string {
   switch (stepId) {
     case 'service-name':
@@ -344,6 +396,12 @@ function getQuestionWidthClassName(stepId: RecommendOnboardingStepId): string {
   }
 }
 
+/**
+ * RHF watch 결과에서 유효한 업로드 파일 메타데이터만 추린다.
+ *
+ * @param performanceFileList partial로 관측될 수 있는 파일 목록
+ * @returns 유효한 업로드 파일 목록
+ */
 function normalizePerformanceFileList(
   performanceFileList: Partial<UploadedPerformanceFile>[] | undefined,
 ): UploadedPerformanceFile[] {
@@ -354,12 +412,24 @@ function normalizePerformanceFileList(
   return performanceFileList.filter(isUploadedPerformanceFile);
 }
 
+/**
+ * 값이 업로드 파일 메타데이터 계약을 만족하는지 확인한다.
+ *
+ * @param value 검사할 partial 파일 값
+ * @returns 유효한 업로드 파일이면 true
+ */
 function isUploadedPerformanceFile(
   value: Partial<UploadedPerformanceFile> | undefined,
 ): value is UploadedPerformanceFile {
   return Boolean(value?.id && value.name && typeof value.size === 'number');
 }
 
+/**
+ * RHF watch 결과에서 유효한 직접 입력 채널만 추린다.
+ *
+ * @param performanceManualChannelList partial로 관측될 수 있는 직접 입력 채널 목록
+ * @returns 유효한 직접 입력 채널 목록
+ */
 function normalizeManualPerformanceChannelList(
   performanceManualChannelList: Partial<ManualPerformanceChannel>[] | undefined,
 ): ManualPerformanceChannel[] {
@@ -370,6 +440,12 @@ function normalizeManualPerformanceChannelList(
   return performanceManualChannelList.filter(isManualPerformanceChannel);
 }
 
+/**
+ * 값이 직접 입력 채널 계약을 만족하는지 확인한다.
+ *
+ * @param value 검사할 partial 채널 값
+ * @returns 유효한 직접 입력 채널이면 true
+ */
 function isManualPerformanceChannel(
   value: Partial<ManualPerformanceChannel> | undefined,
 ): value is ManualPerformanceChannel {

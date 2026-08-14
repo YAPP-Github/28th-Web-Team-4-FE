@@ -1,5 +1,9 @@
 'use client';
 
+/**
+ * 광고 성과 직접 입력에서 채널 하나의 아코디언 패널을 렌더링한다.
+ */
+
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { type JSX } from 'react';
 import { type FieldPath } from 'react-hook-form';
@@ -10,6 +14,14 @@ import { Box } from '@/shared/ui/layout/box';
 
 import { MANUAL_PERFORMANCE_FIELD_LIST, NumericPerformanceInput } from './performance-manual-field';
 
+/**
+ * 선택된 채널 하나의 성과 입력 필드를 접고 펼칠 수 있는 패널로 표시한다.
+ *
+ * @param props.index field array 내 채널 index
+ * @param props.channel 표시할 채널 draft 값
+ * @param props.isOpen 패널 열림 여부
+ * @param props.onToggle 패널 열림 상태 토글 콜백
+ */
 export function PerformanceManualChannelPanel({
   index,
   channel,
