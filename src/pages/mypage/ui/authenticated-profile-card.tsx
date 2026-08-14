@@ -8,6 +8,7 @@ import { useMyProfile } from '@/pages/mypage/api/use-my-profile';
 import { Avatar } from '@/shared/ui/avatar';
 import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
+import { Skeleton } from '@/shared/ui/skeleton';
 import { Text } from '@/shared/ui/text';
 
 const OCCUPATION_LABELS: Record<UserProfileResponse['occupation'], string> = {
@@ -54,7 +55,44 @@ function ProfileCardLoading(): JSX.Element {
   return (
     <ProfileCardFrame>
       <ProfileCardHeader />
+      <Box
+        role="status"
+        aria-label="내 정보를 불러오고 있어요"
+        data-testid="my-profile-skeleton"
+        className="gap-018 flex w-full flex-col"
+      >
+        <Box className="bg-surface-lower rounded-m px-016 py-012 h-072 flex w-full items-center">
+          <Box className="gap-014 h-048 flex w-full items-center">
+            <Avatar className="size-048 hover:ring-0" alt="" />
+            <Box className="flex h-[46px] min-w-0 flex-1 flex-col">
+              <Box className="h-026 flex w-full items-center">
+                <Skeleton className="h-020 w-[76px] rounded-[var(--radius-xxs)]" />
+              </Box>
+              <Box className="h-020 flex w-full items-center">
+                <Skeleton className="h-010 w-[130px] rounded-full" />
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+        <Box className="gap-010 flex w-full flex-col">
+          <ProfileFieldSkeleton />
+          <ProfileFieldSkeleton />
+        </Box>
+      </Box>
     </ProfileCardFrame>
+  );
+}
+
+function ProfileFieldSkeleton(): JSX.Element {
+  return (
+    <Box className="gap-012 h-022 flex w-full items-center">
+      <Box className="h-022 w-036 flex shrink-0 items-center">
+        <Skeleton className="h-010 w-[24px] rounded-full" />
+      </Box>
+      <Box className="h-022 flex min-w-0 flex-1 items-center">
+        <Skeleton className="h-010 w-[50px] rounded-full" />
+      </Box>
+    </Box>
   );
 }
 

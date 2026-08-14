@@ -76,4 +76,14 @@ describe('MyPage', () => {
     expect(screen.getByRole('button', { name: '탈퇴하기' })).toBeVisible();
     expect(screen.queryByText('로그인이 필요해요')).not.toBeInTheDocument();
   });
+
+  it('renders the profile skeleton while the profile request is pending', () => {
+    fetchMock.mockReturnValueOnce(new Promise<Response>(() => {}));
+
+    renderMyPage(true);
+
+    expect(screen.getByRole('status', { name: '내 정보를 불러오고 있어요' })).toBeVisible();
+    expect(screen.getByTestId('my-profile-skeleton')).toBeVisible();
+    expect(screen.queryByText('YAPP')).not.toBeInTheDocument();
+  });
 });
