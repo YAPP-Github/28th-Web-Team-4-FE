@@ -2,11 +2,12 @@
 
 import type { ReactNode } from 'react';
 import { Toast as BaseToast } from '@base-ui/react/toast';
+import { Check } from 'lucide-react';
 import Image from 'next/image';
 
 import { cn } from '@/shared/ui/cn';
 
-type ToastType = 'warning';
+type ToastType = 'warning' | 'success';
 
 export type ShowToastOptions = {
   id?: string;
@@ -21,8 +22,8 @@ const toastRootClassName = cn([
   '[--gap:8px] [--peek:10px] [--scale:calc(max(0,1-(var(--toast-index)*0.06)))]',
   '[--shrink:calc(1-var(--scale))] [--height:var(--toast-frontmost-height,var(--toast-height))]',
   '[--offset-y:calc((var(--toast-offset-y)*-1)+(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-movement-y))]',
-  'bg-surface-toast shadow-drop-shadow-01 text-text-lowest absolute right-0 bottom-0 left-0',
-  'z-[calc(1000-var(--toast-index))] h-[var(--height)] w-full origin-bottom rounded-[var(--radius-s)] backdrop-blur-[2px]',
+  'bg-surface-toast shadow-drop-shadow-01 text-text-lowest relative right-auto bottom-auto left-auto',
+  'z-[calc(1000-var(--toast-index))] h-[var(--height)] w-fit max-w-full origin-bottom rounded-[var(--radius-s)] backdrop-blur-[2px]',
   'select-none will-change-transform',
   '[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)-(var(--toast-index)*var(--peek))-(var(--shrink)*var(--height))))_scale(var(--scale))]',
   'after:absolute after:top-full after:left-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-[""]',
@@ -68,7 +69,11 @@ function ToastList() {
               unoptimized
               className="size-016 shrink-0"
             />
-          ) : null}
+          ) : (
+            <span className="bg-surface-lowest size-016 flex shrink-0 items-center justify-center rounded-full">
+              <Check aria-hidden="true" className="text-text-medium size-012" strokeWidth={2} />
+            </span>
+          )}
           <BaseToast.Description className="typo-subtitle-xxs text-text-lowest text-center whitespace-nowrap" />
         </BaseToast.Content>
       </BaseToast.Root>
@@ -84,6 +89,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         <BaseToast.Viewport
           className={cn([
             'fixed bottom-[121px] left-1/2 z-[1000] w-[min(calc(100vw-32px),360px)] -translate-x-1/2',
+            'flex flex-col items-center',
             'outline-none',
           ])}
         >

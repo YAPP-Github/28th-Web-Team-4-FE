@@ -1,4 +1,9 @@
-import { getAuthSession, logoutAuthSession, refreshAuthSession } from './auth-session';
+import {
+  getAuthSession,
+  logoutAuthSession,
+  refreshAuthSession,
+  withdrawAuthAccount,
+} from './auth-session';
 
 describe('auth session api', () => {
   const fetchMock = vi.fn<typeof fetch>();
@@ -35,6 +40,7 @@ describe('auth session api', () => {
   it.each([
     ['refresh', refreshAuthSession, '/api/auth/refresh'],
     ['logout', logoutAuthSession, '/api/auth/logout'],
+    ['withdraw', withdrawAuthAccount, '/api/auth/withdraw'],
   ] as const)('posts the %s mutation to its BFF route', async (_name, request, url) => {
     fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
 
