@@ -3,10 +3,22 @@
 import type { JSX } from 'react';
 import Image from 'next/image';
 
+import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Modal } from '@/shared/ui/modal';
+import { Text } from '@/shared/ui/text';
 
-export function WithdrawalModal({ onWithdraw }: { onWithdraw: () => void }): JSX.Element {
+type WithdrawalModalProps = {
+  errorMessage?: string;
+  isPending: boolean;
+  onWithdraw: () => void;
+};
+
+export function WithdrawalModal({
+  errorMessage,
+  isPending,
+  onWithdraw,
+}: WithdrawalModalProps): JSX.Element {
   return (
     <Modal.Portal>
       <Modal.Backdrop />
@@ -29,13 +41,36 @@ export function WithdrawalModal({ onWithdraw }: { onWithdraw: () => void }): JSX
                 <span>지금 탈퇴하면 그동안 보관된 맞춤 매체 정보와</span>
                 <span>저장 내역이 모두 사라져요.</span>
               </span>
+              {errorMessage ? (
+                <span className="typo-body-sm text-sys-error-default mt-012 block" role="alert">
+                  {errorMessage}
+                </span>
+              ) : null}
             </Modal.Description>
           </Box>
           <Box className="gap-012 flex w-full flex-col items-start">
-            <Modal.CloseButton frame="button" tone="secondary" size="m" className="h-12 w-full">
+            <Modal.CloseButton
+              frame="button"
+              tone="secondary"
+              size="m"
+              className="h-12 w-full"
+              disabled={isPending}
+            >
               돌아가기
             </Modal.CloseButton>
-            <Modal.CloseText onClick={onWithdraw}>탈퇴하기</Modal.CloseText>
+            <button
+              type="button"
+              className={cn([
+                'inline-flex h-[22px] items-center justify-center self-center px-002',
+                'cursor-pointer text-text-medium transition-colors hover:text-text-high',
+                'focus-visible:text-text-high focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sys-primary-default',
+                'disabled:cursor-not-allowed disabled:opacity-50',
+              ])}
+              disabled={isPending}
+              onClick={onWithdraw}
+            >
+              <Text variant="subtitle-xxs">탈퇴하기</Text>
+            </button>
           </Box>
         </Box>
       </Modal.Popup>

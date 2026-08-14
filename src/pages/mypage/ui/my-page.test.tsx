@@ -10,12 +10,20 @@ type LogoutOptions = {
   onSuccess?: () => void;
 };
 
-const { logoutMock, replaceMock, refreshMock, showToastMock } = vi.hoisted(() => ({
-  logoutMock: vi.fn<(options?: LogoutOptions) => void>(),
-  replaceMock: vi.fn<(href: string) => void>(),
-  refreshMock: vi.fn<() => void>(),
-  showToastMock: vi.fn<(options: ShowToastOptions) => void>(),
-}));
+type WithdrawOptions = {
+  onError?: () => void;
+  onSuccess?: () => void;
+};
+
+const { logoutMock, replaceMock, refreshMock, showToastMock, withdrawMock, withdrawOptions } =
+  vi.hoisted(() => ({
+    logoutMock: vi.fn<(options?: LogoutOptions) => void>(),
+    replaceMock: vi.fn<(href: string) => void>(),
+    refreshMock: vi.fn<() => void>(),
+    showToastMock: vi.fn<(options: ShowToastOptions) => void>(),
+    withdrawMock: vi.fn<() => void>(),
+    withdrawOptions: [] as WithdrawOptions[],
+  }));
 
 vi.mock('@/features/auth/session/model/use-logout', () => ({
   useLogout: () => ({
@@ -25,6 +33,18 @@ vi.mock('@/features/auth/session/model/use-logout', () => ({
   }),
 }));
 
+vi.mock('@/features/auth/session/model/use-withdraw', () => ({
+  useWithdraw: (options: WithdrawOptions = {}) => {
+    withdrawOptions.push(options);
+
+    return {
+      withdraw: withdrawMock,
+      resetError: vi.fn<() => void>(),
+      isPending: false,
+      errorMessage: undefined,
+    };
+  },
+}));
 vi.mock('@/shared/ui/toast', () => ({ showToast: showToastMock }));
 
 vi.mock('next/navigation', () => ({
@@ -37,6 +57,8 @@ describe('MyPage', () => {
     replaceMock.mockReset();
     refreshMock.mockReset();
     showToastMock.mockReset();
+    withdrawMock.mockReset();
+    withdrawOptions.length = 0;
   });
 
   it('renders the guest profile state and login CTA', () => {
@@ -122,10 +144,28 @@ describe('MyPage', () => {
     const dialog = await screen.findByRole('dialog', { name: '채소집을 정말 떠나시겠어요?' });
     expect(dialog).toBeVisible();
     expect(within(dialog).getByRole('button', { name: '돌아가기' })).toBeVisible();
-    expect(within(dialog).getByText('탈퇴하기')).toBeVisible();
+    expect(within(dialog).getByRole('button', { name: '탈퇴하기' })).toBeVisible();
     expect(within(dialog).getByAltText('')).toHaveAttribute(
       'src',
       '/mypage-assets/withdraw-illustration.svg',
     );
+
+    await user.click(within(dialog).getByRole('button', { name: '탈퇴하기' }));
+    expect(withdrawMock).toHaveBeenCalledOnce();
+    expect(screen.getByRole('dialog', { name: '채소집을 정말 떠나시겠어요?' })).toBeVisible();
+  });
+
+  it('shows a failure toast when withdrawal fails', async () => {
+    const user = userEvent.setup();
+    render(<MyPage isLoggedIn />);
+
+    await user.click(screen.getByRole('button', { name: '탈퇴하기' }));
+    withdrawOptions.at(-1)?.onError?.();
+
+    expect(showToastMock).toHaveBeenCalledWith({
+      id: 'withdraw-error',
+      description: '탈퇴하지 못했습니다. 다시 시도해 주세요.',
+      type: 'warning',
+    });
   });
 });

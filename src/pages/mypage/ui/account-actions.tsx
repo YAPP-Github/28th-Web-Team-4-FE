@@ -4,6 +4,7 @@ import { useState, type JSX } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useLogout } from '@/features/auth/session/model/use-logout';
+import { useWithdraw } from '@/features/auth/session/model/use-withdraw';
 import { Box } from '@/shared/ui/layout/box';
 import { Modal } from '@/shared/ui/modal';
 import { showToast } from '@/shared/ui/toast';
@@ -29,15 +30,30 @@ export function AccountActions(): JSX.Element {
     });
   };
 
+  const {
+    withdraw,
+    resetError: resetWithdrawError,
+    isPending: isWithdrawPending,
+    errorMessage: withdrawErrorMessage,
+  } = useWithdraw({
+    onError: () => {
+      showToast({
+        id: 'withdraw-error',
+        description: '탈퇴하지 못했습니다. 다시 시도해 주세요.',
+        type: 'warning',
+      });
+    },
+    onSuccess: () => {
+      showToast({
+        id: 'withdraw-success',
+        description: '그동안 채소집을 이용해 주셔서 감사합니다.',
+        type: 'success',
+      });
+      setActiveModal(null);
+    },
+  });
+
   const closeModal = (): void => setActiveModal(null);
-  const withdraw = (): void => {
-    setActiveModal(null);
-    showToast({
-      id: 'withdraw-success',
-      description: '그동안 채소집을 이용해 주셔서 감사합니다.',
-      type: 'success',
-    });
-  };
 
   return (
     <>
@@ -52,7 +68,10 @@ export function AccountActions(): JSX.Element {
         <button
           type="button"
           className="typo-subtitle-xs text-text-low focus-visible:outline-sys-primary-default rounded-xxs cursor-pointer underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
-          onClick={() => setActiveModal('withdraw')}
+          onClick={() => {
+            resetWithdrawError();
+            setActiveModal('withdraw');
+          }}
         >
           탈퇴하기
         </button>
@@ -60,7 +79,11 @@ export function AccountActions(): JSX.Element {
 
       {activeModal === 'withdraw' ? (
         <Modal.Root open onOpenChange={(open) => !open && closeModal()}>
-          <WithdrawalModal onWithdraw={withdraw} />
+          <WithdrawalModal
+            errorMessage={withdrawErrorMessage}
+            isPending={isWithdrawPending}
+            onWithdraw={withdraw}
+          />
         </Modal.Root>
       ) : null}
       {activeModal === 'logout' ? (
