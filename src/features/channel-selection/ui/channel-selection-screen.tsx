@@ -10,7 +10,7 @@ import { useChannels } from '@/features/channel-selection/api/use-channels';
 import {
   CHANNEL_CATEGORY_OPTION_LIST,
   type ChannelListItem,
-  createCategoryChannelPage,
+  normalizeChannelCategories,
 } from '@/features/channel-selection/model/channel-page';
 import { CHANNEL_SELECTION_LIMIT } from '@/features/channel-selection/model/channels';
 import { useChannelSelection } from '@/features/channel-selection/model/use-channel-selection';
@@ -215,22 +215,25 @@ export function ChannelSelectionScreen({
 
   const normalizedQuery = queryState.q.trim();
   const debouncedQuery = useDebouncedValue(normalizedQuery, SEARCH_DEBOUNCE_MS);
-  const hasCategoryFilter = queryState.category.length > 0;
-  const apiPage = hasCategoryFilter ? undefined : queryState.page - 1;
-  const channelsQuery = useChannels(debouncedQuery, apiPage);
+  const categories = normalizeChannelCategories(queryState.category);
+  const {
+    data: channelPage,
+    isError: hasInitialError,
+    isFetching,
+    isPending: isInitialLoading,
+    refetch,
+  } = useChannels({
+    categories,
+    pageIndex: queryState.page - 1,
+    searchKeyword: debouncedQuery,
+  });
 
-  const channelPage =
-    hasCategoryFilter && channelsQuery.data
-      ? createCategoryChannelPage(channelsQuery.data.content, queryState.category, queryState.page)
-      : channelsQuery.data;
   const channels = channelPage?.content ?? EMPTY_CHANNELS;
   const totalPages = channelPage?.totalPages ?? 0;
   const currentPage = Math.min(queryState.page, Math.max(totalPages, 1));
-  const isInitialLoading = channelsQuery.isPending;
-  const hasInitialError = channelsQuery.isError;
 
   const handleRetry = () => {
-    void channelsQuery.refetch();
+    void refetch();
   };
 
   const handleComplete = () => {
@@ -245,17 +248,17 @@ export function ChannelSelectionScreen({
     <Box className="flex min-h-0 flex-1 flex-col">
       <ChannelSelectionSubHeader
         title={title}
-        category={queryState.category}
+        category={categories}
         onCategoryChange={queryState.setCategories}
         query={queryState.q}
         onQueryChange={queryState.setSearchQuery}
       />
       <Box
-        aria-busy={channelsQuery.isFetching}
+        aria-busy={isFetching}
         className="px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto lg:px-120"
       >
         <Box className="w-full max-w-[1200px] self-start pt-[32px] pb-[38px]">
-          {channelsQuery.isFetching && !isInitialLoading ? (
+          {isFetching && !isInitialLoading ? (
             <span role="status" className="sr-only">
               채널 목록을 불러오는 중이에요
             </span>

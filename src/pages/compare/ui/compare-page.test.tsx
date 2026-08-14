@@ -119,28 +119,28 @@ function createChannelPage(
 }
 
 function channelPageResponse(page: PageResponseChannelListItemResponse) {
-  return HttpResponse.json({ success: true, data: page });
+  return HttpResponse.json({ success: true, data: page, error: null, code: null });
 }
 
 function defaultChannelResponse(url: URL) {
-  const pageParam = url.searchParams.get('page');
-
-  if (pageParam === null) {
-    return channelPageResponse(
-      createChannelPage(ALL_CHANNELS, {
-        size: ALL_CHANNELS.length,
-        totalElements: ALL_CHANNELS.length,
-      }),
-    );
-  }
-
-  const page = Number(pageParam);
+  const page = Number(url.searchParams.get('page') ?? 0);
+  const size = Number(url.searchParams.get('size') ?? 12);
+  const name = url.searchParams.get('name')?.trim() ?? '';
+  const primaryCategories = url.searchParams.getAll('primaryCategory');
+  const filteredChannels = ALL_CHANNELS.filter(
+    (channel) =>
+      (name.length === 0 || channel.name.includes(name)) &&
+      (primaryCategories.length === 0 || primaryCategories.includes(channel.primaryCategory)),
+  );
+  const pageStart = page * size;
+  const totalPages = Math.ceil(filteredChannels.length / size);
 
   return channelPageResponse(
-    createChannelPage(createPageChannels(page), {
+    createChannelPage(filteredChannels.slice(pageStart, pageStart + size), {
       number: page,
-      totalElements: DEFAULT_CHANNELS.length * TOTAL_PAGE_COUNT,
-      totalPages: TOTAL_PAGE_COUNT,
+      size,
+      totalElements: filteredChannels.length,
+      totalPages,
     }),
   );
 }
@@ -303,6 +303,48 @@ describe('ComparePage', () => {
     expect(screen.queryByText('네이버 검색 광고')).not.toBeInTheDocument();
   });
 
+  it('늦게 끝난 이전 검색 응답이 최신 검색 결과를 덮어쓰지 않는다', async () => {
+    const slowResponseGate = createDeferred<void>();
+    const searchRequests: string[] = [];
+    const slowChannel = createChannel('channel-slow-search', '느린 검색 결과');
+    const fastChannel = createChannel('channel-fast-search', '빠른 검색 결과');
+    let slowResponseCompleted = false;
+
+    server.use(
+      http.get(/\/api\/v1\/channels$/, async ({ request }) => {
+        const url = new URL(request.url);
+        const name = url.searchParams.get('name');
+
+        if (!name) {
+          return defaultChannelResponse(url);
+        }
+
+        searchRequests.push(name);
+
+        if (name === '느린 검색') {
+          await slowResponseGate.promise;
+          slowResponseCompleted = true;
+          return channelPageResponse(createChannelPage([slowChannel]));
+        }
+
+        return channelPageResponse(createChannelPage([fastChannel]));
+      }),
+    );
+
+    renderComparePage('?q=느린%20검색');
+    await waitFor(() => expect(searchRequests).toEqual(['느린 검색']));
+
+    fireEvent.change(screen.getByLabelText('채널 검색'), { target: { value: '빠른 검색' } });
+    await waitFor(() => expect(searchRequests).toEqual(['느린 검색', '빠른 검색']));
+    expect(await screen.findByText('빠른 검색 결과')).toBeVisible();
+
+    slowResponseGate.resolve(undefined);
+    await waitFor(() => expect(slowResponseCompleted).toBe(true));
+
+    expect(screen.getByText('빠른 검색 결과')).toBeVisible();
+    expect(screen.queryByText('느린 검색 결과')).not.toBeInTheDocument();
+  });
+
   it('검색 결과가 없으면 빈 상태를 보여준다', async () => {
     server.use(
       http.get(/\/api\/v1\/channels$/, ({ request }) => {
@@ -329,15 +371,39 @@ describe('ComparePage', () => {
     expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
   });
 
+  it('검색어와 여러 카테고리를 하나의 서버 요청으로 조합한다', async () => {
+    let requestedUrl: URL | undefined;
+
+    server.use(
+      http.get(/\/api\/v1\/channels$/, ({ request }) => {
+        requestedUrl = new URL(request.url);
+        return defaultChannelResponse(requestedUrl);
+      }),
+    );
+
+    renderComparePage('?q=네이버&category=EDUCATION,SHOPPING_COMMERCE');
+
+    expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
+    expect(screen.getByText('네이버 쇼핑 광고')).toBeVisible();
+    expect(screen.queryByText('카카오 키워드 광고')).not.toBeInTheDocument();
+    expect(requestedUrl?.searchParams.get('name')).toBe('네이버');
+    expect(requestedUrl?.searchParams.getAll('primaryCategory')).toEqual([
+      'EDUCATION',
+      'SHOPPING_COMMERCE',
+    ]);
+    expect(requestedUrl?.searchParams.get('page')).toBe('0');
+    expect(requestedUrl?.searchParams.get('size')).toBe('12');
+  });
+
   it('여러 카테고리를 정확히 필터링하고 첫 페이지로 돌아간다', async () => {
-    const unpagedRequests: URL[] = [];
+    const filteredRequests: URL[] = [];
 
     server.use(
       http.get(/\/api\/v1\/channels$/, ({ request }) => {
         const url = new URL(request.url);
 
-        if (!url.searchParams.has('page') && !url.searchParams.has('size')) {
-          unpagedRequests.push(url);
+        if (url.searchParams.has('primaryCategory')) {
+          filteredRequests.push(url);
         }
 
         return defaultChannelResponse(url);
@@ -360,7 +426,10 @@ describe('ComparePage', () => {
 
     await waitFor(() => {
       expect(categoryDropdown).toHaveTextContent('교육 외 1개');
-      expect(unpagedRequests.length).toBeGreaterThan(0);
+      expect(filteredRequests.at(-1)?.searchParams.getAll('primaryCategory')).toEqual([
+        'EDUCATION',
+        'SHOPPING_COMMERCE',
+      ]);
     });
     expect(screen.getByRole('checkbox', { name: '교육 선택' })).toBeChecked();
     expect(screen.getByRole('checkbox', { name: '쇼핑·커머스 선택' })).toBeChecked();
@@ -370,11 +439,51 @@ describe('ComparePage', () => {
     );
     expect(screen.getByText('네이버 검색 광고')).toBeVisible();
     expect(screen.getByText('카카오 키워드 광고')).toBeVisible();
-    expect(unpagedRequests[0]?.searchParams.has('page')).toBe(false);
-    expect(unpagedRequests[0]?.searchParams.has('size')).toBe(false);
+    expect(filteredRequests.at(-1)?.searchParams.get('page')).toBe('0');
+    expect(filteredRequests.at(-1)?.searchParams.get('size')).toBe('12');
+  });
+
+  it('필터된 다음 페이지에서도 같은 카테고리를 서버에 전달한다', async () => {
+    const filteredRequests: URL[] = [];
+
+    server.use(
+      http.get(/\/api\/v1\/channels$/, ({ request }) => {
+        const url = new URL(request.url);
+        filteredRequests.push(url);
+        return defaultChannelResponse(url);
+      }),
+    );
+
+    const user = userEvent.setup();
+    renderComparePage('?category=EDUCATION,SHOPPING_COMMERCE');
+
+    expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: '페이지 2' }));
+
+    expect(await screen.findByText('네이버 검색 광고 4')).toBeVisible();
+    expect(filteredRequests.at(-1)?.searchParams.getAll('primaryCategory')).toEqual([
+      'EDUCATION',
+      'SHOPPING_COMMERCE',
+    ]);
+    expect(filteredRequests.at(-1)?.searchParams.get('page')).toBe('1');
+    expect(filteredRequests.at(-1)?.searchParams.get('size')).toBe('12');
   });
 
   it('기타 선택 시 API의 OTHERS 카테고리를 그대로 필터링한다', async () => {
+    let filteredRequest: URL | undefined;
+
+    server.use(
+      http.get(/\/api\/v1\/channels$/, ({ request }) => {
+        const url = new URL(request.url);
+
+        if (url.searchParams.has('primaryCategory')) {
+          filteredRequest = url;
+        }
+
+        return defaultChannelResponse(url);
+      }),
+    );
+
     const user = userEvent.setup();
     renderComparePage();
     expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
@@ -386,6 +495,25 @@ describe('ComparePage', () => {
     expect(categoryDropdown).toHaveTextContent('기타');
     expect(await screen.findByText('카카오 채널 메시지')).toBeVisible();
     expect(screen.queryByText('네이버 검색 광고')).not.toBeInTheDocument();
+    expect(filteredRequest?.searchParams.getAll('primaryCategory')).toEqual(['OTHERS']);
+    expect(filteredRequest?.searchParams.get('page')).toBe('0');
+  });
+
+  it('잘못된 deep link 카테고리는 UI와 API 요청에서 제외한다', async () => {
+    let requestedUrl: URL | undefined;
+
+    server.use(
+      http.get(/\/api\/v1\/channels$/, ({ request }) => {
+        requestedUrl = new URL(request.url);
+        return defaultChannelResponse(requestedUrl);
+      }),
+    );
+
+    renderComparePage('?category=INVALID_CATEGORY,EDUCATION');
+
+    expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
+    expect(screen.getByRole('combobox', { name: '채널 카테고리' })).toHaveTextContent('교육');
+    expect(requestedUrl?.searchParams.getAll('primaryCategory')).toEqual(['EDUCATION']);
   });
 
   it('범위를 벗어난 deep link 페이지는 빈 상태를 보여준다', async () => {
@@ -453,7 +581,9 @@ describe('ComparePage', () => {
           return HttpResponse.json(
             {
               success: false,
+              data: null,
               error: { code: 'CH-500', message: '채널 조회 실패', fieldErrors: [] },
+              code: null,
             },
             { status: 500 },
           );
@@ -471,6 +601,46 @@ describe('ComparePage', () => {
 
     expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
     expect(requestCount).toBe(2);
+  });
+
+  it('필터 요청 오류를 같은 조건으로 재시도한다', async () => {
+    const attemptedRequests: URL[] = [];
+
+    server.use(
+      http.get(/\/api\/v1\/channels$/, ({ request }) => {
+        const url = new URL(request.url);
+        attemptedRequests.push(url);
+
+        if (attemptedRequests.length === 1) {
+          return HttpResponse.json(
+            {
+              success: false,
+              data: null,
+              error: { code: 'CH-500', message: '채널 조회 실패', fieldErrors: [] },
+              code: null,
+            },
+            { status: 500 },
+          );
+        }
+
+        return defaultChannelResponse(url);
+      }),
+    );
+
+    const user = userEvent.setup();
+    renderComparePage('?category=EDUCATION');
+
+    expect(await screen.findByText('채널을 불러오지 못했어요')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: '다시 시도' }));
+
+    expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
+    expect(attemptedRequests).toHaveLength(2);
+
+    for (const request of attemptedRequests) {
+      expect(request.searchParams.getAll('primaryCategory')).toEqual(['EDUCATION']);
+      expect(request.searchParams.get('page')).toBe('0');
+      expect(request.searchParams.get('size')).toBe('12');
+    }
   });
 
   it('카드 선택을 토글하고 CTA 개수를 갱신한다', async () => {
