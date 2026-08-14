@@ -541,7 +541,7 @@ describe('ComparePage', () => {
     expect(getCompareButton()).toHaveTextContent('선택한 채널 비교하기 (0/3)');
   });
 
-  it('비교 결과 임시 페이지는 고정 목 채널을 보여준다', () => {
+  it('비교 결과 임시 페이지는 고정 목 채널과 추가 카드를 보여준다', () => {
     renderCompareResultPage();
 
     expect(
@@ -551,6 +551,6 @@ describe('ComparePage', () => {
     ).toBeVisible();
     expect(screen.getByText('네이버 검색 광고')).toBeVisible();
     expect(screen.getByText('카카오 키워드 광고')).toBeVisible();
-    expect(screen.getByText('메타 피드 광고')).toBeVisible();
+    expect(screen.getByText('채널 추가하기')).toBeVisible();
   });
 });
