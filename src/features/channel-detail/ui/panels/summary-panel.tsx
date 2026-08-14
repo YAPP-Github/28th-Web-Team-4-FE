@@ -1,6 +1,6 @@
 'use client';
 
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 import { Sparkles } from 'lucide-react';
 
 import type { ChannelDetail } from '@/features/channel-detail/model/channel-detail';
@@ -8,7 +8,7 @@ import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
-function Emphasis({ children }: { children: string }): JSX.Element {
+function Emphasis({ children }: { children: ReactNode }): JSX.Element {
   return <strong className="text-text-highest font-semibold">{children}</strong>;
 }
 
