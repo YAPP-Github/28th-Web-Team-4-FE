@@ -11,11 +11,11 @@ import { Box } from '@/shared/ui/layout/box';
 import { Tabs } from '@/shared/ui/tabs';
 import { Text } from '@/shared/ui/text';
 
-type SavedResultPanelKind = 'recommendation' | 'comparison';
+type SavedResultPanelKind = 'recommendation' | 'comparison' | 'simulation';
 
 type SavedResultPanelProps = {
   isLoggedIn: boolean;
-  kind?: SavedResultPanelKind;
+  kind: SavedResultPanelKind;
   recommendations: readonly SavedRecommendation[];
 };
 
@@ -29,6 +29,11 @@ const SAVED_RESULT_EMPTY_STATES = {
     description: '아직 저장된 비교 결과가 없어요',
     actionLabel: '채널 비교하기',
     href: '/compare',
+  },
+  simulation: {
+    description: '아직 저장된 시뮬레이션 결과가 없어요',
+    actionLabel: '시뮬레이션 하기',
+    href: '/simulator',
   },
 } as const;
 
@@ -70,7 +75,7 @@ function SavedRecommendationCard({
 
 function SavedResultPanel({
   isLoggedIn,
-  kind = 'recommendation',
+  kind,
   recommendations,
 }: SavedResultPanelProps): JSX.Element {
   const emptyState = SAVED_RESULT_EMPTY_STATES[kind];
@@ -190,7 +195,7 @@ export function SavedResultsCard({
             <SavedResultPanel isLoggedIn={isLoggedIn} kind="comparison" recommendations={[]} />
           </Tabs.Panel>
           <Tabs.Panel value="simulation">
-            <SavedResultPanel isLoggedIn={isLoggedIn} recommendations={[]} />
+            <SavedResultPanel isLoggedIn={isLoggedIn} kind="simulation" recommendations={[]} />
           </Tabs.Panel>
         </Tabs.Root>
       </Box>

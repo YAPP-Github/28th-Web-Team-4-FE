@@ -91,7 +91,7 @@ describe('MyPage', () => {
     expect(screen.queryByText('로그인이 필요해요')).not.toBeInTheDocument();
   });
 
-  it('renders the empty state for saved comparison results', async () => {
+  it('renders the empty states for saved comparison and simulation results', async () => {
     const user = userEvent.setup();
     render(<MyPage isLoggedIn />);
 
@@ -103,6 +103,14 @@ describe('MyPage', () => {
       '/compare',
     );
     expect(screen.queryByText('아직 저장된 추천 결과가 없어요')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: '예산 시뮬레이션' }));
+
+    expect(screen.getByText('아직 저장된 시뮬레이션 결과가 없어요')).toBeVisible();
+    expect(screen.getByRole('button', { name: '시뮬레이션 하기' })).toHaveAttribute(
+      'href',
+      '/simulator',
+    );
   });
 
   it('renders the ad conditions and saved recommendations when onboarding exists', () => {
