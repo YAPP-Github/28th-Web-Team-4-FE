@@ -8,7 +8,11 @@ import { logoutAuthSession } from '@/features/auth/session/api/auth-session';
 
 import { authSessionQueryKey, authSessionQueryOptions } from './auth-session-query';
 
-export function useLogout() {
+type UseLogoutOptions = {
+  onSuccess?: () => void;
+};
+
+export function useLogout({ onSuccess }: UseLogoutOptions = {}) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -18,6 +22,7 @@ export function useLogout() {
       queryClient.setQueryData(authSessionQueryKey, { authenticated: false });
       router.replace('/login');
       router.refresh();
+      onSuccess?.();
     },
     onError: async () => {
       try {

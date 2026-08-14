@@ -5,6 +5,7 @@ import { useState, type JSX } from 'react';
 import { useLogout } from '@/features/auth/session/model/use-logout';
 import { Box } from '@/shared/ui/layout/box';
 import { Modal } from '@/shared/ui/modal';
+import { showToast } from '@/shared/ui/toast';
 
 import { LogoutModal } from './logout-modal';
 
@@ -12,7 +13,12 @@ type AccountModal = 'logout' | null;
 
 export function AccountActions(): JSX.Element {
   const [activeModal, setActiveModal] = useState<AccountModal>(null);
-  const { logout, isPending, errorMessage } = useLogout();
+  const { logout, isPending, errorMessage } = useLogout({
+    onSuccess: () => {
+      showToast({ id: 'logout-success', description: '로그아웃했어요', type: 'success' });
+      setActiveModal(null);
+    },
+  });
 
   const closeModal = (): void => setActiveModal(null);
 
