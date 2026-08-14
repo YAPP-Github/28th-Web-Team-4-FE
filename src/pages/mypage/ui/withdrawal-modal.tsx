@@ -6,7 +6,17 @@ import Image from 'next/image';
 import { Box } from '@/shared/ui/layout/box';
 import { Modal } from '@/shared/ui/modal';
 
-export function WithdrawalModal({ onWithdraw }: { onWithdraw: () => void }): JSX.Element {
+type WithdrawalModalProps = {
+  errorMessage?: string;
+  isPending: boolean;
+  onWithdraw: () => void;
+};
+
+export function WithdrawalModal({
+  errorMessage,
+  isPending,
+  onWithdraw,
+}: WithdrawalModalProps): JSX.Element {
   return (
     <Modal.Portal>
       <Modal.Backdrop />
@@ -29,13 +39,26 @@ export function WithdrawalModal({ onWithdraw }: { onWithdraw: () => void }): JSX
                 <span>지금 탈퇴하면 그동안 보관된 맞춤 매체 정보와</span>
                 <span>저장 내역이 모두 사라져요.</span>
               </span>
+              {errorMessage ? (
+                <span className="typo-body-sm text-sys-error-default mt-012 block" role="alert">
+                  {errorMessage}
+                </span>
+              ) : null}
             </Modal.Description>
           </Box>
           <Box className="gap-012 flex w-full flex-col items-start">
-            <Modal.CloseButton frame="button" tone="secondary" size="m" className="h-12 w-full">
+            <Modal.CloseButton
+              frame="button"
+              tone="secondary"
+              size="m"
+              className="h-12 w-full"
+              disabled={isPending}
+            >
               돌아가기
             </Modal.CloseButton>
-            <Modal.CloseText onClick={onWithdraw}>탈퇴하기</Modal.CloseText>
+            <Modal.CloseText disabled={isPending} onClick={onWithdraw}>
+              탈퇴하기
+            </Modal.CloseText>
           </Box>
         </Box>
       </Modal.Popup>

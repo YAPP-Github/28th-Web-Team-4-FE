@@ -21,7 +21,12 @@ export function AccountActions(): JSX.Element {
       setActiveModal(null);
     },
   });
-  const { withdraw } = useWithdraw({
+  const {
+    withdraw,
+    resetError: resetWithdrawError,
+    isPending: isWithdrawPending,
+    errorMessage: withdrawErrorMessage,
+  } = useWithdraw({
     onSuccess: () => {
       showToast({
         id: 'withdraw-success',
@@ -47,7 +52,10 @@ export function AccountActions(): JSX.Element {
         <button
           type="button"
           className="typo-subtitle-xs text-text-low focus-visible:outline-sys-primary-default rounded-xxs cursor-pointer underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
-          onClick={() => setActiveModal('withdraw')}
+          onClick={() => {
+            resetWithdrawError();
+            setActiveModal('withdraw');
+          }}
         >
           탈퇴하기
         </button>
@@ -55,7 +63,11 @@ export function AccountActions(): JSX.Element {
 
       {activeModal === 'withdraw' ? (
         <Modal.Root open onOpenChange={(open) => !open && closeModal()}>
-          <WithdrawalModal onWithdraw={withdraw} />
+          <WithdrawalModal
+            errorMessage={withdrawErrorMessage}
+            isPending={isWithdrawPending}
+            onWithdraw={withdraw}
+          />
         </Modal.Root>
       ) : null}
       {activeModal === 'logout' ? (
