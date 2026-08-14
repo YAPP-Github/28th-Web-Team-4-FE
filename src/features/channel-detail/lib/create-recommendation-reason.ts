@@ -15,6 +15,16 @@ const OBJECTIVE_LABELS: Record<RecommendationBasisResponse['objective'], string>
   IN_APP_ACTION: '인앱 행동',
 };
 
+const OBJECTIVE_OUTCOME_LABELS: Record<RecommendationBasisResponse['objective'], string> = {
+  AWARENESS: '브랜드 인지',
+  VIDEO_VIEW: '영상 조회',
+  TRAFFIC: '사이트 방문',
+  LEAD: '잠재 고객 확보',
+  CONVERSION: '구매',
+  APP_INSTALL: '앱 설치',
+  IN_APP_ACTION: '앱 내 행동',
+};
+
 function formatWon(value: number): string {
   if (value >= 10_000 && value % 10_000 === 0) {
     return `${(value / 10_000).toLocaleString('ko-KR')}만 원`;
@@ -31,21 +41,16 @@ function formatBudgetRange(budgetMin: number, budgetMax: number): string {
   return `${formatWon(budgetMin)}~${formatWon(budgetMax)}`;
 }
 
-function getNonEmptyText(value?: string | null): string | null {
-  const trimmedValue = value?.trim();
-  return trimmedValue && trimmedValue.length > 0 ? trimmedValue : null;
-}
-
 /** 추천 근거를 UI에서 강조·조립할 수 있는 표시 값으로 변환한다. */
 export function createRecommendationReason(
   basis: RecommendationBasisResponse | null | undefined,
-  rationale?: string | null,
 ): ChannelRecommendationReason | null {
   if (!basis) {
     return null;
   }
 
   const objective = OBJECTIVE_LABELS[basis.objective];
+  const outcome = OBJECTIVE_OUTCOME_LABELS[basis.objective];
   const category = getRecommendationCategoryLabel(basis.category);
 
   return {
@@ -53,6 +58,6 @@ export function createRecommendationReason(
     objective,
     objectiveWithParticle: josa(objective, '을/를'),
     budget: formatBudgetRange(basis.budgetMin, basis.budgetMax),
-    rationale: getNonEmptyText(rationale),
+    rationale: `관심사에 맞는 고객에게 광고를 노출해 ${josa(outcome, '으로/로')} 이어질 가능성이 가장 높으므로`,
   };
 }

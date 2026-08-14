@@ -95,7 +95,8 @@ describe('toChannelDetailViewModel', () => {
           objective: '트래픽 유입',
           objectiveWithParticle: '트래픽 유입을',
           budget: '300만 원~1,000만 원',
-          rationale: '퍼포먼스와 브랜딩을 모두 커버하는 채널',
+          rationale:
+            '관심사에 맞는 고객에게 광고를 노출해 사이트 방문으로 이어질 가능성이 가장 높으므로',
         },
       },
       audience: {
@@ -272,7 +273,7 @@ describe('toChannelDetailViewModel', () => {
       objective: '구매 전환',
       objectiveWithParticle: '구매 전환을',
       budget: '50만 원',
-      rationale: '검색 의도가 높은 고객에게 도달하기 좋아요',
+      rationale: '관심사에 맞는 고객에게 광고를 노출해 구매로 이어질 가능성이 가장 높으므로',
     });
   });
 });
