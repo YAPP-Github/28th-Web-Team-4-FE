@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
-import type { RecommendationItemResponse } from '@/shared/api/generated';
+import type { ChannelDetailResponse, RecommendationItemResponse } from '@/shared/api/generated';
 import { server } from '@/shared/api/mocks/server';
 import type { RecommendedChannel } from '@/pages/recommend-result/model/recommended-channels';
 
@@ -111,6 +111,50 @@ function mockRecommendations() {
   );
 }
 
+function createChannelDetailResponse(
+  overrides: Partial<NonNullable<ChannelDetailResponse>> = {},
+): NonNullable<ChannelDetailResponse> {
+  return {
+    id: 'channel-naver',
+    name: '네이버 검색 광고',
+    tagline: '검색 의도가 높은 고객에게 도달하기 좋아요',
+    logoUrl: null,
+    description: '검색 광고로 구매 의도가 높은 고객을 만날 수 있어요',
+    primaryCategory: 'SHOPPING_COMMERCE',
+    mediaType: 'SEARCH',
+    suitableCategories: ['SHOPPING_COMMERCE'],
+    ageBandCodes: ['AGE_20S'],
+    primaryAgeBand: '20대',
+    primaryGender: 'ALL',
+    audienceSummary: null,
+    audienceTraits: null,
+    advantages: [],
+    minBudgetWon: null,
+    maxBudgetWon: null,
+    executionType: 'SELF',
+    adFormats: [],
+    targetingMethods: [],
+    products: [],
+    audienceMetrics: [],
+    references: [],
+    recommendationBasis: null,
+    ...overrides,
+  };
+}
+
+function mockChannelDetail(onRequest?: (url: URL) => void) {
+  server.use(
+    http.get(/\/api\/v1\/channels\/[^/]+$/, ({ request }) => {
+      onRequest?.(new URL(request.url));
+
+      return HttpResponse.json({
+        success: true,
+        data: createChannelDetailResponse(),
+      });
+    }),
+  );
+}
+
 function renderRecommendResultWithRecommendations() {
   mockRecommendations();
 
@@ -202,6 +246,7 @@ describe('RecommendResultPage', () => {
 
   it('opens channel details from the more button but not from card selection', async () => {
     const user = userEvent.setup();
+    mockChannelDetail();
     renderRecommendResultPage();
 
     await user.click(getSelectionCheckbox('네이버 검색 광고'));
@@ -215,39 +260,9 @@ describe('RecommendResultPage', () => {
     const user = userEvent.setup();
     let requestedUrl: URL | undefined;
 
-    server.use(
-      http.get(/\/api\/v1\/channels\/[^/]+$/, ({ request }) => {
-        requestedUrl = new URL(request.url);
-        return HttpResponse.json({
-          success: true,
-          data: {
-            id: 'channel-naver',
-            name: '네이버 검색 광고',
-            tagline: '검색 의도가 높은 고객에게 도달하기 좋아요',
-            logoUrl: null,
-            description: '검색 광고로 구매 의도가 높은 고객을 만날 수 있어요',
-            primaryCategory: 'SHOPPING_COMMERCE',
-            mediaType: 'SEARCH',
-            suitableCategories: ['SHOPPING_COMMERCE'],
-            ageBandCodes: ['AGE_20S'],
-            primaryAgeBand: '20대',
-            primaryGender: 'ALL',
-            audienceSummary: null,
-            audienceTraits: null,
-            advantages: [],
-            minBudgetWon: null,
-            maxBudgetWon: null,
-            executionType: 'SELF',
-            adFormats: [],
-            targetingMethods: [],
-            products: [],
-            audienceMetrics: [],
-            references: [],
-            recommendationBasis: null,
-          },
-        });
-      }),
-    );
+    mockChannelDetail((url) => {
+      requestedUrl = url;
+    });
 
     renderWithProviders(
       <RecommendResultPage
