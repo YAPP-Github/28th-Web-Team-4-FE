@@ -1,38 +1,113 @@
-import type { JSX } from 'react';
-import { Pencil } from 'lucide-react';
+'use client';
 
+import type { JSX, ReactNode } from 'react';
+import { Pencil, RefreshCw } from 'lucide-react';
+
+import type { UserProfileResponse } from '@/shared/api/generated/types.gen';
+import { useMyProfile } from '@/pages/mypage/api/use-my-profile';
 import { Avatar } from '@/shared/ui/avatar';
+import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
-export function AuthenticatedProfileCard(): JSX.Element {
+const OCCUPATION_LABELS: Record<UserProfileResponse['occupation'], string> = {
+  DEVELOPMENT: '개발',
+  DESIGN: '디자인',
+  MARKETING: '마케팅',
+  PLANNING: '기획',
+  SALES: '영업',
+  DATA: '데이터',
+  MANAGEMENT: '경영·관리',
+  ETC: '기타',
+};
+
+function ProfileCardFrame({ children }: { children: ReactNode }): JSX.Element {
   return (
     <Box
       as="section"
       aria-labelledby="profile-title"
       className="bg-surface-lowest gap-018 px-030 py-024 flex w-full flex-col rounded-[var(--radius-l)]"
     >
-      <Box className="flex w-full items-center justify-between">
-        <Text as="h2" id="profile-title" variant="heading-lg" className="text-text-highest">
-          내 정보
+      {children}
+    </Box>
+  );
+}
+
+function ProfileCardHeader(): JSX.Element {
+  return (
+    <Box className="flex w-full items-center justify-between">
+      <Text as="h2" id="profile-title" variant="heading-lg" className="text-text-highest">
+        내 정보
+      </Text>
+      <button
+        type="button"
+        aria-label="내 정보 수정"
+        className="focus-visible:outline-sys-primary-default size-018 rounded-xxs flex cursor-pointer items-center justify-center outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+      >
+        <Pencil aria-hidden="true" className="text-icon-low size-018" strokeWidth={1.6} />
+      </button>
+    </Box>
+  );
+}
+
+function ProfileCardLoading(): JSX.Element {
+  return (
+    <ProfileCardFrame>
+      <ProfileCardHeader />
+    </ProfileCardFrame>
+  );
+}
+
+function ProfileCardError({ onRetry }: { onRetry: () => void }): JSX.Element {
+  return (
+    <ProfileCardFrame>
+      <ProfileCardHeader />
+      <Box
+        role="alert"
+        className="bg-surface-lower gap-012 rounded-m px-016 py-020 flex w-full flex-col items-start"
+      >
+        <Text variant="body-xl" className="text-text-low">
+          내 정보를 불러오지 못했어요
         </Text>
-        <button
-          type="button"
-          aria-label="내 정보 수정"
-          className="focus-visible:outline-sys-primary-default size-018 rounded-xxs flex cursor-pointer items-center justify-center outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+        <Button
+          frame="button"
+          tone="secondary"
+          size="s"
+          leftIcon={<RefreshCw aria-hidden="true" className="size-016" />}
+          onClick={onRetry}
         >
-          <Pencil aria-hidden="true" className="text-icon-low size-018" strokeWidth={1.6} />
-        </button>
+          다시 시도
+        </Button>
       </Box>
+    </ProfileCardFrame>
+  );
+}
+
+export function AuthenticatedProfileCard(): JSX.Element {
+  const profileQuery = useMyProfile();
+
+  if (profileQuery.isPending) {
+    return <ProfileCardLoading />;
+  }
+
+  if (profileQuery.isError || !profileQuery.data) {
+    return <ProfileCardError onRetry={() => void profileQuery.refetch()} />;
+  }
+
+  const { nickname, email, companyName, occupation } = profileQuery.data;
+
+  return (
+    <ProfileCardFrame>
+      <ProfileCardHeader />
       <Box className="bg-surface-lower gap-012 rounded-m px-016 py-012 flex w-full items-center">
         <Box className="gap-012 flex min-w-0 flex-1 items-center">
-          <Avatar className="size-048 hover:ring-0" alt="YAPP 프로필" />
+          <Avatar className="size-048 hover:ring-0" alt={`${nickname} 프로필`} />
           <Box className="flex h-[46px] min-w-0 flex-1 flex-col">
             <Text variant="heading-lg" className="text-text-highest">
-              YAPP
+              {nickname}
             </Text>
             <Text variant="body-xl" className="text-text-low">
-              Web4team@naver.com
+              {email}
             </Text>
           </Box>
         </Box>
@@ -43,7 +118,7 @@ export function AuthenticatedProfileCard(): JSX.Element {
             회사
           </Text>
           <Text as="p" variant="subtitle-xxs" className="text-text-highest">
-            YAPP
+            {companyName}
           </Text>
         </Box>
         <Box className="gap-012 flex w-full items-center">
@@ -51,10 +126,10 @@ export function AuthenticatedProfileCard(): JSX.Element {
             직무
           </Text>
           <Text as="p" variant="subtitle-xxs" className="text-text-highest">
-            디자인
+            {OCCUPATION_LABELS[occupation]}
           </Text>
         </Box>
       </Box>
-    </Box>
+    </ProfileCardFrame>
   );
 }
