@@ -9,8 +9,12 @@ function selectChannelList(data: GetChannelsResponse): ChannelListItemResponse[]
   return data.data?.content ?? [];
 }
 
-export function usePerformanceChannelSearch(searchKeyword: string) {
+export function usePerformanceChannelSearch(
+  searchKeyword: string,
+  options: { enabled?: boolean } = {},
+) {
   const normalizedKeyword = searchKeyword.trim();
+  const isSearchEnabled = (options.enabled ?? true) && normalizedKeyword.length > 0;
   const queryOptions = getChannelsOptions({
     query: {
       name: normalizedKeyword || undefined,
@@ -19,6 +23,7 @@ export function usePerformanceChannelSearch(searchKeyword: string) {
 
   return useQuery({
     ...queryOptions,
+    enabled: isSearchEnabled,
     placeholderData: keepPreviousData,
     select: selectChannelList,
   });

@@ -4,7 +4,7 @@
  * 추천 광고 운영 경험자의 선택적 성과 입력을 업로드/직접 입력 탭으로 조합한다.
  */
 
-import type { JSX, ReactNode } from 'react';
+import { useState, type JSX, type ReactNode } from 'react';
 import { useController, useFormContext, useWatch } from 'react-hook-form';
 import { Tabs } from '@base-ui/react/tabs';
 
@@ -13,9 +13,10 @@ import {
   type PerformanceMode,
 } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import type { RecommendOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
+import { isManualPerformanceChannelComplete } from '@/features/ad-onboarding/model/recommend-onboarding-rules';
 import { OnboardingQuestion } from '@/features/ad-onboarding/ui/onboarding-question';
-import { PerformanceChannelCombobox } from '@/features/ad-onboarding/ui/questions/recommend/ad-experience/performance-channel-combobox';
 import { PerformanceFileDropzone } from '@/features/ad-onboarding/ui/questions/recommend/ad-experience/performance-file-dropzone';
+import { PerformanceManualInput } from '@/features/ad-onboarding/ui/questions/recommend/ad-experience/performance-manual-input';
 import {
   StepActionButton,
   type StepActionButtonProps,
@@ -28,6 +29,27 @@ export type PerformanceInputQuestionProps = {
   onSkip: NonNullable<StepActionButtonProps['onClick']>;
 };
 
+function hasUploadedPerformanceFile(draft: RecommendOnboardingDraft): boolean {
+  return draft.performanceFileList.length > 0;
+}
+
+function hasCompleteManualPerformanceInput(draft: RecommendOnboardingDraft): boolean {
+  const { performanceManualChannelList } = draft;
+
+  return (
+    performanceManualChannelList.length > 0 &&
+    performanceManualChannelList.every(isManualPerformanceChannelComplete)
+  );
+}
+
+function isPerformanceInputComplete(draft: RecommendOnboardingDraft): boolean {
+  if (draft.performanceMode === 'UPLOAD') {
+    return hasUploadedPerformanceFile(draft);
+  }
+
+  return hasCompleteManualPerformanceInput(draft);
+}
+
 /** 활성 탭에 맞는 성과 입력과 완료 조건을 RHF draft에 연결한다. */
 export function PerformanceInputQuestion({
   actionLabel = '다음',
@@ -35,10 +57,15 @@ export function PerformanceInputQuestion({
   onSkip,
 }: PerformanceInputQuestionProps): JSX.Element {
   const { control } = useFormContext<RecommendOnboardingDraft>();
+  const [manualSearchKeyword, setManualSearchKeyword] = useState('');
   const { field: performanceModeField } = useController({ control, name: 'performanceMode' });
   const { field: performanceFileListField } = useController({
     control,
     name: 'performanceFileList',
+  });
+  const { field: performanceManualChannelListField } = useController({
+    control,
+    name: 'performanceManualChannelList',
   });
   const { field: performanceChannelField } = useController({
     control,
@@ -46,21 +73,19 @@ export function PerformanceInputQuestion({
   });
   const isInputComplete = useWatch({
     control,
-    compute: (draft) =>
-      draft.performanceMode === 'UPLOAD'
-        ? draft.performanceFileList.length > 0
-        : Boolean(draft.performanceChannel),
+    compute: isPerformanceInputComplete,
   });
 
   const clearPerformanceInput = (): void => {
     performanceFileListField.onChange([]);
+    performanceManualChannelListField.onChange([]);
     performanceChannelField.onChange(undefined);
   };
 
   return (
     <OnboardingQuestion
       title="진행했던 광고 성과들을 알려 주세요"
-      description="최대 5개의 데이터를 바탕으로 더 정확한 채널을 추천해요"
+      description="데이터를 바탕으로 더 정확한 채널을 추천해요"
       className="max-w-[518px]"
     >
       <Tabs.Root
@@ -68,6 +93,7 @@ export function PerformanceInputQuestion({
         value={performanceModeField.value}
         onValueChange={(value) => {
           if (value === 'UPLOAD' || value === 'MANUAL') {
+            setManualSearchKeyword('');
             performanceModeField.onChange(value satisfies PerformanceMode);
           }
         }}
@@ -104,9 +130,9 @@ export function PerformanceInputQuestion({
           />
         </Tabs.Panel>
         <Tabs.Panel value="MANUAL" className="pt-020 outline-none [[hidden]]:hidden">
-          <PerformanceChannelCombobox
-            value={performanceChannelField.value}
-            onValueChange={performanceChannelField.onChange}
+          <PerformanceManualInput
+            searchKeyword={manualSearchKeyword}
+            onSearchKeywordChange={setManualSearchKeyword}
           />
         </Tabs.Panel>
       </Tabs.Root>
