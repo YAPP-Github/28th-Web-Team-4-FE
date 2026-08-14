@@ -91,6 +91,20 @@ describe('MyPage', () => {
     expect(screen.queryByText('로그인이 필요해요')).not.toBeInTheDocument();
   });
 
+  it('renders the empty state for saved comparison results', async () => {
+    const user = userEvent.setup();
+    render(<MyPage isLoggedIn />);
+
+    await user.click(screen.getByRole('tab', { name: '채널 비교' }));
+
+    expect(screen.getByText('아직 저장된 비교 결과가 없어요')).toBeVisible();
+    expect(screen.getByRole('button', { name: '채널 비교하기' })).toHaveAttribute(
+      'href',
+      '/compare',
+    );
+    expect(screen.queryByText('아직 저장된 추천 결과가 없어요')).not.toBeInTheDocument();
+  });
+
   it('renders the ad conditions and saved recommendations when onboarding exists', () => {
     render(
       <MyPage

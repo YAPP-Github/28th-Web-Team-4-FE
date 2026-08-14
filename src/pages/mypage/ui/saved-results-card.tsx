@@ -11,10 +11,26 @@ import { Box } from '@/shared/ui/layout/box';
 import { Tabs } from '@/shared/ui/tabs';
 import { Text } from '@/shared/ui/text';
 
+type SavedResultPanelKind = 'recommendation' | 'comparison';
+
 type SavedResultPanelProps = {
   isLoggedIn: boolean;
+  kind?: SavedResultPanelKind;
   recommendations: readonly SavedRecommendation[];
 };
+
+const SAVED_RESULT_EMPTY_STATES = {
+  recommendation: {
+    description: '아직 저장된 추천 결과가 없어요',
+    actionLabel: '채널 추천받기',
+    href: '/recommend/onboarding/new',
+  },
+  comparison: {
+    description: '아직 저장된 비교 결과가 없어요',
+    actionLabel: '채널 비교하기',
+    href: '/compare',
+  },
+} as const;
 
 function SavedRecommendationCard({
   recommendation,
@@ -52,7 +68,13 @@ function SavedRecommendationCard({
   );
 }
 
-function SavedResultPanel({ isLoggedIn, recommendations }: SavedResultPanelProps): JSX.Element {
+function SavedResultPanel({
+  isLoggedIn,
+  kind = 'recommendation',
+  recommendations,
+}: SavedResultPanelProps): JSX.Element {
+  const emptyState = SAVED_RESULT_EMPTY_STATES[kind];
+
   if (!isLoggedIn) {
     return (
       <Text
@@ -60,12 +82,12 @@ function SavedResultPanel({ isLoggedIn, recommendations }: SavedResultPanelProps
         variant="body-xl"
         className="text-text-low flex h-[96px] w-full items-center justify-center text-center"
       >
-        아직 저장된 추천 결과가 없어요
+        {emptyState.description}
       </Text>
     );
   }
 
-  if (recommendations.length > 0) {
+  if (kind === 'recommendation' && recommendations.length > 0) {
     return (
       <Box className="gap-010 mt-018 flex w-full flex-col">
         {recommendations.slice(0, 3).map((recommendation) => (
@@ -81,18 +103,18 @@ function SavedResultPanel({ isLoggedIn, recommendations }: SavedResultPanelProps
   return (
     <Box className="gap-014 py-020 mt-018 flex w-full flex-col items-center justify-end">
       <Text as="p" variant="body-xl" className="text-text-low text-center">
-        아직 저장된 추천 결과가 없어요
+        {emptyState.description}
       </Text>
       <Button
         frame="button"
         tone="secondary"
         size="s"
         nativeButton={false}
-        render={<Link href="/recommend/onboarding/new" />}
+        render={<Link href={emptyState.href} />}
         rightIcon={<ArrowRight aria-hidden="true" className="size-016" strokeWidth={1.5} />}
         className="flex-row"
       >
-        채널 추천받기
+        {emptyState.actionLabel}
       </Button>
     </Box>
   );
@@ -158,10 +180,14 @@ export function SavedResultsCard({
             <Tabs.Indicator />
           </Tabs.List>
           <Tabs.Panel value="recommendation">
-            <SavedResultPanel isLoggedIn={isLoggedIn} recommendations={recommendations} />
+            <SavedResultPanel
+              isLoggedIn={isLoggedIn}
+              kind="recommendation"
+              recommendations={recommendations}
+            />
           </Tabs.Panel>
           <Tabs.Panel value="comparison">
-            <SavedResultPanel isLoggedIn={isLoggedIn} recommendations={[]} />
+            <SavedResultPanel isLoggedIn={isLoggedIn} kind="comparison" recommendations={[]} />
           </Tabs.Panel>
           <Tabs.Panel value="simulation">
             <SavedResultPanel isLoggedIn={isLoggedIn} recommendations={[]} />
