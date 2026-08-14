@@ -12,6 +12,7 @@ import {
   PERFORMANCE_CHANNEL_OPTION_LIST,
   type AgeRangeId,
   type AdGoalId,
+  type ManualPerformanceChannel,
   type UploadedPerformanceFile,
 } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import type {
@@ -99,12 +100,31 @@ function getPerformanceChannelLabel(channelId: string): string {
   );
 }
 
+function mapManualPerformanceChannel(channel: ManualPerformanceChannel): AdHistoryRequest {
+  return {
+    channelNameRaw: channel.channelNameRaw,
+    ...(channel.channelId ? { channelId: channel.channelId } : {}),
+    ...(typeof channel.budgetWon === 'number' ? { budgetWon: channel.budgetWon } : {}),
+    ...(typeof channel.periodDays === 'number' ? { periodDays: channel.periodDays } : {}),
+    ...(typeof channel.impressions === 'number' ? { impressions: channel.impressions } : {}),
+    ...(typeof channel.clicks === 'number' ? { clicks: channel.clicks } : {}),
+    ...(typeof channel.conversions === 'number' ? { conversions: channel.conversions } : {}),
+  };
+}
+
 function mapManualAdHistory(answer: RecommendOnboardingAnswer): AdHistoryRequest[] {
   const performanceInput =
     answer.adExperience.type === 'EXPERIENCED' ? answer.adExperience.performanceInput : undefined;
 
-  // TODO(CHA-56): channelList variant is mapped after the field-array UI replaces this fallback.
-  if (performanceInput?.mode !== 'MANUAL' || !('channel' in performanceInput)) {
+  if (performanceInput?.mode !== 'MANUAL') {
+    return [];
+  }
+
+  if ('channelList' in performanceInput) {
+    return performanceInput.channelList.map(mapManualPerformanceChannel);
+  }
+
+  if (!('channel' in performanceInput)) {
     return [];
   }
 
