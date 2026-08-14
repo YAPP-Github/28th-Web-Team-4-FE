@@ -544,7 +544,11 @@ describe('ComparePage', () => {
   it('비교 결과 임시 페이지는 고정 목 채널을 보여준다', () => {
     renderCompareResultPage();
 
-    expect(screen.getByRole('heading', { name: '채널 비교 결과' })).toBeVisible();
+    expect(
+      screen.getByRole('heading', {
+        name: '선택한 채널별 특징과 성과를 비교한 결과예요',
+      }),
+    ).toBeVisible();
     expect(screen.getByText('네이버 검색 광고')).toBeVisible();
     expect(screen.getByText('카카오 키워드 광고')).toBeVisible();
     expect(screen.getByText('메타 피드 광고')).toBeVisible();
