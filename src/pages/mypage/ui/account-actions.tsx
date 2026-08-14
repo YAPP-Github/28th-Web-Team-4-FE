@@ -22,7 +22,14 @@ export function AccountActions(): JSX.Element {
   });
 
   const closeModal = (): void => setActiveModal(null);
-  const withdraw = (): void => setActiveModal(null);
+  const withdraw = (): void => {
+    setActiveModal(null);
+    showToast({
+      id: 'withdraw-success',
+      description: '그동안 채소집을 이용해 주셔서 감사합니다.',
+      type: 'success',
+    });
+  };
 
   return (
     <>
