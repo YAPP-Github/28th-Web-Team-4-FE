@@ -1,9 +1,8 @@
 import { render, screen } from '@testing-library/react';
 
-import {
-  CompareResultChannelCards,
-  type CompareResultChannel,
-} from './compare-result-channel-cards';
+import type { CompareResultChannelSummary } from '@/pages/compare/model/compare-result-channel';
+
+import { CompareResultChannelCards } from './compare-result-channel-cards';
 
 const MOCK_CHANNELS = [
   {
@@ -24,7 +23,7 @@ const MOCK_CHANNELS = [
     matchRate: 82,
     iconSrc: '/compare-assets/meta.png',
   },
-] as const satisfies readonly CompareResultChannel[];
+] as const satisfies readonly CompareResultChannelSummary[];
 
 describe('CompareResultChannelCards', () => {
   it('목 채널 3개의 이름과 적합도를 카드로 표시한다', () => {

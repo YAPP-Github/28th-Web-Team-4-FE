@@ -1,28 +1,10 @@
 import type { JSX } from 'react';
 
+import { MOCK_COMPARE_RESULT_CHANNELS } from '@/pages/compare/model/compare-result-channel';
 import { Box } from '@/shared/ui/layout/box';
 
-import {
-  CompareResultChannelCards,
-  type CompareResultChannel,
-} from './compare-result-channel-cards';
+import { CompareResultChannelCards } from './compare-result-channel-cards';
 import { CompareResultSubHeader } from './compare-result-sub-header';
-
-const MOCK_COMPARE_RESULT_CHANNELS = [
-  {
-    id: 'naver',
-    name: '네이버 검색 광고',
-    matchRate: 95,
-    iconSrc: '/compare-assets/naver.png',
-    cropIcon: true,
-  },
-  {
-    id: 'kakao',
-    name: '카카오 키워드 광고',
-    matchRate: 88,
-    iconSrc: '/compare-assets/kakao.png',
-  },
-] as const satisfies readonly CompareResultChannel[];
 
 export function CompareResultPage(): JSX.Element {
   return (

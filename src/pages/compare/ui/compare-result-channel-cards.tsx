@@ -7,23 +7,17 @@ import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
-export type CompareResultChannel = {
-  id: string;
-  name: string;
-  matchRate: number;
-  iconSrc: string;
-  cropIcon?: boolean;
-};
+import type { CompareResultChannelSummary } from '@/pages/compare/model/compare-result-channel';
 
 type CompareResultChannelCardsProps = {
-  channels: readonly CompareResultChannel[];
+  channels: readonly CompareResultChannelSummary[];
 };
 
 function CompareResultChannelCard({
   channel,
   highlighted,
 }: {
-  channel: CompareResultChannel;
+  channel: CompareResultChannelSummary;
   highlighted: boolean;
 }): JSX.Element {
   return (
