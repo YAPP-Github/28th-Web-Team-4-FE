@@ -3,6 +3,7 @@
 import { useState, type JSX } from 'react';
 
 import { useLogout } from '@/features/auth/session/model/use-logout';
+import { useWithdraw } from '@/features/auth/session/model/use-withdraw';
 import { Box } from '@/shared/ui/layout/box';
 import { Modal } from '@/shared/ui/modal';
 import { showToast } from '@/shared/ui/toast';
@@ -20,16 +21,18 @@ export function AccountActions(): JSX.Element {
       setActiveModal(null);
     },
   });
+  const { withdraw } = useWithdraw({
+    onSuccess: () => {
+      showToast({
+        id: 'withdraw-success',
+        description: '그동안 채소집을 이용해 주셔서 감사합니다.',
+        type: 'success',
+      });
+      setActiveModal(null);
+    },
+  });
 
   const closeModal = (): void => setActiveModal(null);
-  const withdraw = (): void => {
-    setActiveModal(null);
-    showToast({
-      id: 'withdraw-success',
-      description: '그동안 채소집을 이용해 주셔서 감사합니다.',
-      type: 'success',
-    });
-  };
 
   return (
     <>
