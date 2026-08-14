@@ -4,6 +4,10 @@ import { vi } from 'vitest';
 
 import { MyPage } from './my-page';
 
+const { withdrawMock } = vi.hoisted(() => ({
+  withdrawMock: vi.fn<() => void>(),
+}));
+
 vi.mock('@/features/auth/session/model/use-logout', () => ({
   useLogout: () => ({
     logout: vi.fn<() => void>(),
@@ -12,7 +16,20 @@ vi.mock('@/features/auth/session/model/use-logout', () => ({
   }),
 }));
 
+vi.mock('@/features/auth/session/model/use-withdraw', () => ({
+  useWithdraw: () => ({
+    withdraw: withdrawMock,
+    resetError: vi.fn<() => void>(),
+    isPending: false,
+    errorMessage: undefined,
+  }),
+}));
+
 describe('MyPage', () => {
+  beforeEach(() => {
+    withdrawMock.mockReset();
+  });
+
   it('renders the guest profile state and login CTA', () => {
     render(<MyPage isLoggedIn={false} />);
 
@@ -73,5 +90,8 @@ describe('MyPage', () => {
       'src',
       '/mypage-assets/withdraw-illustration.svg',
     );
+
+    await user.click(within(dialog).getByText('탈퇴하기'));
+    expect(withdrawMock).toHaveBeenCalledOnce();
   });
 });
