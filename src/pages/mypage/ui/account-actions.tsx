@@ -8,8 +8,9 @@ import { Modal } from '@/shared/ui/modal';
 import { showToast } from '@/shared/ui/toast';
 
 import { LogoutModal } from './logout-modal';
+import { WithdrawalModal } from './withdrawal-modal';
 
-type AccountModal = 'logout' | null;
+type AccountModal = 'logout' | 'withdraw' | null;
 
 export function AccountActions(): JSX.Element {
   const [activeModal, setActiveModal] = useState<AccountModal>(null);
@@ -21,6 +22,7 @@ export function AccountActions(): JSX.Element {
   });
 
   const closeModal = (): void => setActiveModal(null);
+  const withdraw = (): void => setActiveModal(null);
 
   return (
     <>
@@ -35,11 +37,17 @@ export function AccountActions(): JSX.Element {
         <button
           type="button"
           className="typo-subtitle-xs text-text-low focus-visible:outline-sys-primary-default rounded-xxs cursor-pointer underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+          onClick={() => setActiveModal('withdraw')}
         >
           탈퇴하기
         </button>
       </Box>
 
+      {activeModal === 'withdraw' ? (
+        <Modal.Root open onOpenChange={(open) => !open && closeModal()}>
+          <WithdrawalModal onWithdraw={withdraw} />
+        </Modal.Root>
+      ) : null}
       {activeModal === 'logout' ? (
         <Modal.Root open onOpenChange={(open) => !open && closeModal()}>
           <LogoutModal errorMessage={errorMessage} isPending={isPending} onLogout={logout} />

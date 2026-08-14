@@ -58,4 +58,20 @@ describe('MyPage', () => {
       screen.queryByRole('dialog', { name: '정말 로그아웃하시겠어요?' }),
     ).not.toBeInTheDocument();
   });
+
+  it('opens the withdrawal confirmation modal', async () => {
+    const user = userEvent.setup();
+    render(<MyPage isLoggedIn />);
+
+    await user.click(screen.getByRole('button', { name: '탈퇴하기' }));
+
+    const dialog = await screen.findByRole('dialog', { name: '채소집을 정말 떠나시겠어요?' });
+    expect(dialog).toBeVisible();
+    expect(within(dialog).getByRole('button', { name: '돌아가기' })).toBeVisible();
+    expect(within(dialog).getByText('탈퇴하기')).toBeVisible();
+    expect(within(dialog).getByAltText('')).toHaveAttribute(
+      'src',
+      '/mypage-assets/withdraw-illustration.svg',
+    );
+  });
 });
