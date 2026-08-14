@@ -1,6 +1,6 @@
 'use client';
 
-import type { JSX } from 'react';
+import { useState, type JSX } from 'react';
 import { Info } from 'lucide-react';
 import type { SimulationResponse } from '@/shared/api/generated';
 
@@ -10,7 +10,10 @@ import { Tooltip } from '@/shared/ui/tooltip';
 
 import { AuthenticatedChannelResults } from './simulator-authenticated-results';
 import { GuestChannelResults } from './simulator-guest-results';
-import { SimulatorResultsViewToggle } from './simulator-channel-performance';
+import {
+  SimulatorResultsViewToggle,
+  type SimulatorResultsView,
+} from './simulator-channel-performance';
 
 type SimulatorChannelResultsProps = {
   isLogin: boolean;
@@ -66,6 +69,9 @@ export function SimulatorChannelResults({
   selectedChannelIds = [],
   simulationResult = null,
 }: SimulatorChannelResultsProps): JSX.Element {
+  const [view, setView] = useState<SimulatorResultsView>('graph');
+  const resultsTitle = view === 'table' ? '채널별 예상 성과' : '채널별 예상 노출 · 클릭 수';
+
   return (
     <Box
       as="section"
@@ -82,20 +88,21 @@ export function SimulatorChannelResults({
             variant="heading-lg"
             className="text-text-highest"
           >
-            채널별 예상 노출 · 클릭 수
+            {resultsTitle}
           </Text>
           <ChannelCostInfo isEnabled={isChannelSelectionComplete} />
         </Box>
-        <SimulatorResultsViewToggle />
+        <SimulatorResultsViewToggle view={view} onViewChange={setView} />
       </Box>
       {isLogin ? (
         <AuthenticatedChannelResults
           isChannelSelectionComplete={isChannelSelectionComplete}
           selectedChannelIds={selectedChannelIds}
           simulationResult={simulationResult}
+          view={view}
         />
       ) : (
-        <GuestChannelResults />
+        <GuestChannelResults view={view} />
       )}
     </Box>
   );

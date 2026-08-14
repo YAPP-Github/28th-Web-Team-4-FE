@@ -12,7 +12,11 @@ import type { SimulationResponse } from '@/shared/api/generated';
 import { useSimulatorFilterChannels } from '@/features/simulator-filter/api/use-simulator-filter-channels';
 import { createChannelResults } from '@/pages/simulator/model/simulator-channel';
 
-import { ChannelPerformanceContent } from './simulator-channel-performance';
+import {
+  ChannelPerformanceContent,
+  type SimulatorResultsView,
+} from './simulator-channel-performance';
+import { SimulatorChannelTable } from './simulator-channel-table';
 
 function SimulatorDummyIcon(): JSX.Element {
   return (
@@ -96,10 +100,12 @@ export function AuthenticatedChannelResults({
   isChannelSelectionComplete,
   selectedChannelIds = [],
   simulationResult = null,
+  view = 'graph',
 }: {
   isChannelSelectionComplete: boolean;
   selectedChannelIds?: readonly string[];
   simulationResult?: SimulationResponse | null;
+  view?: SimulatorResultsView;
 }): JSX.Element {
   const { channels, isError, isPending } = useSimulatorFilterChannels(selectedChannelIds);
 
@@ -123,5 +129,11 @@ export function AuthenticatedChannelResults({
     );
   }
 
-  return <ChannelPerformanceContent channels={createChannelResults(channels, simulationResult)} />;
+  const channelResults = createChannelResults(channels, simulationResult);
+
+  return view === 'table' ? (
+    <SimulatorChannelTable channels={channelResults} />
+  ) : (
+    <ChannelPerformanceContent channels={channelResults} />
+  );
 }

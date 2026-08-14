@@ -41,14 +41,23 @@ function ChannelIcon({ type, name }: { type?: ChannelType; name: string }): JSX.
   );
 }
 
-export function SimulatorResultsViewToggle(): JSX.Element {
+export type SimulatorResultsView = 'graph' | 'table';
+
+export function SimulatorResultsViewToggle({
+  view,
+  onViewChange,
+}: {
+  view: SimulatorResultsView;
+  onViewChange: (view: SimulatorResultsView) => void;
+}): JSX.Element {
   return (
     <Box aria-label="결과 보기 방식" className="gap-002 flex items-center">
       <button
         type="button"
         aria-label="그래프로 보기"
-        aria-pressed="true"
+        aria-pressed={view === 'graph'}
         className="text-icon-default size-026 flex items-center justify-center"
+        onClick={() => onViewChange('graph')}
       >
         <Image
           src="/simulator-assets/graph.svg"
@@ -61,8 +70,9 @@ export function SimulatorResultsViewToggle(): JSX.Element {
       <button
         type="button"
         aria-label="표로 보기"
-        aria-pressed="false"
-        className="size-026 flex items-center justify-center"
+        aria-pressed={view === 'table'}
+        className="text-icon-default size-026 flex items-center justify-center"
+        onClick={() => onViewChange('table')}
       >
         <Image
           src="/simulator-assets/table.svg"

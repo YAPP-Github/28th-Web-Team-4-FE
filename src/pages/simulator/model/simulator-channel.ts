@@ -18,6 +18,8 @@ export type ChannelResult = {
   channelId?: string;
   name: string;
   type?: ChannelType;
+  budgetWon?: number;
+  cpcWon?: number | null;
   impressions: ChannelMetric;
   clicks: ChannelMetric;
   unavailable?: boolean;
@@ -79,6 +81,29 @@ export function formatSimulatorCountRange(range?: CountRangeResponse): string {
   return range.min === range.max ? `${min}회` : `${min}~${max}회`;
 }
 
+export function formatSimulatorTableCountRange(range?: CountRangeResponse): string {
+  if (!range) {
+    return '-';
+  }
+
+  const min = NUMBER_FORMATTER.format(range.min);
+  const max = NUMBER_FORMATTER.format(range.max);
+
+  return range.min === range.max ? `${min}회` : `${min}~${max}회`;
+}
+
+export function formatSimulatorBudget(value = 0): string {
+  if (value % COUNT_UNIT === 0) {
+    return `${NUMBER_FORMATTER.format(value / COUNT_UNIT)}만 원`;
+  }
+
+  return `${NUMBER_FORMATTER.format(value)}원`;
+}
+
+export function formatSimulatorCpc(value?: number | null): string {
+  return typeof value === 'number' ? `${NUMBER_FORMATTER.format(value)}원` : '-';
+}
+
 function getMetricRange(
   item: SimulationItemResponse | undefined,
   metric: 'impressions' | 'clicks',
@@ -108,6 +133,8 @@ export function createChannelResults(
     return channels.map((channel) => ({
       channelId: channel.id,
       name: channel.name,
+      budgetWon: 0,
+      cpcWon: null,
       impressions: {
         value: formatSimulatorCount(0),
         fillPercentage: 0,
@@ -139,15 +166,17 @@ export function createChannelResults(
     return {
       channelId: channel.id,
       name: item?.channelName ?? channel.name,
+      budgetWon: item?.allocatedBudgetWon ?? 0,
+      cpcWon: item?.cpcWon,
       impressions: {
         value: formatSimulatorCountRange(impressions),
         fillPercentage: getFillPercentage(getRangeCenter(impressions), maxImpressions),
-        range: impressions ?? { min: 0, max: 0 },
+        range: impressions,
       },
       clicks: {
         value: formatSimulatorCountRange(clicks),
         fillPercentage: getFillPercentage(getRangeCenter(clicks), maxImpressions),
-        range: clicks ?? { min: 0, max: 0 },
+        range: clicks,
       },
       unavailable: item ? !item.isExecutable : true,
     };
