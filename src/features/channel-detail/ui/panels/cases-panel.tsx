@@ -14,7 +14,7 @@ export function ChannelDetailCasesPanel({ channel }: ChannelDetailCasesPanelProp
   if (channel.similarCases.length === 0) {
     return (
       <Text as="p" variant="body-xl" className="text-text-medium">
-        등록된 유사 사례가 없습니다.
+        등록된 광고 예시가 없습니다.
       </Text>
     );
   }

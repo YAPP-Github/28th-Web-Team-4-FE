@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type JSX } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { useLogout } from '@/features/auth/session/model/use-logout';
 import { useWithdraw } from '@/features/auth/session/model/use-withdraw';
@@ -15,12 +16,20 @@ type AccountModal = 'logout' | 'withdraw' | null;
 
 export function AccountActions(): JSX.Element {
   const [activeModal, setActiveModal] = useState<AccountModal>(null);
-  const { logout, isPending, errorMessage } = useLogout({
-    onSuccess: () => {
-      showToast({ id: 'logout-success', description: '로그아웃했어요', type: 'success' });
-      setActiveModal(null);
-    },
-  });
+  const router = useRouter();
+  const { logout, isPending, errorMessage } = useLogout();
+
+  const handleLogout = (): void => {
+    logout({
+      onSuccess: () => {
+        showToast({ id: 'logout-success', description: '로그아웃했어요', type: 'success' });
+        setActiveModal(null);
+        router.replace('/login');
+        router.refresh();
+      },
+    });
+  };
+
   const {
     withdraw,
     resetError: resetWithdrawError,
@@ -79,7 +88,7 @@ export function AccountActions(): JSX.Element {
       ) : null}
       {activeModal === 'logout' ? (
         <Modal.Root open onOpenChange={(open) => !open && closeModal()}>
-          <LogoutModal errorMessage={errorMessage} isPending={isPending} onLogout={logout} />
+          <LogoutModal errorMessage={errorMessage} isPending={isPending} onLogout={handleLogout} />
         </Modal.Root>
       ) : null}
     </>

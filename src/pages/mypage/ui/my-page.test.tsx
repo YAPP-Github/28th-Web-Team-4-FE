@@ -1,25 +1,33 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
-import type { showToast } from '@/shared/ui/toast';
+import type { ShowToastOptions } from '@/shared/ui/toast';
 
 import { MyPage } from './my-page';
+
+type LogoutOptions = {
+  onSuccess?: () => void;
+};
 
 type WithdrawOptions = {
   onError?: () => void;
   onSuccess?: () => void;
 };
 
-const { showToastMock, withdrawMock, withdrawOptions } = vi.hoisted(() => ({
-  showToastMock: vi.fn<typeof showToast>(),
-  withdrawMock: vi.fn<() => void>(),
-  withdrawOptions: [] as WithdrawOptions[],
-}));
+const { logoutMock, replaceMock, refreshMock, showToastMock, withdrawMock, withdrawOptions } =
+  vi.hoisted(() => ({
+    logoutMock: vi.fn<(options?: LogoutOptions) => void>(),
+    replaceMock: vi.fn<(href: string) => void>(),
+    refreshMock: vi.fn<() => void>(),
+    showToastMock: vi.fn<(options: ShowToastOptions) => void>(),
+    withdrawMock: vi.fn<() => void>(),
+    withdrawOptions: [] as WithdrawOptions[],
+  }));
 
 vi.mock('@/features/auth/session/model/use-logout', () => ({
   useLogout: () => ({
-    logout: vi.fn<() => void>(),
+    logout: logoutMock,
     isPending: false,
     errorMessage: undefined,
   }),
@@ -39,8 +47,15 @@ vi.mock('@/features/auth/session/model/use-withdraw', () => ({
 }));
 vi.mock('@/shared/ui/toast', () => ({ showToast: showToastMock }));
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ replace: replaceMock, refresh: refreshMock }),
+}));
+
 describe('MyPage', () => {
   beforeEach(() => {
+    logoutMock.mockReset();
+    replaceMock.mockReset();
+    refreshMock.mockReset();
     showToastMock.mockReset();
     withdrawMock.mockReset();
     withdrawOptions.length = 0;
@@ -90,6 +105,34 @@ describe('MyPage', () => {
     expect(
       screen.queryByRole('dialog', { name: '정말 로그아웃하시겠어요?' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('handles logout success in the page UI', async () => {
+    const user = userEvent.setup();
+    render(<MyPage isLoggedIn />);
+
+    await user.click(screen.getByRole('button', { name: '로그아웃' }));
+    const dialog = await screen.findByRole('dialog', { name: '정말 로그아웃하시겠어요?' });
+    await user.click(within(dialog).getByRole('button', { name: '로그아웃' }));
+
+    expect(logoutMock).toHaveBeenCalledOnce();
+
+    act(() => {
+      logoutMock.mock.calls[0]?.[0]?.onSuccess?.();
+    });
+
+    expect(showToastMock).toHaveBeenCalledWith({
+      id: 'logout-success',
+      description: '로그아웃했어요',
+      type: 'success',
+    });
+    expect(replaceMock).toHaveBeenCalledWith('/login');
+    expect(refreshMock).toHaveBeenCalledOnce();
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('dialog', { name: '정말 로그아웃하시겠어요?' }),
+      ).not.toBeInTheDocument();
+    });
   });
 
   it('opens the withdrawal confirmation modal', async () => {

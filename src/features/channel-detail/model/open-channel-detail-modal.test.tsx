@@ -33,6 +33,7 @@ function createDetailResponse(
     id: CHANNEL.id,
     name: CHANNEL.name,
     logoUrl: null,
+    tagline: '상세 API tagline',
     description: '메타 광고 상세 설명',
     primaryCategory: CHANNEL.primaryCategory,
     mediaType: 'SNS',
@@ -86,13 +87,20 @@ function createDeferred<T>() {
   return { promise, resolve };
 }
 
-function OpenModalButton({ fallback }: { fallback?: ReactNode }) {
+function OpenModalButton({
+  fallback,
+  onboardingId,
+}: {
+  fallback?: ReactNode;
+  onboardingId?: string;
+}) {
   return (
     <button
       type="button"
       onClick={() => {
         openChannelDetailModal({
           channel: CHANNEL,
+          onboardingId,
           fallback: fallback ?? <ChannelDetailContentSkeleton />,
         });
       }}
@@ -116,8 +124,44 @@ function renderOpenButton(fallback?: ReactNode) {
   );
 }
 
+function renderOpenButtonWithOnboardingId(onboardingId: string) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <OverlayProvider>
+        <OpenModalButton onboardingId={onboardingId} />
+      </OverlayProvider>
+    </QueryClientProvider>,
+  );
+}
+
 describe('openChannelDetailModal', () => {
-  it('모달 셸과 주입한 fallback을 즉시 열고 같은 Popup에서 상세 콘텐츠로 교체한다', async () => {
+  it('추천 결과 진입이면 상세 조회에 onboardingId를 전달한다', async () => {
+    let requestedUrl: URL | undefined;
+
+    server.use(
+      http.get(/\/api\/v1\/channels\/[^/]+$/, ({ request }) => {
+        requestedUrl = new URL(request.url);
+        return HttpResponse.json({
+          success: true,
+          data: createDetailResponse(),
+        });
+      }),
+    );
+
+    const user = userEvent.setup();
+    renderOpenButtonWithOnboardingId('onboarding-87');
+
+    await user.click(screen.getByRole('button', { name: '상세보기' }));
+    expect(await screen.findByText('메타 광고 상세 설명')).toBeVisible();
+    expect(await screen.findByText('상세 API tagline')).toBeVisible();
+    expect(requestedUrl?.searchParams.get('onboardingId')).toBe('onboarding-87');
+  });
+
+  it('모달 셸과 주입한 fallback을 즉시 열고 상세 콘텐츠로 교체한다', async () => {
     const responseGate = createDeferred<void>();
     let requestedId: string | undefined;
 
@@ -139,8 +183,7 @@ describe('openChannelDetailModal', () => {
 
     await user.click(screen.getByRole('button', { name: '상세보기' }));
 
-    const dialog = await screen.findByRole('dialog', { name: CHANNEL.name });
-    expect(dialog).toBeVisible();
+    expect(await screen.findByRole('dialog', { name: '채널 상세 정보' })).toBeVisible();
     expect(screen.getByRole('status')).toHaveTextContent('상세 로딩 중');
     expect(requestedId).toBe(CHANNEL.id);
 
@@ -148,7 +191,7 @@ describe('openChannelDetailModal', () => {
 
     expect(await screen.findByText('메타 광고 상세 설명')).toBeVisible();
     expect(screen.queryByText('상세 로딩 중')).not.toBeInTheDocument();
-    expect(screen.getByRole('dialog', { name: CHANNEL.name })).toBe(dialog);
+    expect(screen.getByRole('dialog', { name: CHANNEL.name })).toBeVisible();
 
     await user.click(screen.getByRole('button', { name: '닫기' }));
     await waitFor(() => {
@@ -202,9 +245,9 @@ describe('openChannelDetailModal', () => {
       expect(screen.getByText('등록된 광고 상품이 없습니다.')).toBeVisible();
     });
 
-    await user.click(screen.getByRole('tab', { name: '유사 사례' }));
+    await user.click(screen.getByRole('tab', { name: '광고 예시' }));
     await waitFor(() => {
-      expect(screen.getByText('등록된 유사 사례가 없습니다.')).toBeVisible();
+      expect(screen.getByText('등록된 광고 예시가 없습니다.')).toBeVisible();
     });
   });
 });

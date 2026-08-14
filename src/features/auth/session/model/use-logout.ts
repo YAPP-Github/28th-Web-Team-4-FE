@@ -1,50 +1,48 @@
 'use client';
 
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useMutation, useQueryClient, type MutateOptions } from '@tanstack/react-query';
 
 import { logoutAuthSession } from '@/features/auth/session/api/auth-session';
 
 import { authSessionQueryKey, authSessionQueryOptions } from './auth-session-query';
 
-type UseLogoutOptions = {
-  onSuccess?: () => void;
-};
+type LogoutMutationOptions = MutateOptions<void, Error, void, unknown>;
 
-export function useLogout({ onSuccess }: UseLogoutOptions = {}) {
-  const router = useRouter();
+async function logoutWithSessionFallback(queryClient: ReturnType<typeof useQueryClient>) {
+  try {
+    await logoutAuthSession();
+  } catch (error) {
+    try {
+      const session = await queryClient.fetchQuery(authSessionQueryOptions());
+
+      if (!session.authenticated) {
+        return;
+      }
+    } catch {
+      // 세션 확인도 실패하면 로그아웃 결과를 단정하지 않고 원래 오류를 유지한다.
+    }
+
+    throw error;
+  }
+}
+
+export function useLogout() {
   const queryClient = useQueryClient();
   const [errorMessage, setErrorMessage] = useState<string>('');
   const logoutMutation = useMutation({
-    mutationFn: () => logoutAuthSession(),
+    mutationFn: () => logoutWithSessionFallback(queryClient),
     onSuccess: () => {
       queryClient.setQueryData(authSessionQueryKey, { authenticated: false });
-      router.replace('/login');
-      router.refresh();
-      onSuccess?.();
     },
-    onError: async () => {
-      try {
-        const session = await queryClient.fetchQuery(authSessionQueryOptions());
-
-        if (!session.authenticated) {
-          queryClient.setQueryData(authSessionQueryKey, { authenticated: false });
-          router.replace('/login');
-          router.refresh();
-          return;
-        }
-      } catch {
-        // 세션 확인도 실패하면 로그아웃 결과를 단정하지 않고 재시도를 안내한다.
-      }
-
+    onError: () => {
       setErrorMessage('로그아웃하지 못했습니다. 다시 시도해 주세요.');
     },
   });
 
-  const logout = (): void => {
+  const logout = (options?: LogoutMutationOptions): void => {
     setErrorMessage('');
-    logoutMutation.mutate();
+    logoutMutation.mutate(undefined, options);
   };
 
   return {

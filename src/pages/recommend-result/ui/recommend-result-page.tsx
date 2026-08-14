@@ -10,13 +10,13 @@ import {
   createChannelComparisonHref,
   isComparisonSelectionComplete,
 } from '@/features/channel-comparison';
-import { openResolvedChannelDetailModal } from '@/features/channel-detail/resolved';
+import { ChannelDetailContentSkeleton, openChannelDetailModal } from '@/features/channel-detail';
 import { useRecommendations } from '@/pages/recommend-result/api/use-recommendations';
 import {
   MAX_COMPARISON_CHANNELS,
   toggleComparisonChannel,
 } from '@/pages/recommend-result/model/comparison-selection';
-import { getRecommendedChannelDetail } from '@/pages/recommend-result/model/recommended-channel-details';
+import { getRecommendedChannelDetailHeader } from '@/pages/recommend-result/model/recommended-channel-details';
 import {
   recommendedChannels,
   type RecommendedChannel,
@@ -33,6 +33,7 @@ type RecommendResultPageProps = {
   channels?: readonly RecommendedChannel[];
   headerAction: ReactNode;
   isGuest?: boolean;
+  onboardingId?: string;
   onCompare: (channelIds: readonly string[]) => void;
 };
 
@@ -48,6 +49,7 @@ export function RecommendResultPage({
   channels = recommendedChannels,
   headerAction,
   isGuest = false,
+  onboardingId,
   onCompare,
 }: RecommendResultPageProps): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
@@ -68,7 +70,11 @@ export function RecommendResultPage({
   };
 
   const handleOpenDetail = (channel: RecommendedChannel): void => {
-    openResolvedChannelDetailModal(getRecommendedChannelDetail(channel));
+    openChannelDetailModal({
+      channel: getRecommendedChannelDetailHeader(channel),
+      onboardingId,
+      fallback: <ChannelDetailContentSkeleton />,
+    });
   };
 
   const handleCompare = (): void => {
@@ -128,6 +134,7 @@ export function RecommendResultWithRecommendations({
       channels={recommendationsQuery.data}
       headerAction={<RecommendResultSaveAction onboardingId={onboardingId} />}
       isGuest={isGuest}
+      onboardingId={onboardingId}
       onCompare={handleCompare}
     />
   );
