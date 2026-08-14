@@ -12,9 +12,15 @@ import type {
 import { server } from '@/shared/api/mocks/server';
 
 import { ComparePage } from './compare-page';
+import { CompareResultPage } from './compare-result-page';
 
-const { showWarningToastMock } = vi.hoisted(() => ({
+const { pushMock, showWarningToastMock } = vi.hoisted(() => ({
+  pushMock: vi.fn<(href: string) => void>(),
   showWarningToastMock: vi.fn<(description: string, options?: { id?: string }) => void>(),
+}));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: pushMock }),
 }));
 
 vi.mock('@/shared/api/hey-api', () => ({
@@ -148,7 +154,7 @@ function createDeferred<T>() {
   return { promise, resolve };
 }
 
-function renderComparePage(searchParams = '') {
+function renderCompareRoute(page: ReactNode, searchParams = '') {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -166,7 +172,15 @@ function renderComparePage(searchParams = '') {
     );
   }
 
-  return render(<ComparePage />, { wrapper: Wrapper });
+  return render(page, { wrapper: Wrapper });
+}
+
+function renderComparePage(searchParams = '') {
+  return renderCompareRoute(<ComparePage />, searchParams);
+}
+
+function renderCompareResultPage() {
+  return renderCompareRoute(<CompareResultPage />);
 }
 
 function escapeRegExp(value: string) {
@@ -184,6 +198,7 @@ function getCompareButton() {
 describe('ComparePage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    pushMock.mockReset();
     server.use(
       http.get(/\/api\/v1\/channels$/, ({ request }) =>
         defaultChannelResponse(new URL(request.url)),
@@ -498,31 +513,45 @@ describe('ComparePage', () => {
     });
   });
 
-  it('3개 선택 시 CTA를 활성화하고 임시 토스트를 보여준다', async () => {
+  it('3개 선택 시 CTA를 활성화하고 비교 결과 페이지로 이동한다', async () => {
     const user = userEvent.setup();
     renderComparePage();
     expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
 
     await user.click(getChannelCheckbox('네이버 검색 광고'));
     await user.click(getChannelCheckbox('카카오 키워드 광고'));
-    await user.click(getChannelCheckbox('메타 피드 광고'));
 
+    expect(getCompareButton()).toBeDisabled();
+
+    await user.click(getChannelCheckbox('메타 피드 광고'));
     expect(getCompareButton()).toBeEnabled();
 
     await user.click(getCompareButton());
 
-    expect(showWarningToastMock).toHaveBeenCalledWith('채널 비교 기능은 준비 중이에요.', {
-      id: 'compare-coming-soon',
-    });
+    expect(pushMock).toHaveBeenCalledWith(
+      '/compare/result?channels=channel-naver,channel-kakao,channel-meta',
+    );
   });
 
-  it('기존 channels query에서 선택을 복원하지 않는다', async () => {
-    renderComparePage('?channels=channel-meta,unknown,channel-kakao,channel-youtube,channel-naver');
+  it('비교에 필요한 채널 수보다 적은 channels query는 선택 화면을 유지한다', async () => {
+    renderComparePage('?channels=channel-meta');
     expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
 
     expect(getChannelCheckbox('메타 피드 광고')).not.toBeChecked();
-    expect(getChannelCheckbox('카카오 키워드 광고')).not.toBeChecked();
-    expect(getChannelCheckbox('유튜브 영상 광고')).not.toBeChecked();
     expect(getCompareButton()).toHaveTextContent('선택한 채널 비교하기 (0/3)');
+  });
+
+  it('비교 결과 임시 페이지는 고정 목 채널과 추가 카드를 보여준다', () => {
+    renderCompareResultPage();
+
+    expect(
+      screen.getByRole('heading', {
+        name: '선택한 채널별 특징과 성과를 비교한 결과예요',
+      }),
+    ).toBeVisible();
+    expect(screen.getByRole('heading', { level: 2, name: '네이버 검색 광고' })).toBeVisible();
+    expect(screen.getByRole('heading', { level: 2, name: '카카오 키워드 광고' })).toBeVisible();
+    expect(screen.getByText('채널 추가하기')).toBeVisible();
+    expect(screen.getByRole('region', { name: '채널별 인사이트' })).toBeVisible();
   });
 });
