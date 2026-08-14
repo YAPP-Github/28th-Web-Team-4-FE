@@ -1,5 +1,8 @@
+'use client';
+
 import type { JSX } from 'react';
 import Image from 'next/image';
+import { motion, useReducedMotion } from 'motion/react';
 
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
@@ -15,15 +18,26 @@ const CHANNEL_ICON_SRC: Record<ChannelType, string> = {
   meta: '/simulator-assets/meta.svg',
 };
 
-function ChannelIcon({ type }: { type: ChannelType }): JSX.Element {
+function ChannelIcon({ type, name }: { type?: ChannelType; name: string }): JSX.Element {
+  if (type) {
+    return (
+      <Image
+        src={CHANNEL_ICON_SRC[type]}
+        alt=""
+        width={36}
+        height={36}
+        className="shrink-0 rounded-[var(--radius-xs)] object-cover"
+      />
+    );
+  }
+
   return (
-    <Image
-      src={CHANNEL_ICON_SRC[type]}
-      alt=""
-      width={36}
-      height={36}
-      className="shrink-0 rounded-[var(--radius-xs)] object-cover"
-    />
+    <Box
+      aria-hidden
+      className="bg-surface-low text-text-medium size-036 flex shrink-0 items-center justify-center rounded-[var(--radius-xs)]"
+    >
+      <Text variant="subtitle-xxs">{Array.from(name.trim())[0] ?? '?'}</Text>
+    </Box>
   );
 }
 
@@ -71,15 +85,29 @@ function ChannelMetricRow({
   fillClassName: string;
   valueClassName: string;
 }): JSX.Element {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <Box className="gap-016 flex w-full items-center">
-      <Box className="bg-surface-low h-010 min-w-0 flex-1 overflow-hidden rounded-[var(--radius-max)]">
-        <Box
-          style={{ width: `${metric.fillPercentage}%` }}
-          className={`${fillClassName} h-full rounded-[var(--radius-max)]`}
+      <Box className="bg-surface-low h-010 w-full min-w-0 flex-1 overflow-hidden rounded-[var(--radius-max)]">
+        <motion.div
+          initial={shouldReduceMotion ? false : { transform: 'scaleX(0)' }}
+          animate={{ transform: `scaleX(${metric.fillPercentage / 100})` }}
+          transition={
+            shouldReduceMotion
+              ? { duration: 0 }
+              : {
+                  duration: 0.5,
+                  ease: [0.23, 1, 0.32, 1],
+                }
+          }
+          className={`${fillClassName} h-full w-full origin-left rounded-[var(--radius-max)] will-change-transform`}
         />
       </Box>
-      <Text variant="body-md" className={valueClassName}>
+      <Text
+        variant="body-md"
+        className={`${valueClassName} w-auto shrink-0 text-left whitespace-nowrap`}
+      >
         {metric.value}
       </Text>
     </Box>
@@ -89,7 +117,7 @@ function ChannelMetricRow({
 function ChannelResultRow({ channel }: { channel: ChannelResult }): JSX.Element {
   return (
     <Box className="gap-014 flex w-full items-start">
-      <ChannelIcon type={channel.type} />
+      <ChannelIcon type={channel.type} name={channel.name} />
       <Box className="gap-006 flex min-w-0 flex-1 flex-col">
         <Text variant="subtitle-md" className="text-text-default truncate">
           {channel.name}
@@ -139,7 +167,7 @@ export function ChannelPerformanceContent({
     <Box className="gap-024 flex w-full flex-col">
       <Box className="gap-022 flex w-full flex-col">
         {channels.map((channel) => (
-          <ChannelResultRow key={channel.name} channel={channel} />
+          <ChannelResultRow key={channel.channelId ?? channel.name} channel={channel} />
         ))}
       </Box>
       <ChannelMetricLegend />

@@ -1,6 +1,6 @@
 'use client';
 
-import type { JSX, ReactNode } from 'react';
+import type { ComponentProps, JSX, ReactNode } from 'react';
 
 import { Box } from '@/shared/ui/layout/box';
 
@@ -11,6 +11,7 @@ export type TextModalProps = {
   description: ReactNode;
   actions: ReactNode;
   className?: string;
+  backdropClassName?: ComponentProps<typeof Modal.Backdrop>['className'];
 };
 
 export const TextModal = ({
@@ -18,10 +19,11 @@ export const TextModal = ({
   description,
   actions,
   className,
+  backdropClassName,
 }: TextModalProps): JSX.Element => {
   return (
     <Modal.Portal>
-      <Modal.Backdrop />
+      <Modal.Backdrop className={backdropClassName} />
       <Modal.Popup className={className ?? 'gap-024 px-030 pb-024 pt-030 items-start'}>
         <Box className="gap-012 flex w-full flex-col items-center text-center">
           <Modal.Title>{title}</Modal.Title>

@@ -4,14 +4,23 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import {
   CHANNEL_DETAIL_EMPTY_PRODUCTS_FIXTURE,
   CHANNEL_DETAIL_FIXTURE,
-} from '@/features/channel-detail/model/channel-detail';
-import { openChannelDetailModal } from '@/features/channel-detail/model/open-channel-detail-modal';
+} from '@/features/channel-detail/model/channel-detail-fixture';
+import { openResolvedChannelDetailModal } from '@/features/channel-detail/model/open-resolved-channel-detail-modal';
+import { ChannelDetailContent } from '@/features/channel-detail/ui/channel-detail-content';
+import { ChannelDetailContentSkeleton } from '@/features/channel-detail/ui/channel-detail-content-skeleton';
 import { Button } from '@/shared/ui/button';
 
 import { ChannelDetailModal } from './channel-detail-modal';
 
+const CHANNEL_HEADER = {
+  id: CHANNEL_DETAIL_FIXTURE.id,
+  name: CHANNEL_DETAIL_FIXTURE.name,
+  logoUrl: CHANNEL_DETAIL_FIXTURE.logoUrl,
+  description: CHANNEL_DETAIL_FIXTURE.tagline,
+} as const;
+
 const meta = {
-  title: 'pages/recommend/ChannelDetailModal',
+  title: 'features/channel-detail/ChannelDetailModal',
   component: ChannelDetailModal,
   tags: ['autodocs'],
   decorators: [
@@ -28,7 +37,17 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    channel: CHANNEL_DETAIL_FIXTURE,
+    channel: CHANNEL_HEADER,
+    children: <ChannelDetailContent channel={CHANNEL_DETAIL_FIXTURE} />,
+    open: true,
+    onOpenChange: () => undefined,
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    channel: CHANNEL_HEADER,
+    children: <ChannelDetailContentSkeleton />,
     open: true,
     onOpenChange: () => undefined,
   },
@@ -36,7 +55,8 @@ export const Default: Story = {
 
 export const EmptyProducts: Story = {
   args: {
-    channel: CHANNEL_DETAIL_EMPTY_PRODUCTS_FIXTURE,
+    channel: CHANNEL_HEADER,
+    children: <ChannelDetailContent channel={CHANNEL_DETAIL_EMPTY_PRODUCTS_FIXTURE} />,
     open: true,
     onOpenChange: () => undefined,
   },
@@ -53,7 +73,8 @@ export const EmptyProducts: Story = {
 
 export const OpenWithOverlayKit: Story = {
   args: {
-    channel: CHANNEL_DETAIL_FIXTURE,
+    channel: CHANNEL_HEADER,
+    children: <ChannelDetailContent channel={CHANNEL_DETAIL_FIXTURE} />,
     open: false,
     onOpenChange: () => undefined,
   },
@@ -63,7 +84,7 @@ export const OpenWithOverlayKit: Story = {
       tone="secondary"
       size="m"
       onClick={() => {
-        openChannelDetailModal();
+        openResolvedChannelDetailModal(CHANNEL_DETAIL_FIXTURE);
       }}
     >
       상세보기

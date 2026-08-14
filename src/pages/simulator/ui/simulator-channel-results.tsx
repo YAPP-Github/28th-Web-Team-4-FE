@@ -2,6 +2,7 @@
 
 import type { JSX } from 'react';
 import { Info } from 'lucide-react';
+import type { SimulationResponse } from '@/shared/api/generated';
 
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
@@ -14,6 +15,8 @@ import { SimulatorResultsViewToggle } from './simulator-channel-performance';
 type SimulatorChannelResultsProps = {
   isLogin: boolean;
   isChannelSelectionComplete?: boolean;
+  selectedChannelIds?: readonly string[];
+  simulationResult?: SimulationResponse | null;
 };
 
 function ChannelCostInfo({ isEnabled }: { isEnabled: boolean }): JSX.Element {
@@ -60,12 +63,16 @@ function ChannelCostInfo({ isEnabled }: { isEnabled: boolean }): JSX.Element {
 export function SimulatorChannelResults({
   isLogin,
   isChannelSelectionComplete = false,
+  selectedChannelIds = [],
+  simulationResult = null,
 }: SimulatorChannelResultsProps): JSX.Element {
   return (
     <Box
       as="section"
       aria-labelledby="simulator-channel-results-title"
-      className="bg-surface-lowest gap-026 px-030 py-024 relative flex w-full flex-col overflow-hidden rounded-[var(--radius-l)]"
+      data-selected-channel-ids={selectedChannelIds.join(',') || undefined}
+      data-simulation-result-state={simulationResult ? 'ready' : 'initial'}
+      className="bg-surface-lowest gap-026 px-030 py-024 relative flex w-full shrink-0 flex-col overflow-hidden rounded-[var(--radius-l)]"
     >
       <Box className="flex w-full items-center justify-between">
         <Box className="gap-006 group flex items-center">
@@ -82,7 +89,11 @@ export function SimulatorChannelResults({
         <SimulatorResultsViewToggle />
       </Box>
       {isLogin ? (
-        <AuthenticatedChannelResults isChannelSelectionComplete={isChannelSelectionComplete} />
+        <AuthenticatedChannelResults
+          isChannelSelectionComplete={isChannelSelectionComplete}
+          selectedChannelIds={selectedChannelIds}
+          simulationResult={simulationResult}
+        />
       ) : (
         <GuestChannelResults />
       )}

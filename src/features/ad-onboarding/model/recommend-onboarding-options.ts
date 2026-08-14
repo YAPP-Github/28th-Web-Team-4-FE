@@ -37,11 +37,13 @@ export type PerformanceChannelId =
   | 'YOUTUBE_VIDEO_ADS'
   | 'KAKAO_BIZBOARD';
 
-/** 파일 파싱 전 UI와 최종 답변에서 사용하는 업로드 파일 메타데이터. */
+/** 파일 파싱 전 UI와 presigned 업로드에 사용하는 파일 메타데이터. */
 export type UploadedPerformanceFile = {
   id: string;
   name: string;
   size: number;
+  /** presigned URL에 PUT할 브라우저 원본 파일. 기존 draft 메타데이터와의 호환을 위해 선택적이다. */
+  file?: File;
 };
 
 /**

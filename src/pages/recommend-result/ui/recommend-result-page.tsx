@@ -1,11 +1,17 @@
 'use client';
 
-import { useState, type JSX } from 'react';
+import { useState, type JSX, type ReactNode } from 'react';
 import NumberFlow from '@number-flow/react';
+import { useRouter } from 'next/navigation';
 import { useReducedMotion } from 'motion/react';
 
 import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
-import { openChannelDetailModal } from '@/features/channel-detail';
+import {
+  createChannelComparisonHref,
+  isComparisonSelectionComplete,
+} from '@/features/channel-comparison';
+import { openResolvedChannelDetailModal } from '@/features/channel-detail/resolved';
+import { useRecommendations } from '@/pages/recommend-result/api/use-recommendations';
 import {
   MAX_COMPARISON_CHANNELS,
   toggleComparisonChannel,
@@ -17,17 +23,33 @@ import {
 } from '@/pages/recommend-result/model/recommended-channels';
 import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
+import { showWarningToast } from '@/shared/ui/toast';
 
 import { RecommendedChannelCarousel } from './recommended-channel-carousel';
+import { RecommendResultSaveAction } from './recommend-result-save-action';
 import { RecommendResultSubHeader } from './recommend-result-sub-header';
 
 type RecommendResultPageProps = {
+  channels?: readonly RecommendedChannel[];
+  headerAction: ReactNode;
   isGuest?: boolean;
+  onCompare: (channelIds: readonly string[]) => void;
+};
+
+type RecommendResultWithRecommendationsProps = {
+  isGuest?: boolean;
+  onboardingId: string;
 };
 
 const NUMBER_FLOW_EASE_OUT_CUBIC = 'cubic-bezier(0.215, 0.61, 0.355, 1)';
+const COMPARISON_LIMIT_TOAST_ID = 'recommend-comparison-limit';
 
-export function RecommendResultPage({ isGuest = false }: RecommendResultPageProps): JSX.Element {
+export function RecommendResultPage({
+  channels = recommendedChannels,
+  headerAction,
+  isGuest = false,
+  onCompare,
+}: RecommendResultPageProps): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
   const serviceName = useRecommendOnboardingStore((state) => state.answer?.serviceName ?? '채소집');
   const [selectedChannelIds, setSelectedChannelIds] = useState<readonly string[]>([]);
@@ -36,8 +58,9 @@ export function RecommendResultPage({ isGuest = false }: RecommendResultPageProp
     const change = toggleComparisonChannel(selectedChannelIds, channelId);
 
     if (change.result === 'max-reached') {
-      // eslint-disable-next-line no-alert -- The design explicitly requires a native alert here.
-      window.alert('비교 목록은 최대 3개까지 선택할 수 있어요.');
+      showWarningToast('비교 목록은 최대 3개까지 선택할 수 있어요.', {
+        id: COMPARISON_LIMIT_TOAST_ID,
+      });
       return;
     }
 
@@ -45,21 +68,20 @@ export function RecommendResultPage({ isGuest = false }: RecommendResultPageProp
   };
 
   const handleOpenDetail = (channel: RecommendedChannel): void => {
-    openChannelDetailModal(getRecommendedChannelDetail(channel));
+    openResolvedChannelDetailModal(getRecommendedChannelDetail(channel));
   };
 
   const handleCompare = (): void => {
-    // eslint-disable-next-line no-alert -- The comparison page is not available yet.
-    window.alert('비교 기능은 준비 중이에요.');
+    onCompare(selectedChannelIds);
   };
 
   return (
     <main className="bg-surface-background-default flex flex-1 flex-col items-center">
-      <RecommendResultSubHeader serviceName={serviceName} />
+      <RecommendResultSubHeader serviceName={serviceName} action={headerAction} />
       <Box className="px-016 pb-040 sm:px-032 lg:px-064 flex w-full justify-center pt-[60px] xl:px-0">
         <Box className="gap-040 flex w-full max-w-[1200px] flex-col">
           <RecommendedChannelCarousel
-            channels={recommendedChannels}
+            channels={channels}
             startDelay={0.14}
             selectedChannelIds={selectedChannelIds}
             isGuest={isGuest}
@@ -71,7 +93,7 @@ export function RecommendResultPage({ isGuest = false }: RecommendResultPageProp
             tone="primary"
             className="h-[50px] w-full"
             aria-label={`추천받은 채널로 비교하기 (${selectedChannelIds.length}/${MAX_COMPARISON_CHANNELS})`}
-            disabled={selectedChannelIds.length !== MAX_COMPARISON_CHANNELS}
+            disabled={!isComparisonSelectionComplete(selectedChannelIds)}
             onClick={handleCompare}
           >
             추천받은 채널로 비교하기 (
@@ -87,5 +109,26 @@ export function RecommendResultPage({ isGuest = false }: RecommendResultPageProp
         </Box>
       </Box>
     </main>
+  );
+}
+
+export function RecommendResultWithRecommendations({
+  isGuest = false,
+  onboardingId,
+}: RecommendResultWithRecommendationsProps): JSX.Element {
+  const router = useRouter();
+  const recommendationsQuery = useRecommendations(onboardingId);
+
+  const handleCompare = (channelIds: readonly string[]): void => {
+    router.push(createChannelComparisonHref(channelIds, { onboardingId }));
+  };
+
+  return (
+    <RecommendResultPage
+      channels={recommendationsQuery.data}
+      headerAction={<RecommendResultSaveAction onboardingId={onboardingId} />}
+      isGuest={isGuest}
+      onCompare={handleCompare}
+    />
   );
 }

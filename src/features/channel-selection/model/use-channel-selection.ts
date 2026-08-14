@@ -23,18 +23,21 @@ export function useChannelSelection({
   const canSubmit = selectedCount === CHANNEL_SELECTION_LIMIT;
 
   const toggleChannel = (channelId: string) => {
-    setSelectedIds((currentSelectedIds) => {
-      if (currentSelectedIds.includes(channelId)) {
-        return currentSelectedIds.filter((selectedId) => selectedId !== channelId);
-      }
+    const isSelected = selectedIds.includes(channelId);
 
-      if (currentSelectedIds.length >= CHANNEL_SELECTION_LIMIT) {
-        showWarningToast(limitToastMessage, { id: limitToastId });
-        return currentSelectedIds;
-      }
+    // 한도 초과 안내는 렌더 밖(이벤트 핸들러)에서만 호출한다.
+    // setState 업데이터는 순수해야 하며, 그 안에서 토스트를 띄우면 렌더 중
+    // 다른 컴포넌트를 갱신해 경고가 나고 토스트가 중복될 수 있다.
+    if (!isSelected && selectedIds.length >= CHANNEL_SELECTION_LIMIT) {
+      showWarningToast(limitToastMessage, { id: limitToastId });
+      return;
+    }
 
-      return [...currentSelectedIds, channelId];
-    });
+    setSelectedIds((currentSelectedIds) =>
+      currentSelectedIds.includes(channelId)
+        ? currentSelectedIds.filter((selectedId) => selectedId !== channelId)
+        : [...currentSelectedIds, channelId],
+    );
   };
 
   return {

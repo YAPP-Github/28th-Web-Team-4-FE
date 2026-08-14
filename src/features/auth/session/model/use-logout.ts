@@ -15,7 +15,7 @@ type UseLogoutOptions = {
 export function useLogout({ onSuccess }: UseLogoutOptions = {}) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [errorMessage, setErrorMessage] = useState<string>();
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const logoutMutation = useMutation({
     mutationFn: () => logoutAuthSession(),
     onSuccess: () => {
@@ -43,7 +43,7 @@ export function useLogout({ onSuccess }: UseLogoutOptions = {}) {
   });
 
   const logout = (): void => {
-    setErrorMessage(undefined);
+    setErrorMessage('');
     logoutMutation.mutate();
   };
 

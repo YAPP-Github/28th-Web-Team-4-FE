@@ -20,6 +20,15 @@
   animation-delay: calc(333ms + var(--sidebar-item-index, 0) * 60ms);
 }
 
+@utility animate-simulator-channel-selection-enter {
+  animation: simulator-channel-selection-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@utility animate-skeleton-pulse {
+  animation: skeleton-pulse 1s cubic-bezier(0.5, 0, 0.5, 1);
+  animation-iteration-count: infinite;
+}
+
 @keyframes page-header-mobile-sidebar-enter {
   from {
     opacity: 0;
@@ -41,6 +50,29 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes simulator-channel-selection-enter {
+  from {
+    opacity: 0;
+    transform: translateY(150%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
   }
 }
 

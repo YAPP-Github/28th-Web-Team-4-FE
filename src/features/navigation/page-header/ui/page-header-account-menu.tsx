@@ -1,13 +1,15 @@
 'use client';
 
-import type { JSX } from 'react';
+import { useEffect, type JSX } from 'react';
 import { Menu } from '@base-ui/react/menu';
 
 import { Avatar } from '@/shared/ui/avatar';
 import { Button } from '@/shared/ui/button';
-import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
+import { showWarningToast } from '@/shared/ui/toast';
+
+const LOGOUT_ERROR_TOAST_ID = 'logout-error';
 
 export type PageHeaderAccountMenuProps = {
   userName?: string;
@@ -23,6 +25,12 @@ export function PageHeaderAccountMenu({
   logoutError,
 }: PageHeaderAccountMenuProps): JSX.Element {
   const avatarAlt = userName ? `${userName} 프로필` : '내 프로필';
+
+  useEffect(() => {
+    if (logoutError) {
+      showWarningToast(logoutError, { id: LOGOUT_ERROR_TOAST_ID });
+    }
+  }, [logoutError]);
 
   return (
     <Box className="gap-018 flex shrink-0 items-center">
@@ -41,12 +49,7 @@ export function PageHeaderAccountMenu({
         </Menu.Trigger>
         <Menu.Portal>
           <Menu.Positioner className="z-50 outline-none" side="bottom" align="end" sideOffset={10}>
-            <Menu.Popup
-              className={cn(
-                'border-outline-default bg-surface-lowest w-[92px] overflow-hidden rounded-[var(--radius-s)] border outline-none',
-                logoutError && 'w-[240px]',
-              )}
-            >
+            <Menu.Popup className="border-outline-default bg-surface-lowest w-[92px] overflow-hidden rounded-[var(--radius-s)] border outline-none">
               <Menu.Item
                 closeOnClick={false}
                 nativeButton
@@ -63,11 +66,6 @@ export function PageHeaderAccountMenu({
                   </Button>
                 }
               />
-              {logoutError ? (
-                <p className="typo-body-sm text-sys-error-default px-012 py-008" role="alert">
-                  {logoutError}
-                </p>
-              ) : null}
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
