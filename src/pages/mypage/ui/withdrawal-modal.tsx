@@ -3,8 +3,10 @@
 import type { JSX } from 'react';
 import Image from 'next/image';
 
+import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Modal } from '@/shared/ui/modal';
+import { Text } from '@/shared/ui/text';
 
 type WithdrawalModalProps = {
   errorMessage?: string;
@@ -56,9 +58,19 @@ export function WithdrawalModal({
             >
               돌아가기
             </Modal.CloseButton>
-            <Modal.CloseText disabled={isPending} onClick={onWithdraw}>
-              탈퇴하기
-            </Modal.CloseText>
+            <button
+              type="button"
+              className={cn([
+                'inline-flex h-[22px] items-center justify-center self-center px-002',
+                'cursor-pointer text-text-medium transition-colors hover:text-text-high',
+                'focus-visible:text-text-high focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sys-primary-default',
+                'disabled:cursor-not-allowed disabled:opacity-50',
+              ])}
+              disabled={isPending}
+              onClick={onWithdraw}
+            >
+              <Text variant="subtitle-xxs">탈퇴하기</Text>
+            </button>
           </Box>
         </Box>
       </Modal.Popup>

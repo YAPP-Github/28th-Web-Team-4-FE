@@ -101,14 +101,15 @@ describe('MyPage', () => {
     const dialog = await screen.findByRole('dialog', { name: '채소집을 정말 떠나시겠어요?' });
     expect(dialog).toBeVisible();
     expect(within(dialog).getByRole('button', { name: '돌아가기' })).toBeVisible();
-    expect(within(dialog).getByText('탈퇴하기')).toBeVisible();
+    expect(within(dialog).getByRole('button', { name: '탈퇴하기' })).toBeVisible();
     expect(within(dialog).getByAltText('')).toHaveAttribute(
       'src',
       '/mypage-assets/withdraw-illustration.svg',
     );
 
-    await user.click(within(dialog).getByText('탈퇴하기'));
+    await user.click(within(dialog).getByRole('button', { name: '탈퇴하기' }));
     expect(withdrawMock).toHaveBeenCalledOnce();
+    expect(screen.getByRole('dialog', { name: '채소집을 정말 떠나시겠어요?' })).toBeVisible();
   });
 
   it('shows a failure toast when withdrawal fails', async () => {
