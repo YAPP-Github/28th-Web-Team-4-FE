@@ -3,6 +3,7 @@ import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
+import { authSessionQueryKey } from '@/features/auth/session/model/auth-session-query';
 import type { ShowToastOptions } from '@/shared/ui/toast';
 
 import { MyPage } from './my-page';
@@ -51,12 +52,18 @@ function renderMyPage(isLoggedIn: boolean) {
       queries: { retry: false },
     },
   });
+  queryClient.setQueryData(authSessionQueryKey, {
+    authenticated: true,
+    accessTokenExpiresAt: Date.now() + 60_000,
+  });
 
-  return render(
+  const renderResult = render(
     <QueryClientProvider client={queryClient}>
       <MyPage isLoggedIn={isLoggedIn} />
     </QueryClientProvider>,
   );
+
+  return { queryClient, ...renderResult };
 }
 
 vi.mock('@/features/auth/session/model/use-logout', () => ({
@@ -140,6 +147,17 @@ describe('MyPage', () => {
     expect(screen.getByRole('status', { name: '내 정보를 불러오고 있어요' })).toBeVisible();
     expect(screen.getByTestId('my-profile-skeleton')).toBeVisible();
     expect(screen.queryByText('YAPP')).not.toBeInTheDocument();
+  });
+
+  it('refreshes the page when the profile request returns unauthorized', async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 401 }));
+
+    const { queryClient } = renderMyPage(true);
+
+    await waitFor(() => {
+      expect(queryClient.getQueryData(authSessionQueryKey)).toEqual({ authenticated: false });
+    });
+    expect(refreshMock).toHaveBeenCalledOnce();
   });
 
   it('opens and closes the logout confirmation modal', async () => {
