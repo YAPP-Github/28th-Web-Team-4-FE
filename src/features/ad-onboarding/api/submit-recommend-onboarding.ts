@@ -9,7 +9,6 @@ import type {
 } from '@/shared/api/generated/types.gen';
 import type { RecommendOnboardingAnswer } from '@/features/ad-onboarding/model/onboarding-answer';
 import {
-  PERFORMANCE_CHANNEL_OPTION_LIST,
   type AgeRangeId,
   type AdGoalId,
   type ManualPerformanceChannel,
@@ -94,12 +93,6 @@ function mapAgeRangeList(ageRangeList: AgeRangeId[]): ApiAgeBand[] {
   );
 }
 
-function getPerformanceChannelLabel(channelId: string): string {
-  return (
-    PERFORMANCE_CHANNEL_OPTION_LIST.find((option) => option.value === channelId)?.label ?? channelId
-  );
-}
-
 function mapManualPerformanceChannel(channel: ManualPerformanceChannel): AdHistoryRequest {
   return {
     channelNameRaw: channel.channelNameRaw,
@@ -120,15 +113,7 @@ function mapManualAdHistory(answer: RecommendOnboardingAnswer): AdHistoryRequest
     return [];
   }
 
-  if ('channelList' in performanceInput) {
-    return performanceInput.channelList.map(mapManualPerformanceChannel);
-  }
-
-  if (!('channel' in performanceInput)) {
-    return [];
-  }
-
-  return [{ channelNameRaw: getPerformanceChannelLabel(performanceInput.channel) }];
+  return performanceInput.channelList.map(mapManualPerformanceChannel);
 }
 
 function mapAdExperience(

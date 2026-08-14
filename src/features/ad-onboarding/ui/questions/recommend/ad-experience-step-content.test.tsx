@@ -124,7 +124,6 @@ describe('AdExperienceStepContent', () => {
       performanceFileList: [],
       performanceManualChannelList: [],
     });
-    expect(getSubmittedDraft()?.performanceChannel).toBeUndefined();
   });
 
   it('submits manual performance input after at least two metrics are filled for the channel', async () => {

@@ -29,14 +29,6 @@ export type AdExperienceType = 'FIRST_TIME' | 'EXPERIENCED';
 /** 광고 집행 경험이 있을 때 성과 정보를 입력하는 방식. */
 export type PerformanceMode = 'UPLOAD' | 'MANUAL';
 
-/** 광고 집행 경험 직접 입력에서 선택할 광고 채널. */
-export type PerformanceChannelId =
-  | 'GOOGLE_SEARCH_ADS'
-  | 'NAVER_SA'
-  | 'META_ADS'
-  | 'YOUTUBE_VIDEO_ADS'
-  | 'KAKAO_BIZBOARD';
-
 /** 광고 집행 경험 직접 입력에서 채널별로 입력하는 성과 항목. */
 export type ManualPerformanceChannel = {
   channelId?: string;
@@ -104,11 +96,3 @@ export const PERFORMANCE_MODE_OPTION_LIST = [
   { value: 'UPLOAD', label: '파일 업로드' },
   { value: 'MANUAL', label: '직접 입력' },
 ] as const satisfies readonly OnboardingOption<PerformanceMode>[];
-
-export const PERFORMANCE_CHANNEL_OPTION_LIST = [
-  { value: 'GOOGLE_SEARCH_ADS', label: '구글 검색 광고' },
-  { value: 'NAVER_SA', label: '네이버 SA' },
-  { value: 'META_ADS', label: '메타 광고' },
-  { value: 'YOUTUBE_VIDEO_ADS', label: '유튜브 비디오 광고' },
-  { value: 'KAKAO_BIZBOARD', label: '카카오 비즈보드' },
-] as const satisfies readonly OnboardingOption<PerformanceChannelId>[];

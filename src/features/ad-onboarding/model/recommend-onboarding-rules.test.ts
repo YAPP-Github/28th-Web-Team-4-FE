@@ -109,24 +109,6 @@ describe('recommend onboarding rules', () => {
       });
     });
 
-    it('운영 경험 직접 입력 채널을 최종 답변에 포함한다', () => {
-      expect(
-        buildRecommendOnboardingAnswer(
-          createCompleteRecommendDraft({
-            adExperienceType: 'EXPERIENCED',
-            performanceMode: 'MANUAL',
-            performanceChannel: 'META_ADS',
-          }),
-        ).adExperience,
-      ).toEqual({
-        type: 'EXPERIENCED',
-        performanceInput: {
-          mode: 'MANUAL',
-          channel: 'META_ADS',
-        },
-      });
-    });
-
     it('운영 경험 직접 입력 채널 목록을 최종 답변에 포함한다', () => {
       expect(
         buildRecommendOnboardingAnswer(
@@ -193,15 +175,21 @@ describe('recommend onboarding rules', () => {
       expect(getRecommendOnboardingAnswerLabel('age-ranges', draft)).toBe('20대');
     });
 
-    it('운영 경험과 직접 입력 채널을 함께 요약한다', () => {
+    it('운영 경험과 직접 입력 채널 목록을 요약한다', () => {
       const draft = createCompleteRecommendDraft({
         adExperienceType: 'EXPERIENCED',
         performanceMode: 'MANUAL',
-        performanceChannel: 'META_ADS',
+        performanceManualChannelList: [
+          {
+            channelNameRaw: '메타 광고',
+            budgetWon: 100000,
+            periodDays: 14,
+          },
+        ],
       });
 
       expect(getRecommendOnboardingAnswerLabel('ad-experience', draft)).toBe(
-        '광고를 운영해 봤어요 · 메타 광고',
+        '광고를 운영해 봤어요',
       );
     });
 

@@ -18,7 +18,6 @@ import {
   AD_GOAL_OPTION_LIST,
   AGE_RANGE_OPTION_LIST,
   MANUAL_PERFORMANCE_METRIC_KEY_LIST,
-  PERFORMANCE_CHANNEL_OPTION_LIST,
   UNKNOWN_AGE_RANGE_ID,
   type AgeRangeId,
   type ManualPerformanceChannel,
@@ -237,13 +236,6 @@ function getPerformanceInput(draft: RecommendOnboardingDraft): PerformanceInput 
     };
   }
 
-  if (draft.performanceMode === 'MANUAL' && draft.performanceChannel) {
-    return {
-      mode: 'MANUAL',
-      channel: draft.performanceChannel,
-    };
-  }
-
   return undefined;
 }
 
@@ -267,14 +259,7 @@ function getAdExperienceAnswerLabel(draft: RecommendOnboardingDraft): string {
   }
 
   if (performanceInput?.mode === 'MANUAL') {
-    if ('channelList' in performanceInput) {
-      return label;
-    }
-
-    return `${label} · ${getOnboardingOptionLabel(
-      PERFORMANCE_CHANNEL_OPTION_LIST,
-      performanceInput.channel,
-    )}`;
+    return label;
   }
 
   return label;

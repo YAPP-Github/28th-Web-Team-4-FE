@@ -63,22 +63,6 @@ describe('createSubmitOnboardingRequest', () => {
     ]);
   });
 
-  it('maps manual ad history to the API adHistory list', () => {
-    const request = createSubmitOnboardingRequest({
-      ...baseAnswer,
-      adExperience: {
-        type: 'EXPERIENCED',
-        performanceInput: {
-          mode: 'MANUAL',
-          channel: 'NAVER_SA',
-        },
-      },
-    });
-
-    expect(request.adExperience).toBe('EXPERIENCED');
-    expect(request.adHistory).toEqual([{ channelNameRaw: '네이버 SA' }]);
-  });
-
   it('maps manual ad history channel list to the API adHistory list', () => {
     const request = createSubmitOnboardingRequest({
       ...baseAnswer,

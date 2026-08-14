@@ -67,10 +67,6 @@ export function PerformanceInputQuestion({
     control,
     name: 'performanceManualChannelList',
   });
-  const { field: performanceChannelField } = useController({
-    control,
-    name: 'performanceChannel',
-  });
   const isInputComplete = useWatch({
     control,
     compute: isPerformanceInputComplete,
@@ -79,7 +75,6 @@ export function PerformanceInputQuestion({
   const clearPerformanceInput = (): void => {
     performanceFileListField.onChange([]);
     performanceManualChannelListField.onChange([]);
-    performanceChannelField.onChange(undefined);
   };
 
   return (
