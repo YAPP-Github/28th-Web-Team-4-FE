@@ -7,6 +7,7 @@ import {
 } from '@/features/channel-detail/model/channel-detail-fixture';
 import { openResolvedChannelDetailModal } from '@/features/channel-detail/model/open-resolved-channel-detail-modal';
 import { ChannelDetailContent } from '@/features/channel-detail/ui/channel-detail-content';
+import { ChannelDetailContentSkeleton } from '@/features/channel-detail/ui/channel-detail-content-skeleton';
 import { ChannelDetailModalHeader } from '@/features/channel-detail/ui/channel-detail-modal-header';
 import { Button } from '@/shared/ui/button';
 
@@ -49,6 +50,19 @@ export const Default: Story = {
   play: async () => {
     const body = within(document.body);
     await expect(body.getByRole('heading', { name: '이런 이유로 추천해요' })).toBeVisible();
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    children: (
+      <>
+        <ChannelDetailModalHeader channel={CHANNEL_HEADER} />
+        <ChannelDetailContentSkeleton />
+      </>
+    ),
+    open: true,
+    onOpenChange: () => undefined,
   },
 };
 

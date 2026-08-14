@@ -13,8 +13,14 @@ import type { RecommendedChannel } from '@/pages/recommend-result/model/recommen
 
 import { RecommendResultPage, RecommendResultWithRecommendations } from './recommend-result-page';
 
-const { showWarningToastMock } = vi.hoisted(() => ({
+const { onCompareMock, pushMock, showWarningToastMock } = vi.hoisted(() => ({
+  onCompareMock: vi.fn<(channelIds: readonly string[]) => void>(),
+  pushMock: vi.fn<(href: string) => void>(),
   showWarningToastMock: vi.fn<(description: string, options?: { id?: string }) => void>(),
+}));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: pushMock }),
 }));
 
 vi.mock('@/shared/api/hey-api', () => ({
@@ -64,6 +70,22 @@ const recommendationChannel = {
   ],
 } as const satisfies RecommendedChannel;
 
+const apiRecommendations = [
+  apiRecommendation,
+  {
+    ...apiRecommendation,
+    channelId: 'channel-youtube',
+    channelName: '유튜브 검색 광고',
+    matchRate: 84,
+  },
+  {
+    ...apiRecommendation,
+    channelId: 'channel-kakao',
+    channelName: '카카오 검색 광고',
+    matchRate: 81,
+  },
+] satisfies RecommendationItemResponse[];
+
 function createDeferred<T>() {
   let resolve!: (value: T) => void;
   const promise = new Promise<T>((resolvePromise) => {
@@ -93,19 +115,23 @@ function renderWithProviders(children: ReactNode) {
 }
 
 function renderRecommendResultPage(props?: { isGuest?: boolean }) {
-  return renderWithProviders(<RecommendResultPage headerAction={null} {...props} />);
+  return renderWithProviders(
+    <RecommendResultPage headerAction={null} onCompare={onCompareMock} {...props} />,
+  );
 }
 
 function getSelectionCheckbox(name: string) {
   return screen.getByRole('checkbox', { name: `${name} 비교 목록 선택` });
 }
 
-function mockRecommendations() {
+function mockRecommendations(
+  recommendations: readonly RecommendationItemResponse[] = [apiRecommendation],
+) {
   server.use(
     http.get(/\/api\/v1\/recommendations$/, () => {
       return HttpResponse.json({
         success: true,
-        data: [apiRecommendation],
+        data: recommendations,
       });
     }),
   );
@@ -155,8 +181,10 @@ function mockChannelDetail(onRequest?: (url: URL) => void) {
   );
 }
 
-function renderRecommendResultWithRecommendations() {
-  mockRecommendations();
+function renderRecommendResultWithRecommendations(
+  recommendations?: readonly RecommendationItemResponse[],
+) {
+  mockRecommendations(recommendations);
 
   return renderWithProviders(
     <Suspense fallback={<div>loading</div>}>
@@ -168,6 +196,7 @@ function renderRecommendResultWithRecommendations() {
 describe('RecommendResultPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    pushMock.mockReset();
     useRecommendOnboardingStore.setState(initialStore, true);
   });
 
@@ -181,7 +210,7 @@ describe('RecommendResultPage', () => {
     expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (0/3)' })).toBeDisabled();
   });
 
-  it('toggles selection and enables the CTA only after three channels are selected', async () => {
+  it('toggles selection and enables the CTA after three channels are selected', async () => {
     const user = userEvent.setup();
     renderRecommendResultPage();
 
@@ -198,8 +227,10 @@ describe('RecommendResultPage', () => {
     expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (1/3)' })).toBeDisabled();
 
     await user.click(getSelectionCheckbox('유튜브 검색 광고'));
-    await user.click(getSelectionCheckbox('카카오 검색 광고'));
 
+    expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (2/3)' })).toBeDisabled();
+
+    await user.click(getSelectionCheckbox('카카오 검색 광고'));
     expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (3/3)' })).toBeEnabled();
 
     await user.click(naverCheckbox);
@@ -227,7 +258,7 @@ describe('RecommendResultPage', () => {
     expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (3/3)' })).toBeEnabled();
   });
 
-  it('shows a toast when the enabled CTA is clicked', async () => {
+  it('선택한 채널 ID를 비교 콜백에 전달한다', async () => {
     const user = userEvent.setup();
     renderRecommendResultPage();
 
@@ -239,9 +270,23 @@ describe('RecommendResultPage', () => {
 
     await user.click(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (3/3)' }));
 
-    expect(showWarningToastMock).toHaveBeenCalledWith('비교 기능은 준비 중이에요.', {
-      id: 'recommend-comparison-coming-soon',
-    });
+    expect(onCompareMock).toHaveBeenCalledWith(['naver-search-ad', 'youtube-ad', 'kakao-business']);
+  });
+
+  it('추천 결과의 onboarding ID를 포함해 비교 결과 페이지를 연다', async () => {
+    const user = userEvent.setup();
+    renderRecommendResultWithRecommendations(apiRecommendations);
+
+    await user.click(
+      await screen.findByRole('checkbox', { name: '네이버 검색 광고 비교 목록 선택' }),
+    );
+    await user.click(screen.getByRole('checkbox', { name: '유튜브 검색 광고 비교 목록 선택' }));
+    await user.click(screen.getByRole('checkbox', { name: '카카오 검색 광고 비교 목록 선택' }));
+    await user.click(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (3/3)' }));
+
+    expect(pushMock).toHaveBeenCalledWith(
+      '/compare/result?channels=channel-naver,channel-youtube,channel-kakao&onboardingId=onboarding-87',
+    );
   });
 
   it('opens channel details from the more button but not from card selection', async () => {
@@ -269,6 +314,7 @@ describe('RecommendResultPage', () => {
         headerAction={null}
         channels={[recommendationChannel]}
         onboardingId={RECOMMENDATION_ONBOARDING_ID}
+        onCompare={onCompareMock}
       />,
     );
 
@@ -291,12 +337,18 @@ describe('RecommendResultPage', () => {
     );
   });
 
-  it('always shows the cheapest CPC tooltip', () => {
+  it('shows the cheapest CPC tooltip on the channel marked as lowest', () => {
     renderRecommendResultPage();
 
-    const tooltipText = screen.getByText('클릭당 비용이 가장 낮아요');
+    const lowestCpcChannel = screen.getByRole('article', { name: '카카오 검색 광고' });
+    const tooltipText = within(lowestCpcChannel).getByText('클릭당 비용이 가장 낮아요');
 
     expect(tooltipText).toBeVisible();
+    expect(
+      within(screen.getByRole('article', { name: '네이버 검색 광고' })).queryByText(
+        '클릭당 비용이 가장 낮아요',
+      ),
+    ).not.toBeInTheDocument();
     expect(tooltipText.parentElement).toHaveClass('bg-surface-toast', 'text-text-lowest');
     expect(tooltipText.parentElement?.querySelector('[aria-hidden="true"]')).toHaveStyle({
       bottom: '-4px',

@@ -2,9 +2,14 @@
 
 import { useState, type JSX, type ReactNode } from 'react';
 import NumberFlow from '@number-flow/react';
+import { useRouter } from 'next/navigation';
 import { useReducedMotion } from 'motion/react';
 
 import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
+import {
+  createChannelComparisonHref,
+  isComparisonSelectionComplete,
+} from '@/features/channel-comparison';
 import { ChannelDetailContentSkeleton, openChannelDetailModal } from '@/features/channel-detail';
 import { useRecommendations } from '@/pages/recommend-result/api/use-recommendations';
 import {
@@ -29,6 +34,7 @@ type RecommendResultPageProps = {
   headerAction: ReactNode;
   isGuest?: boolean;
   onboardingId?: string;
+  onCompare: (channelIds: readonly string[]) => void;
 };
 
 type RecommendResultWithRecommendationsProps = {
@@ -38,13 +44,13 @@ type RecommendResultWithRecommendationsProps = {
 
 const NUMBER_FLOW_EASE_OUT_CUBIC = 'cubic-bezier(0.215, 0.61, 0.355, 1)';
 const COMPARISON_LIMIT_TOAST_ID = 'recommend-comparison-limit';
-const COMPARISON_COMING_SOON_TOAST_ID = 'recommend-comparison-coming-soon';
 
 export function RecommendResultPage({
   channels = recommendedChannels,
   headerAction,
   isGuest = false,
   onboardingId,
+  onCompare,
 }: RecommendResultPageProps): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
   const serviceName = useRecommendOnboardingStore((state) => state.answer?.serviceName ?? '채소집');
@@ -72,9 +78,7 @@ export function RecommendResultPage({
   };
 
   const handleCompare = (): void => {
-    showWarningToast('비교 기능은 준비 중이에요.', {
-      id: COMPARISON_COMING_SOON_TOAST_ID,
-    });
+    onCompare(selectedChannelIds);
   };
 
   return (
@@ -95,7 +99,7 @@ export function RecommendResultPage({
             tone="primary"
             className="h-[50px] w-full"
             aria-label={`추천받은 채널로 비교하기 (${selectedChannelIds.length}/${MAX_COMPARISON_CHANNELS})`}
-            disabled={selectedChannelIds.length !== MAX_COMPARISON_CHANNELS}
+            disabled={!isComparisonSelectionComplete(selectedChannelIds)}
             onClick={handleCompare}
           >
             추천받은 채널로 비교하기 (
@@ -118,7 +122,12 @@ export function RecommendResultWithRecommendations({
   isGuest = false,
   onboardingId,
 }: RecommendResultWithRecommendationsProps): JSX.Element {
+  const router = useRouter();
   const recommendationsQuery = useRecommendations(onboardingId);
+
+  const handleCompare = (channelIds: readonly string[]): void => {
+    router.push(createChannelComparisonHref(channelIds, { onboardingId }));
+  };
 
   return (
     <RecommendResultPage
@@ -126,6 +135,7 @@ export function RecommendResultWithRecommendations({
       headerAction={<RecommendResultSaveAction onboardingId={onboardingId} />}
       isGuest={isGuest}
       onboardingId={onboardingId}
+      onCompare={handleCompare}
     />
   );
 }

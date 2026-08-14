@@ -7,6 +7,9 @@ import { PageHeader } from './page-header';
 
 const motionMockState = vi.hoisted(() => ({ shouldReduceMotion: false }));
 const useSelectedLayoutSegmentMock = vi.fn<() => string | null>(() => null);
+const { showWarningToastMock } = vi.hoisted(() => ({
+  showWarningToastMock: vi.fn<(description: string, options?: { id?: string }) => void>(),
+}));
 const MOBILE_VIEWPORT_QUERY = '(max-width: 1023px)';
 const SIDEBAR_EXIT_WAIT_OPTIONS = { timeout: 750 } as const;
 const mediaQueryChangeListeners = new Set<() => void>();
@@ -72,12 +75,17 @@ vi.mock('motion/react', async (importOriginal) => {
   };
 });
 
+vi.mock('@/shared/ui/toast', () => ({
+  showWarningToast: showWarningToastMock,
+}));
+
 describe('PageHeader', () => {
   beforeEach(() => {
     useSelectedLayoutSegmentMock.mockReturnValue(null);
     viewportWidth = 1023;
     motionMockState.shouldReduceMotion = false;
     mediaQueryChangeListeners.clear();
+    showWarningToastMock.mockReset();
     vi.mocked(window.matchMedia).mockImplementation(createMediaQueryList);
   });
 
@@ -148,6 +156,32 @@ describe('PageHeader', () => {
     expect(screen.getByRole('img', { name: '내 프로필' })).toBeVisible();
     expect(screen.getByRole('button', { name: '계정 메뉴 열기' })).toBeVisible();
     expect(screen.queryByRole('button', { name: '시작하기' })).not.toBeInTheDocument();
+  });
+
+  it('calls the logout handler from the account menu', async () => {
+    const user = userEvent.setup();
+    const onLogout = vi.fn<() => void>();
+    render(<PageHeader isLogin onLogout={onLogout} />);
+
+    await user.click(screen.getByRole('button', { name: '계정 메뉴 열기' }));
+    await user.click(await screen.findByRole('menuitem', { name: '로그아웃' }));
+
+    expect(onLogout).toHaveBeenCalledOnce();
+  });
+
+  it('shows logout errors in a warning toast', async () => {
+    const user = userEvent.setup();
+    render(<PageHeader isLogin logoutError="로그아웃하지 못했습니다. 다시 시도해 주세요." />);
+
+    await waitFor(() => {
+      expect(showWarningToastMock).toHaveBeenCalledWith(
+        '로그아웃하지 못했습니다. 다시 시도해 주세요.',
+        { id: 'logout-error' },
+      );
+    });
+    await user.click(screen.getByRole('button', { name: '계정 메뉴 열기' }));
+    await screen.findByRole('menuitem', { name: '로그아웃' });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('opens and closes the basic guest sidebar', async () => {

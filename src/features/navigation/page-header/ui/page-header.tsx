@@ -19,17 +19,32 @@ type PageHeaderBaseProps = Omit<ComponentProps<'header'>, 'children'> & {
 type PageHeaderLoginProps = {
   isLogin: true;
   userName?: string;
+  onLogout?: () => void;
+  isLogoutPending?: boolean;
+  logoutError?: string;
 };
 
 type PageHeaderGuestProps = {
   isLogin?: false;
   userName?: never;
+  onLogout?: never;
+  isLogoutPending?: never;
+  logoutError?: never;
 };
 
 export type PageHeaderProps = PageHeaderBaseProps & (PageHeaderLoginProps | PageHeaderGuestProps);
 
 export function PageHeader(props: PageHeaderProps): JSX.Element {
-  const { className, innerClassName, isLogin = false, userName, ...rest } = props;
+  const {
+    className,
+    innerClassName,
+    isLogin = false,
+    userName,
+    onLogout,
+    isLogoutPending,
+    logoutError,
+    ...rest
+  } = props;
 
   return (
     <HStack
@@ -76,7 +91,12 @@ export function PageHeader(props: PageHeaderProps): JSX.Element {
           </Box>
 
           {props.isLogin ? (
-            <PageHeaderAccountMenu userName={props.userName} />
+            <PageHeaderAccountMenu
+              userName={props.userName}
+              onLogout={onLogout}
+              isLogoutPending={isLogoutPending}
+              logoutError={logoutError}
+            />
           ) : (
             <Box className="shrink-0">
               <HeaderLoginButton />
