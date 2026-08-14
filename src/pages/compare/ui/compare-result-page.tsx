@@ -6,6 +6,7 @@ import { Box } from '@/shared/ui/layout/box';
 import { CompareResultChannelCards } from './compare-result-channel-cards';
 import { CompareResultChannelCost } from './compare-result-channel-cost';
 import { CompareResultChannelDetailsTable } from './compare-result-channel-details';
+import { CompareResultChannelInsights } from './compare-result-channel-insights';
 import { CompareResultChannelPerformance } from './compare-result-channel-performance';
 import { CompareResultSubHeader } from './compare-result-sub-header';
 
@@ -19,6 +20,7 @@ export function CompareResultPage(): JSX.Element {
           <CompareResultChannelPerformance channels={MOCK_COMPARE_RESULT_CHANNELS} />
           <CompareResultChannelDetailsTable channels={MOCK_COMPARE_RESULT_CHANNELS} />
           <CompareResultChannelCost channels={MOCK_COMPARE_RESULT_CHANNELS} />
+          <CompareResultChannelInsights channels={MOCK_COMPARE_RESULT_CHANNELS} />
         </Box>
       </main>
     </>

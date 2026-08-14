@@ -549,8 +549,9 @@ describe('ComparePage', () => {
         name: '선택한 채널별 특징과 성과를 비교한 결과예요',
       }),
     ).toBeVisible();
-    expect(screen.getByRole('heading', { name: '네이버 검색 광고' })).toBeVisible();
-    expect(screen.getByRole('heading', { name: '카카오 키워드 광고' })).toBeVisible();
+    expect(screen.getByRole('heading', { level: 2, name: '네이버 검색 광고' })).toBeVisible();
+    expect(screen.getByRole('heading', { level: 2, name: '카카오 키워드 광고' })).toBeVisible();
     expect(screen.getByText('채널 추가하기')).toBeVisible();
+    expect(screen.getByRole('region', { name: '채널별 인사이트' })).toBeVisible();
   });
 });
