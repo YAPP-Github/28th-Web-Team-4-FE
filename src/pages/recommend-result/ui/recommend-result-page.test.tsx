@@ -252,12 +252,18 @@ describe('RecommendResultPage', () => {
     );
   });
 
-  it('always shows the cheapest CPC tooltip', () => {
+  it('shows the cheapest CPC tooltip on the channel marked as lowest', () => {
     renderRecommendResultPage();
 
-    const tooltipText = screen.getByText('클릭당 비용이 가장 낮아요');
+    const lowestCpcChannel = screen.getByRole('article', { name: '카카오 검색 광고' });
+    const tooltipText = within(lowestCpcChannel).getByText('클릭당 비용이 가장 낮아요');
 
     expect(tooltipText).toBeVisible();
+    expect(
+      within(screen.getByRole('article', { name: '네이버 검색 광고' })).queryByText(
+        '클릭당 비용이 가장 낮아요',
+      ),
+    ).not.toBeInTheDocument();
     expect(tooltipText.parentElement).toHaveClass('bg-surface-toast', 'text-text-lowest');
     expect(tooltipText.parentElement?.querySelector('[aria-hidden="true"]')).toHaveStyle({
       bottom: '-4px',

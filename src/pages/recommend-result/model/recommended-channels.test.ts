@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import type { RecommendationItemResponse } from '@/shared/api/generated/types.gen';
+
 import { mapRecommendationItemsToChannels, recommendedChannels } from './recommended-channels';
 
 describe('recommendedChannels', () => {
@@ -34,6 +36,7 @@ describe('recommendedChannels', () => {
         name: '카카오 비즈보드',
         description: '모바일 도달에 적합해요.',
         cpcPrice: '클릭 1회당 320원~',
+        isLowestCpc: true,
         matchRate: 84,
         thumbnailSrc: '/recommend-assets/kakao-ad.png',
         metrics: [
@@ -45,6 +48,61 @@ describe('recommendedChannels', () => {
         ],
       },
     ]);
+  });
+
+  it('marks every channel tied for the lowest non-null CPC', () => {
+    const createItem = (
+      channelId: string,
+      cpcWon: RecommendationItemResponse['cpcWon'],
+    ): RecommendationItemResponse => ({
+      channelId,
+      channelName: channelId,
+      matchRate: 80,
+      recommendationReason: '추천 이유',
+      primaryTarget: '20대',
+      cpcWon,
+      pricingModel: 'CPC',
+      minBudgetWon: 300000,
+      estImpressions: null,
+      estClicks: null,
+      isExecutable: true,
+      shortfallWon: null,
+    });
+
+    const channels = mapRecommendationItemsToChannels([
+      createItem('higher', 500),
+      createItem('missing', null),
+      createItem('lowest-first', 300),
+      createItem('lowest-second', 300),
+    ]);
+
+    expect(channels.map(({ id, isLowestCpc }) => ({ id, isLowestCpc }))).toEqual([
+      { id: 'higher', isLowestCpc: false },
+      { id: 'missing', isLowestCpc: false },
+      { id: 'lowest-first', isLowestCpc: true },
+      { id: 'lowest-second', isLowestCpc: true },
+    ]);
+  });
+
+  it('does not mark a lowest CPC when every value is null', () => {
+    const channels = mapRecommendationItemsToChannels([
+      {
+        channelId: 'missing-cpc',
+        channelName: '단가 없는 채널',
+        matchRate: 70,
+        recommendationReason: '추천 이유',
+        primaryTarget: '20대',
+        cpcWon: null,
+        pricingModel: 'OTHER',
+        minBudgetWon: null,
+        estImpressions: null,
+        estClicks: null,
+        isExecutable: false,
+        shortfallWon: null,
+      },
+    ]);
+
+    expect(channels[0]?.isLowestCpc).toBe(false);
   });
 
   it('keeps non-round budget values exact and falls back for missing API values', () => {
