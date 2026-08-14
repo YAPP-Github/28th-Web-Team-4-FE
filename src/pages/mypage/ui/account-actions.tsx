@@ -27,6 +27,13 @@ export function AccountActions(): JSX.Element {
     isPending: isWithdrawPending,
     errorMessage: withdrawErrorMessage,
   } = useWithdraw({
+    onError: () => {
+      showToast({
+        id: 'withdraw-error',
+        description: '탈퇴하지 못했습니다. 다시 시도해 주세요.',
+        type: 'warning',
+      });
+    },
     onSuccess: () => {
       showToast({
         id: 'withdraw-success',

@@ -2,10 +2,19 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
+import type { showToast } from '@/shared/ui/toast';
+
 import { MyPage } from './my-page';
 
-const { withdrawMock } = vi.hoisted(() => ({
+type WithdrawOptions = {
+  onError?: () => void;
+  onSuccess?: () => void;
+};
+
+const { showToastMock, withdrawMock, withdrawOptions } = vi.hoisted(() => ({
+  showToastMock: vi.fn<typeof showToast>(),
   withdrawMock: vi.fn<() => void>(),
+  withdrawOptions: [] as WithdrawOptions[],
 }));
 
 vi.mock('@/features/auth/session/model/use-logout', () => ({
@@ -17,17 +26,24 @@ vi.mock('@/features/auth/session/model/use-logout', () => ({
 }));
 
 vi.mock('@/features/auth/session/model/use-withdraw', () => ({
-  useWithdraw: () => ({
-    withdraw: withdrawMock,
-    resetError: vi.fn<() => void>(),
-    isPending: false,
-    errorMessage: undefined,
-  }),
+  useWithdraw: (options: WithdrawOptions = {}) => {
+    withdrawOptions.push(options);
+
+    return {
+      withdraw: withdrawMock,
+      resetError: vi.fn<() => void>(),
+      isPending: false,
+      errorMessage: undefined,
+    };
+  },
 }));
+vi.mock('@/shared/ui/toast', () => ({ showToast: showToastMock }));
 
 describe('MyPage', () => {
   beforeEach(() => {
+    showToastMock.mockReset();
     withdrawMock.mockReset();
+    withdrawOptions.length = 0;
   });
 
   it('renders the guest profile state and login CTA', () => {
@@ -93,5 +109,19 @@ describe('MyPage', () => {
 
     await user.click(within(dialog).getByText('탈퇴하기'));
     expect(withdrawMock).toHaveBeenCalledOnce();
+  });
+
+  it('shows a failure toast when withdrawal fails', async () => {
+    const user = userEvent.setup();
+    render(<MyPage isLoggedIn />);
+
+    await user.click(screen.getByRole('button', { name: '탈퇴하기' }));
+    withdrawOptions.at(-1)?.onError?.();
+
+    expect(showToastMock).toHaveBeenCalledWith({
+      id: 'withdraw-error',
+      description: '탈퇴하지 못했습니다. 다시 시도해 주세요.',
+      type: 'warning',
+    });
   });
 });

@@ -9,10 +9,11 @@ import { withdrawAuthAccount } from '@/features/auth/session/api/auth-session';
 import { authSessionQueryKey } from './auth-session-query';
 
 type UseWithdrawOptions = {
+  onError?: () => void;
   onSuccess?: () => void;
 };
 
-export function useWithdraw({ onSuccess }: UseWithdrawOptions = {}) {
+export function useWithdraw({ onError, onSuccess }: UseWithdrawOptions = {}) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -26,6 +27,7 @@ export function useWithdraw({ onSuccess }: UseWithdrawOptions = {}) {
     },
     onError: () => {
       setErrorMessage('탈퇴하지 못했습니다. 다시 시도해 주세요.');
+      onError?.();
     },
   });
 
