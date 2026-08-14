@@ -7,6 +7,7 @@ import {
 } from '@/features/channel-detail/model/channel-detail-fixture';
 import { openResolvedChannelDetailModal } from '@/features/channel-detail/model/open-resolved-channel-detail-modal';
 import { ChannelDetailContent } from '@/features/channel-detail/ui/channel-detail-content';
+import { ChannelDetailContentSkeleton } from '@/features/channel-detail/ui/channel-detail-content-skeleton';
 import { Button } from '@/shared/ui/button';
 
 import { ChannelDetailModal } from './channel-detail-modal';
@@ -38,6 +39,15 @@ export const Default: Story = {
   args: {
     channel: CHANNEL_HEADER,
     children: <ChannelDetailContent channel={CHANNEL_DETAIL_FIXTURE} />,
+    open: true,
+    onOpenChange: () => undefined,
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    channel: CHANNEL_HEADER,
+    children: <ChannelDetailContentSkeleton />,
     open: true,
     onOpenChange: () => undefined,
   },
