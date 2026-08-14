@@ -10,6 +10,7 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
     id: 'channel-meta',
     name: '메타 광고',
     logoUrl: ' https://cdn.example.com/meta.png ',
+    tagline: ' 퍼포먼스와 브랜딩을 모두 커버하는 채널 ',
     description: ' 정교한 관심사 타기팅을 제공해요. ',
     primaryCategory: 'SHOPPING_COMMERCE',
     mediaType: 'SNS',
@@ -68,7 +69,12 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
       },
     ],
     references: ['브랜드 캠페인 A', '전환 캠페인 B'],
-    recommendationBasis: null,
+    recommendationBasis: {
+      objective: 'TRAFFIC',
+      category: 'SHOPPING_COMMERCE',
+      budgetMin: 3_000_000,
+      budgetMax: 10_000_000,
+    },
     ...overrides,
   };
 }
@@ -81,9 +87,16 @@ describe('toChannelDetailViewModel', () => {
       id: 'channel-meta',
       name: '메타 광고',
       logoUrl: 'https://cdn.example.com/meta.png',
-      tagline: '정교한 관심사 타기팅을 제공해요.',
+      tagline: '퍼포먼스와 브랜딩을 모두 커버하는 채널',
       summary: {
         paragraphs: ['정교한 관심사 타기팅을 제공해요.'],
+        recommendationReason: {
+          category: '쇼핑·커머스',
+          objective: '트래픽 유입',
+          objectiveWithParticle: '트래픽 유입을',
+          budget: '300만 원~1,000만 원',
+          rationale: '퍼포먼스와 브랜딩을 모두 커버하는 채널',
+        },
       },
       audience: {
         primaryAgeBand: '20~40대',
@@ -116,6 +129,7 @@ describe('toChannelDetailViewModel', () => {
     const result = toChannelDetailViewModel(
       createChannelDetail({
         logoUrl: null,
+        tagline: null,
         description: null,
         primaryAgeBand: null,
         primaryGender: 'ALL',
@@ -137,12 +151,14 @@ describe('toChannelDetailViewModel', () => {
           },
         ],
         audienceMetrics: [],
+        recommendationBasis: null,
       }),
     );
 
     expect(result.logoUrl).toBe('');
     expect(result.tagline).toBe('');
     expect(result.summary.paragraphs).toEqual([]);
+    expect(result.summary.recommendationReason).toBeNull();
     expect(result.products).toEqual([
       {
         id: 'product-unknown',
@@ -233,5 +249,30 @@ describe('toChannelDetailViewModel', () => {
     const result = toChannelDetailViewModel(createChannelDetail({ primaryAgeBand: '30대 이상' }));
 
     expect(result.audience.primaryAgeBand).toBe('30대 이상');
+  });
+
+  it('tagline, 핵심 요약 description, recommendationBasis를 서로 다른 값으로 변환한다', () => {
+    const result = toChannelDetailViewModel(
+      createChannelDetail({
+        tagline: '검색 의도가 높은 고객에게 도달하기 좋아요',
+        description: '검색 광고에 적합한 채널이에요.',
+        recommendationBasis: {
+          objective: 'CONVERSION',
+          category: 'GAME',
+          budgetMin: 500_000,
+          budgetMax: 500_000,
+        },
+      }),
+    );
+
+    expect(result.tagline).toBe('검색 의도가 높은 고객에게 도달하기 좋아요');
+    expect(result.summary.paragraphs).toEqual(['검색 광고에 적합한 채널이에요.']);
+    expect(result.summary.recommendationReason).toEqual({
+      category: '게임',
+      objective: '구매 전환',
+      objectiveWithParticle: '구매 전환을',
+      budget: '50만 원',
+      rationale: '검색 의도가 높은 고객에게 도달하기 좋아요',
+    });
   });
 });
