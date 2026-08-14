@@ -22,6 +22,8 @@ export type CompareResultChannel = CompareResultChannelSummary & {
   impressions: CompareResultChannelMetric;
   clicks: CompareResultChannelMetric;
   details: CompareResultChannelDetails;
+  cpc: number | null;
+  cpm: number | null;
 };
 
 export const MOCK_COMPARE_RESULT_CHANNELS = [
@@ -45,6 +47,8 @@ export const MOCK_COMPARE_RESULT_CHANNELS = [
       adFormats: '배너 · 피드 · 릴스',
       targetingMethods: '관심사 · 행동 · 유사 타깃',
     },
+    cpc: 320,
+    cpm: 4_800,
   },
   {
     id: 'kakao',
@@ -65,5 +69,7 @@ export const MOCK_COMPARE_RESULT_CHANNELS = [
       adFormats: '배너 · 네이티브 · 동영상',
       targetingMethods: '카카오 데이터 · 지역',
     },
+    cpc: 410,
+    cpm: 3_500,
   },
 ] as const satisfies readonly CompareResultChannel[];
