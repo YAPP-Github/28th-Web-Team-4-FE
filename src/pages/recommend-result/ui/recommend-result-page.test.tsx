@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
 import type { RecommendationItemResponse } from '@/shared/api/generated';
 import { server } from '@/shared/api/mocks/server';
+import type { RecommendedChannel } from '@/pages/recommend-result/model/recommended-channels';
 
 import { RecommendResultPage, RecommendResultWithRecommendations } from './recommend-result-page';
 
@@ -46,6 +47,22 @@ const apiRecommendation = {
   estClicks: { min: 300, max: 450 },
   isExecutable: true,
 } as const satisfies RecommendationItemResponse;
+
+const recommendationChannel = {
+  id: apiRecommendation.channelId,
+  name: apiRecommendation.channelName,
+  description: apiRecommendation.recommendationReason,
+  cpcPrice: '클릭 1회당 320원~',
+  matchRate: apiRecommendation.matchRate,
+  thumbnailSrc: '/recommend-assets/naver-search-ad.png',
+  metrics: [
+    { label: '예상 노출', value: '12,000~15,000회' },
+    { label: '예상 클릭', value: '300~450회' },
+    { label: '최소 예산', value: '30만' },
+    { label: '주요 타깃', value: apiRecommendation.primaryTarget },
+    { label: '과금 방식', value: '클릭당(CPC)' },
+  ],
+} as const satisfies RecommendedChannel;
 
 function createDeferred<T>() {
   let resolve!: (value: T) => void;
@@ -192,6 +209,58 @@ describe('RecommendResultPage', () => {
 
     await user.click(screen.getByRole('button', { name: '네이버 검색 광고 상세 정보 열기' }));
     expect(await screen.findByRole('dialog', { name: '네이버 검색 광고' })).toBeVisible();
+  });
+
+  it('includes onboardingId when opening details from a recommendation result', async () => {
+    const user = userEvent.setup();
+    let requestedUrl: URL | undefined;
+
+    server.use(
+      http.get(/\/api\/v1\/channels\/[^/]+$/, ({ request }) => {
+        requestedUrl = new URL(request.url);
+        return HttpResponse.json({
+          success: true,
+          data: {
+            id: 'channel-naver',
+            name: '네이버 검색 광고',
+            tagline: '검색 의도가 높은 고객에게 도달하기 좋아요',
+            logoUrl: null,
+            description: '검색 광고로 구매 의도가 높은 고객을 만날 수 있어요',
+            primaryCategory: 'SHOPPING_COMMERCE',
+            mediaType: 'SEARCH',
+            suitableCategories: ['SHOPPING_COMMERCE'],
+            ageBandCodes: ['AGE_20S'],
+            primaryAgeBand: '20대',
+            primaryGender: 'ALL',
+            audienceSummary: null,
+            audienceTraits: null,
+            advantages: [],
+            minBudgetWon: null,
+            maxBudgetWon: null,
+            executionType: 'SELF',
+            adFormats: [],
+            targetingMethods: [],
+            products: [],
+            audienceMetrics: [],
+            references: [],
+            recommendationBasis: null,
+          },
+        });
+      }),
+    );
+
+    renderWithProviders(
+      <RecommendResultPage
+        headerAction={null}
+        channels={[recommendationChannel]}
+        onboardingId={RECOMMENDATION_ONBOARDING_ID}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: '네이버 검색 광고 상세 정보 열기' }));
+
+    expect(await screen.findByRole('dialog', { name: '네이버 검색 광고' })).toBeVisible();
+    expect(requestedUrl?.searchParams.get('onboardingId')).toBe(RECOMMENDATION_ONBOARDING_ID);
   });
 
   it('shows the CPC explanation tooltip on hover', async () => {

@@ -5,13 +5,13 @@ import NumberFlow from '@number-flow/react';
 import { useReducedMotion } from 'motion/react';
 
 import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
-import { openResolvedChannelDetailModal } from '@/features/channel-detail/resolved';
+import { ChannelDetailContentSkeleton, openChannelDetailModal } from '@/features/channel-detail';
 import { useRecommendations } from '@/pages/recommend-result/api/use-recommendations';
 import {
   MAX_COMPARISON_CHANNELS,
   toggleComparisonChannel,
 } from '@/pages/recommend-result/model/comparison-selection';
-import { getRecommendedChannelDetail } from '@/pages/recommend-result/model/recommended-channel-details';
+import { getRecommendedChannelDetailHeader } from '@/pages/recommend-result/model/recommended-channel-details';
 import {
   recommendedChannels,
   type RecommendedChannel,
@@ -28,6 +28,7 @@ type RecommendResultPageProps = {
   channels?: readonly RecommendedChannel[];
   headerAction: ReactNode;
   isGuest?: boolean;
+  onboardingId?: string;
 };
 
 type RecommendResultWithRecommendationsProps = {
@@ -43,6 +44,7 @@ export function RecommendResultPage({
   channels = recommendedChannels,
   headerAction,
   isGuest = false,
+  onboardingId,
 }: RecommendResultPageProps): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
   const serviceName = useRecommendOnboardingStore((state) => state.answer?.serviceName ?? '채소집');
@@ -62,7 +64,11 @@ export function RecommendResultPage({
   };
 
   const handleOpenDetail = (channel: RecommendedChannel): void => {
-    openResolvedChannelDetailModal(getRecommendedChannelDetail(channel));
+    openChannelDetailModal({
+      channel: getRecommendedChannelDetailHeader(channel),
+      onboardingId,
+      fallback: <ChannelDetailContentSkeleton />,
+    });
   };
 
   const handleCompare = (): void => {
@@ -119,6 +125,7 @@ export function RecommendResultWithRecommendations({
       channels={recommendationsQuery.data}
       headerAction={<RecommendResultSaveAction onboardingId={onboardingId} />}
       isGuest={isGuest}
+      onboardingId={onboardingId}
     />
   );
 }

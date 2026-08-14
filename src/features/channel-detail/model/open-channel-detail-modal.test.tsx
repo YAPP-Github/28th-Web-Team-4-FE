@@ -86,13 +86,20 @@ function createDeferred<T>() {
   return { promise, resolve };
 }
 
-function OpenModalButton({ fallback }: { fallback?: ReactNode }) {
+function OpenModalButton({
+  fallback,
+  onboardingId,
+}: {
+  fallback?: ReactNode;
+  onboardingId?: string;
+}) {
   return (
     <button
       type="button"
       onClick={() => {
         openChannelDetailModal({
           channel: CHANNEL,
+          onboardingId,
           fallback: fallback ?? <ChannelDetailContentSkeleton />,
         });
       }}
@@ -116,7 +123,42 @@ function renderOpenButton(fallback?: ReactNode) {
   );
 }
 
+function renderOpenButtonWithOnboardingId(onboardingId: string) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <OverlayProvider>
+        <OpenModalButton onboardingId={onboardingId} />
+      </OverlayProvider>
+    </QueryClientProvider>,
+  );
+}
+
 describe('openChannelDetailModal', () => {
+  it('추천 결과 진입이면 상세 조회에 onboardingId를 전달한다', async () => {
+    let requestedUrl: URL | undefined;
+
+    server.use(
+      http.get(/\/api\/v1\/channels\/[^/]+$/, ({ request }) => {
+        requestedUrl = new URL(request.url);
+        return HttpResponse.json({
+          success: true,
+          data: createDetailResponse(),
+        });
+      }),
+    );
+
+    const user = userEvent.setup();
+    renderOpenButtonWithOnboardingId('onboarding-87');
+
+    await user.click(screen.getByRole('button', { name: '상세보기' }));
+    expect(await screen.findByText('메타 광고 상세 설명')).toBeVisible();
+    expect(requestedUrl?.searchParams.get('onboardingId')).toBe('onboarding-87');
+  });
+
   it('모달 셸과 주입한 fallback을 즉시 열고 같은 Popup에서 상세 콘텐츠로 교체한다', async () => {
     const responseGate = createDeferred<void>();
     let requestedId: string | undefined;

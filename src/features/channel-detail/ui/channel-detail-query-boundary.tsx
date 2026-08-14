@@ -9,6 +9,7 @@ import { ChannelDetailQuery } from '@/features/channel-detail/ui/channel-detail-
 
 export type ChannelDetailQueryBoundaryProps = {
   channelId: string;
+  onboardingId?: string;
   fallback: ReactNode;
 };
 
@@ -19,6 +20,7 @@ export type ChannelDetailQueryBoundaryProps = {
  */
 export function ChannelDetailQueryBoundary({
   channelId,
+  onboardingId,
   fallback,
 }: ChannelDetailQueryBoundaryProps): JSX.Element {
   return (
@@ -31,7 +33,7 @@ export function ChannelDetailQueryBoundary({
           )}
         >
           <Suspense fallback={fallback}>
-            <ChannelDetailQuery channelId={channelId} />
+            <ChannelDetailQuery channelId={channelId} onboardingId={onboardingId} />
           </Suspense>
         </ErrorBoundary>
       )}
