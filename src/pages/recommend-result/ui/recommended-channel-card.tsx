@@ -53,7 +53,7 @@ export function RecommendedChannelCard({
       )}
       aria-labelledby={`${channel.id}-title`}
     >
-      {channel.id === 'kakao-business' ? (
+      {channel.isLowestCpc ? (
         <Box className="pointer-events-none absolute inset-x-0 top-0 z-40 h-0">
           <Tooltip.Root
             placement="top"
