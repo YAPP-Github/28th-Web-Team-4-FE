@@ -3,6 +3,7 @@
 import { parseAsBoolean, parseAsStringLiteral } from 'nuqs';
 
 import { COMPARE_RESULT_CHANNEL_INSIGHT_VARIANTS } from './compare-result-channel-insight-card';
+import { COMPARE_RESULT_CHANNEL_INSIGHTS_COLLAPSED_VIEWS } from './compare-result-channel-insights';
 
 export const CHANNEL_INSIGHT_DQA_MODE = 'channel-insight';
 
@@ -16,4 +17,10 @@ export const channelInsightVariantParser = parseAsStringLiteral(
 
 export const channelInsightOpenParser = parseAsBoolean
   .withDefault(true)
+  .withOptions({ history: 'replace', shallow: true });
+
+export const channelInsightCollapseParser = parseAsStringLiteral(
+  COMPARE_RESULT_CHANNEL_INSIGHTS_COLLAPSED_VIEWS,
+)
+  .withDefault('first')
   .withOptions({ history: 'replace', shallow: true });

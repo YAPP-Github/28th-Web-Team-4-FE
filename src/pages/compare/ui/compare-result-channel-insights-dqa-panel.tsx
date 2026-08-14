@@ -14,6 +14,7 @@ import {
 } from './compare-result-channel-insight-card';
 import { CompareResultChannelInsights } from './compare-result-channel-insights';
 import {
+  channelInsightCollapseParser,
   channelInsightOpenParser,
   channelInsightVariantParser,
 } from './compare-result-channel-insights-dqa-query';
@@ -28,6 +29,10 @@ export function CompareResultChannelInsightsDqaPanel({
 }: CompareResultChannelInsightsDqaPanelProps): JSX.Element {
   const [variant, setVariant] = useQueryState('insightVariant', channelInsightVariantParser);
   const [open, setOpen] = useQueryState('insightOpen', channelInsightOpenParser);
+  const [collapsedView, setCollapsedView] = useQueryState(
+    'insightCollapse',
+    channelInsightCollapseParser,
+  );
   const store = useCreateStore();
 
   useControls(
@@ -55,9 +60,26 @@ export function CompareResultChannelInsightsDqaPanel({
           }
         },
       },
+      collapsedView: {
+        value: collapsedView,
+        options: {
+          '첫 카드 유지': 'first',
+          '제목만 표시': 'title',
+        },
+        label: '접힌 상태',
+        onChange: (
+          nextCollapsedView: 'first' | 'title',
+          _path: string,
+          context: { initial: boolean },
+        ) => {
+          if (!context.initial && nextCollapsedView !== collapsedView) {
+            void setCollapsedView(nextCollapsedView);
+          }
+        },
+      },
     },
     { store },
-    [open, setOpen, setVariant, variant],
+    [collapsedView, open, setCollapsedView, setOpen, setVariant, variant],
   );
 
   const handleOpenChange = (nextOpen: boolean) => {
@@ -69,6 +91,7 @@ export function CompareResultChannelInsightsDqaPanel({
       <CompareResultChannelInsights
         channels={channels}
         variant={variant}
+        collapsedView={collapsedView}
         open={open}
         onOpenChange={handleOpenChange}
       />

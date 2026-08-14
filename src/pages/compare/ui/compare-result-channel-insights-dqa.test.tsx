@@ -70,6 +70,14 @@ describe('CompareResultChannelInsightsDqa', () => {
     expect(onUrlUpdate.mock.lastCall?.[0].searchParams.get('insightVariant')).toBe('action');
   });
 
+  it('DQA 쿼리로 접었을 때 제목만 남길 수 있다', async () => {
+    renderDqaInsights('?dqa=channel-insight&insightOpen=false&insightCollapse=title');
+
+    const region = await screen.findByRole('region', { name: '채널별 인사이트' });
+
+    expect(within(region).queryAllByRole('article')).toHaveLength(0);
+  });
+
   it('DQA에서 접기 상태를 바꿀 때 기존 결과 쿼리를 유지한다', async () => {
     const user = userEvent.setup();
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();

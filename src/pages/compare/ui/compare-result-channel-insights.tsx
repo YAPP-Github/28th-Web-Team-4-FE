@@ -17,20 +17,30 @@ import {
 type CompareResultChannelInsightsProps = {
   channels: readonly CompareResultChannel[];
   variant?: CompareResultChannelInsightVariant;
+  collapsedView?: CompareResultChannelInsightsCollapsedView;
   defaultOpen?: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 };
 
+export const COMPARE_RESULT_CHANNEL_INSIGHTS_COLLAPSED_VIEWS = ['first', 'title'] as const;
+
+/** 인사이트 섹션을 접었을 때 남겨둘 콘텐츠 범위. */
+export type CompareResultChannelInsightsCollapsedView =
+  (typeof COMPARE_RESULT_CHANNEL_INSIGHTS_COLLAPSED_VIEWS)[number];
+
 /** 선택한 채널의 인사이트 목록을 하나의 Collapsible 영역으로 표시한다. */
 export function CompareResultChannelInsights({
   channels,
   variant = 'stacked',
+  collapsedView = 'first',
   defaultOpen = true,
   open,
   onOpenChange,
 }: CompareResultChannelInsightsProps): JSX.Element {
   const [firstChannel, ...remainingChannels] = channels;
+  const previewChannel = collapsedView === 'first' ? firstChannel : undefined;
+  const collapsibleChannels = collapsedView === 'first' ? remainingChannels : channels;
 
   return (
     <Collapsible.Root
@@ -62,16 +72,22 @@ export function CompareResultChannelInsights({
         </Collapsible.Trigger>
       </h2>
 
-      {firstChannel ? (
+      {previewChannel ? (
         <div className="pt-024">
-          <CompareResultChannelInsightCard channel={firstChannel} variant={variant} />
+          <CompareResultChannelInsightCard channel={previewChannel} variant={variant} />
         </div>
       ) : null}
 
       <Collapsible.Panel className="ease-in-out-quart h-[var(--collapsible-panel-height)] overflow-hidden transition-[height] duration-200 data-ending-style:h-0 data-starting-style:h-0 motion-reduce:transition-none [&[hidden]:not([hidden='until-found'])]:hidden">
-        {remainingChannels.length > 0 ? (
-          <div className="gap-008 pt-008 flex flex-col">
-            {remainingChannels.map((channel) => (
+        {collapsibleChannels.length > 0 ? (
+          <div
+            className={
+              collapsedView === 'first'
+                ? 'gap-008 pt-008 flex flex-col'
+                : 'gap-008 pt-024 flex flex-col'
+            }
+          >
+            {collapsibleChannels.map((channel) => (
               <CompareResultChannelInsightCard
                 key={channel.id}
                 channel={channel}

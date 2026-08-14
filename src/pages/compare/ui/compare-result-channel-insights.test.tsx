@@ -41,4 +41,21 @@ describe('CompareResultChannelInsights', () => {
     expect(within(region).getByRole('article', { name: '네이버 검색 광고' })).toBeVisible();
     expect(within(region).getByRole('article', { name: '카카오 키워드 광고' })).toBeVisible();
   });
+
+  it('제목만 남기는 접힘 방식에서는 모든 인사이트 카드를 숨긴다', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <CompareResultChannelInsights
+        channels={MOCK_COMPARE_RESULT_CHANNELS}
+        collapsedView="title"
+      />,
+    );
+
+    const region = screen.getByRole('region', { name: '채널별 인사이트' });
+
+    await user.click(within(region).getByRole('button', { name: '채널별 인사이트' }));
+
+    expect(within(region).queryAllByRole('article')).toHaveLength(0);
+  });
 });
