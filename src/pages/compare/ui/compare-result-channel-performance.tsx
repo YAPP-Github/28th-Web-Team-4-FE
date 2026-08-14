@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type JSX } from 'react';
+import { Popover } from '@base-ui/react/popover';
 import Image from 'next/image';
 import { Info } from 'lucide-react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
@@ -38,6 +39,47 @@ const METRIC_KEYS = keys(METRIC_CONFIG);
 type CompareResultChannelPerformanceProps = {
   channels: readonly CompareResultChannel[];
 };
+
+function PerformanceInfoPopover(): JSX.Element {
+  return (
+    <Popover.Root>
+      <Popover.Trigger
+        aria-label="예상 수치 계산 안내"
+        openOnHover
+        delay={150}
+        closeDelay={100}
+        className="text-icon-default hover:text-icon-high focus-visible:outline-sys-primary-default size-018 relative inline-flex shrink-0 touch-manipulation items-center justify-center rounded-full before:absolute before:-inset-[13px] before:content-[''] focus-visible:outline-2 focus-visible:outline-offset-2"
+      >
+        <Info aria-hidden="true" className="size-018" strokeWidth={1.8} />
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Positioner
+          side="bottom"
+          align="start"
+          sideOffset={4}
+          alignOffset={-4}
+          collisionPadding={8}
+          positionMethod="fixed"
+          className="z-30"
+        >
+          <Popover.Popup
+            initialFocus={false}
+            className="bg-surface-lowest p-016 shadow-drop-shadow-02 w-[204px] max-w-[calc(100vw-32px)] rounded-tr-[var(--radius-m)] rounded-br-[var(--radius-m)] rounded-bl-[var(--radius-m)]"
+          >
+            <Box className="gap-008 flex w-full flex-col items-start text-left">
+              <Popover.Title className="typo-subtitle-sm text-text-high m-0 w-full">
+                예상 수치는 어떻게 계산되나요?
+              </Popover.Title>
+              <Popover.Description className="typo-body-xs text-text-medium m-0 w-full text-pretty">
+                입력하신 예산 기준으로 예상 클릭 수와 노출 수를 산출했어요.
+              </Popover.Description>
+            </Box>
+          </Popover.Popup>
+        </Popover.Positioner>
+      </Popover.Portal>
+    </Popover.Root>
+  );
+}
 
 function PerformanceBar({
   metric,
@@ -164,7 +206,7 @@ export function CompareResultChannelPerformance({
             >
               채널별 예상 노출 · 클릭 수
             </Text>
-            <Info aria-hidden="true" className="text-icon-default size-018 shrink-0" />
+            <PerformanceInfoPopover />
           </Box>
           <Tabs.List className="bg-surface-low gap-004 p-004 w-fit items-center rounded-[var(--radius-s)] border-b-0">
             {METRIC_KEYS.map((metricKey) => (
