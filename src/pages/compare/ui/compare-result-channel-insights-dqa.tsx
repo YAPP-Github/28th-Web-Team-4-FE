@@ -3,22 +3,24 @@
 /** URL로 공유 가능한 채널 인사이트 DQA 상태를 실제 결과 섹션에 연결한다. */
 
 import { Suspense, type JSX } from 'react';
-import { parseAsBoolean, parseAsStringLiteral, useQueryStates } from 'nuqs';
+import dynamic from 'next/dynamic';
+import { useQueryState } from 'nuqs';
 
 import type { CompareResultChannel } from '@/pages/compare/model/compare-result-channel';
 
-import { COMPARE_RESULT_CHANNEL_INSIGHT_VARIANTS } from './compare-result-channel-insight-card';
 import { CompareResultChannelInsights } from './compare-result-channel-insights';
+import {
+  CHANNEL_INSIGHT_DQA_MODE,
+  channelInsightDqaModeParser,
+} from './compare-result-channel-insights-dqa-query';
 
-const CHANNEL_INSIGHT_DQA_MODES = ['channel-insight'] as const;
-
-const channelInsightDqaQueryParsers = {
-  dqa: parseAsStringLiteral(CHANNEL_INSIGHT_DQA_MODES),
-  insightVariant: parseAsStringLiteral(COMPARE_RESULT_CHANNEL_INSIGHT_VARIANTS).withDefault(
-    'stacked',
-  ),
-  insightOpen: parseAsBoolean.withDefault(true),
-};
+const CompareResultChannelInsightsDqaPanel = dynamic(
+  () =>
+    import('./compare-result-channel-insights-dqa-panel').then(
+      (module) => module.CompareResultChannelInsightsDqaPanel,
+    ),
+  { ssr: false },
+);
 
 type CompareResultChannelInsightsDqaProps = {
   channels: readonly CompareResultChannel[];
@@ -39,25 +41,11 @@ export function CompareResultChannelInsightsDqa({
 function CompareResultChannelInsightsDqaContent({
   channels,
 }: CompareResultChannelInsightsDqaProps): JSX.Element {
-  const [{ dqa, insightVariant, insightOpen }, setDqaQuery] = useQueryStates(
-    channelInsightDqaQueryParsers,
-    {
-      history: 'replace',
-      shallow: true,
-    },
-  );
-  const isDqaMode = dqa === 'channel-insight';
+  const [dqaMode] = useQueryState('dqa', channelInsightDqaModeParser);
 
-  const handleOpenChange = (nextOpen: boolean) => {
-    void setDqaQuery({ insightOpen: nextOpen });
-  };
-
-  return (
-    <CompareResultChannelInsights
-      channels={channels}
-      variant={isDqaMode ? insightVariant : 'stacked'}
-      open={isDqaMode ? insightOpen : undefined}
-      onOpenChange={isDqaMode ? handleOpenChange : undefined}
-    />
+  return dqaMode === CHANNEL_INSIGHT_DQA_MODE ? (
+    <CompareResultChannelInsightsDqaPanel channels={channels} />
+  ) : (
+    <CompareResultChannelInsights channels={channels} />
   );
 }

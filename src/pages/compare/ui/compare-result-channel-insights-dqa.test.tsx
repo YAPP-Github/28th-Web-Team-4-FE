@@ -36,12 +36,13 @@ describe('CompareResultChannelInsightsDqa', () => {
       'compare-result-channel-naver-stacked-insight-title',
     );
     expect(within(region).getByRole('article', { name: '카카오 키워드 광고' })).toBeVisible();
+    expect(screen.queryByText('채널 인사이트 DQA')).not.toBeInTheDocument();
   });
 
-  it('DQA 모드에서는 URL의 카드 안과 펼침 상태를 적용한다', () => {
+  it('DQA 모드에서는 URL의 카드 안과 펼침 상태를 적용한다', async () => {
     renderDqaInsights('?dqa=channel-insight&insightVariant=split&insightOpen=false');
 
-    const region = screen.getByRole('region', { name: '채널별 인사이트' });
+    const region = await screen.findByRole('region', { name: '채널별 인사이트' });
     const firstChannel = within(region).getByRole('article', { name: '네이버 검색 광고' });
 
     expect(firstChannel).toHaveAttribute(
@@ -51,6 +52,22 @@ describe('CompareResultChannelInsightsDqa', () => {
     expect(
       within(region).queryByRole('article', { name: '카카오 키워드 광고' }),
     ).not.toBeInTheDocument();
+    expect(await screen.findByText('채널 인사이트 DQA')).toBeVisible();
+  });
+
+  it('Leva에서 선택한 카드 레이아웃을 URL에 직접 저장한다', async () => {
+    const user = userEvent.setup();
+    const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
+
+    renderDqaInsights('?dqa=channel-insight&insightVariant=split', onUrlUpdate);
+
+    const variantControl = await screen.findByRole('combobox', { name: '카드 레이아웃' });
+    const actionOption = within(variantControl).getByRole('option', { name: 'action' });
+
+    await user.selectOptions(variantControl, actionOption);
+    await waitFor(() => expect(onUrlUpdate).toHaveBeenCalled());
+
+    expect(onUrlUpdate.mock.lastCall?.[0].searchParams.get('insightVariant')).toBe('action');
   });
 
   it('DQA에서 접기 상태를 바꿀 때 기존 결과 쿼리를 유지한다', async () => {
@@ -62,7 +79,7 @@ describe('CompareResultChannelInsightsDqa', () => {
       onUrlUpdate,
     );
 
-    await user.click(screen.getByRole('button', { name: '채널별 인사이트' }));
+    await user.click(await screen.findByRole('button', { name: '채널별 인사이트' }));
     await waitFor(() => expect(onUrlUpdate).toHaveBeenCalled());
 
     const event = onUrlUpdate.mock.lastCall?.[0];
