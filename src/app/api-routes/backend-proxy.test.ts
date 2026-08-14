@@ -152,4 +152,17 @@ describe('backend API proxy', () => {
     expect(fetchMock).not.toHaveBeenCalled();
     expect(readAuthSessionMock).not.toHaveBeenCalled();
   });
+
+  it('rejects dot segments that could escape the API path prefix', async () => {
+    readAuthSessionMock.mockResolvedValue(sessionWith());
+
+    const response = await proxyBackendRequest(
+      new Request('https://chaeso-zip.com/api/backend/api/v1/%2E%2E/admin'),
+      context(['api', 'v1', '..', 'admin']),
+    );
+
+    expect(response.status).toBe(404);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(readAuthSessionMock).not.toHaveBeenCalled();
+  });
 });

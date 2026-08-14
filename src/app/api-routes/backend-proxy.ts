@@ -55,6 +55,10 @@ function createBackendUrl(path: readonly string[], search: string): URL | null {
     return null;
   }
 
+  if (path.some((segment) => segment === '.' || segment === '..')) {
+    return null;
+  }
+
   const encodedPath = path.map((segment) => encodeURIComponent(segment)).join('/');
   const url = new URL(`${getBackendBaseUrl()}/${encodedPath}`);
   url.search = search;
