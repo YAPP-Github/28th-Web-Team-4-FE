@@ -4,6 +4,7 @@ import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
 import { AuthenticatedProfileCard } from './authenticated-profile-card';
+import { AccountActions } from './account-actions';
 import { GuestProfileCard } from './guest-profile-card';
 import { SavedResultsCard } from './saved-results-card';
 
@@ -19,25 +20,6 @@ function MyPageSubHeader(): JSX.Element {
           내 정보와 저장된 추천 결과를 관리해요
         </Text>
       </Box>
-    </Box>
-  );
-}
-
-function AccountActions(): JSX.Element {
-  return (
-    <Box className="gap-026 py-020 flex w-full items-center justify-center">
-      <button
-        type="button"
-        className="typo-subtitle-xs text-text-low focus-visible:outline-sys-primary-default rounded-xxs cursor-pointer underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
-      >
-        로그아웃
-      </button>
-      <button
-        type="button"
-        className="typo-subtitle-xs text-text-low focus-visible:outline-sys-primary-default rounded-xxs cursor-pointer underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
-      >
-        탈퇴하기
-      </button>
     </Box>
   );
 }

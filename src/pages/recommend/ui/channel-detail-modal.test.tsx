@@ -57,7 +57,7 @@ describe('RecommendPage channel detail modal', () => {
     });
     expect(screen.getByText('20~40대')).toBeVisible();
 
-    await user.click(screen.getByRole('tab', { name: '유사 사례' }));
+    await user.click(screen.getByRole('tab', { name: '광고 예시' }));
     await waitFor(() => {
       expect(screen.getByText('내셔널지오그래픽')).toBeVisible();
     });

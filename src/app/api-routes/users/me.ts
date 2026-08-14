@@ -1,38 +1,21 @@
 import { getMyProfile as getBackendMyProfile } from '@/shared/api/generated';
-import { extractTokenResponse, type AuthSession } from '@/shared/lib/auth/session';
-import {
-  clearAuthSession,
-  readAuthSession,
-  writeAuthSession,
-} from '@/app/api-routes/auth/session-cookie';
-import { requestRefreshSingleFlight } from '@/app/api-routes/auth/refresh-single-flight';
+import type { AuthSession } from '@/shared/lib/auth/session';
+import { clearAuthSession, readAuthSession } from '@/app/api-routes/auth/session-cookie';
+import { refreshAuthSession } from '@/app/api-routes/auth/session-refresh';
 import { upstreamErrorResponse } from '@/app/api-routes/auth/route-utils';
 
 const ACCESS_TOKEN_EXPIRY_SKEW_MS = 30_000;
 
 type MyProfileResult = Awaited<ReturnType<typeof getBackendMyProfile>>;
-type RefreshResult = Awaited<ReturnType<typeof requestRefreshSingleFlight>>;
 
 function unauthorizedResponse(): Response {
   return new Response(null, { status: 401 });
 }
 
 async function refreshSession(session: AuthSession): Promise<AuthSession | null> {
-  let result: RefreshResult;
+  const result = await refreshAuthSession(session);
 
-  try {
-    result = await requestRefreshSingleFlight(session.refreshToken);
-  } catch {
-    return null;
-  }
-
-  if ('error' in result) {
-    return null;
-  }
-
-  const tokens = extractTokenResponse(result.data.data);
-
-  return tokens ? writeAuthSession(tokens) : null;
+  return 'error' in result ? null : result.session;
 }
 
 async function requestMyProfile(accessToken: string): Promise<MyProfileResult> {

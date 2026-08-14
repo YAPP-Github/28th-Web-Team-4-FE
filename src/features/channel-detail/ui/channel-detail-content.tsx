@@ -25,7 +25,7 @@ const TAB_ITEMS = [
   { value: 'summary', label: '핵심 요약' },
   { value: 'products', label: '광고 상품' },
   { value: 'audience', label: '타깃층' },
-  { value: 'cases', label: '유사 사례' },
+  { value: 'cases', label: '광고 예시' },
 ] as const;
 
 type TabValue = (typeof TAB_ITEMS)[number]['value'];
