@@ -10,7 +10,18 @@ import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
-export const MANUAL_PERFORMANCE_FIELD_LIST = [
+type ManualPerformanceField = {
+  key: keyof Pick<
+    ManualPerformanceChannel,
+    'budgetWon' | 'periodDays' | 'impressions' | 'clicks' | 'conversions'
+  >;
+  label: string;
+  placeholder: string;
+  className: string;
+  rightAddon?: string;
+};
+
+export const MANUAL_PERFORMANCE_FIELD_LIST: ManualPerformanceField[] = [
   {
     key: 'budgetWon',
     label: '예산(원)',
@@ -42,16 +53,7 @@ export const MANUAL_PERFORMANCE_FIELD_LIST = [
     placeholder: '예산을 입력해 주세요',
     className: 'flex-1',
   },
-] as const satisfies readonly {
-  key: keyof Pick<
-    ManualPerformanceChannel,
-    'budgetWon' | 'periodDays' | 'impressions' | 'clicks' | 'conversions'
-  >;
-  label: string;
-  placeholder: string;
-  className: string;
-  rightAddon?: string;
-}[];
+];
 
 function formatNumber(value: number | undefined): string {
   return typeof value === 'number' ? value.toLocaleString('ko-KR') : '';

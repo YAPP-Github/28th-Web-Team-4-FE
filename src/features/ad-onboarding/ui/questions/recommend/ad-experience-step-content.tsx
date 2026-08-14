@@ -22,7 +22,7 @@ const AD_EXPERIENCE_STEP = getOnboardingStepDefinition('ad-experience');
 
 function getAdExperienceQuestionDescription(
   adExperienceType: RecommendOnboardingDraft['adExperienceType'],
-): ReactNode {
+): string | undefined {
   if (adExperienceType === 'FIRST_TIME') {
     return '최대 5개의 데이터를 바탕으로 더 정확한 채널을 추천해요';
   }

@@ -14,7 +14,10 @@ import {
   createRecommendOnboardingDraft,
   type RecommendOnboardingDraft,
 } from '@/features/ad-onboarding/model/onboarding-draft';
-import type { UploadedPerformanceFile } from '@/features/ad-onboarding/model/recommend-onboarding-options';
+import type {
+  ManualPerformanceChannel,
+  UploadedPerformanceFile,
+} from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import {
   buildRecommendOnboardingAnswer,
   getRecommendOnboardingAnswerLabel,
@@ -145,6 +148,9 @@ function RecommendOnboardingFlowContent({
     ageRangeList: watchedDraft?.ageRangeList ?? initialDraft.ageRangeList,
     performanceMode: watchedDraft?.performanceMode ?? initialDraft.performanceMode,
     performanceFileList: normalizePerformanceFileList(watchedDraft?.performanceFileList),
+    performanceManualChannelList: normalizeManualPerformanceChannelList(
+      watchedDraft?.performanceManualChannelList,
+    ),
   };
   const currentStepId = RECOMMEND_ONBOARDING_STEP_ID_LIST[currentStep];
 
@@ -352,4 +358,20 @@ function isUploadedPerformanceFile(
   value: Partial<UploadedPerformanceFile> | undefined,
 ): value is UploadedPerformanceFile {
   return Boolean(value?.id && value.name && typeof value.size === 'number');
+}
+
+function normalizeManualPerformanceChannelList(
+  performanceManualChannelList: Partial<ManualPerformanceChannel>[] | undefined,
+): ManualPerformanceChannel[] {
+  if (!performanceManualChannelList) {
+    return [];
+  }
+
+  return performanceManualChannelList.filter(isManualPerformanceChannel);
+}
+
+function isManualPerformanceChannel(
+  value: Partial<ManualPerformanceChannel> | undefined,
+): value is ManualPerformanceChannel {
+  return typeof value?.channelNameRaw === 'string';
 }
