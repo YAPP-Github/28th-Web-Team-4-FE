@@ -173,4 +173,27 @@ describe('AdExperienceStepContent', () => {
       ],
     });
   });
+
+  it('shows a direct-add option even when the search keyword exactly matches a catalog channel', async () => {
+    const user = userEvent.setup();
+    renderAdExperienceStep();
+
+    server.use(
+      http.get(/\/api\/v1\/channels$/, () =>
+        HttpResponse.json({
+          success: true,
+          data: createChannelPage([createChannel('channel-naver-sa', '네이버 SA')]),
+        }),
+      ),
+    );
+
+    await user.click(screen.getByRole('radio', { name: '광고를 운영해 봤어요' }));
+    await user.click(screen.getByRole('button', { name: '다음' }));
+    await user.click(screen.getByRole('tab', { name: '직접 입력' }));
+
+    await user.type(await screen.findByRole('combobox', { name: '광고 채널 검색' }), '네이버 SA');
+
+    expect(await screen.findByRole('option', { name: '네이버 SA' })).toBeVisible();
+    expect(screen.getByRole('option', { name: '‘네이버 SA’ 직접 추가하기' })).toBeVisible();
+  });
 });

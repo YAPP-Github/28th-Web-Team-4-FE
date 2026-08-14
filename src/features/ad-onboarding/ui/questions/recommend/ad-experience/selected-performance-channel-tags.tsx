@@ -25,20 +25,21 @@ export function SelectedPerformanceChannelTags({
           key={`${channel.channelId ?? 'custom'}-${channel.channelNameRaw}`}
           frame="tag"
           tone="orange"
-          className="gap-004"
         >
-          <span>{channel.channelNameRaw}</span>
-          <button
-            type="button"
-            className={[
-              'text-icon-primary-low flex size-014 shrink-0 items-center justify-center rounded-[var(--radius-xxs)]',
-              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-outline-high',
-            ].join(' ')}
-            aria-label={`${channel.channelNameRaw} 삭제`}
-            onClick={() => onRemove(index)}
-          >
-            <X aria-hidden className="size-012" strokeWidth={2} />
-          </button>
+          <span className="gap-004 inline-flex items-center">
+            <span>{channel.channelNameRaw}</span>
+            <button
+              type="button"
+              className={[
+                'text-icon-primary-low flex size-014 shrink-0 items-center justify-center rounded-[var(--radius-xxs)]',
+                'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-outline-high',
+              ].join(' ')}
+              aria-label={`${channel.channelNameRaw} 삭제`}
+              onClick={() => onRemove(index)}
+            >
+              <X aria-hidden className="size-012" strokeWidth={2} />
+            </button>
+          </span>
         </Badge>
       ))}
     </Flex>
