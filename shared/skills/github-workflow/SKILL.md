@@ -62,6 +62,8 @@ EOF
 
 ## 2. 브랜치
 
+브랜치 이름은 반드시 영어로 작성한다. Linear 이슈 제목이나 사용자 설명이 한글이어도 브랜치 설명 구간은 영어로 번역해서 만든다.
+
 Linear 이슈가 있으면 형식은 **`{linear-id}-{prefix}-{english-kebab-description}`**으로 한다.
 
 `linear-id`: 소문자 Linear ID (예: `cha-68`)
@@ -70,7 +72,23 @@ Linear 이슈가 있으면 형식은 **`{linear-id}-{prefix}-{english-kebab-desc
 
 예: `cha-68-fix-mobile-subheader-layout`
 
-설명은 영어 소문자 ASCII만 쓴다. 한글·공백·`_`·PascalCase·prefix 없는 이름은 금지한다.
+설명은 영어 소문자 ASCII만 쓴다. 한글·공백·`_`·PascalCase·prefix 없는 이름은 금지한다. 특히 Linear 이슈 기반으로 브랜치를 만들 때 이슈 제목을 그대로 한글 slug로 옮기지 않는다.
+
+브랜치 생성 전 체크:
+
+1. Linear ID를 소문자로 변환한다. 예: `CHA-68` → `cha-68`
+2. 이슈 제목/요청 내용을 3-6단어 영어 설명으로 번역한다.
+3. 영어 설명을 kebab-case로 변환한다.
+4. 최종 브랜치명이 `^[a-z0-9]+-[0-9]+-(feat|fix|docs|chore|refactor)-[a-z0-9]+(-[a-z0-9]+)*$`에 맞는지 확인한다.
+5. 한글이 한 글자라도 포함되면 브랜치 생성 명령을 실행하지 말고 영어 브랜치명으로 다시 만든다.
+
+금지 예:
+
+```text
+cha-68-fix-모바일-서브헤더-레이아웃
+cha-68-fix_mobile_subheader_layout
+cha-68-Fix-Mobile-Subheader-Layout
+```
 
 이슈를 명시적으로 생략한 경우에만 `{prefix}-{english-kebab-description}`을 쓴다.
 
@@ -86,11 +104,11 @@ git checkout -b cha-68-fix-mobile-subheader-layout
 
 1. `git status`, `git diff` / `--staged`, `git log --oneline -n 10`
 2. 관련 파일만 `git add`
-3. 메시지: why 중심. `feat:` / `fix:` / `docs:` / `chore:` / `refactor:`
+3. 커밋 메시지는 한글로 작성한다. 단, conventional commit type prefix는 `feat:` / `fix:` / `docs:` / `chore:` / `refactor:`를 유지한다. 본문은 why 중심으로 쓴다.
 
 ```bash
 git commit -m "$(cat <<'EOF'
-feat: 변경 이유를 한 문장으로.
+feat: 변경 이유를 한글 한 문장으로 설명
 
 EOF
 )"
