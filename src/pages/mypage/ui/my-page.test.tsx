@@ -1,8 +1,44 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
+
+import type { ShowToastOptions } from '@/shared/ui/toast';
 
 import { MyPage } from './my-page';
 
+type LogoutOptions = {
+  onSuccess?: () => void;
+};
+
+const { logoutMock, replaceMock, refreshMock, showToastMock } = vi.hoisted(() => ({
+  logoutMock: vi.fn<(options?: LogoutOptions) => void>(),
+  replaceMock: vi.fn<(href: string) => void>(),
+  refreshMock: vi.fn<() => void>(),
+  showToastMock: vi.fn<(options: ShowToastOptions) => void>(),
+}));
+
+vi.mock('@/features/auth/session/model/use-logout', () => ({
+  useLogout: () => ({
+    logout: logoutMock,
+    isPending: false,
+    errorMessage: undefined,
+  }),
+}));
+
+vi.mock('@/shared/ui/toast', () => ({ showToast: showToastMock }));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ replace: replaceMock, refresh: refreshMock }),
+}));
+
 describe('MyPage', () => {
+  beforeEach(() => {
+    logoutMock.mockReset();
+    replaceMock.mockReset();
+    refreshMock.mockReset();
+    showToastMock.mockReset();
+  });
+
   it('renders the guest profile state and login CTA', () => {
     render(<MyPage isLoggedIn={false} />);
 
@@ -31,5 +67,65 @@ describe('MyPage', () => {
     expect(screen.getByRole('button', { name: '로그아웃' })).toBeVisible();
     expect(screen.getByRole('button', { name: '탈퇴하기' })).toBeVisible();
     expect(screen.queryByText('로그인이 필요해요')).not.toBeInTheDocument();
+  });
+
+  it('opens and closes the logout confirmation modal', async () => {
+    const user = userEvent.setup();
+    render(<MyPage isLoggedIn />);
+
+    await user.click(screen.getByRole('button', { name: '로그아웃' }));
+
+    const dialog = await screen.findByRole('dialog', { name: '정말 로그아웃하시겠어요?' });
+    expect(dialog).toBeVisible();
+    expect(dialog).toHaveTextContent('언제든 다시 로그인해서 저장된 결과를');
+
+    await user.click(within(dialog).getByRole('button', { name: '취소' }));
+    expect(
+      screen.queryByRole('dialog', { name: '정말 로그아웃하시겠어요?' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('handles logout success in the page UI', async () => {
+    const user = userEvent.setup();
+    render(<MyPage isLoggedIn />);
+
+    await user.click(screen.getByRole('button', { name: '로그아웃' }));
+    const dialog = await screen.findByRole('dialog', { name: '정말 로그아웃하시겠어요?' });
+    await user.click(within(dialog).getByRole('button', { name: '로그아웃' }));
+
+    expect(logoutMock).toHaveBeenCalledOnce();
+
+    act(() => {
+      logoutMock.mock.calls[0]?.[0]?.onSuccess?.();
+    });
+
+    expect(showToastMock).toHaveBeenCalledWith({
+      id: 'logout-success',
+      description: '로그아웃했어요',
+      type: 'success',
+    });
+    expect(replaceMock).toHaveBeenCalledWith('/login');
+    expect(refreshMock).toHaveBeenCalledOnce();
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('dialog', { name: '정말 로그아웃하시겠어요?' }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it('opens the withdrawal confirmation modal', async () => {
+    const user = userEvent.setup();
+    render(<MyPage isLoggedIn />);
+
+    await user.click(screen.getByRole('button', { name: '탈퇴하기' }));
+
+    const dialog = await screen.findByRole('dialog', { name: '채소집을 정말 떠나시겠어요?' });
+    expect(dialog).toBeVisible();
+    expect(within(dialog).getByRole('button', { name: '돌아가기' })).toBeVisible();
+    expect(within(dialog).getByText('탈퇴하기')).toBeVisible();
+    expect(within(dialog).getByAltText('')).toHaveAttribute(
+      'src',
+      '/mypage-assets/withdraw-illustration.svg',
+    );
   });
 });
