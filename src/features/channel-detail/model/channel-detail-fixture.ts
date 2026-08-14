@@ -12,6 +12,13 @@ export const CHANNEL_DETAIL_FIXTURE: ChannelDetail = {
       '특히, 구매 전환 목적의 쇼핑 업종에서 높은 효율을 보여요.',
       '다양한 크리에이티브 포맷으로 브랜드 인지와 전환을 동시에 달성할 수 있어요.',
     ],
+    recommendationReason: {
+      category: '쇼핑·커머스',
+      objective: '구매 전환',
+      objectiveWithParticle: '구매 전환을',
+      budget: '20만 원~500만 원',
+      rationale: '관심사에 맞는 고객에게 광고를 노출해 구매로 이어질 가능성이 가장 높으므로',
+    },
   },
   products: [
     {

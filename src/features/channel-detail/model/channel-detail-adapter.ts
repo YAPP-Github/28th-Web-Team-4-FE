@@ -4,6 +4,8 @@ import type {
   ProductResponse,
 } from '@/shared/api/generated';
 
+import { createRecommendationReason } from '@/features/channel-detail/lib/create-recommendation-reason';
+
 import type { ChannelDetail, ChannelProductRow } from './channel-detail';
 
 const EMPTY_VALUE = '-';
@@ -112,15 +114,17 @@ function findAudienceMetricText(
 }
 
 export function toChannelDetailViewModel(channel: ChannelDetailResponseForAdapter): ChannelDetail {
+  const tagline = getNonEmptyText(channel.tagline) ?? '';
   const description = getNonEmptyText(channel.description);
 
   return {
     id: channel.id,
     name: channel.name,
     logoUrl: channel.logoUrl?.trim() ?? '',
-    tagline: description ?? '',
+    tagline: tagline ?? '',
     summary: {
       paragraphs: description ? [description] : [],
+      recommendationReason: createRecommendationReason(channel.recommendationBasis),
     },
     products: channel.products.map(toProductRow),
     productsNote: '일부 채널은 해당 지표를 공개하지 않아요.',
