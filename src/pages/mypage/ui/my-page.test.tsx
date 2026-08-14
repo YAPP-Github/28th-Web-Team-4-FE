@@ -1,6 +1,16 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
 
 import { MyPage } from './my-page';
+
+vi.mock('@/features/auth/session/model/use-logout', () => ({
+  useLogout: () => ({
+    logout: vi.fn<() => void>(),
+    isPending: false,
+    errorMessage: undefined,
+  }),
+}));
 
 describe('MyPage', () => {
   it('renders the guest profile state and login CTA', () => {
@@ -31,5 +41,21 @@ describe('MyPage', () => {
     expect(screen.getByRole('button', { name: '로그아웃' })).toBeVisible();
     expect(screen.getByRole('button', { name: '탈퇴하기' })).toBeVisible();
     expect(screen.queryByText('로그인이 필요해요')).not.toBeInTheDocument();
+  });
+
+  it('opens and closes the logout confirmation modal', async () => {
+    const user = userEvent.setup();
+    render(<MyPage isLoggedIn />);
+
+    await user.click(screen.getByRole('button', { name: '로그아웃' }));
+
+    const dialog = await screen.findByRole('dialog', { name: '정말 로그아웃하시겠어요?' });
+    expect(dialog).toBeVisible();
+    expect(dialog).toHaveTextContent('언제든 다시 로그인해서 저장된 결과를');
+
+    await user.click(within(dialog).getByRole('button', { name: '취소' }));
+    expect(
+      screen.queryByRole('dialog', { name: '정말 로그아웃하시겠어요?' }),
+    ).not.toBeInTheDocument();
   });
 });
