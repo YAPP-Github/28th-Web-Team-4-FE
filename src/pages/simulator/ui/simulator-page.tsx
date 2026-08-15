@@ -26,7 +26,7 @@ export function SimulatorPage({
 
   return (
     <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-hidden">
-      <SimulatorSubHeader />
+      <SimulatorSubHeader simulationResult={simulationResult} />
       <Box className="bg-surface-low px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto lg:px-120">
         <Box
           className={

@@ -2,8 +2,11 @@ import type { SimulationResponse } from '@/shared/api/generated';
 
 import {
   createChannelResults,
+  formatSimulatorBudget,
   formatSimulatorCount,
   formatSimulatorCountRange,
+  formatSimulatorCpc,
+  formatSimulatorTableCountRange,
 } from './simulator-channel';
 
 const CHANNELS = [
@@ -12,6 +15,7 @@ const CHANNELS = [
 ] as const;
 
 const SIMULATION_RESULT: SimulationResponse = {
+  simulationId: null,
   totalBudgetWon: 1_000_000,
   period: 'M1',
   totalEstImpressions: 38_000,
@@ -21,19 +25,29 @@ const SIMULATION_RESULT: SimulationResponse = {
     {
       channelId: 'channel-a',
       channelName: '채널 A',
+      channelProductId: null,
       allocatedBudgetWon: 500_000,
+      allocationPct: 50,
       estImpressions: { min: 10_000, max: 20_000 },
       estClicks: { min: 300, max: 400 },
+      cpcWon: 580,
+      cpmWon: null,
       isExecutable: true,
+      shortfallWon: null,
       basisNote: '기준 데이터',
     },
     {
       channelId: 'channel-b',
       channelName: '채널 B',
+      channelProductId: null,
       allocatedBudgetWon: 500_000,
+      allocationPct: 50,
       estImpressions: { min: 15_000, max: 25_000 },
       estClicks: { min: 200, max: 200 },
+      cpcWon: 410,
+      cpmWon: null,
       isExecutable: true,
+      shortfallWon: null,
       basisNote: '기준 데이터',
     },
   ],
@@ -45,6 +59,15 @@ describe('simulator-channel', () => {
     expect(formatSimulatorCount(9_999)).toBe('9,999회');
     expect(formatSimulatorCountRange({ min: 22_000, max: 32_000 })).toBe('2.2~3.2만 회');
     expect(formatSimulatorCountRange({ min: 780, max: 780 })).toBe('780회');
+  });
+
+  it('표에 맞는 원 단위와 전체 횟수 표기를 제공한다', () => {
+    expect(formatSimulatorBudget(380_000)).toBe('38만 원');
+    expect(formatSimulatorBudget(380_500)).toBe('380,500원');
+    expect(formatSimulatorCpc(580)).toBe('580원');
+    expect(formatSimulatorCpc(null)).toBe('-');
+    expect(formatSimulatorTableCountRange({ min: 22_000, max: 32_000 })).toBe('22,000~32,000회');
+    expect(formatSimulatorTableCountRange()).toBe('-');
   });
 
   it('노출수 중앙값을 공통 기준으로 노출·클릭 바 비율을 계산한다', () => {

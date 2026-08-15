@@ -6,7 +6,11 @@ import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 import { simulatorPreviewChannels } from '@/pages/simulator/model/simulator-preview-data';
 
-import { ChannelPerformanceContent } from './simulator-channel-performance';
+import {
+  ChannelPerformanceContent,
+  type SimulatorResultsView,
+} from './simulator-channel-performance';
+import { SimulatorChannelTable } from './simulator-channel-table';
 
 function GuestLockOverlay(): JSX.Element {
   return (
@@ -37,10 +41,18 @@ function GuestLockOverlay(): JSX.Element {
   );
 }
 
-export function GuestChannelResults(): JSX.Element {
+export function GuestChannelResults({
+  view = 'graph',
+}: {
+  view?: SimulatorResultsView;
+}): JSX.Element {
   return (
     <>
-      <ChannelPerformanceContent channels={simulatorPreviewChannels} />
+      {view === 'table' ? (
+        <SimulatorChannelTable channels={simulatorPreviewChannels} />
+      ) : (
+        <ChannelPerformanceContent channels={simulatorPreviewChannels} />
+      )}
       <GuestLockOverlay />
     </>
   );
