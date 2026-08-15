@@ -13,6 +13,7 @@ const VARIANT_CLASS_MAP = {
   'heading-lg': 'typo-heading-lg',
   'heading-md': 'typo-heading-md',
   'heading-sm': 'typo-heading-sm',
+  'subtitle-xxl': 'typo-subtitle-xxl',
   'subtitle-xl': 'typo-subtitle-xl',
   'subtitle-lg': 'typo-subtitle-lg',
   'subtitle-md': 'typo-subtitle-md',
