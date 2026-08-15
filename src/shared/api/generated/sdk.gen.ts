@@ -24,6 +24,9 @@ import type {
   GetLatestSimulationData,
   GetLatestSimulationErrors,
   GetLatestSimulationResponses,
+  GetMyOnboardingTagData,
+  GetMyOnboardingTagErrors,
+  GetMyOnboardingTagResponses,
   GetMyProfileData,
   GetMyProfileErrors,
   GetMyProfileResponses,
@@ -78,6 +81,9 @@ import type {
   SubmitOnboardingData,
   SubmitOnboardingErrors,
   SubmitOnboardingResponses,
+  UpdateMyOnboardingTagData,
+  UpdateMyOnboardingTagErrors,
+  UpdateMyOnboardingTagResponses,
   UpdateMyProfileData,
   UpdateMyProfileErrors,
   UpdateMyProfileResponses,
@@ -106,6 +112,46 @@ export type Options<
    */
   meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta;
 };
+
+/**
+ * 내 최신 집행 온보딩 태그 조회
+ *
+ * 로그인한 유저의 가장 최근 활성 온보딩 태그 정보를 조회한다. 온보딩 기록이 없는 경우 hasOnboarding = false
+ */
+export const getMyOnboardingTag = <ThrowOnError extends boolean = false>(
+  options?: Options<GetMyOnboardingTagData, ThrowOnError>,
+): RequestResult<GetMyOnboardingTagResponses, GetMyOnboardingTagErrors, ThrowOnError> =>
+  (options?.client ?? client).get<
+    GetMyOnboardingTagResponses,
+    GetMyOnboardingTagErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/onboarding/me/tags',
+    ...options,
+  });
+
+/**
+ * 내 최신 집행 온보딩 태그 수정
+ *
+ * 로그인한 유저의 최신 집행 온보딩 태그 정보를 수정한다. 태그가 변경되면 기존 온보딩을 비활성화하고 신규 온보딩을 생성하며, 동일한 태그면 기존 온보딩을 유지한다.
+ */
+export const updateMyOnboardingTag = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateMyOnboardingTagData, ThrowOnError>,
+): RequestResult<UpdateMyOnboardingTagResponses, UpdateMyOnboardingTagErrors, ThrowOnError> =>
+  (options.client ?? client).put<
+    UpdateMyOnboardingTagResponses,
+    UpdateMyOnboardingTagErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/onboarding/me/tags',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
 
 /**
  * 내가 저장한 시뮬레이션 목록

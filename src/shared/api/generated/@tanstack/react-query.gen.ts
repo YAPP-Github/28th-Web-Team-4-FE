@@ -16,6 +16,7 @@ import {
   getChannelComparison,
   getChannels,
   getLatestSimulation,
+  getMyOnboardingTag,
   getMyProfile,
   getMySimulations,
   getRecommendations,
@@ -35,6 +36,7 @@ import {
   signup,
   signupGoogle,
   submitOnboarding,
+  updateMyOnboardingTag,
   updateMyProfile,
   verifySignupCode,
   withdraw,
@@ -61,6 +63,9 @@ import type {
   GetLatestSimulationData,
   GetLatestSimulationError,
   GetLatestSimulationResponse,
+  GetMyOnboardingTagData,
+  GetMyOnboardingTagError,
+  GetMyOnboardingTagResponse,
   GetMyProfileData,
   GetMyProfileError,
   GetMyProfileResponse,
@@ -115,6 +120,9 @@ import type {
   SubmitOnboardingData,
   SubmitOnboardingError,
   SubmitOnboardingResponse,
+  UpdateMyOnboardingTagData,
+  UpdateMyOnboardingTagError,
+  UpdateMyOnboardingTagResponse,
   UpdateMyProfileData,
   UpdateMyProfileError,
   UpdateMyProfileResponse,
@@ -163,6 +171,62 @@ const createQueryKey = <TOptions extends Options>(
     params.query = options.query;
   }
   return [params];
+};
+
+export const getMyOnboardingTagQueryKey = (options?: Options<GetMyOnboardingTagData>) =>
+  createQueryKey('getMyOnboardingTag', options);
+
+/**
+ * 내 최신 집행 온보딩 태그 조회
+ *
+ * 로그인한 유저의 가장 최근 활성 온보딩 태그 정보를 조회한다. 온보딩 기록이 없는 경우 hasOnboarding = false
+ */
+export const getMyOnboardingTagOptions = (options?: Options<GetMyOnboardingTagData>) =>
+  queryOptions<
+    GetMyOnboardingTagResponse,
+    GetMyOnboardingTagError,
+    GetMyOnboardingTagResponse,
+    ReturnType<typeof getMyOnboardingTagQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getMyOnboardingTag({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getMyOnboardingTagQueryKey(options),
+  });
+
+/**
+ * 내 최신 집행 온보딩 태그 수정
+ *
+ * 로그인한 유저의 최신 집행 온보딩 태그 정보를 수정한다. 태그가 변경되면 기존 온보딩을 비활성화하고 신규 온보딩을 생성하며, 동일한 태그면 기존 온보딩을 유지한다.
+ */
+export const updateMyOnboardingTagMutation = (
+  options?: Partial<Options<UpdateMyOnboardingTagData>>,
+): UseMutationOptions<
+  UpdateMyOnboardingTagResponse,
+  UpdateMyOnboardingTagError,
+  Options<UpdateMyOnboardingTagData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateMyOnboardingTagResponse,
+    UpdateMyOnboardingTagError,
+    Options<UpdateMyOnboardingTagData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await updateMyOnboardingTag({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
 };
 
 export const getMySimulationsQueryKey = (options?: Options<GetMySimulationsData>) =>
