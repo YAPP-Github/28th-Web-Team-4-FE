@@ -22,7 +22,20 @@ vi.mock('@number-flow/react', () => ({
 
 const SELECTED_CHANNEL_IDS = ['channel-a', 'channel-b', 'channel-c'] as const;
 
+function getTooltipByText(text: string): HTMLElement {
+  const tooltip = screen
+    .getAllByRole('tooltip')
+    .find((element) => element.textContent?.includes(text));
+
+  if (tooltip === undefined) {
+    throw new Error(`툴팁을 찾을 수 없습니다: ${text}`);
+  }
+
+  return tooltip;
+}
+
 const SIMULATION_RESULT: SimulationResponse = {
+  simulationId: null,
   totalBudgetWon: 1_000_000,
   period: 'M1',
   totalEstImpressions: 38_000,
@@ -32,22 +45,32 @@ const SIMULATION_RESULT: SimulationResponse = {
     {
       channelId: 'channel-a',
       channelName: '채널 A',
+      channelProductId: null,
       allocatedBudgetWon: 500_000,
       allocationPct: 50,
       estImpressions: { min: 10_000, max: 20_000 },
       estClicks: { min: 300, max: 400 },
+      cpcWon: null,
+      cpmWon: null,
       isExecutable: true,
-      basisNote: '기준 데이터',
+      shortfallWon: null,
+      basisNote:
+        '미집행 (배분 예산 0원) / 매체 소개서 기반 / VAT 별도 가정 / CTR 미제공 시 전체 평균 CTR 적용',
     },
     {
       channelId: 'channel-b',
       channelName: '채널 B',
+      channelProductId: null,
       allocatedBudgetWon: 500_000,
       allocationPct: 50,
       estImpressions: { min: 15_000, max: 25_000 },
       estClicks: { min: 200, max: 200 },
+      cpcWon: null,
+      cpmWon: null,
       isExecutable: true,
-      basisNote: '기준 데이터',
+      shortfallWon: null,
+      basisNote:
+        '노출 정보 미제공 상품 (집행 가능 여부만 판단) / 매체 소개서 기반 / VAT 별도 가정 / CTR 미제공 시 전체 평균 CTR 적용',
     },
   ],
 };
@@ -153,5 +176,30 @@ describe('AuthenticatedChannelResults', () => {
     expect(screen.getByText('300~400회')).toBeVisible();
     expect(screen.getByText('1.5~2.5만 회')).toBeVisible();
     expect(screen.getByText('200회')).toBeVisible();
+  });
+
+  it('basisNote에 따라 채널명 옆에 서로 다른 안내 툴팁을 제공한다', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <AuthenticatedChannelResults
+        isChannelSelectionComplete
+        selectedChannelIds={SELECTED_CHANNEL_IDS}
+        simulationResult={SIMULATION_RESULT}
+      />,
+    );
+
+    const budgetInfoButton = screen.getByRole('button', { name: '채널 A 기준 정보 안내' });
+    const impressionInfoButton = screen.getByRole('button', { name: '채널 B 기준 정보 안내' });
+
+    await user.hover(budgetInfoButton);
+    const budgetTooltip = getTooltipByText('예산이 부족해요');
+    expect(budgetTooltip).toHaveTextContent('예산을 10만 원 더 추가하면');
+    expect(budgetTooltip).toHaveTextContent('광고할 수 있어요');
+
+    await user.hover(impressionInfoButton);
+    const impressionTooltip = getTooltipByText('정보 확인이 어려워요');
+    expect(impressionTooltip).toHaveTextContent('매체 특성상 상세 데이터를');
+    expect(impressionTooltip).toHaveTextContent('제공하지 않아요.');
   });
 });

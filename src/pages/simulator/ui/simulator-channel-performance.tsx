@@ -2,14 +2,17 @@
 
 import type { JSX } from 'react';
 import Image from 'next/image';
+import { Info } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
-import type {
-  ChannelMetric,
-  ChannelResult,
-  ChannelType,
+import { Tooltip } from '@/shared/ui/tooltip';
+import {
+  getSimulatorBasisTooltip,
+  type ChannelMetric,
+  type ChannelResult,
+  type ChannelType,
 } from '@/pages/simulator/model/simulator-channel';
 
 const CHANNEL_ICON_SRC: Record<ChannelType, string> = {
@@ -114,14 +117,60 @@ function ChannelMetricRow({
   );
 }
 
+const TOOLTIP_CLASS_NAME =
+  'bg-surface-lowest p-016 shadow-drop-shadow-02 pointer-events-none invisible items-start rounded-[var(--radius-m)] rounded-tl-none opacity-0 transition-opacity duration-150 group-focus-within:pointer-events-auto group-focus-within:visible group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:visible group-hover:opacity-100';
+
+function ChannelBasisInfo({
+  channelName,
+  basisNote,
+}: {
+  channelName: string;
+  basisNote?: string;
+}): JSX.Element | null {
+  const tooltip = getSimulatorBasisTooltip(basisNote);
+
+  if (!tooltip) {
+    return null;
+  }
+
+  return (
+    <Tooltip.Root placement="bottom-start" offset={2}>
+      <Tooltip.Anchor>
+        <button
+          type="button"
+          aria-label={`${channelName} 기준 정보 안내`}
+          className="text-icon-default hover:text-icon-high focus-visible:outline-outline-selected size-018 flex shrink-0 items-center justify-center rounded-full outline-offset-2 focus-visible:outline-2"
+        >
+          <Info aria-hidden className="size-full" strokeWidth={1.8} />
+        </button>
+      </Tooltip.Anchor>
+      <Tooltip.Content role="tooltip" showArrow={false} className={TOOLTIP_CLASS_NAME}>
+        <span className="gap-008 flex flex-col items-start text-left">
+          <span className="typo-subtitle-sm text-text-high">{tooltip.title}</span>
+          <span className="typo-body-xs text-text-medium whitespace-nowrap">
+            {tooltip.description[0]}
+            <br />
+            {tooltip.description[1]}
+          </span>
+        </span>
+      </Tooltip.Content>
+    </Tooltip.Root>
+  );
+}
+
 function ChannelResultRow({ channel }: { channel: ChannelResult }): JSX.Element {
   return (
     <Box className="gap-014 flex w-full items-start">
       <ChannelIcon type={channel.type} name={channel.name} />
       <Box className="gap-006 flex min-w-0 flex-1 flex-col">
-        <Text variant="subtitle-md" className="text-text-default truncate">
-          {channel.name}
-        </Text>
+        <Box className="gap-006 flex min-w-0 items-center">
+          <Text variant="subtitle-md" className="text-text-default truncate">
+            {channel.name}
+          </Text>
+          <Box className="group flex shrink-0">
+            <ChannelBasisInfo channelName={channel.name} basisNote={channel.basisNote} />
+          </Box>
+        </Box>
         <Box className="gap-004 flex w-full flex-col">
           <ChannelMetricRow
             metric={channel.impressions}
