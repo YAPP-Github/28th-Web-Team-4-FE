@@ -1,7 +1,9 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
+import { authSessionQueryKey } from '@/features/auth/session/model/auth-session-query';
 import type { ShowToastOptions } from '@/shared/ui/toast';
 
 import { MyPage } from './my-page';
@@ -24,6 +26,47 @@ const { logoutMock, replaceMock, refreshMock, showToastMock, withdrawMock, withd
     withdrawMock: vi.fn<() => void>(),
     withdrawOptions: [] as WithdrawOptions[],
   }));
+
+const fetchMock = vi.fn<typeof fetch>();
+
+function createProfileResponse(): Response {
+  return new Response(
+    JSON.stringify({
+      success: true,
+      data: {
+        nickname: 'YAPP',
+        email: 'Web4team@naver.com',
+        companyName: 'YAPP',
+        occupation: 'DESIGN',
+      },
+      error: null,
+      code: null,
+    }),
+    { status: 200, headers: { 'content-type': 'application/json' } },
+  );
+}
+
+type MyPageRenderOptions = Omit<Parameters<typeof MyPage>[0], 'isLoggedIn'>;
+
+function renderMyPage(isLoggedIn: boolean, options: MyPageRenderOptions = {}) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+    },
+  });
+  queryClient.setQueryData(authSessionQueryKey, {
+    authenticated: true,
+    accessTokenExpiresAt: Date.now() + 60_000,
+  });
+
+  const renderResult = render(
+    <QueryClientProvider client={queryClient}>
+      <MyPage isLoggedIn={isLoggedIn} {...options} />
+    </QueryClientProvider>,
+  );
+
+  return { queryClient, ...renderResult };
+}
 
 vi.mock('@/features/auth/session/model/use-logout', () => ({
   useLogout: () => ({
@@ -53,6 +96,8 @@ vi.mock('next/navigation', () => ({
 
 describe('MyPage', () => {
   beforeEach(() => {
+    fetchMock.mockResolvedValue(createProfileResponse());
+    vi.stubGlobal('fetch', fetchMock);
     logoutMock.mockReset();
     replaceMock.mockReset();
     refreshMock.mockReset();
@@ -61,8 +106,13 @@ describe('MyPage', () => {
     withdrawOptions.length = 0;
   });
 
+  afterEach(() => {
+    fetchMock.mockReset();
+    vi.unstubAllGlobals();
+  });
+
   it('renders the guest profile state and login CTA', () => {
-    render(<MyPage isLoggedIn={false} />);
+    renderMyPage(false);
 
     expect(
       screen.getByRole('heading', { name: '내 정보와 저장된 추천 결과를 관리해요' }),
@@ -75,12 +125,12 @@ describe('MyPage', () => {
     expect(screen.queryByText('로그아웃')).not.toBeInTheDocument();
   });
 
-  it('renders the authenticated profile state and account actions', () => {
-    render(<MyPage isLoggedIn />);
+  it('renders the authenticated profile state and account actions', async () => {
+    renderMyPage(true);
 
-    expect(screen.getAllByText('YAPP')).toHaveLength(2);
-    expect(screen.getByText('Web4team@naver.com')).toBeVisible();
-    expect(screen.getByText('디자인')).toBeVisible();
+    expect(await screen.findAllByText('YAPP')).toHaveLength(2);
+    expect(await screen.findByText('Web4team@naver.com')).toBeVisible();
+    expect(await screen.findByText('디자인')).toBeVisible();
     expect(screen.getByRole('button', { name: '내 정보 수정' })).toBeVisible();
     expect(screen.getByRole('button', { name: '채널 추천받기' })).toHaveAttribute(
       'href',
@@ -93,7 +143,7 @@ describe('MyPage', () => {
 
   it('renders the empty states for saved comparison and simulation results', async () => {
     const user = userEvent.setup();
-    render(<MyPage isLoggedIn />);
+    renderMyPage(true);
 
     await user.click(screen.getByRole('tab', { name: '채널 비교' }));
 
@@ -114,40 +164,37 @@ describe('MyPage', () => {
   });
 
   it('renders the ad conditions and saved recommendations when onboarding exists', () => {
-    render(
-      <MyPage
-        isLoggedIn
-        adsCondition={{
-          tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
-        }}
-        savedRecommendations={[
-          {
-            onboardingId: 'onboarding-1',
-            title: '채소집',
-            lastRecommendedAt: '2026.06.12',
-            channelNames: ['네이버 검색광고', '메타 광고', '카카오모먼트'],
-          },
-          {
-            onboardingId: 'onboarding-2',
-            title: '사이드 프로젝트 B',
-            lastRecommendedAt: '2026년 5월 23일',
-            channelNames: ['유튜브', '인스타그램', '카카오모먼트'],
-          },
-          {
-            onboardingId: 'onboarding-3',
-            title: '사이드 프로젝트 C',
-            lastRecommendedAt: '2026년 5월 22일',
-            channelNames: ['유튜브', '인스타그램', '카카오모먼트'],
-          },
-          {
-            onboardingId: 'onboarding-4',
-            title: '네 번째 프로젝트',
-            lastRecommendedAt: '2026년 5월 21일',
-            channelNames: ['유튜브'],
-          },
-        ]}
-      />,
-    );
+    renderMyPage(true, {
+      adsCondition: {
+        tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
+      },
+      savedRecommendations: [
+        {
+          onboardingId: 'onboarding-1',
+          title: '채소집',
+          lastRecommendedAt: '2026.06.12',
+          channelNames: ['네이버 검색광고', '메타 광고', '카카오모먼트'],
+        },
+        {
+          onboardingId: 'onboarding-2',
+          title: '사이드 프로젝트 B',
+          lastRecommendedAt: '2026년 5월 23일',
+          channelNames: ['유튜브', '인스타그램', '카카오모먼트'],
+        },
+        {
+          onboardingId: 'onboarding-3',
+          title: '사이드 프로젝트 C',
+          lastRecommendedAt: '2026년 5월 22일',
+          channelNames: ['유튜브', '인스타그램', '카카오모먼트'],
+        },
+        {
+          onboardingId: 'onboarding-4',
+          title: '네 번째 프로젝트',
+          lastRecommendedAt: '2026년 5월 21일',
+          channelNames: ['유튜브'],
+        },
+      ],
+    });
 
     const scrollContainer = screen.getByRole('main');
 
@@ -169,14 +216,11 @@ describe('MyPage', () => {
 
   it('opens the ad condition edit modal with editable fields', async () => {
     const user = userEvent.setup();
-    render(
-      <MyPage
-        isLoggedIn
-        adsCondition={{
-          tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
-        }}
-      />,
-    );
+    renderMyPage(true, {
+      adsCondition: {
+        tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
+      },
+    });
 
     await user.click(screen.getByRole('button', { name: '수정하기' }));
 
@@ -222,14 +266,11 @@ describe('MyPage', () => {
 
   it('opens the service type dropdown with the Figma options', async () => {
     const user = userEvent.setup();
-    render(
-      <MyPage
-        isLoggedIn
-        adsCondition={{
-          tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
-        }}
-      />,
-    );
+    renderMyPage(true, {
+      adsCondition: {
+        tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
+      },
+    });
 
     await user.click(screen.getByRole('button', { name: '수정하기' }));
     const dialog = await screen.findByRole('dialog', { name: '내 광고 조건' });
@@ -242,14 +283,11 @@ describe('MyPage', () => {
 
   it('opens the age range dropdown with checkbox options', async () => {
     const user = userEvent.setup();
-    render(
-      <MyPage
-        isLoggedIn
-        adsCondition={{
-          tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
-        }}
-      />,
-    );
+    renderMyPage(true, {
+      adsCondition: {
+        tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
+      },
+    });
 
     await user.click(screen.getByRole('button', { name: '수정하기' }));
     const dialog = await screen.findByRole('dialog', { name: '내 광고 조건' });
@@ -269,14 +307,11 @@ describe('MyPage', () => {
 
   it('opens the web ad goal dropdown with the Figma options', async () => {
     const user = userEvent.setup();
-    render(
-      <MyPage
-        isLoggedIn
-        adsCondition={{
-          tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
-        }}
-      />,
-    );
+    renderMyPage(true, {
+      adsCondition: {
+        tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
+      },
+    });
 
     await user.click(screen.getByRole('button', { name: '수정하기' }));
     const dialog = await screen.findByRole('dialog', { name: '내 광고 조건' });
@@ -289,14 +324,11 @@ describe('MyPage', () => {
 
   it('opens the app ad goal dropdown with the Figma options', async () => {
     const user = userEvent.setup();
-    render(
-      <MyPage
-        isLoggedIn
-        adsCondition={{
-          tags: ['쇼핑·커머스', '#모바일 앱', '30~40대', '앱 설치', '총 50만 원', '1개월'],
-        }}
-      />,
-    );
+    renderMyPage(true, {
+      adsCondition: {
+        tags: ['쇼핑·커머스', '#모바일 앱', '30~40대', '앱 설치', '총 50만 원', '1개월'],
+      },
+    });
 
     await user.click(screen.getByRole('button', { name: '수정하기' }));
     const dialog = await screen.findByRole('dialog', { name: '내 광고 조건' });
@@ -309,14 +341,11 @@ describe('MyPage', () => {
 
   it('opens the campaign period dropdown with the Figma options', async () => {
     const user = userEvent.setup();
-    render(
-      <MyPage
-        isLoggedIn
-        adsCondition={{
-          tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
-        }}
-      />,
-    );
+    renderMyPage(true, {
+      adsCondition: {
+        tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
+      },
+    });
 
     await user.click(screen.getByRole('button', { name: '수정하기' }));
     const dialog = await screen.findByRole('dialog', { name: '내 광고 조건' });
@@ -329,7 +358,7 @@ describe('MyPage', () => {
   });
 
   it('renders the full skeleton while the mypage data is pending', () => {
-    render(<MyPage isLoggedIn isLoading />);
+    renderMyPage(true, { isLoading: true });
 
     expect(screen.getByRole('status', { name: '마이페이지를 불러오고 있어요' })).toBeVisible();
     expect(screen.getByTestId('my-profile-skeleton')).toBeVisible();
@@ -339,9 +368,30 @@ describe('MyPage', () => {
     expect(screen.queryByText('YAPP')).not.toBeInTheDocument();
   });
 
+  it('renders the profile skeleton while the profile request is pending', () => {
+    fetchMock.mockReturnValueOnce(new Promise<Response>(() => {}));
+
+    renderMyPage(true);
+
+    expect(screen.getByRole('status', { name: '내 정보를 불러오고 있어요' })).toBeVisible();
+    expect(screen.getByTestId('my-profile-skeleton')).toBeVisible();
+    expect(screen.queryByText('YAPP')).not.toBeInTheDocument();
+  });
+
+  it('refreshes the page when the profile request returns unauthorized', async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 401 }));
+
+    const { queryClient } = renderMyPage(true);
+
+    await waitFor(() => {
+      expect(queryClient.getQueryData(authSessionQueryKey)).toEqual({ authenticated: false });
+    });
+    expect(refreshMock).toHaveBeenCalledOnce();
+  });
+
   it('opens and closes the logout confirmation modal', async () => {
     const user = userEvent.setup();
-    render(<MyPage isLoggedIn />);
+    renderMyPage(true);
 
     await user.click(screen.getByRole('button', { name: '로그아웃' }));
 
@@ -357,7 +407,7 @@ describe('MyPage', () => {
 
   it('handles logout success in the page UI', async () => {
     const user = userEvent.setup();
-    render(<MyPage isLoggedIn />);
+    renderMyPage(true);
 
     await user.click(screen.getByRole('button', { name: '로그아웃' }));
     const dialog = await screen.findByRole('dialog', { name: '정말 로그아웃하시겠어요?' });
@@ -385,7 +435,7 @@ describe('MyPage', () => {
 
   it('opens the withdrawal confirmation modal', async () => {
     const user = userEvent.setup();
-    render(<MyPage isLoggedIn />);
+    renderMyPage(true);
 
     await user.click(screen.getByRole('button', { name: '탈퇴하기' }));
 
@@ -405,7 +455,7 @@ describe('MyPage', () => {
 
   it('shows a failure toast when withdrawal fails', async () => {
     const user = userEvent.setup();
-    render(<MyPage isLoggedIn />);
+    renderMyPage(true);
 
     await user.click(screen.getByRole('button', { name: '탈퇴하기' }));
     withdrawOptions.at(-1)?.onError?.();

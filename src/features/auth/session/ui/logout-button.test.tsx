@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { getAuthSession, logoutAuthSession } from '@/features/auth/session/api/auth-session';
 import { authSessionQueryKey } from '@/features/auth/session/model/auth-session-query';
+import { myProfileQueryKey } from '@/shared/lib/query-keys';
 
 import { LogoutButton } from './logout-button';
 
@@ -29,6 +30,7 @@ function renderLogoutButton() {
     authenticated: true,
     accessTokenExpiresAt: Date.now() + 60_000,
   });
+  queryClient.setQueryData(myProfileQueryKey, { nickname: '이전 사용자' });
 
   render(
     <QueryClientProvider client={queryClient}>
@@ -55,6 +57,7 @@ describe('LogoutButton', () => {
 
     await waitFor(() => expect(replaceMock).toHaveBeenCalledWith('/login'));
     expect(queryClient.getQueryData(authSessionQueryKey)).toEqual({ authenticated: false });
+    expect(queryClient.getQueryData(myProfileQueryKey)).toBeUndefined();
     expect(refreshMock).toHaveBeenCalledOnce();
   });
 

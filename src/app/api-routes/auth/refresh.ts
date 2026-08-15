@@ -1,10 +1,10 @@
 import { clearAuthSession, readAuthSession } from '@/app/api-routes/auth/session-cookie';
+import { refreshAuthSession } from '@/app/api-routes/auth/session-refresh';
 import {
   forbiddenMutationResponse,
   isTrustedMutation,
   upstreamErrorResponse,
 } from '@/app/api-routes/auth/route-utils';
-import { refreshAuthSession } from './session-refresh';
 
 export async function postRefresh(request: Request): Promise<Response> {
   if (!isTrustedMutation(request)) {
