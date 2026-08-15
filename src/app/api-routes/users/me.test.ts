@@ -1,4 +1,8 @@
-import { getMyProfile as getBackendMyProfile, refresh } from '@/shared/api/generated';
+import {
+  getMyProfile as getBackendMyProfile,
+  refresh,
+  type updateMyProfile as updateBackendMyProfile,
+} from '@/shared/api/generated';
 import type { AuthSession } from '@/shared/lib/auth/session';
 import {
   clearAuthSession,
@@ -11,6 +15,7 @@ import { getMyProfile as getMyProfileRoute } from './me';
 vi.mock('@/shared/api/generated', () => ({
   getMyProfile: vi.fn<typeof getBackendMyProfile>(),
   refresh: vi.fn<typeof refresh>(),
+  updateMyProfile: vi.fn<typeof updateBackendMyProfile>(),
 }));
 vi.mock('@/app/api-routes/auth/session-cookie', () => ({
   clearAuthSession: vi.fn<typeof clearAuthSession>(),

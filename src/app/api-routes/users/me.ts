@@ -1,12 +1,39 @@
-import { getMyProfile as getBackendMyProfile } from '@/shared/api/generated';
+import { z } from 'zod';
+
+import {
+  getMyProfile as getBackendMyProfile,
+  updateMyProfile as updateBackendMyProfile,
+} from '@/shared/api/generated';
+import type { UpdateProfileRequest } from '@/shared/api/generated/types.gen';
 import type { AuthSession } from '@/shared/lib/auth/session';
 import { clearAuthSession, readAuthSession } from '@/app/api-routes/auth/session-cookie';
 import { refreshAuthSession } from '@/app/api-routes/auth/session-refresh';
-import { upstreamErrorResponse } from '@/app/api-routes/auth/route-utils';
+import {
+  forbiddenMutationResponse,
+  invalidRequestResponse,
+  isTrustedMutation,
+  readJson,
+  upstreamErrorResponse,
+} from '@/app/api-routes/auth/route-utils';
 
 const ACCESS_TOKEN_EXPIRY_SKEW_MS = 30_000;
 
-type MyProfileResult = Awaited<ReturnType<typeof getBackendMyProfile>>;
+const updateProfileRequestSchema = z.object({
+  companyName: z.string().trim().min(1).max(50),
+  occupation: z.enum([
+    'DEVELOPMENT',
+    'DESIGN',
+    'MARKETING',
+    'PLANNING',
+    'SALES',
+    'DATA',
+    'MANAGEMENT',
+    'ETC',
+  ]),
+});
+
+type ProfileResult = Awaited<ReturnType<typeof getBackendMyProfile>>;
+type ProfileRequest = (accessToken: string) => Promise<ProfileResult>;
 
 function unauthorizedResponse(): Response {
   return new Response(null, { status: 401 });
@@ -18,11 +45,7 @@ async function refreshSession(session: AuthSession): Promise<AuthSession | null>
   return 'error' in result ? null : result.session;
 }
 
-async function requestMyProfile(accessToken: string): Promise<MyProfileResult> {
-  return getBackendMyProfile({ auth: accessToken });
-}
-
-function profileResponse(result: MyProfileResult): Response {
+function profileResponse(result: ProfileResult): Response {
   if ('error' in result) {
     return upstreamErrorResponse(result.error, result.response?.status);
   }
@@ -30,7 +53,7 @@ function profileResponse(result: MyProfileResult): Response {
   return Response.json(result.data);
 }
 
-export async function getMyProfile(): Promise<Response> {
+async function executeWithSession(requestProfile: ProfileRequest): Promise<Response> {
   const session = await readAuthSession();
 
   if (!session || session.refreshTokenExpiresAt <= Date.now()) {
@@ -39,7 +62,7 @@ export async function getMyProfile(): Promise<Response> {
   }
 
   let activeSession = session;
-  let refreshed = false;
+  let didRefresh = false;
 
   if (session.accessTokenExpiresAt <= Date.now() + ACCESS_TOKEN_EXPIRY_SKEW_MS) {
     const refreshedSession = await refreshSession(session);
@@ -50,10 +73,10 @@ export async function getMyProfile(): Promise<Response> {
     }
 
     activeSession = refreshedSession;
-    refreshed = true;
+    didRefresh = true;
   }
 
-  let result = await requestMyProfile(activeSession.accessToken);
+  let result = await requestProfile(activeSession.accessToken);
 
   if (!('error' in result)) {
     return profileResponse(result);
@@ -63,7 +86,7 @@ export async function getMyProfile(): Promise<Response> {
     return profileResponse(result);
   }
 
-  if (refreshed) {
+  if (didRefresh) {
     await clearAuthSession();
     return unauthorizedResponse();
   }
@@ -75,11 +98,31 @@ export async function getMyProfile(): Promise<Response> {
     return unauthorizedResponse();
   }
 
-  result = await requestMyProfile(refreshedSession.accessToken);
+  result = await requestProfile(refreshedSession.accessToken);
 
   if (result.response?.status === 401) {
     await clearAuthSession();
   }
 
   return profileResponse(result);
+}
+
+export async function getMyProfile(): Promise<Response> {
+  return executeWithSession((accessToken) => getBackendMyProfile({ auth: accessToken }));
+}
+
+export async function patchMyProfile(request: Request): Promise<Response> {
+  if (!isTrustedMutation(request)) {
+    return forbiddenMutationResponse();
+  }
+
+  const parsedBody = updateProfileRequestSchema.safeParse(await readJson(request));
+
+  if (!parsedBody.success) {
+    return invalidRequestResponse();
+  }
+
+  const body: UpdateProfileRequest = parsedBody.data;
+
+  return executeWithSession((accessToken) => updateBackendMyProfile({ auth: accessToken, body }));
 }

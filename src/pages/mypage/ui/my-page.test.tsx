@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
 import { authSessionQueryKey } from '@/features/auth/session/model/auth-session-query';
+import type { UserProfileResponse } from '@/shared/api/generated/types.gen';
 import type { ShowToastOptions } from '@/shared/ui/toast';
 
 import { MyPage } from './my-page';
@@ -29,16 +30,18 @@ const { logoutMock, replaceMock, refreshMock, showToastMock, withdrawMock, withd
 
 const fetchMock = vi.fn<typeof fetch>();
 
-function createProfileResponse(): Response {
+const DEFAULT_PROFILE: UserProfileResponse = {
+  nickname: 'YAPP',
+  email: 'Web4team@naver.com',
+  companyName: 'YAPP',
+  occupation: 'DESIGN' as const,
+};
+
+function createProfileResponse(profile = DEFAULT_PROFILE): Response {
   return new Response(
     JSON.stringify({
       success: true,
-      data: {
-        nickname: 'YAPP',
-        email: 'Web4team@naver.com',
-        companyName: 'YAPP',
-        occupation: 'DESIGN',
-      },
+      data: profile,
       error: null,
       code: null,
     }),
@@ -88,7 +91,14 @@ vi.mock('@/features/auth/session/model/use-withdraw', () => ({
     };
   },
 }));
-vi.mock('@/shared/ui/toast', () => ({ showToast: showToastMock }));
+
+vi.mock('@/shared/ui/toast', () => ({
+  showToast: showToastMock,
+  showWarningToast:
+    vi.fn<
+      (description: string, options?: Omit<ShowToastOptions, 'description' | 'type'>) => void
+    >(),
+}));
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ replace: replaceMock, refresh: refreshMock }),
@@ -131,14 +141,63 @@ describe('MyPage', () => {
     expect(await screen.findAllByText('YAPP')).toHaveLength(2);
     expect(await screen.findByText('Web4team@naver.com')).toBeVisible();
     expect(await screen.findByText('디자인')).toBeVisible();
-    expect(screen.getByRole('button', { name: '내 정보 수정' })).toBeVisible();
+    expect(await screen.findByRole('button', { name: '내 정보 수정' })).toBeVisible();
     expect(screen.getByRole('button', { name: '채널 추천받기' })).toHaveAttribute(
       'href',
       '/recommend/onboarding/new',
     );
-    expect(screen.getByRole('button', { name: '로그아웃' })).toBeVisible();
-    expect(screen.getByRole('button', { name: '탈퇴하기' })).toBeVisible();
+    expect(await screen.findByRole('button', { name: '로그아웃' })).toBeVisible();
+    expect(await screen.findByRole('button', { name: '탈퇴하기' })).toBeVisible();
     expect(screen.queryByText('로그인이 필요해요')).not.toBeInTheDocument();
+  });
+
+  it('opens the profile edit modal and saves updated profile data', async () => {
+    const user = userEvent.setup();
+    const updatedProfile = {
+      ...DEFAULT_PROFILE,
+      companyName: '새 회사',
+      occupation: 'DEVELOPMENT' as const,
+    };
+    fetchMock
+      .mockReset()
+      .mockResolvedValueOnce(createProfileResponse())
+      .mockResolvedValueOnce(createProfileResponse(updatedProfile));
+
+    renderMyPage(true);
+
+    await waitFor(() => expect(screen.getByRole('button', { name: '내 정보 수정' })).toBeEnabled());
+    const editButton = screen.getByRole('button', { name: '내 정보 수정' });
+    await user.click(editButton);
+
+    const dialog = await screen.findByRole('dialog', { name: '프로필 수정' });
+    expect(within(dialog).getByRole('textbox', { name: '회사' })).toHaveValue('YAPP');
+    expect(within(dialog).getByRole('combobox', { name: '직무' })).toHaveTextContent('디자인');
+
+    await user.clear(within(dialog).getByRole('textbox', { name: '회사' }));
+    await user.type(within(dialog).getByRole('textbox', { name: '회사' }), '새 회사');
+    await user.click(within(dialog).getByRole('combobox', { name: '직무' }));
+    await user.click(await screen.findByRole('option', { name: '개발' }));
+    await user.click(within(dialog).getByRole('button', { name: '저장하기' }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      '/api/users/me',
+      expect.objectContaining({
+        method: 'PATCH',
+        body: JSON.stringify({ companyName: '새 회사', occupation: 'DEVELOPMENT' }),
+      }),
+    );
+    expect(showToastMock).toHaveBeenCalledWith({
+      id: 'profile-update-success',
+      description: '저장했어요',
+      timeout: 3000,
+      type: 'success',
+    });
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: '프로필 수정' })).not.toBeInTheDocument();
+    });
+    expect(screen.getByText('새 회사')).toBeVisible();
+    expect(screen.getByText('개발')).toBeVisible();
   });
 
   it('renders the empty states for saved comparison and simulation results', async () => {
@@ -246,7 +305,7 @@ describe('MyPage', () => {
     const user = userEvent.setup();
     renderMyPage(true);
 
-    await user.click(screen.getByRole('button', { name: '로그아웃' }));
+    await user.click(await screen.findByRole('button', { name: '로그아웃' }));
 
     const dialog = await screen.findByRole('dialog', { name: '정말 로그아웃하시겠어요?' });
     expect(dialog).toBeVisible();
@@ -262,7 +321,7 @@ describe('MyPage', () => {
     const user = userEvent.setup();
     renderMyPage(true);
 
-    await user.click(screen.getByRole('button', { name: '로그아웃' }));
+    await user.click(await screen.findByRole('button', { name: '로그아웃' }));
     const dialog = await screen.findByRole('dialog', { name: '정말 로그아웃하시겠어요?' });
     await user.click(within(dialog).getByRole('button', { name: '로그아웃' }));
 
@@ -290,7 +349,7 @@ describe('MyPage', () => {
     const user = userEvent.setup();
     renderMyPage(true);
 
-    await user.click(screen.getByRole('button', { name: '탈퇴하기' }));
+    await user.click(await screen.findByRole('button', { name: '탈퇴하기' }));
 
     const dialog = await screen.findByRole('dialog', { name: '채소집을 정말 떠나시겠어요?' });
     expect(dialog).toBeVisible();
@@ -310,7 +369,7 @@ describe('MyPage', () => {
     const user = userEvent.setup();
     renderMyPage(true);
 
-    await user.click(screen.getByRole('button', { name: '탈퇴하기' }));
+    await user.click(await screen.findByRole('button', { name: '탈퇴하기' }));
     withdrawOptions.at(-1)?.onError?.();
 
     expect(showToastMock).toHaveBeenCalledWith({
