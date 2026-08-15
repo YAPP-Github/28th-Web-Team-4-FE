@@ -7,6 +7,7 @@ import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
 import { SavedResultsPagination } from './saved-results-pagination';
+import { SavedResultsSkeletonPage } from './saved-results-skeleton-page';
 import { SavedResultsSubHeader } from './saved-results-sub-header';
 import { SavedResultsTabs } from './saved-results-tabs';
 
@@ -14,16 +15,22 @@ const SAVED_RESULTS_PER_PAGE = 5;
 
 export type SavedResultsPageProps = {
   isLoggedIn: boolean;
+  isLoading?: boolean;
   recommendations?: readonly SavedRecommendation[];
   totalPages?: number;
 };
 
 export function SavedResultsPage({
   isLoggedIn,
+  isLoading = false,
   recommendations = [],
   totalPages,
 }: SavedResultsPageProps): JSX.Element {
   const [currentPage, setCurrentPage] = useState(1);
+
+  if (isLoggedIn && isLoading) {
+    return <SavedResultsSkeletonPage />;
+  }
 
   const resolvedTotalPages = Math.max(
     1,

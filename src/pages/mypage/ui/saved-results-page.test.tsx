@@ -61,4 +61,18 @@ describe('SavedResultsPage', () => {
     const simulationPanel = screen.getByRole('tabpanel');
     expect(within(simulationPanel).getByText('아직 저장된 시뮬레이션 결과가 없어요')).toBeVisible();
   });
+
+  it('renders the five-card loading skeleton and pagination', () => {
+    render(<SavedResultsPage isLoggedIn isLoading />);
+
+    expect(
+      screen.getByRole('status', { name: '저장된 추천 결과를 불러오고 있어요' }),
+    ).toBeVisible();
+    expect(screen.getAllByTestId('saved-results-skeleton-card')).toHaveLength(5);
+    expect(screen.getByRole('navigation', { name: '페이지네이션' })).toBeVisible();
+    expect(screen.getByRole('button', { name: '페이지 1' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+  });
 });
