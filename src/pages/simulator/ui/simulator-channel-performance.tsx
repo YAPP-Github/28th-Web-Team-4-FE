@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion, useReducedMotion } from 'motion/react';
 
 import { Box } from '@/shared/ui/layout/box';
+import { cn } from '@/shared/ui/cn';
 import { Text } from '@/shared/ui/text';
 import type {
   ChannelMetric,
@@ -43,6 +44,35 @@ function ChannelIcon({ type, name }: { type?: ChannelType; name: string }): JSX.
 
 export type SimulatorResultsView = 'graph' | 'table';
 
+const VIEW_ICON_SRC: Record<SimulatorResultsView, string> = {
+  graph: '/simulator-assets/graph.svg',
+  table: '/simulator-assets/table.svg',
+};
+
+function SimulatorViewIcon({
+  type,
+  selected,
+}: {
+  type: SimulatorResultsView;
+  selected: boolean;
+}): JSX.Element {
+  return (
+    <Box
+      aria-hidden
+      data-view-icon={type}
+      className={cn(
+        'bg-current shrink-0 [mask-position:center] [mask-repeat:no-repeat] [mask-size:100%_100%]',
+        type === 'graph' ? 'size-[13px]' : 'size-012',
+        selected ? 'text-icon-default' : 'text-icon-low',
+      )}
+      style={{
+        maskImage: `url(${VIEW_ICON_SRC[type]})`,
+        WebkitMaskImage: `url(${VIEW_ICON_SRC[type]})`,
+      }}
+    />
+  );
+}
+
 export function SimulatorResultsViewToggle({
   view,
   onViewChange,
@@ -56,31 +86,19 @@ export function SimulatorResultsViewToggle({
         type="button"
         aria-label="그래프로 보기"
         aria-pressed={view === 'graph'}
-        className="text-icon-default size-026 flex items-center justify-center"
+        className="size-026 flex items-center justify-center"
         onClick={() => onViewChange('graph')}
       >
-        <Image
-          src="/simulator-assets/graph.svg"
-          alt=""
-          width={13}
-          height={13}
-          className="size-013"
-        />
+        <SimulatorViewIcon type="graph" selected={view === 'graph'} />
       </button>
       <button
         type="button"
         aria-label="표로 보기"
         aria-pressed={view === 'table'}
-        className="text-icon-default size-026 flex items-center justify-center"
+        className="size-026 flex items-center justify-center"
         onClick={() => onViewChange('table')}
       >
-        <Image
-          src="/simulator-assets/table.svg"
-          alt=""
-          width={12}
-          height={12}
-          className="size-012"
-        />
+        <SimulatorViewIcon type="table" selected={view === 'table'} />
       </button>
     </Box>
   );

@@ -29,6 +29,10 @@ describe('SimulatorChannelResults', () => {
       'data-selected-channel-ids',
       'channel-a,channel-b,channel-c',
     );
+
+    expect(document.querySelector('[data-view-icon="graph"]')).toHaveClass('text-icon-default');
+    expect(document.querySelector('[data-view-icon="graph"]')).toHaveClass('size-[13px]');
+    expect(document.querySelector('[data-view-icon="table"]')).toHaveClass('text-icon-low');
   });
 
   it('표로 보기 버튼을 누르면 채널별 결과 표를 보여준다', async () => {
@@ -48,6 +52,8 @@ describe('SimulatorChannelResults', () => {
       'aria-pressed',
       'true',
     );
+    expect(document.querySelector('[data-view-icon="graph"]')).toHaveClass('text-icon-low');
+    expect(document.querySelector('[data-view-icon="table"]')).toHaveClass('text-icon-default');
     expect(screen.getByRole('heading', { name: '채널별 예상 성과' })).toBeVisible();
     expect(screen.getByRole('columnheader', { name: '클릭당 비용' })).toBeVisible();
     expect(screen.getByRole('columnheader', { name: '운영 가능 여부' })).toBeVisible();
