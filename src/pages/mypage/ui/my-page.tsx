@@ -1,6 +1,13 @@
+'use client';
+
 import type { JSX } from 'react';
 
-import type { MyAdsCondition, SavedRecommendation } from '@/pages/mypage/model/my-page-content';
+import { useMyOnboardingTag } from '@/pages/mypage/api/use-my-onboarding-tag';
+import {
+  createMyAdsCondition,
+  type MyAdsCondition,
+  type SavedRecommendation,
+} from '@/pages/mypage/model/my-page-content';
 import { Box } from '@/shared/ui/layout/box';
 
 import { AuthenticatedProfileCard } from './authenticated-profile-card';
@@ -24,6 +31,11 @@ export function MyPage({
   adsCondition,
   savedRecommendations,
 }: MyPageProps): JSX.Element {
+  const onboardingTagQuery = useMyOnboardingTag(isLoggedIn && !adsCondition);
+  const resolvedAdsCondition =
+    adsCondition ??
+    (onboardingTagQuery.data ? createMyAdsCondition(onboardingTagQuery.data) : undefined);
+
   if (isLoggedIn && isLoading) {
     return <MyPageSkeleton />;
   }
@@ -34,7 +46,9 @@ export function MyPage({
       <Box className="bg-surface-background-default px-016 sm:px-032 lg:px-064 flex min-h-0 flex-1 flex-col items-center xl:px-[324px]">
         <Box className="gap-016 py-024 flex w-full max-w-[792px] flex-1 flex-col">
           {isLoggedIn ? <AuthenticatedProfileCard /> : <GuestProfileCard />}
-          {isLoggedIn && adsCondition ? <MyAdsConditionCard tags={adsCondition.tags} /> : null}
+          {isLoggedIn && resolvedAdsCondition ? (
+            <MyAdsConditionCard tags={resolvedAdsCondition.tags} />
+          ) : null}
           <SavedResultsCard isLoggedIn={isLoggedIn} recommendations={savedRecommendations} />
           {isLoggedIn ? <AccountActions /> : null}
         </Box>
