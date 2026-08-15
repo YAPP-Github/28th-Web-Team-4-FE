@@ -46,7 +46,9 @@ function createProfileResponse(): Response {
   );
 }
 
-function renderMyPage(isLoggedIn: boolean) {
+type MyPageProps = Parameters<typeof MyPage>[0];
+
+function renderMyPage(isLoggedIn: boolean, props: Omit<MyPageProps, 'isLoggedIn'> = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -59,7 +61,7 @@ function renderMyPage(isLoggedIn: boolean) {
 
   const renderResult = render(
     <QueryClientProvider client={queryClient}>
-      <MyPage isLoggedIn={isLoggedIn} />
+      <MyPage isLoggedIn={isLoggedIn} {...props} />
     </QueryClientProvider>,
   );
 
@@ -141,7 +143,7 @@ describe('MyPage', () => {
 
   it('renders the empty states for saved comparison and simulation results', async () => {
     const user = userEvent.setup();
-    render(<MyPage isLoggedIn />);
+    renderMyPage(true);
 
     await user.click(screen.getByRole('tab', { name: '채널 비교' }));
 
@@ -162,40 +164,37 @@ describe('MyPage', () => {
   });
 
   it('renders the ad conditions and saved recommendations when onboarding exists', () => {
-    render(
-      <MyPage
-        isLoggedIn
-        adsCondition={{
-          tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
-        }}
-        savedRecommendations={[
-          {
-            onboardingId: 'onboarding-1',
-            title: '채소집',
-            lastRecommendedAt: '2026.06.12',
-            channelNames: ['네이버 검색광고', '메타 광고', '카카오모먼트'],
-          },
-          {
-            onboardingId: 'onboarding-2',
-            title: '사이드 프로젝트 B',
-            lastRecommendedAt: '2026년 5월 23일',
-            channelNames: ['유튜브', '인스타그램', '카카오모먼트'],
-          },
-          {
-            onboardingId: 'onboarding-3',
-            title: '사이드 프로젝트 C',
-            lastRecommendedAt: '2026년 5월 22일',
-            channelNames: ['유튜브', '인스타그램', '카카오모먼트'],
-          },
-          {
-            onboardingId: 'onboarding-4',
-            title: '네 번째 프로젝트',
-            lastRecommendedAt: '2026년 5월 21일',
-            channelNames: ['유튜브'],
-          },
-        ]}
-      />,
-    );
+    renderMyPage(true, {
+      adsCondition: {
+        tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
+      },
+      savedRecommendations: [
+        {
+          onboardingId: 'onboarding-1',
+          title: '채소집',
+          lastRecommendedAt: '2026.06.12',
+          channelNames: ['네이버 검색광고', '메타 광고', '카카오모먼트'],
+        },
+        {
+          onboardingId: 'onboarding-2',
+          title: '사이드 프로젝트 B',
+          lastRecommendedAt: '2026년 5월 23일',
+          channelNames: ['유튜브', '인스타그램', '카카오모먼트'],
+        },
+        {
+          onboardingId: 'onboarding-3',
+          title: '사이드 프로젝트 C',
+          lastRecommendedAt: '2026년 5월 22일',
+          channelNames: ['유튜브', '인스타그램', '카카오모먼트'],
+        },
+        {
+          onboardingId: 'onboarding-4',
+          title: '네 번째 프로젝트',
+          lastRecommendedAt: '2026년 5월 21일',
+          channelNames: ['유튜브'],
+        },
+      ],
+    });
 
     expect(screen.getByRole('heading', { name: '내 광고 조건' })).toBeVisible();
     expect(screen.getByText('#쇼핑·커머스')).toBeVisible();
@@ -220,6 +219,8 @@ describe('MyPage', () => {
     expect(screen.getByRole('heading', { name: '저장된 결과' })).toBeVisible();
     expect(screen.getByText('로그아웃')).toBeVisible();
     expect(screen.queryByText('YAPP')).not.toBeInTheDocument();
+  });
+
   it('renders the profile skeleton while the profile request is pending', () => {
     fetchMock.mockReturnValueOnce(new Promise<Response>(() => {}));
 
