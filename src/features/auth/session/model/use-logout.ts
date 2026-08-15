@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient, type MutateOptions } from '@tanstack/react-query';
 
 import { logoutAuthSession } from '@/features/auth/session/api/auth-session';
+import { userQueryKey } from '@/shared/lib/query-keys';
 
 import { authSessionQueryKey, authSessionQueryOptions } from './auth-session-query';
 
@@ -34,6 +35,7 @@ export function useLogout() {
     mutationFn: () => logoutWithSessionFallback(queryClient),
     onSuccess: () => {
       queryClient.setQueryData(authSessionQueryKey, { authenticated: false });
+      queryClient.removeQueries({ queryKey: userQueryKey });
     },
     onError: () => {
       setErrorMessage('로그아웃하지 못했습니다. 다시 시도해 주세요.');

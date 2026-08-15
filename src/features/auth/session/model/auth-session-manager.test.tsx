@@ -6,6 +6,7 @@ import {
   logoutAuthSession,
   refreshAuthSession,
 } from '@/features/auth/session/api/auth-session';
+import { myProfileQueryKey } from '@/shared/lib/query-keys';
 
 import { AuthSessionManager } from './auth-session-manager';
 
@@ -101,6 +102,7 @@ describe('AuthSessionManager', () => {
       const queryClient = new QueryClient({
         defaultOptions: { queries: { retry: false } },
       });
+      queryClient.setQueryData(myProfileQueryKey, { nickname: '이전 사용자' });
 
       render(
         <QueryClientProvider client={queryClient}>
@@ -117,6 +119,7 @@ describe('AuthSessionManager', () => {
       expect(logoutAuthSessionMock).toHaveBeenCalledOnce();
       expect(logoutAuthSessionMock).toHaveBeenCalledWith(expect.any(AbortSignal));
       expect(queryClient.getQueryData(['auth', 'session'])).toEqual({ authenticated: false });
+      expect(queryClient.getQueryData(myProfileQueryKey)).toBeUndefined();
       expect(replaceMock).toHaveBeenCalledWith('/login');
       expect(refreshMock).toHaveBeenCalledOnce();
     },
@@ -139,6 +142,7 @@ describe('AuthSessionManager', () => {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
+    queryClient.setQueryData(myProfileQueryKey, { nickname: '이전 사용자' });
 
     render(
       <QueryClientProvider client={queryClient}>
@@ -153,6 +157,7 @@ describe('AuthSessionManager', () => {
 
     expect(logoutAuthSessionMock).toHaveBeenCalledOnce();
     expect(queryClient.getQueryData(['auth', 'session'])).toEqual({ authenticated: false });
+    expect(queryClient.getQueryData(myProfileQueryKey)).toBeUndefined();
     expect(replaceMock).toHaveBeenCalledWith('/login');
     expect(refreshMock).toHaveBeenCalledOnce();
   });
