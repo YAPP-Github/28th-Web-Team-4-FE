@@ -47,7 +47,10 @@ export type SelectProps<Value extends string = string> = Omit<
   placeholder: string;
   triggerAriaLabel: string;
   className?: string;
+  listClassName?: string;
+  optionClassName?: string;
   renderValue?: (value: Value[]) => ReactNode;
+  valueClassName?: string;
 };
 
 export function Select<Value extends string = string>({
@@ -55,7 +58,10 @@ export function Select<Value extends string = string>({
   placeholder,
   triggerAriaLabel,
   className,
+  listClassName,
+  optionClassName,
   renderValue,
+  valueClassName,
   ...rootProps
 }: SelectProps<Value>): JSX.Element {
   return (
@@ -64,13 +70,17 @@ export function Select<Value extends string = string>({
         className={cn(SELECT_TRIGGER_CLASSES, className)}
         aria-label={triggerAriaLabel}
       >
-        <SelectValueDisplay<Value[]> placeholder={placeholder} renderValue={renderValue} />
+        <SelectValueDisplay<Value[]>
+          placeholder={placeholder}
+          renderValue={renderValue}
+          className={valueClassName}
+        />
         <SelectTriggerIcon />
       </SelectPrimitive.Trigger>
 
       <SelectPositioner>
         <SelectPrimitive.Popup className={SELECT_POPUP_CLASSES.join(' ')}>
-          <SelectPrimitive.List className={SELECT_LIST_CLASSES}>
+          <SelectPrimitive.List className={cn(SELECT_LIST_CLASSES, listClassName)}>
             {options.map((option) => (
               <SelectPrimitive.Item
                 key={option.value}
@@ -78,7 +88,10 @@ export function Select<Value extends string = string>({
                 disabled={option.disabled}
                 label={option.label}
                 render={(props, state) => (
-                  <div {...props} className={cn(SELECT_OPTION_CLASSES, props.className)}>
+                  <div
+                    {...props}
+                    className={cn(SELECT_OPTION_CLASSES, optionClassName, props.className)}
+                  >
                     <Checkbox
                       aria-label={`${option.label} 선택`}
                       checked={state.selected}
