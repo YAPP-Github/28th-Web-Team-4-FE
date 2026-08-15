@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, type JSX } from 'react';
+import { useEffect, useState, type JSX } from 'react';
 import { Download } from 'lucide-react';
 import type { SimulationRequest, SimulationResponse } from '@/shared/api/generated';
 
@@ -8,6 +8,8 @@ import { getApiErrorMessage } from '@/shared/api/api-error';
 import { useSaveSimulation } from '@/pages/simulator/api/use-save-simulation';
 import { Button } from '@/shared/ui/button';
 import { showToast, showWarningToast } from '@/shared/ui/toast';
+
+import { SimulatorSaveServiceNameModal } from './simulator-save-service-name-modal';
 
 const SAVE_SIMULATION_ERROR_TOAST_ID = 'simulator-save-error';
 const SAVE_SIMULATION_ERROR_MESSAGE = '시뮬레이션 결과 저장 중 문제가 발생했습니다.';
@@ -57,6 +59,8 @@ export function SimulatorSaveAction({
   simulationResult?: SimulationResponse | null;
 }): JSX.Element {
   const saveSimulation = useSaveSimulation();
+  const [isServiceNameModalOpen, setIsServiceNameModalOpen] = useState(false);
+  const [serviceName, setServiceName] = useState('');
   const { isPending, isSuccess, mutate, reset } = saveSimulation;
 
   useEffect(() => {
@@ -75,6 +79,17 @@ export function SimulatorSaveAction({
     if (isDisabled || !simulationResult) {
       return;
     }
+
+    setServiceName('');
+    setIsServiceNameModalOpen(true);
+  };
+
+  const handleSaveWithServiceName = (_serviceName: string): void => {
+    if (!simulationResult) {
+      return;
+    }
+
+    setIsServiceNameModalOpen(false);
 
     mutate(
       { body: createSimulationRequest(simulationResult) },
@@ -96,15 +111,24 @@ export function SimulatorSaveAction({
   };
 
   return (
-    <Button
-      frame="button"
-      tone="stroke"
-      className="border-outline-low h-044 px-020 py-010"
-      disabled={isDisabled}
-      leftIcon={<Download aria-hidden="true" className="text-icon-high size-016" />}
-      onClick={handleSave}
-    >
-      {SAVE_SIMULATION_BUTTON_LABEL[status]}
-    </Button>
+    <>
+      <Button
+        frame="button"
+        tone="stroke"
+        className="border-outline-low h-044 px-020 py-010"
+        disabled={isDisabled}
+        leftIcon={<Download aria-hidden="true" className="text-icon-high size-016" />}
+        onClick={handleSave}
+      >
+        {SAVE_SIMULATION_BUTTON_LABEL[status]}
+      </Button>
+      <SimulatorSaveServiceNameModal
+        open={isServiceNameModalOpen}
+        serviceName={serviceName}
+        onOpenChange={setIsServiceNameModalOpen}
+        onServiceNameChange={setServiceName}
+        onSave={handleSaveWithServiceName}
+      />
+    </>
   );
 }

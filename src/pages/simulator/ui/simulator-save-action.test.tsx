@@ -78,6 +78,8 @@ describe('SimulatorSaveAction', () => {
     render(<SimulatorSaveAction simulationResult={SIMULATION_RESULT} />);
 
     await user.click(screen.getByRole('button', { name: '결과 저장하기' }));
+    await user.type(screen.getByRole('textbox', { name: '서비스명' }), '채소집');
+    await user.click(screen.getByRole('button', { name: /^저장하기$/ }));
 
     expect(mutateMock).toHaveBeenCalledWith(
       {
@@ -106,6 +108,8 @@ describe('SimulatorSaveAction', () => {
     render(<SimulatorSaveAction simulationResult={SIMULATION_RESULT} />);
 
     await user.click(screen.getByRole('button', { name: '결과 저장하기' }));
+    await user.type(screen.getByRole('textbox', { name: '서비스명' }), '채소집');
+    await user.click(screen.getByRole('button', { name: /^저장하기$/ }));
     mutateMock.mock.calls[0]?.[1]?.onSuccess?.();
 
     expect(showToastMock).toHaveBeenCalledWith({
@@ -113,5 +117,30 @@ describe('SimulatorSaveAction', () => {
       description: '마이페이지에 결과를 저장했어요',
       type: 'success',
     });
+  });
+
+  it('결과 저장하기를 누르면 서비스명 입력 모달을 연다', async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorSaveAction simulationResult={SIMULATION_RESULT} />);
+
+    await user.click(screen.getByRole('button', { name: '결과 저장하기' }));
+
+    expect(screen.getByRole('heading', { name: '서비스명을 입력해 주세요' })).toBeVisible();
+    expect(mutateMock).not.toHaveBeenCalled();
+  });
+
+  it('서비스명 입력 모달에서 취소하면 저장하지 않는다', async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorSaveAction simulationResult={SIMULATION_RESULT} />);
+
+    await user.click(screen.getByRole('button', { name: '결과 저장하기' }));
+    await user.click(screen.getByRole('button', { name: '취소' }));
+
+    expect(
+      screen.queryByRole('heading', { name: '서비스명을 입력해 주세요' }),
+    ).not.toBeInTheDocument();
+    expect(mutateMock).not.toHaveBeenCalled();
   });
 });
