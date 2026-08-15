@@ -5,6 +5,191 @@ export type ClientOptions = {
 };
 
 /**
+ * 최신 집행 온보딩 태그 수정 요청
+ */
+export type UpdateOnboardingTagRequest = {
+  /**
+   * 업종
+   */
+  industry:
+    | 'GAME'
+    | 'ENTERTAINMENT'
+    | 'EDUCATION'
+    | 'SOCIAL_COMMUNITY'
+    | 'LIFESTYLE'
+    | 'HEALTH_FITNESS'
+    | 'FOOD_BEVERAGE'
+    | 'SHOPPING_COMMERCE'
+    | 'FINANCE_FINTECH'
+    | 'BUSINESS_B2B'
+    | 'MEDICAL_HEALTHCARE'
+    | 'TRAVEL_ACCOMMODATION'
+    | 'MUSIC_MEDIA'
+    | 'PRODUCTIVITY_UTILITY'
+    | 'SPORTS'
+    | 'NEWS_INFORMATION'
+    | 'OTHERS';
+  /**
+   * 서비스 형태
+   */
+  serviceType: 'MOBILE_APP' | 'WEB' | 'WEB_AND_APP' | 'OTHER';
+  /**
+   * 주요 연령대. 1개 이상. 잘 모르겠어요는 UNDECIDED 단독 선택
+   */
+  targetAgeBands: Array<
+    'AGE_10S' | 'AGE_20S' | 'AGE_30S' | 'AGE_40S' | 'AGE_50S_PLUS' | 'UNDECIDED'
+  >;
+  /**
+   * 광고 목표(단일 선택). 앱이면 APP_INSTALL/IN_APP_ACTION도 가능
+   */
+  campaignObjective:
+    | 'AWARENESS'
+    | 'VIDEO_VIEW'
+    | 'TRAFFIC'
+    | 'LEAD'
+    | 'CONVERSION'
+    | 'APP_INSTALL'
+    | 'IN_APP_ACTION';
+  /**
+   * 최소 예산(원). 0 이상 1,000만 이하
+   */
+  budgetMin: number;
+  /**
+   * 최대 예산(원). 0 이상 1,000만 이하
+   */
+  budgetMax: number;
+  /**
+   * 집행 기간
+   */
+  period: 'LE_1W' | 'W2_3' | 'M1' | 'M2_3' | 'GE_3M';
+};
+
+export type ApiResponseMyOnboardingTagResponse = {
+  /**
+   * 요청 성공 여부
+   */
+  success: boolean;
+  data: MyOnboardingTagResponse;
+  error: ErrorResponse | null;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 null
+   */
+  code: string | null;
+};
+
+/**
+ * 에러 응답 본문
+ */
+export type ErrorResponse = {
+  /**
+   * 에러 코드. <도메인 약어>-<일련번호> 형식
+   */
+  code: string;
+  /**
+   * 에러 메시지
+   */
+  message: string;
+  /**
+   * 검증 실패 시 필드별 상세 에러. 검증 외 에러는 빈 배열
+   */
+  fieldErrors: Array<FieldError>;
+};
+
+/**
+ * 검증 실패 필드 상세
+ */
+export type FieldError = {
+  /**
+   * 검증 실패한 필드명
+   */
+  field: string;
+  /**
+   * 거부된 입력값. 값이 없으면 빈 문자열
+   */
+  value: string;
+  /**
+   * 실패 사유
+   */
+  reason: string;
+};
+
+/**
+ * 성공 시 응답 본문. 실패 시 null
+ */
+export type MyOnboardingTagResponse = {
+  /**
+   * 온보딩 존재 여부
+   */
+  hasOnboarding: boolean;
+  /**
+   * 온보딩 식별자
+   */
+  onboardingId: string | null;
+  /**
+   * 서비스명
+   */
+  serviceName: string | null;
+  /**
+   * 업종
+   */
+  industry:
+    | 'GAME'
+    | 'ENTERTAINMENT'
+    | 'EDUCATION'
+    | 'SOCIAL_COMMUNITY'
+    | 'LIFESTYLE'
+    | 'HEALTH_FITNESS'
+    | 'FOOD_BEVERAGE'
+    | 'SHOPPING_COMMERCE'
+    | 'FINANCE_FINTECH'
+    | 'BUSINESS_B2B'
+    | 'MEDICAL_HEALTHCARE'
+    | 'TRAVEL_ACCOMMODATION'
+    | 'MUSIC_MEDIA'
+    | 'PRODUCTIVITY_UTILITY'
+    | 'SPORTS'
+    | 'NEWS_INFORMATION'
+    | 'OTHERS';
+  /**
+   * 서비스 형태
+   */
+  serviceType: 'MOBILE_APP' | 'WEB' | 'WEB_AND_APP' | 'OTHER';
+  /**
+   * 주요 연령대. 온보딩이 없으면 빈 배열
+   */
+  targetAgeBands: Array<
+    'AGE_10S' | 'AGE_20S' | 'AGE_30S' | 'AGE_40S' | 'AGE_50S_PLUS' | 'UNDECIDED'
+  >;
+  /**
+   * 광고 목표
+   */
+  campaignObjective:
+    | 'AWARENESS'
+    | 'VIDEO_VIEW'
+    | 'TRAFFIC'
+    | 'LEAD'
+    | 'CONVERSION'
+    | 'APP_INSTALL'
+    | 'IN_APP_ACTION';
+  /**
+   * 최소 예산(원)
+   */
+  budgetMin: number | null;
+  /**
+   * 최대 예산(원)
+   */
+  budgetMax: number | null;
+  /**
+   * 집행 기간
+   */
+  period: 'LE_1W' | 'W2_3' | 'M1' | 'M2_3' | 'GE_3M';
+  /**
+   * 집행 경험 여부
+   */
+  adExperience: 'NONE' | 'EXPERIENCED';
+};
+
+/**
  * 매체별 예산 배분
  */
 export type AllocationRequest = {
@@ -56,42 +241,6 @@ export type ApiResponse = {
    * 성공 안내 코드. 안내할 것이 없으면 null
    */
   code: string | null;
-};
-
-/**
- * 에러 응답 본문
- */
-export type ErrorResponse = {
-  /**
-   * 에러 코드. <도메인 약어>-<일련번호> 형식
-   */
-  code: string;
-  /**
-   * 에러 메시지
-   */
-  message: string;
-  /**
-   * 검증 실패 시 필드별 상세 에러. 검증 외 에러는 빈 배열
-   */
-  fieldErrors: Array<FieldError>;
-};
-
-/**
- * 검증 실패 필드 상세
- */
-export type FieldError = {
-  /**
-   * 검증 실패한 필드명
-   */
-  field: string;
-  /**
-   * 거부된 입력값. 값이 없으면 빈 문자열
-   */
-  value: string;
-  /**
-   * 실패 사유
-   */
-  reason: string;
 };
 
 export type ApiResponseSimulationResponse = {
@@ -1440,6 +1589,10 @@ export type ProductResponse = {
    * 상품 단가 목록
    */
   pricing: Array<PricingResponse>;
+  /**
+   * 집행 가능 여부
+   */
+  isExecutable: boolean | null;
 };
 
 /**
@@ -1591,6 +1744,67 @@ export type WithdrawalResponse = {
    */
   withdrawnAt: string;
 };
+
+export type GetMyOnboardingTagData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/api/v1/onboarding/me/tags';
+};
+
+export type GetMyOnboardingTagErrors = {
+  /**
+   * 인증 필요(C-004)
+   */
+  401: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type GetMyOnboardingTagError = GetMyOnboardingTagErrors[keyof GetMyOnboardingTagErrors];
+
+export type GetMyOnboardingTagResponses = {
+  /**
+   * 조회 성공
+   */
+  200: ApiResponseMyOnboardingTagResponse;
+};
+
+export type GetMyOnboardingTagResponse =
+  GetMyOnboardingTagResponses[keyof GetMyOnboardingTagResponses];
+
+export type UpdateMyOnboardingTagData = {
+  body: UpdateOnboardingTagRequest;
+  path?: never;
+  query?: never;
+  url: '/api/v1/onboarding/me/tags';
+};
+
+export type UpdateMyOnboardingTagErrors = {
+  /**
+   * 인증 필요(C-004)
+   */
+  401: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type UpdateMyOnboardingTagError =
+  UpdateMyOnboardingTagErrors[keyof UpdateMyOnboardingTagErrors];
+
+export type UpdateMyOnboardingTagResponses = {
+  /**
+   * 수정 성공
+   */
+  200: ApiResponseMyOnboardingTagResponse;
+};
+
+export type UpdateMyOnboardingTagResponse =
+  UpdateMyOnboardingTagResponses[keyof UpdateMyOnboardingTagResponses];
 
 export type GetMySimulationsData = {
   body?: never;
