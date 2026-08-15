@@ -1,26 +1,19 @@
 'use client';
 
-import type { JSX, ReactNode } from 'react';
+import { useState, type JSX, type ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Pencil, RefreshCw } from 'lucide-react';
 
+import { ProfileEditModal, PROFILE_OCCUPATION_LABELS } from '@/features/profile-edit';
 import type { UserProfileResponse } from '@/shared/api/generated/types.gen';
+import { myProfileQueryKey } from '@/shared/lib/query-keys';
 import { useMyProfile } from '@/pages/mypage/api/use-my-profile';
 import { Avatar } from '@/shared/ui/avatar';
 import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
+import { Modal } from '@/shared/ui/modal';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { Text } from '@/shared/ui/text';
-
-const OCCUPATION_LABELS: Record<UserProfileResponse['occupation'], string> = {
-  DEVELOPMENT: '개발',
-  DESIGN: '디자인',
-  MARKETING: '마케팅',
-  PLANNING: '기획',
-  SALES: '영업',
-  DATA: '데이터',
-  MANAGEMENT: '경영·관리',
-  ETC: '기타',
-};
 
 function ProfileCardFrame({ children }: { children: ReactNode }): JSX.Element {
   return (
@@ -34,7 +27,13 @@ function ProfileCardFrame({ children }: { children: ReactNode }): JSX.Element {
   );
 }
 
-function ProfileCardHeader(): JSX.Element {
+function ProfileCardHeader({
+  disabled = false,
+  onEdit,
+}: {
+  disabled?: boolean;
+  onEdit?: () => void;
+}): JSX.Element {
   return (
     <Box className="flex w-full items-center justify-between">
       <Text as="h2" id="profile-title" variant="heading-lg" className="text-text-highest">
@@ -43,7 +42,9 @@ function ProfileCardHeader(): JSX.Element {
       <button
         type="button"
         aria-label="내 정보 수정"
-        className="focus-visible:outline-sys-primary-default size-018 rounded-xxs flex cursor-pointer items-center justify-center outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="focus-visible:outline-sys-primary-default size-018 rounded-xxs flex cursor-pointer items-center justify-center outline-none focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={disabled}
+        onClick={onEdit}
       >
         <Pencil aria-hidden="true" className="text-icon-low size-018" strokeWidth={1.6} />
       </button>
@@ -54,7 +55,7 @@ function ProfileCardHeader(): JSX.Element {
 function ProfileCardLoading(): JSX.Element {
   return (
     <ProfileCardFrame>
-      <ProfileCardHeader />
+      <ProfileCardHeader disabled />
       <Box
         role="status"
         aria-label="내 정보를 불러오고 있어요"
@@ -99,7 +100,7 @@ function ProfileFieldSkeleton(): JSX.Element {
 function ProfileCardError({ onRetry }: { onRetry: () => void }): JSX.Element {
   return (
     <ProfileCardFrame>
-      <ProfileCardHeader />
+      <ProfileCardHeader disabled />
       <Box
         role="alert"
         className="bg-surface-lower gap-012 rounded-m px-016 py-020 flex w-full flex-col items-start"
@@ -121,31 +122,25 @@ function ProfileCardError({ onRetry }: { onRetry: () => void }): JSX.Element {
   );
 }
 
-export function AuthenticatedProfileCard(): JSX.Element {
-  const profileQuery = useMyProfile();
-
-  if (profileQuery.isPending) {
-    return <ProfileCardLoading />;
-  }
-
-  if (profileQuery.isError || !profileQuery.data) {
-    return <ProfileCardError onRetry={() => void profileQuery.refetch()} />;
-  }
-
-  const { nickname, email, companyName, occupation } = profileQuery.data;
-
+function ProfileCardContent({
+  onEdit,
+  profile,
+}: {
+  onEdit: () => void;
+  profile: UserProfileResponse;
+}): JSX.Element {
   return (
     <ProfileCardFrame>
-      <ProfileCardHeader />
+      <ProfileCardHeader onEdit={onEdit} />
       <Box className="bg-surface-lower gap-012 rounded-m px-016 py-012 flex w-full items-center">
         <Box className="gap-012 flex min-w-0 flex-1 items-center">
-          <Avatar className="size-048 hover:ring-0" alt={`${nickname} 프로필`} />
+          <Avatar className="size-048 hover:ring-0" alt={`${profile.nickname} 프로필`} />
           <Box className="flex h-[46px] min-w-0 flex-1 flex-col">
             <Text variant="heading-lg" className="text-text-highest">
-              {nickname}
+              {profile.nickname}
             </Text>
             <Text variant="body-xl" className="text-text-low">
-              {email}
+              {profile.email}
             </Text>
           </Box>
         </Box>
@@ -156,7 +151,7 @@ export function AuthenticatedProfileCard(): JSX.Element {
             회사
           </Text>
           <Text as="p" variant="subtitle-xxs" className="text-text-highest">
-            {companyName}
+            {profile.companyName}
           </Text>
         </Box>
         <Box className="gap-012 flex w-full items-center">
@@ -164,10 +159,40 @@ export function AuthenticatedProfileCard(): JSX.Element {
             직무
           </Text>
           <Text as="p" variant="subtitle-xxs" className="text-text-highest">
-            {OCCUPATION_LABELS[occupation]}
+            {PROFILE_OCCUPATION_LABELS[profile.occupation]}
           </Text>
         </Box>
       </Box>
     </ProfileCardFrame>
+  );
+}
+
+export function AuthenticatedProfileCard(): JSX.Element {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const profileQuery = useMyProfile();
+
+  if (profileQuery.isPending) {
+    return <ProfileCardLoading />;
+  }
+
+  if (profileQuery.isError || !profileQuery.data) {
+    return <ProfileCardError onRetry={() => void profileQuery.refetch()} />;
+  }
+
+  const handleSaved = (profile: UserProfileResponse): void => {
+    queryClient.setQueryData(myProfileQueryKey, profile);
+    setIsEditModalOpen(false);
+  };
+
+  return (
+    <>
+      <ProfileCardContent profile={profileQuery.data} onEdit={() => setIsEditModalOpen(true)} />
+      {isEditModalOpen ? (
+        <Modal.Root open onOpenChange={(open) => !open && setIsEditModalOpen(false)}>
+          <ProfileEditModal profile={profileQuery.data} onSaved={handleSaved} />
+        </Modal.Root>
+      ) : null}
+    </>
   );
 }

@@ -1,3 +1,7 @@
+/**
+ * 추천 온보딩 완료 답변을 제출 API 계약으로 변환하고 성과 파일을 업로드한다.
+ */
+
 import ky from 'ky';
 
 import { presignOnboardingPerformanceFiles, submitOnboarding } from '@/shared/api/generated';
@@ -9,9 +13,9 @@ import type {
 } from '@/shared/api/generated/types.gen';
 import type { RecommendOnboardingAnswer } from '@/features/ad-onboarding/model/onboarding-answer';
 import {
-  PERFORMANCE_CHANNEL_OPTION_LIST,
   type AgeRangeId,
   type AdGoalId,
+  type ManualPerformanceChannel,
   type UploadedPerformanceFile,
 } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import type {
@@ -83,6 +87,12 @@ const CAMPAIGN_PERIOD_MAP = {
   OVER_THREE_MONTHS: 'GE_3M',
 } as const satisfies Record<CampaignPeriodId, SubmitOnboardingRequest['period']>;
 
+/**
+ * FE 연령대 답변을 API 연령대 enum 목록으로 변환한다.
+ *
+ * @param ageRangeList 사용자가 선택한 연령대 목록
+ * @returns 제출 API의 targetAgeBands
+ */
 function mapAgeRangeList(ageRangeList: AgeRangeId[]): ApiAgeBand[] {
   if (ageRangeList.includes('UNKNOWN')) {
     return ALL_API_AGE_BANDS;
@@ -93,12 +103,30 @@ function mapAgeRangeList(ageRangeList: AgeRangeId[]): ApiAgeBand[] {
   );
 }
 
-function getPerformanceChannelLabel(channelId: string): string {
-  return (
-    PERFORMANCE_CHANNEL_OPTION_LIST.find((option) => option.value === channelId)?.label ?? channelId
-  );
+/**
+ * 직접 입력한 채널별 성과 row를 API adHistory 단건으로 변환한다.
+ *
+ * @param channel 직접 입력 채널 성과
+ * @returns 제출 API의 adHistory 항목
+ */
+function mapManualPerformanceChannel(channel: ManualPerformanceChannel): AdHistoryRequest {
+  return {
+    channelNameRaw: channel.channelNameRaw,
+    ...(channel.channelId ? { channelId: channel.channelId } : {}),
+    ...(typeof channel.budgetWon === 'number' ? { budgetWon: channel.budgetWon } : {}),
+    ...(typeof channel.periodDays === 'number' ? { periodDays: channel.periodDays } : {}),
+    ...(typeof channel.impressions === 'number' ? { impressions: channel.impressions } : {}),
+    ...(typeof channel.clicks === 'number' ? { clicks: channel.clicks } : {}),
+    ...(typeof channel.conversions === 'number' ? { conversions: channel.conversions } : {}),
+  };
 }
 
+/**
+ * 광고 운영 경험 답변에서 직접 입력 성과 목록만 추출해 API adHistory로 변환한다.
+ *
+ * @param answer 추천 온보딩 완료 답변
+ * @returns 제출 API의 adHistory 목록
+ */
 function mapManualAdHistory(answer: RecommendOnboardingAnswer): AdHistoryRequest[] {
   const performanceInput =
     answer.adExperience.type === 'EXPERIENCED' ? answer.adExperience.performanceInput : undefined;
@@ -107,9 +135,16 @@ function mapManualAdHistory(answer: RecommendOnboardingAnswer): AdHistoryRequest
     return [];
   }
 
-  return [{ channelNameRaw: getPerformanceChannelLabel(performanceInput.channel) }];
+  return performanceInput.channelList.map(mapManualPerformanceChannel);
 }
 
+/**
+ * 성과 입력 여부를 API의 광고 운영 경험 enum으로 접는다.
+ *
+ * @param answer 추천 온보딩 완료 답변
+ * @param rawFileKeys 업로드 완료된 원본 파일 key 목록
+ * @returns 제출 API의 adExperience 값
+ */
 function mapAdExperience(
   answer: RecommendOnboardingAnswer,
   rawFileKeys: string[],
@@ -124,6 +159,12 @@ function mapAdExperience(
   return hasManualPerformanceInput || hasUploadedPerformanceInput ? 'EXPERIENCED' : 'NONE';
 }
 
+/**
+ * 성과 파일 업로드 입력이 있으면 presigned URL 발급, 업로드, raw file key 수집을 수행한다.
+ *
+ * @param answer 추천 온보딩 완료 답변
+ * @returns 제출 API에 보낼 rawFileKeys
+ */
 async function getPerformanceFileKeyList(answer: RecommendOnboardingAnswer): Promise<string[]> {
   const performanceInput =
     answer.adExperience.type === 'EXPERIENCED' ? answer.adExperience.performanceInput : undefined;
@@ -162,6 +203,12 @@ async function getPerformanceFileKeyList(answer: RecommendOnboardingAnswer): Pro
   return presignedFileList.map((presignedFile) => presignedFile.key);
 }
 
+/**
+ * presigned URL 목록에 맞춰 브라우저 원본 파일을 스토리지에 업로드한다.
+ *
+ * @param fileList 사용자가 선택한 성과 파일 목록
+ * @param presignedFileList API가 발급한 presigned 업로드 정보 목록
+ */
 async function uploadPerformanceFiles(
   fileList: UploadedPerformanceFile[],
   presignedFileList: PresignedFileUploadResult[],
@@ -189,6 +236,13 @@ async function uploadPerformanceFiles(
   );
 }
 
+/**
+ * 추천 온보딩 완료 답변을 submitOnboarding API request body로 변환한다.
+ *
+ * @param answer 추천 온보딩 완료 답변
+ * @param rawFileKeys 업로드 완료된 원본 파일 key 목록
+ * @returns 제출 API request body
+ */
 export function createSubmitOnboardingRequest(
   answer: RecommendOnboardingAnswer,
   rawFileKeys: string[] = [],
@@ -208,6 +262,12 @@ export function createSubmitOnboardingRequest(
   };
 }
 
+/**
+ * 추천 온보딩 완료 답변을 서버에 제출한다.
+ *
+ * @param answer 추천 온보딩 완료 답변
+ * @returns 생성된 온보딩 제출 결과
+ */
 export async function submitRecommendOnboarding(
   answer: RecommendOnboardingAnswer,
 ): Promise<OnboardingSubmitResponse> {

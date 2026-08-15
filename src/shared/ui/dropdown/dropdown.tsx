@@ -1,10 +1,11 @@
 'use client';
 
-import type { JSX } from 'react';
+import type { ComponentProps, JSX, ReactNode } from 'react';
 import { Select } from '@base-ui/react/select';
 import { ChevronDown } from 'lucide-react';
 
 import { cn } from '@/shared/ui/cn';
+import { Text } from '@/shared/ui/text';
 
 export type DropdownOption<Value extends string = string> = {
   value: Value;
@@ -20,6 +21,7 @@ export type DropdownProps<Value extends string = string> = Omit<
   placeholder: string;
   triggerAriaLabel: string;
   className?: string;
+  renderValue?: (value: Value) => ReactNode;
 };
 
 export function Dropdown<Value extends string = string>({
@@ -27,8 +29,20 @@ export function Dropdown<Value extends string = string>({
   placeholder,
   triggerAriaLabel,
   className,
+  renderValue,
   ...rootProps
 }: DropdownProps<Value>): JSX.Element {
+  const renderText = (props: ComponentProps<typeof Text>) => (
+    <Text
+      {...props}
+      variant="subtitle-xxs"
+      className={cn(
+        'data-placeholder:text-text-low min-w-0 flex-1 truncate text-left',
+        props.className,
+      )}
+    />
+  );
+
   return (
     <Select.Root items={options} {...rootProps}>
       <Select.Trigger
@@ -46,7 +60,10 @@ export function Dropdown<Value extends string = string>({
         <Select.Value
           className="data-placeholder:text-text-low min-w-0 flex-1 truncate text-left"
           placeholder={placeholder}
-        />
+          render={renderText}
+        >
+          {renderValue ? (value) => renderValue(value as Value) : undefined}
+        </Select.Value>
         <Select.Icon className="text-icon-low shrink-0 transition-transform data-popup-open:rotate-180">
           <ChevronDown className="size-020" aria-hidden />
         </Select.Icon>

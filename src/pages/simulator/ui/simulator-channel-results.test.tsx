@@ -7,8 +7,16 @@ vi.mock('@/features/simulator-filter/api/use-simulator-filter-channels', () => (
   useSimulatorFilterChannels: () => ({
     channels: [
       { id: 'channel-a', name: '채널 A' },
-      { id: 'channel-b', name: '채널 B' },
-      { id: 'channel-c', name: '채널 C' },
+      {
+        id: 'channel-b',
+        name: '채널 B',
+        cost: { pricingModel: 'CPC', value: 580, valueMax: null },
+      },
+      {
+        id: 'channel-c',
+        name: '채널 C',
+        cost: { pricingModel: 'CPM', value: 3500, valueMax: null },
+      },
     ],
     isPending: false,
     isError: false,
@@ -29,9 +37,13 @@ describe('SimulatorChannelResults', () => {
       'data-selected-channel-ids',
       'channel-a,channel-b,channel-c',
     );
+
+    expect(document.querySelector('[data-view-icon="graph"]')).toHaveClass('text-icon-default');
+    expect(document.querySelector('[data-view-icon="graph"]')).toHaveClass('size-[13px]');
+    expect(document.querySelector('[data-view-icon="table"]')).toHaveClass('text-icon-low');
   });
 
-  it('채널별 예상 노출·클릭 수 옆에 클릭당 비용 안내 툴팁을 보여준다', async () => {
+  it('표로 보기 버튼을 누르면 채널별 결과 표를 보여준다', async () => {
     const user = userEvent.setup();
 
     render(
@@ -42,15 +54,43 @@ describe('SimulatorChannelResults', () => {
       />,
     );
 
-    const infoButton = screen.getByRole('button', { name: '채널별 클릭당 비용 안내' });
+    await user.click(screen.getByRole('button', { name: '표로 보기' }));
 
-    expect(infoButton).toBeVisible();
-    await user.hover(infoButton);
+    expect(screen.getByRole('button', { name: '표로 보기' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(document.querySelector('[data-view-icon="graph"]')).toHaveClass('text-icon-low');
+    expect(document.querySelector('[data-view-icon="table"]')).toHaveClass('text-icon-default');
+    expect(screen.getByRole('heading', { name: '채널별 예상 성과' })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: '클릭당 비용' })).toBeVisible();
+    expect(screen.getByRole('columnheader', { name: '운영 가능 여부' })).toBeVisible();
+  });
+
+  it('채널 선택 후 API 단가를 툴팁에 보여준다', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <SimulatorChannelResults
+        isLogin
+        isChannelSelectionComplete
+        selectedChannelIds={['channel-a', 'channel-b', 'channel-c']}
+      />,
+    );
+
+    await user.hover(screen.getByRole('button', { name: '채널별 클릭당 비용 안내' }));
 
     await waitFor(() => {
-      const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toBeVisible();
-      expect(tooltip).toHaveTextContent('채널별 클릭당 비용');
+      expect(screen.getByText('채널 B 580원')).toBeVisible();
+      expect(screen.getByText('채널 C 노출 1,000회 당 약 3,500원')).toBeVisible();
     });
+  });
+
+  it('채널 선택 전에는 단가 툴팁을 열 수 없다', () => {
+    render(<SimulatorChannelResults isLogin />);
+
+    expect(
+      screen.queryByRole('button', { name: '채널별 클릭당 비용 안내' }),
+    ).not.toBeInTheDocument();
   });
 });
