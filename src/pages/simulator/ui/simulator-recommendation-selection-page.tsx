@@ -60,9 +60,7 @@ function RecommendationSummary({
       onClick={onToggle}
       className="gap-012 focus-visible:outline-sys-primary-default flex w-full items-start justify-between text-left outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
     >
-      <Box
-        className={cn('flex min-w-0 flex-1 flex-col items-start', expanded ? 'gap-010' : 'gap-012')}
-      >
+      <Box className="gap-012 flex min-w-0 flex-1 flex-col items-start">
         <Box className="gap-002 flex w-full flex-col items-start">
           <Text as="p" variant="body-sm" className="text-text-low">
             {recommendation.date}

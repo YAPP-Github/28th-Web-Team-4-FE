@@ -60,6 +60,22 @@ describe('SimulatorRecommendationSelectionPage', () => {
     expect(screen.getByRole('button', { name: '선택하기' })).toBeEnabled();
   });
 
+  it('추천 결과를 펼쳐도 제목과 배지 사이 간격을 유지한다', async () => {
+    const user = userEvent.setup();
+    render(<SimulatorRecommendationSelectionPage />);
+
+    const title = screen.getByRole('heading', { name: '채소집' });
+    const summaryContent = title.parentElement?.parentElement;
+
+    expect(summaryContent).toHaveClass('gap-012');
+    expect(summaryContent).not.toHaveClass('gap-010');
+
+    await user.click(screen.getByRole('button', { name: '추천 결과 채소집 펼치기' }));
+
+    expect(summaryContent).toHaveClass('gap-012');
+    expect(summaryContent).not.toHaveClass('gap-010');
+  });
+
   it('채널 선택을 완료하면 선택한 채널을 시뮬레이터로 전달한다', async () => {
     const user = userEvent.setup();
     render(<SimulatorRecommendationSelectionPage />);
