@@ -18,10 +18,39 @@ export type ChannelResult = {
   channelId?: string;
   name: string;
   type?: ChannelType;
+  basisNote?: string;
   impressions: ChannelMetric;
   clicks: ChannelMetric;
   unavailable?: boolean;
 };
+
+export type SimulatorBasisTooltip = {
+  title: string;
+  description: readonly [string, string];
+};
+
+const SIMULATOR_BASIS_TOOLTIPS = {
+  insufficientBudget: {
+    title: '예산이 부족해요',
+    description: ['예산을 10만 원 더 추가하면', '광고할 수 있어요'],
+  },
+  unavailableImpressionData: {
+    title: '정보 확인이 어려워요',
+    description: ['매체 특성상 상세 데이터를', '제공하지 않아요.'],
+  },
+} as const satisfies Record<string, SimulatorBasisTooltip>;
+
+export function getSimulatorBasisTooltip(basisNote?: string): SimulatorBasisTooltip | undefined {
+  if (basisNote?.includes('미집행 (배분 예산 0원)')) {
+    return SIMULATOR_BASIS_TOOLTIPS.insufficientBudget;
+  }
+
+  if (basisNote?.includes('노출 정보 미제공 상품')) {
+    return SIMULATOR_BASIS_TOOLTIPS.unavailableImpressionData;
+  }
+
+  return undefined;
+}
 
 const NUMBER_FORMATTER = new Intl.NumberFormat('ko-KR');
 const MAN_NUMBER_FORMATTER = new Intl.NumberFormat('ko-KR', {
@@ -139,6 +168,7 @@ export function createChannelResults(
     return {
       channelId: channel.id,
       name: item?.channelName ?? channel.name,
+      basisNote: item?.basisNote,
       impressions: {
         value: formatSimulatorCountRange(impressions),
         fillPercentage: getFillPercentage(getRangeCenter(impressions), maxImpressions),
