@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { SimulationResponse } from '@/shared/api/generated';
 
@@ -52,7 +52,7 @@ const SIMULATION_RESULT: SimulationResponse = {
       estClicks: { min: 300, max: 400 },
       cpcWon: null,
       cpmWon: null,
-      isExecutable: true,
+      isExecutable: false,
       shortfallWon: null,
       basisNote:
         '미집행 (배분 예산 0원) / 매체 소개서 기반 / VAT 별도 가정 / CTR 미제공 시 전체 평균 CTR 적용',
@@ -67,7 +67,7 @@ const SIMULATION_RESULT: SimulationResponse = {
       estClicks: { min: 200, max: 200 },
       cpcWon: null,
       cpmWon: null,
-      isExecutable: true,
+      isExecutable: false,
       shortfallWon: null,
       basisNote:
         '노출 정보 미제공 상품 (집행 가능 여부만 판단) / 매체 소개서 기반 / VAT 별도 가정 / CTR 미제공 시 전체 평균 CTR 적용',
@@ -193,13 +193,19 @@ describe('AuthenticatedChannelResults', () => {
     const impressionInfoButton = screen.getByRole('button', { name: '채널 B 기준 정보 안내' });
 
     await user.hover(budgetInfoButton);
-    const budgetTooltip = getTooltipByText('예산이 부족해요');
-    expect(budgetTooltip).toHaveTextContent('예산을 10만 원 더 추가하면');
-    expect(budgetTooltip).toHaveTextContent('광고할 수 있어요');
+    await waitFor(() => {
+      const budgetTooltip = getTooltipByText('예산이 부족해요');
+      expect(budgetTooltip).toBeVisible();
+      expect(budgetTooltip).toHaveTextContent('예산을 10만 원 더 추가하면');
+      expect(budgetTooltip).toHaveTextContent('광고할 수 있어요');
+    });
 
     await user.hover(impressionInfoButton);
-    const impressionTooltip = getTooltipByText('정보 확인이 어려워요');
-    expect(impressionTooltip).toHaveTextContent('매체 특성상 상세 데이터를');
-    expect(impressionTooltip).toHaveTextContent('제공하지 않아요.');
+    await waitFor(() => {
+      const impressionTooltip = getTooltipByText('정보 확인이 어려워요');
+      expect(impressionTooltip).toBeVisible();
+      expect(impressionTooltip).toHaveTextContent('매체 특성상 상세 데이터를');
+      expect(impressionTooltip).toHaveTextContent('제공하지 않아요.');
+    });
   });
 });

@@ -1,13 +1,13 @@
 'use client';
 
 import type { JSX } from 'react';
+import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 import Image from 'next/image';
 import { Info } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
-import { Tooltip } from '@/shared/ui/tooltip';
 import {
   getSimulatorBasisTooltip,
   type ChannelMetric,
@@ -117,44 +117,71 @@ function ChannelMetricRow({
   );
 }
 
-const TOOLTIP_CLASS_NAME =
-  'bg-surface-lowest p-016 shadow-drop-shadow-02 pointer-events-none invisible items-start rounded-[var(--radius-m)] rounded-tl-none opacity-0 transition-opacity duration-150 group-focus-within:pointer-events-auto group-focus-within:visible group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:visible group-hover:opacity-100';
-
 function ChannelBasisInfo({
   channelName,
   basisNote,
+  isExecutable,
 }: {
   channelName: string;
   basisNote?: string;
+  isExecutable?: boolean;
 }): JSX.Element | null {
   const tooltip = getSimulatorBasisTooltip(basisNote);
 
-  if (!tooltip) {
+  if (isExecutable !== false) {
     return null;
   }
 
+  const infoButton = (
+    <button
+      type="button"
+      aria-label={`${channelName} 기준 정보 안내`}
+      className="text-icon-default hover:text-icon-high focus-visible:outline-outline-selected size-014 flex shrink-0 items-center justify-center rounded-full outline-offset-2 focus-visible:outline-2"
+    >
+      <Info aria-hidden className="size-full" strokeWidth={1.8} />
+    </button>
+  );
+
+  if (!tooltip) {
+    return infoButton;
+  }
+
   return (
-    <Tooltip.Root placement="bottom-start" offset={2}>
-      <Tooltip.Anchor>
-        <button
-          type="button"
+    <BaseTooltip.Provider delay={150} timeout={400}>
+      <BaseTooltip.Root>
+        <BaseTooltip.Trigger
           aria-label={`${channelName} 기준 정보 안내`}
-          className="text-icon-default hover:text-icon-high focus-visible:outline-outline-selected size-018 flex shrink-0 items-center justify-center rounded-full outline-offset-2 focus-visible:outline-2"
+          delay={0}
+          className="text-icon-default hover:text-icon-high focus-visible:outline-outline-selected size-014 relative inline-flex shrink-0 items-center justify-center rounded-full before:absolute before:-inset-[5px] before:content-[''] focus-visible:outline-2 focus-visible:outline-offset-2"
         >
-          <Info aria-hidden className="size-full" strokeWidth={1.8} />
-        </button>
-      </Tooltip.Anchor>
-      <Tooltip.Content role="tooltip" showArrow={false} className={TOOLTIP_CLASS_NAME}>
-        <span className="gap-008 flex flex-col items-start text-left">
-          <span className="typo-subtitle-sm text-text-high">{tooltip.title}</span>
-          <span className="typo-body-xs text-text-medium whitespace-nowrap">
-            {tooltip.description[0]}
-            <br />
-            {tooltip.description[1]}
-          </span>
-        </span>
-      </Tooltip.Content>
-    </Tooltip.Root>
+          <Info aria-hidden className="size-014" strokeWidth={1.8} />
+        </BaseTooltip.Trigger>
+        <BaseTooltip.Portal>
+          <BaseTooltip.Positioner
+            side="bottom"
+            align="start"
+            sideOffset={2}
+            collisionPadding={8}
+            positionMethod="fixed"
+            className="z-50"
+          >
+            <BaseTooltip.Popup
+              role="tooltip"
+              className="bg-surface-lowest p-016 shadow-drop-shadow-02 w-max max-w-[calc(100vw-32px)] rounded-[var(--radius-m)] rounded-tl-none"
+            >
+              <Box className="gap-008 flex flex-col items-start text-left">
+                <span className="typo-subtitle-sm text-text-high">{tooltip.title}</span>
+                <span className="typo-body-xs text-text-medium whitespace-nowrap">
+                  {tooltip.description[0]}
+                  <br />
+                  {tooltip.description[1]}
+                </span>
+              </Box>
+            </BaseTooltip.Popup>
+          </BaseTooltip.Positioner>
+        </BaseTooltip.Portal>
+      </BaseTooltip.Root>
+    </BaseTooltip.Provider>
   );
 }
 
@@ -168,7 +195,11 @@ function ChannelResultRow({ channel }: { channel: ChannelResult }): JSX.Element 
             {channel.name}
           </Text>
           <Box className="group flex shrink-0">
-            <ChannelBasisInfo channelName={channel.name} basisNote={channel.basisNote} />
+            <ChannelBasisInfo
+              channelName={channel.name}
+              basisNote={channel.basisNote}
+              isExecutable={channel.isExecutable}
+            />
           </Box>
         </Box>
         <Box className="gap-004 flex w-full flex-col">
