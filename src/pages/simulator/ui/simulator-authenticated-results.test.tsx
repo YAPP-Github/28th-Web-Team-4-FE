@@ -4,6 +4,16 @@ import type { SimulationResponse } from '@/shared/api/generated';
 
 import { AuthenticatedChannelResults } from './simulator-authenticated-results';
 
+type SimulatorFilterChannelsResult = {
+  channels: { id: string; name: string }[];
+  isPending: boolean;
+  isError: boolean;
+};
+
+const useSimulatorFilterChannelsMock = vi.hoisted(() =>
+  vi.fn<() => SimulatorFilterChannelsResult>(),
+);
+
 vi.mock('@number-flow/react', () => ({
   default: ({ value }: { value: number }) => (
     <span>{new Intl.NumberFormat('ko-KR').format(value)}</span>
@@ -43,7 +53,11 @@ const SIMULATION_RESULT: SimulationResponse = {
 };
 
 vi.mock('@/features/simulator-filter/api/use-simulator-filter-channels', () => ({
-  useSimulatorFilterChannels: () => ({
+  useSimulatorFilterChannels: useSimulatorFilterChannelsMock,
+}));
+
+beforeEach(() => {
+  useSimulatorFilterChannelsMock.mockReturnValue({
     channels: [
       { id: 'channel-a', name: '채널 A' },
       { id: 'channel-b', name: '채널 B' },
@@ -51,8 +65,8 @@ vi.mock('@/features/simulator-filter/api/use-simulator-filter-channels', () => (
     ],
     isPending: false,
     isError: false,
-  }),
-}));
+  });
+});
 
 describe('AuthenticatedChannelResults', () => {
   it('채널 미선택 상태에서 채널 추가 방식을 선택하는 모달을 제공한다', async () => {
@@ -91,6 +105,26 @@ describe('AuthenticatedChannelResults', () => {
     );
 
     expect(screen.queryByRole('button', { name: '채널 추가하기' })).not.toBeInTheDocument();
+  });
+
+  it('선택한 채널을 불러오는 동안 스켈레톤을 보여준다', () => {
+    useSimulatorFilterChannelsMock.mockReturnValue({
+      channels: [],
+      isPending: true,
+      isError: false,
+    });
+
+    render(
+      <AuthenticatedChannelResults
+        isChannelSelectionComplete
+        selectedChannelIds={SELECTED_CHANNEL_IDS}
+      />,
+    );
+
+    expect(
+      screen.getByRole('status', { name: '선택한 채널 정보를 불러오는 중이에요' }),
+    ).toBeVisible();
+    expect(screen.getAllByTestId('simulator-channel-skeleton')).toHaveLength(3);
   });
 
   it('선택된 채널을 0 지표의 초기 결과 목록으로 보여준다', () => {

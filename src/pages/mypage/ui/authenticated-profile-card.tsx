@@ -6,7 +6,8 @@ import { Pencil, RefreshCw } from 'lucide-react';
 
 import { ProfileEditModal, PROFILE_OCCUPATION_LABELS } from '@/features/profile-edit';
 import type { UserProfileResponse } from '@/shared/api/generated/types.gen';
-import { myProfileQueryKey, useMyProfile } from '@/pages/mypage/api/use-my-profile';
+import { myProfileQueryKey } from '@/shared/lib/query-keys';
+import { useMyProfile } from '@/pages/mypage/api/use-my-profile';
 import { Avatar } from '@/shared/ui/avatar';
 import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';

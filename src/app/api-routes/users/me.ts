@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import {
   getMyProfile as getBackendMyProfile,
   updateMyProfile as updateBackendMyProfile,
@@ -13,7 +15,6 @@ import {
   readJson,
   upstreamErrorResponse,
 } from '@/app/api-routes/auth/route-utils';
-import { z } from 'zod';
 
 const ACCESS_TOKEN_EXPIRY_SKEW_MS = 30_000;
 
