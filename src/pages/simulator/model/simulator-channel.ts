@@ -19,6 +19,7 @@ export type ChannelResult = {
   name: string;
   type?: ChannelType;
   basisNote?: string;
+  isExecutable?: boolean;
   impressions: ChannelMetric;
   clicks: ChannelMetric;
   unavailable?: boolean;
@@ -41,11 +42,19 @@ const SIMULATOR_BASIS_TOOLTIPS = {
 } as const satisfies Record<string, SimulatorBasisTooltip>;
 
 export function getSimulatorBasisTooltip(basisNote?: string): SimulatorBasisTooltip | undefined {
-  if (basisNote?.includes('미집행 (배분 예산 0원)')) {
+  const basisType = basisNote?.split('/')[0]?.trim().replace(/\s+/g, ' ');
+
+  if (
+    basisType?.startsWith('미집행 (배분 예산 0원)') ||
+    basisType?.startsWith('배분 예산이 최소 단가보다 적어 집행 불가')
+  ) {
     return SIMULATOR_BASIS_TOOLTIPS.insufficientBudget;
   }
 
-  if (basisNote?.includes('노출 정보 미제공 상품')) {
+  if (
+    basisType?.startsWith('노출 정보 미제공 상품 (집행 가능 여부만 판단) ') ||
+    basisType?.startsWith('견적 문의 필요 (등록된 단가 정보 없음)')
+  ) {
     return SIMULATOR_BASIS_TOOLTIPS.unavailableImpressionData;
   }
 
@@ -169,6 +178,7 @@ export function createChannelResults(
       channelId: channel.id,
       name: item?.channelName ?? channel.name,
       basisNote: item?.basisNote,
+      isExecutable: item?.isExecutable,
       impressions: {
         value: formatSimulatorCountRange(impressions),
         fillPercentage: getFillPercentage(getRangeCenter(impressions), maxImpressions),
