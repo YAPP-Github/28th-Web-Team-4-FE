@@ -1,8 +1,18 @@
-import type { JSX } from 'react';
+'use client';
+
+import { useState, type JSX } from 'react';
 
 import { Badge } from '@/shared/ui/badge';
 import { Box } from '@/shared/ui/layout/box';
+import { Modal } from '@/shared/ui/modal';
 import { Text } from '@/shared/ui/text';
+
+import {
+  createMyAdsConditionEditValues,
+  createMyAdsConditionTags,
+  MyAdsConditionEditModal,
+} from './my-ads-condition-edit-modal';
+import { MyAdsConditionResetModal } from './my-ads-condition-reset-modal';
 
 type MyAdsConditionCardProps = {
   tags: readonly string[];
@@ -13,6 +23,10 @@ function formatTag(tag: string): string {
 }
 
 export function MyAdsConditionCard({ tags }: MyAdsConditionCardProps): JSX.Element {
+  const [conditionTags, setConditionTags] = useState(tags);
+  const [activeModal, setActiveModal] = useState<'edit' | 'reset' | null>(null);
+  const initialValues = createMyAdsConditionEditValues(conditionTags);
+
   return (
     <Box
       as="section"
@@ -33,18 +47,38 @@ export function MyAdsConditionCard({ tags }: MyAdsConditionCardProps): JSX.Eleme
         </Text>
       </Box>
       <Box className="gap-008 flex w-full flex-wrap items-start">
-        {tags.map((tag) => (
+        {conditionTags.map((tag) => (
           <Badge key={tag} frame="indicator" tone="orange" size="m">
             {formatTag(tag)}
           </Badge>
         ))}
       </Box>
-      <button
-        type="button"
-        className="typo-body-xl bg-btn-sub-low text-text-default border-btn-sub-selected focus-visible:outline-sys-primary-default h-036 px-020 py-008 w-full cursor-pointer rounded-[var(--radius-s)] border transition-opacity outline-none hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 active:opacity-100"
+      <Modal.Root
+        open={activeModal === 'edit'}
+        onOpenChange={(open) => setActiveModal(open ? 'edit' : null)}
       >
-        수정하기
-      </button>
+        <Modal.Trigger
+          render={
+            <button
+              type="button"
+              className="typo-body-xl bg-btn-sub-low text-text-default border-btn-sub-selected focus-visible:outline-sys-primary-default h-036 px-020 py-008 w-full cursor-pointer rounded-[var(--radius-s)] border transition-opacity outline-none hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 active:opacity-100"
+            >
+              수정하기
+            </button>
+          }
+        />
+        <MyAdsConditionEditModal
+          initialValues={initialValues}
+          onSave={(values) => setConditionTags(createMyAdsConditionTags(values))}
+          onStartOver={() => setActiveModal('reset')}
+        />
+      </Modal.Root>
+      <Modal.Root
+        open={activeModal === 'reset'}
+        onOpenChange={(open) => setActiveModal(open ? 'reset' : 'edit')}
+      >
+        <MyAdsConditionResetModal />
+      </Modal.Root>
     </Box>
   );
 }
