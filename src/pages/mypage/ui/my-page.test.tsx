@@ -200,8 +200,8 @@ describe('MyPage', () => {
     expect(within(dialog).getByRole('button', { name: '저장하기' })).toBeVisible();
 
     await user.click(within(dialog).getByRole('combobox', { name: '업종' }));
-    expect(screen.getByRole('option', { name: '게임' })).toBeVisible();
-    expect(screen.getByRole('option', { name: '쇼핑·커머스' })).toBeVisible();
+    expect(await screen.findByRole('option', { name: '게임' })).toBeVisible();
+    expect(await screen.findByRole('option', { name: '쇼핑·커머스' })).toBeVisible();
     expect(screen.queryByRole('option', { name: '금융·핀테크' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('option', { name: '쇼핑·커머스' }));
 
