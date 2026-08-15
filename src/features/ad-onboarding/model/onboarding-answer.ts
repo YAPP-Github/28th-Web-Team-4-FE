@@ -12,7 +12,7 @@ import type {
   AdExperienceType,
   AdGoalId,
   AgeRangeId,
-  PerformanceChannelId,
+  ManualPerformanceChannel,
   UploadedPerformanceFile,
 } from './recommend-onboarding-options';
 
@@ -33,7 +33,7 @@ export type PerformanceInput =
     }
   | {
       mode: 'MANUAL';
-      channel: PerformanceChannelId;
+      channelList: ManualPerformanceChannel[];
     };
 
 /** 추천 온보딩에서 확정하는 광고 운영 경험 답변. */

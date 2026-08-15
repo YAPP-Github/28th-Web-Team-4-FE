@@ -63,20 +63,50 @@ describe('createSubmitOnboardingRequest', () => {
     ]);
   });
 
-  it('maps manual ad history to the API adHistory list', () => {
+  it('maps manual ad history channel list to the API adHistory list', () => {
     const request = createSubmitOnboardingRequest({
       ...baseAnswer,
       adExperience: {
         type: 'EXPERIENCED',
         performanceInput: {
           mode: 'MANUAL',
-          channel: 'NAVER_SA',
+          channelList: [
+            {
+              channelId: 'channel-naver-sa',
+              channelNameRaw: '네이버 SA',
+              budgetWon: 1000000,
+              periodDays: 14,
+              impressions: 10000,
+              clicks: 300,
+              conversions: 12,
+            },
+            {
+              channelNameRaw: '커스텀 채널',
+              budgetWon: 500000,
+              clicks: 100,
+            },
+          ],
         },
       },
     });
 
     expect(request.adExperience).toBe('EXPERIENCED');
-    expect(request.adHistory).toEqual([{ channelNameRaw: '네이버 SA' }]);
+    expect(request.adHistory).toEqual([
+      {
+        channelId: 'channel-naver-sa',
+        channelNameRaw: '네이버 SA',
+        budgetWon: 1000000,
+        periodDays: 14,
+        impressions: 10000,
+        clicks: 300,
+        conversions: 12,
+      },
+      {
+        channelNameRaw: '커스텀 채널',
+        budgetWon: 500000,
+        clicks: 100,
+      },
+    ]);
   });
 
   it('maps skipped experienced ad performance input to API NONE', () => {
