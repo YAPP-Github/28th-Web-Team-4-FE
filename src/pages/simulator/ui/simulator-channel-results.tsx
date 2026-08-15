@@ -4,6 +4,8 @@ import { useState, type JSX } from 'react';
 import { Info } from 'lucide-react';
 import type { SimulationResponse } from '@/shared/api/generated';
 
+import { useSimulatorFilterChannels } from '@/features/simulator-filter/api/use-simulator-filter-channels';
+import type { SimulatorFilterChannel } from '@/features/simulator-filter/model/simulator-filter-options';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 import { Tooltip } from '@/shared/ui/tooltip';
@@ -22,8 +24,37 @@ type SimulatorChannelResultsProps = {
   simulationResult?: SimulationResponse | null;
 };
 
-function ChannelCostInfo({ isEnabled }: { isEnabled: boolean }): JSX.Element {
+const NUMBER_FORMATTER = new Intl.NumberFormat('ko-KR');
+
+function formatChannelCost(channel: SimulatorFilterChannel): string | null {
+  if (!channel.cost) {
+    return null;
+  }
+
+  const { cost } = channel;
+  const value =
+    cost.valueMax !== null && cost.valueMax !== cost.value
+      ? `${NUMBER_FORMATTER.format(cost.value)}~${NUMBER_FORMATTER.format(cost.valueMax)}`
+      : NUMBER_FORMATTER.format(cost.value);
+
+  return cost.pricingModel === 'CPM'
+    ? `${channel.name} 노출 1,000회 당 약 ${value}원`
+    : `${channel.name} ${value}원`;
+}
+
+function ChannelCostInfo({
+  channels,
+  isEnabled,
+}: {
+  channels: readonly SimulatorFilterChannel[];
+  isEnabled: boolean;
+}): JSX.Element {
   const infoIcon = <Info aria-hidden className="size-full" strokeWidth={1.8} />;
+  const costLines = channels.flatMap((channel) => {
+    const cost = formatChannelCost(channel);
+
+    return cost ? [{ id: channel.id, text: cost }] : [];
+  });
 
   if (!isEnabled) {
     return (
@@ -34,7 +65,7 @@ function ChannelCostInfo({ isEnabled }: { isEnabled: boolean }): JSX.Element {
   }
 
   return (
-    <Tooltip.Root placement="bottom-start" offset={2}>
+    <Tooltip.Root placement="right-start" offset={{ mainAxis: 10, crossAxis: 8 }}>
       <Tooltip.Anchor>
         <button
           type="button"
@@ -50,12 +81,12 @@ function ChannelCostInfo({ isEnabled }: { isEnabled: boolean }): JSX.Element {
       >
         <span className="gap-008 flex flex-col items-start">
           <span className="typo-subtitle-sm text-text-high">채널별 클릭당 비용</span>
-          <span className="typo-body-xs text-text-medium whitespace-nowrap">
-            네이버 검색 광고 580원
-            <br />
-            카카오모먼트 410원
-            <br />
-            뉴스 캐시 노출 1,000회 당 약 3,500원
+          <span className="typo-body-xs text-text-medium gap-002 flex flex-col items-start whitespace-nowrap">
+            {costLines.length > 0 ? (
+              costLines.map(({ id, text }) => <span key={id}>{text}</span>)
+            ) : (
+              <span>등록된 비용 정보가 없어요.</span>
+            )}
           </span>
         </span>
       </Tooltip.Content>
@@ -71,6 +102,16 @@ export function SimulatorChannelResults({
 }: SimulatorChannelResultsProps): JSX.Element {
   const [view, setView] = useState<SimulatorResultsView>('graph');
   const resultsTitle = view === 'table' ? '채널별 예상 성과' : '채널별 예상 노출 · 클릭 수';
+  const shouldLoadChannelCosts = isLogin && isChannelSelectionComplete;
+  const { channels, isError, isPending } = useSimulatorFilterChannels(
+    shouldLoadChannelCosts ? selectedChannelIds : [],
+  );
+  const isChannelCostInfoEnabled =
+    shouldLoadChannelCosts &&
+    !isPending &&
+    !isError &&
+    channels.length === selectedChannelIds.length &&
+    selectedChannelIds.length > 0;
 
   return (
     <Box
@@ -90,7 +131,7 @@ export function SimulatorChannelResults({
           >
             {resultsTitle}
           </Text>
-          <ChannelCostInfo isEnabled={isChannelSelectionComplete} />
+          <ChannelCostInfo channels={channels} isEnabled={isChannelCostInfoEnabled} />
         </Box>
         <SimulatorResultsViewToggle view={view} onViewChange={setView} />
       </Box>
