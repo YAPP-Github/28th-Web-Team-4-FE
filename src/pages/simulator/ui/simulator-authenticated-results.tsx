@@ -13,6 +13,7 @@ import { useSimulatorFilterChannels } from '@/features/simulator-filter/api/use-
 import { createChannelResults } from '@/pages/simulator/model/simulator-channel';
 
 import { ChannelPerformanceContent } from './simulator-channel-performance';
+import { SimulatorChannelResultsSkeleton } from './simulator-channel-results-skeleton';
 
 function SimulatorDummyIcon(): JSX.Element {
   return (
@@ -108,11 +109,7 @@ export function AuthenticatedChannelResults({
   }
 
   if (isPending) {
-    return (
-      <Text role="status" variant="body-lg" className="text-text-low">
-        선택한 채널 정보를 불러오는 중이에요
-      </Text>
-    );
+    return <SimulatorChannelResultsSkeleton />;
   }
 
   if (isError || channels.length !== selectedChannelIds.length) {

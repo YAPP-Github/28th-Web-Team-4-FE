@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { withdrawAuthAccount } from '@/features/auth/session/api/auth-session';
+import { userQueryKey } from '@/shared/lib/query-keys';
 
 import { authSessionQueryKey } from './auth-session-query';
 
@@ -21,6 +22,7 @@ export function useWithdraw({ onError, onSuccess }: UseWithdrawOptions = {}) {
     mutationFn: withdrawAuthAccount,
     onSuccess: () => {
       queryClient.setQueryData(authSessionQueryKey, { authenticated: false });
+      queryClient.removeQueries({ queryKey: userQueryKey });
       router.replace('/login');
       router.refresh();
       onSuccess?.();

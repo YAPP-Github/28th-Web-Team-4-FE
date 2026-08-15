@@ -76,6 +76,30 @@ export { getExample as GET } from '@/app/api-routes/example';
 공개 API라도 이후 사용자별 응답이나 인증이 추가될 가능성이 높다면 처음부터 BFF 경계를 두는
 편이 안전합니다.
 
+## 공통 백엔드 프록시
+
+브라우저에서 생성된 API 클라이언트를 사용할 때는 `src/shared/api/hey-api.ts`가 base URL을
+same-origin인 `/api/backend`로 설정합니다. `app/api/backend/[...path]/route.ts`는 이 요청을
+백엔드로 전달하며, 서버에서 읽은 HttpOnly 세션의 access token을 `Authorization` 헤더에
+추가합니다.
+
+```text
+브라우저 generated SDK
+  └─ /api/backend/api/v1/...
+       └─ Next.js backend-proxy
+            └─ https://api.chaeso-zip.com/api/v1/...
+                 └─ Authorization: Bearer <accessToken>
+```
+
+프록시는 클라이언트가 보낸 `Authorization` 헤더를 신뢰하지 않고 세션 쿠키에서 얻은 토큰만
+사용합니다. access token이 만료에 가까우면 refresh single-flight를 거쳐 세션 쿠키를 교체한
+뒤 요청하며, 백엔드가 401을 반환하면 한 번만 refresh 후 재요청합니다. 세션이 없는 공개 API는
+토큰 없이 백엔드로 전달됩니다.
+
+서버 코드에서 generated SDK를 직접 호출하는 경우에는 기존처럼 해당 Route Handler에서
+`auth: session.accessToken`을 명시합니다. 브라우저의 same-origin 호출만 공통 프록시를
+사용합니다.
+
 ## 인증이 필요한 API 추가 방법
 
 예를 들어 로그인한 사용자의 프로필 API를 추가한다고 가정합니다.
