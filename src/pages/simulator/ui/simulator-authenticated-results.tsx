@@ -17,6 +17,7 @@ import {
   type SimulatorResultsView,
 } from './simulator-channel-performance';
 import { SimulatorChannelTable } from './simulator-channel-table';
+import { SimulatorChannelResultsSkeleton } from './simulator-channel-results-skeleton';
 
 function SimulatorDummyIcon(): JSX.Element {
   return (
@@ -114,11 +115,7 @@ export function AuthenticatedChannelResults({
   }
 
   if (isPending) {
-    return (
-      <Text role="status" variant="body-lg" className="text-text-low">
-        선택한 채널 정보를 불러오는 중이에요
-      </Text>
-    );
+    return <SimulatorChannelResultsSkeleton />;
   }
 
   if (isError || channels.length !== selectedChannelIds.length) {
