@@ -49,9 +49,9 @@ function createProfileResponse(profile = DEFAULT_PROFILE): Response {
   );
 }
 
-type MyPageProps = Parameters<typeof MyPage>[0];
+type MyPageRenderOptions = Omit<Parameters<typeof MyPage>[0], 'isLoggedIn'>;
 
-function renderMyPage(isLoggedIn: boolean, props: Omit<MyPageProps, 'isLoggedIn'> = {}) {
+function renderMyPage(isLoggedIn: boolean, options: MyPageRenderOptions = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -64,7 +64,7 @@ function renderMyPage(isLoggedIn: boolean, props: Omit<MyPageProps, 'isLoggedIn'
 
   const renderResult = render(
     <QueryClientProvider client={queryClient}>
-      <MyPage isLoggedIn={isLoggedIn} {...props} />
+      <MyPage isLoggedIn={isLoggedIn} {...options} />
     </QueryClientProvider>,
   );
 
@@ -255,6 +255,10 @@ describe('MyPage', () => {
       ],
     });
 
+    const scrollContainer = screen.getByRole('main');
+
+    expect(scrollContainer).toHaveClass('overflow-y-auto');
+    expect(scrollContainer).toHaveClass('touch-pan-y');
     expect(screen.getByRole('heading', { name: '내 광고 조건' })).toBeVisible();
     expect(screen.getByText('#쇼핑·커머스')).toBeVisible();
     expect(screen.getByText('#웹 서비스')).toBeVisible();
@@ -269,8 +273,151 @@ describe('MyPage', () => {
     expect(screen.queryByText('네 번째 프로젝트')).not.toBeInTheDocument();
   });
 
+  it('opens the ad condition edit modal with editable fields', async () => {
+    const user = userEvent.setup();
+    renderMyPage(true, {
+      adsCondition: {
+        tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
+      },
+    });
+
+    await user.click(screen.getByRole('button', { name: '수정하기' }));
+
+    const dialog = await screen.findByRole('dialog', { name: '내 광고 조건' });
+    expect(within(dialog).getByRole('button', { name: '새로 설정하기' })).toBeVisible();
+    expect(within(dialog).getByRole('combobox', { name: '업종' })).toHaveTextContent('쇼핑·커머스');
+    expect(within(dialog).getByRole('combobox', { name: '서비스 형태' })).toHaveTextContent(
+      '웹 서비스',
+    );
+    expect(within(dialog).getByRole('combobox', { name: '주요 연령대' })).toHaveTextContent(
+      '30~40대',
+    );
+    expect(within(dialog).getByRole('combobox', { name: '광고 목표' })).toHaveTextContent(
+      '구매 전환',
+    );
+    expect(within(dialog).getByRole('combobox', { name: '집행 기간' })).toHaveTextContent('1개월');
+    expect(within(dialog).getByRole('spinbutton', { name: '최소 예산' })).toHaveValue(0);
+    expect(within(dialog).getByRole('spinbutton', { name: '최대 예산' })).toHaveValue(50);
+    expect(within(dialog).getByRole('slider', { name: '최소 예산 슬라이더' })).toBeVisible();
+    expect(within(dialog).getByRole('slider', { name: '최대 예산 슬라이더' })).toBeVisible();
+    expect(within(dialog).getByRole('button', { name: '저장하기' })).toBeVisible();
+
+    await user.click(within(dialog).getByRole('combobox', { name: '업종' }));
+    expect(await screen.findByRole('option', { name: '게임' })).toBeVisible();
+    expect(await screen.findByRole('option', { name: '쇼핑·커머스' })).toBeVisible();
+    expect(screen.queryByRole('option', { name: '금융·핀테크' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('option', { name: '쇼핑·커머스' }));
+
+    await user.click(within(dialog).getByRole('button', { name: '새로 설정하기' }));
+
+    const resetDialog = await screen.findByRole('dialog', { name: '처음부터 다시 설정할까요?' });
+    expect(resetDialog).toHaveTextContent('입력했던 광고 조건이 모두 지워지고');
+    expect(within(resetDialog).getByRole('button', { name: '다시 설정하기' })).toHaveAttribute(
+      'href',
+      '/recommend/onboarding/new',
+    );
+
+    await user.click(within(resetDialog).getByRole('button', { name: '취소' }));
+    const reopenedDialog = await screen.findByRole('dialog', { name: '내 광고 조건' });
+    await user.click(within(reopenedDialog).getByRole('button', { name: '취소' }));
+    expect(screen.queryByRole('dialog', { name: '내 광고 조건' })).not.toBeInTheDocument();
+  });
+
+  it('opens the service type dropdown with the Figma options', async () => {
+    const user = userEvent.setup();
+    renderMyPage(true, {
+      adsCondition: {
+        tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
+      },
+    });
+
+    await user.click(screen.getByRole('button', { name: '수정하기' }));
+    const dialog = await screen.findByRole('dialog', { name: '내 광고 조건' });
+
+    await user.click(within(dialog).getByRole('combobox', { name: '서비스 형태' }));
+    expect(await screen.findAllByRole('option')).toHaveLength(4);
+    expect(await screen.findByRole('option', { name: '모바일 앱' })).toBeVisible();
+    expect(await screen.findByRole('option', { name: '앱 + 웹 모두' })).toBeVisible();
+  });
+
+  it('opens the age range dropdown with checkbox options', async () => {
+    const user = userEvent.setup();
+    renderMyPage(true, {
+      adsCondition: {
+        tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
+      },
+    });
+
+    await user.click(screen.getByRole('button', { name: '수정하기' }));
+    const dialog = await screen.findByRole('dialog', { name: '내 광고 조건' });
+
+    await user.click(within(dialog).getByRole('combobox', { name: '주요 연령대' }));
+    expect(await screen.findAllByRole('option')).toHaveLength(6);
+    expect(await screen.findByRole('checkbox', { name: '30대 선택' })).toBeChecked();
+    expect(await screen.findByRole('checkbox', { name: '40대 선택' })).toBeChecked();
+    expect(await screen.findByRole('checkbox', { name: '10대 선택' })).not.toBeChecked();
+
+    await user.click(screen.getByRole('option', { name: /20대/ }));
+    expect(screen.getByRole('checkbox', { name: '20대 선택' })).toBeChecked();
+    expect(within(dialog).getByRole('combobox', { name: '주요 연령대' })).toHaveTextContent(
+      '20대, 30대, 40대',
+    );
+  });
+
+  it('opens the web ad goal dropdown with the Figma options', async () => {
+    const user = userEvent.setup();
+    renderMyPage(true, {
+      adsCondition: {
+        tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
+      },
+    });
+
+    await user.click(screen.getByRole('button', { name: '수정하기' }));
+    const dialog = await screen.findByRole('dialog', { name: '내 광고 조건' });
+
+    await user.click(within(dialog).getByRole('combobox', { name: '광고 목표' }));
+    expect(await screen.findAllByRole('option')).toHaveLength(5);
+    expect(await screen.findByRole('option', { name: '구매·결제 전환' })).toBeVisible();
+    expect(screen.queryByRole('option', { name: '앱 설치' })).not.toBeInTheDocument();
+  });
+
+  it('opens the app ad goal dropdown with the Figma options', async () => {
+    const user = userEvent.setup();
+    renderMyPage(true, {
+      adsCondition: {
+        tags: ['쇼핑·커머스', '#모바일 앱', '30~40대', '앱 설치', '총 50만 원', '1개월'],
+      },
+    });
+
+    await user.click(screen.getByRole('button', { name: '수정하기' }));
+    const dialog = await screen.findByRole('dialog', { name: '내 광고 조건' });
+
+    await user.click(within(dialog).getByRole('combobox', { name: '광고 목표' }));
+    expect(await screen.findAllByRole('option')).toHaveLength(7);
+    expect(await screen.findByRole('option', { name: '앱 설치' })).toBeVisible();
+    expect(await screen.findByRole('option', { name: '인앱 구매·행동' })).toBeVisible();
+  });
+
+  it('opens the campaign period dropdown with the Figma options', async () => {
+    const user = userEvent.setup();
+    renderMyPage(true, {
+      adsCondition: {
+        tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
+      },
+    });
+
+    await user.click(screen.getByRole('button', { name: '수정하기' }));
+    const dialog = await screen.findByRole('dialog', { name: '내 광고 조건' });
+
+    await user.click(within(dialog).getByRole('combobox', { name: '집행 기간' }));
+    expect(await screen.findAllByRole('option')).toHaveLength(5);
+    expect(await screen.findByRole('option', { name: '2~3주' })).toBeVisible();
+    expect(await screen.findByRole('option', { name: '1개월' })).toBeVisible();
+    expect(screen.queryByRole('option', { name: '2~3주 (8~21일)' })).not.toBeInTheDocument();
+  });
+
   it('renders the full skeleton while the mypage data is pending', () => {
-    render(<MyPage isLoggedIn isLoading />);
+    renderMyPage(true, { isLoading: true });
 
     expect(screen.getByRole('status', { name: '마이페이지를 불러오고 있어요' })).toBeVisible();
     expect(screen.getByTestId('my-profile-skeleton')).toBeVisible();

@@ -25,12 +25,18 @@ export const SELECT_POPUP_ANIMATION_CLASSES = [
 export function SelectValueDisplay<DisplayValue>({
   placeholder,
   renderValue,
+  className,
 }: {
   placeholder: string;
   renderValue?: (value: DisplayValue) => ReactNode;
+  className?: string;
 }): JSX.Element {
   const renderText = (props: ComponentProps<typeof Text>) => (
-    <Text {...props} variant="subtitle-xl" className={cn(SELECT_VALUE_CLASSES, props.className)} />
+    <Text
+      {...props}
+      variant="subtitle-xl"
+      className={cn(SELECT_VALUE_CLASSES, className, props.className)}
+    />
   );
 
   if (renderValue) {
