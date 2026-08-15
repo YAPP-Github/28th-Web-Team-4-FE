@@ -46,7 +46,9 @@ function createProfileResponse(): Response {
   );
 }
 
-function renderMyPage(isLoggedIn: boolean) {
+type MyPageProps = Parameters<typeof MyPage>[0];
+
+function renderMyPage(isLoggedIn: boolean, props: Omit<MyPageProps, 'isLoggedIn'> = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -59,7 +61,7 @@ function renderMyPage(isLoggedIn: boolean) {
 
   const renderResult = render(
     <QueryClientProvider client={queryClient}>
-      <MyPage isLoggedIn={isLoggedIn} />
+      <MyPage isLoggedIn={isLoggedIn} {...props} />
     </QueryClientProvider>,
   );
 
@@ -137,6 +139,86 @@ describe('MyPage', () => {
     expect(screen.getByRole('button', { name: '로그아웃' })).toBeVisible();
     expect(screen.getByRole('button', { name: '탈퇴하기' })).toBeVisible();
     expect(screen.queryByText('로그인이 필요해요')).not.toBeInTheDocument();
+  });
+
+  it('renders the empty states for saved comparison and simulation results', async () => {
+    const user = userEvent.setup();
+    renderMyPage(true);
+
+    await user.click(screen.getByRole('tab', { name: '채널 비교' }));
+
+    expect(screen.getByText('아직 저장된 비교 결과가 없어요')).toBeVisible();
+    expect(screen.getByRole('button', { name: '채널 비교하기' })).toHaveAttribute(
+      'href',
+      '/compare',
+    );
+    expect(screen.queryByText('아직 저장된 추천 결과가 없어요')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: '예산 시뮬레이션' }));
+
+    expect(screen.getByText('아직 저장된 시뮬레이션 결과가 없어요')).toBeVisible();
+    expect(screen.getByRole('button', { name: '시뮬레이션 하기' })).toHaveAttribute(
+      'href',
+      '/simulator',
+    );
+  });
+
+  it('renders the ad conditions and saved recommendations when onboarding exists', () => {
+    renderMyPage(true, {
+      adsCondition: {
+        tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
+      },
+      savedRecommendations: [
+        {
+          onboardingId: 'onboarding-1',
+          title: '채소집',
+          lastRecommendedAt: '2026.06.12',
+          channelNames: ['네이버 검색광고', '메타 광고', '카카오모먼트'],
+        },
+        {
+          onboardingId: 'onboarding-2',
+          title: '사이드 프로젝트 B',
+          lastRecommendedAt: '2026년 5월 23일',
+          channelNames: ['유튜브', '인스타그램', '카카오모먼트'],
+        },
+        {
+          onboardingId: 'onboarding-3',
+          title: '사이드 프로젝트 C',
+          lastRecommendedAt: '2026년 5월 22일',
+          channelNames: ['유튜브', '인스타그램', '카카오모먼트'],
+        },
+        {
+          onboardingId: 'onboarding-4',
+          title: '네 번째 프로젝트',
+          lastRecommendedAt: '2026년 5월 21일',
+          channelNames: ['유튜브'],
+        },
+      ],
+    });
+
+    expect(screen.getByRole('heading', { name: '내 광고 조건' })).toBeVisible();
+    expect(screen.getByText('#쇼핑·커머스')).toBeVisible();
+    expect(screen.getByText('#웹 서비스')).toBeVisible();
+    expect(screen.getByRole('button', { name: '수정하기' })).toBeVisible();
+    expect(screen.getByRole('link', { name: /더보기/ })).toHaveAttribute('href', '/mypage');
+    expect(screen.getByRole('link', { name: /채소집/ })).toHaveAttribute(
+      'href',
+      '/recommend/onboarding-1',
+    );
+    expect(screen.getByText('사이드 프로젝트 B')).toBeVisible();
+    expect(screen.getByText('사이드 프로젝트 C')).toBeVisible();
+    expect(screen.queryByText('네 번째 프로젝트')).not.toBeInTheDocument();
+  });
+
+  it('renders the full skeleton while the mypage data is pending', () => {
+    render(<MyPage isLoggedIn isLoading />);
+
+    expect(screen.getByRole('status', { name: '마이페이지를 불러오고 있어요' })).toBeVisible();
+    expect(screen.getByTestId('my-profile-skeleton')).toBeVisible();
+    expect(screen.getByRole('heading', { name: '내 광고 조건' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: '저장된 결과' })).toBeVisible();
+    expect(screen.getByText('로그아웃')).toBeVisible();
+    expect(screen.queryByText('YAPP')).not.toBeInTheDocument();
   });
 
   it('renders the profile skeleton while the profile request is pending', () => {
