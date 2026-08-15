@@ -37,25 +37,25 @@ export const MANUAL_PERFORMANCE_FIELD_LIST: ManualPerformanceField[] = [
   {
     key: 'periodDays',
     label: '집행 기간',
-    placeholder: '일수를 입력해 주세요',
+    placeholder: '집행 기간을 입력해 주세요',
     className: 'w-[calc(50%-5px)]',
   },
   {
     key: 'impressions',
     label: '노출수',
-    placeholder: '예산을 입력해 주세요',
+    placeholder: '노출수를 입력해 주세요',
     className: 'flex-1',
   },
   {
     key: 'clicks',
     label: '클릭수',
-    placeholder: '예산을 입력해 주세요',
+    placeholder: '클릭수를 입력해 주세요',
     className: 'flex-1',
   },
   {
     key: 'conversions',
     label: '전환수',
-    placeholder: '예산을 입력해 주세요',
+    placeholder: '전환수를 입력해 주세요',
     className: 'flex-1',
   },
 ];
