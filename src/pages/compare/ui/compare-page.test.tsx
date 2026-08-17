@@ -6,6 +6,7 @@ import { http, HttpResponse } from 'msw';
 import { withNuqsTestingAdapter } from 'nuqs/adapters/testing';
 
 import type {
+  ChannelComparisonItemResponse,
   ChannelListItemResponse,
   PageResponseChannelListItemResponse,
 } from '@/shared/api/generated';
@@ -73,6 +74,34 @@ const DEFAULT_CHANNELS = [
 ];
 
 const TOTAL_PAGE_COUNT = 5;
+
+const COMPARISON_CHANNEL_NAMES: Record<string, string> = {
+  'channel-naver': '네이버 검색 광고',
+  'channel-kakao': '카카오 키워드 광고',
+  'channel-meta': '메타 피드 광고',
+};
+
+function createComparisonItem(channelId: string): ChannelComparisonItemResponse {
+  return {
+    channelId,
+    channelName: COMPARISON_CHANNEL_NAMES[channelId] ?? `${channelId} 채널`,
+    audienceSummary: '20~40대',
+    adFormats: ['배너'],
+    targetingMethods: ['관심사'],
+    minBudgetWon: 200_000,
+    advantages: ['장점'],
+    tags: ['태그'],
+    cpcWon: 320,
+    cpmWon: 4_800,
+    matchRate: 90,
+    estImpressions: { min: 10_000, max: 20_000 },
+    estClicks: { min: 100, max: 200 },
+  };
+}
+
+function comparisonResponse(items: readonly ChannelComparisonItemResponse[]) {
+  return HttpResponse.json({ success: true, data: { items }, error: null, code: null });
+}
 
 function createPageChannels(page: number): ChannelListItemResponse[] {
   if (page < 0 || page >= TOTAL_PAGE_COUNT) {
@@ -207,6 +236,11 @@ describe('ComparePage', () => {
       http.get(/\/api\/v1\/channels$/, ({ request }) =>
         defaultChannelResponse(new URL(request.url)),
       ),
+      http.get(/\/api\/v1\/channel-comparisons$/, ({ request }) => {
+        const channelIds = new URL(request.url).searchParams.getAll('channelIds');
+
+        return comparisonResponse(channelIds.map(createComparisonItem));
+      }),
     );
   });
 
@@ -715,11 +749,11 @@ describe('ComparePage', () => {
     expect(getCompareButton()).toHaveTextContent('선택한 채널 비교하기 (0/3)');
   });
 
-  it('비교 결과 임시 페이지는 고정 목 채널과 추가 카드를 보여준다', () => {
+  it('비교 결과 임시 페이지는 고정 목 채널과 추가 카드를 보여준다', async () => {
     renderCompareResultPage();
 
     expect(
-      screen.getByRole('heading', {
+      await screen.findByRole('heading', {
         name: '선택한 채널별 특징과 성과를 비교한 결과예요',
       }),
     ).toBeVisible();
@@ -727,5 +761,106 @@ describe('ComparePage', () => {
     expect(screen.getByRole('heading', { level: 2, name: '카카오 키워드 광고' })).toBeVisible();
     expect(screen.getByText('채널 추가하기')).toBeVisible();
     expect(screen.getByRole('region', { name: '채널별 인사이트' })).toBeVisible();
+  });
+
+  it('최초 비교 결과를 조회하는 동안 전체 로딩 화면을 보여준다', async () => {
+    const responseGate = createDeferred<void>();
+
+    server.use(
+      http.get(/\/api\/v1\/channel-comparisons$/, async ({ request }) => {
+        await responseGate.promise;
+        const channelIds = new URL(request.url).searchParams.getAll('channelIds');
+
+        return comparisonResponse(channelIds.map(createComparisonItem));
+      }),
+    );
+
+    renderCompareResultPage();
+
+    expect(screen.getByRole('status')).toHaveTextContent('비교 결과를 불러오고 있어요');
+    expect(screen.getByText('선택한 채널의 정보를 비교하고 있습니다')).toBeVisible();
+    expect(
+      screen.queryByRole('heading', {
+        name: '선택한 채널별 특징과 성과를 비교한 결과예요',
+      }),
+    ).not.toBeInTheDocument();
+
+    responseGate.resolve();
+
+    expect(
+      await screen.findByRole('heading', {
+        name: '선택한 채널별 특징과 성과를 비교한 결과예요',
+      }),
+    ).toBeVisible();
+  });
+
+  it.each([400, 404, 500])(
+    '최초 조회가 %s 오류로 실패하면 전체 오류 화면을 보여준다',
+    async (status) => {
+      server.use(
+        http.get(/\/api\/v1\/channel-comparisons$/, () =>
+          HttpResponse.json({ success: false }, { status }),
+        ),
+      );
+
+      renderCompareResultPage();
+
+      expect(await screen.findByRole('alert')).toHaveTextContent('비교 결과를 불러오지 못했어요');
+      expect(screen.getByRole('button', { name: '다시 시도' })).toBeVisible();
+      expect(screen.getByRole('button', { name: '채널 다시 선택' })).toBeVisible();
+    },
+  );
+
+  it('최초 조회가 네트워크 오류로 실패하면 전체 오류 화면을 보여준다', async () => {
+    server.use(http.get(/\/api\/v1\/channel-comparisons$/, () => HttpResponse.error()));
+
+    renderCompareResultPage();
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('비교 결과를 불러오지 못했어요');
+  });
+
+  it('최초 조회 실패 후 다시 시도하면 비교 결과를 보여준다', async () => {
+    const user = userEvent.setup();
+    let requestCount = 0;
+
+    server.use(
+      http.get(/\/api\/v1\/channel-comparisons$/, ({ request }) => {
+        requestCount += 1;
+
+        if (requestCount === 1) {
+          return HttpResponse.json({ success: false }, { status: 500 });
+        }
+
+        const channelIds = new URL(request.url).searchParams.getAll('channelIds');
+        return comparisonResponse(channelIds.map(createComparisonItem));
+      }),
+    );
+
+    renderCompareResultPage();
+
+    await user.click(await screen.findByRole('button', { name: '다시 시도' }));
+
+    expect(
+      await screen.findByRole('heading', {
+        name: '선택한 채널별 특징과 성과를 비교한 결과예요',
+      }),
+    ).toBeVisible();
+    expect(requestCount).toBe(2);
+  });
+
+  it('최초 조회 실패 후 채널을 다시 선택하면 비교 페이지로 이동한다', async () => {
+    const user = userEvent.setup();
+
+    server.use(
+      http.get(/\/api\/v1\/channel-comparisons$/, () =>
+        HttpResponse.json({ success: false }, { status: 500 }),
+      ),
+    );
+
+    renderCompareResultPage();
+
+    await user.click(await screen.findByRole('button', { name: '채널 다시 선택' }));
+
+    expect(pushMock).toHaveBeenCalledWith('/compare');
   });
 });

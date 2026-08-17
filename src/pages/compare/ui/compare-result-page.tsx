@@ -1,9 +1,11 @@
 'use client';
 
 import { Suspense, type JSX } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { useChannelComparisonResultQueryState } from '@/features/channel-comparison';
 
+import { useChannelComparison } from '@/pages/compare/api/use-channel-comparison';
 import { MOCK_COMPARE_RESULT_CHANNELS } from '@/pages/compare/model/compare-result-channel';
 import { Box } from '@/shared/ui/layout/box';
 
@@ -12,13 +14,45 @@ import { CompareResultChannelCost } from './compare-result-channel-cost';
 import { CompareResultChannelDetailsTable } from './compare-result-channel-details';
 import { CompareResultChannelInsightsDqa } from './compare-result-channel-insights-dqa';
 import { CompareResultChannelPerformance } from './compare-result-channel-performance';
+import { CompareResultErrorState, CompareResultLoadingState } from './compare-result-query-states';
 import { CompareResultSubHeader } from './compare-result-sub-header';
 
 function CompareResultPageContent(): JSX.Element | null {
-  const { isValid } = useChannelComparisonResultQueryState();
+  const { channelIds, onboardingId, isValid } = useChannelComparisonResultQueryState();
 
   if (!isValid) {
     return null;
+  }
+
+  return <CompareResultWithQuery channelIds={channelIds} onboardingId={onboardingId} />;
+}
+
+type CompareResultWithQueryProps = {
+  channelIds: readonly string[];
+  onboardingId: string | null;
+};
+
+function CompareResultWithQuery({
+  channelIds,
+  onboardingId,
+}: CompareResultWithQueryProps): JSX.Element {
+  const router = useRouter();
+  const { isPending, isError, refetch } = useChannelComparison({
+    channelIds,
+    onboardingId,
+  });
+
+  if (isPending) {
+    return <CompareResultLoadingState />;
+  }
+
+  if (isError) {
+    return (
+      <CompareResultErrorState
+        onRetry={() => void refetch()}
+        onReselectChannels={() => router.push('/compare')}
+      />
+    );
   }
 
   return (
