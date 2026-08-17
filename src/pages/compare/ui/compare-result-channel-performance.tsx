@@ -89,8 +89,20 @@ function PerformanceBar({
   metric: CompareResultChannelMetric;
   color: string;
 }): JSX.Element {
+  if (!metric.available) {
+    return (
+      <Box
+        aria-hidden="true"
+        data-availability="unavailable"
+        className="bg-surface-low h-012 w-full overflow-hidden rounded-[var(--radius-xxs)]"
+      >
+        <Box className="bg-sys-empty h-012 w-008 rounded-[var(--radius-xxs)]" />
+      </Box>
+    );
+  }
+
   return (
-    <Box aria-hidden="true" className="h-012 w-full">
+    <Box aria-hidden="true" data-availability="available" className="h-012 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={[{ name: 'metric', value: metric.fillPercentage }]}
@@ -139,19 +151,22 @@ function ChannelPerformanceRow({
           <Box className="grid shrink-0 justify-items-end">
             {METRIC_KEYS.map((valueMetricKey) => {
               const isActive = valueMetricKey === metricKey;
+              const valueMetric = channel[valueMetricKey];
 
               return (
                 <Text
                   key={valueMetricKey}
                   aria-hidden={!isActive}
-                  variant="subtitle-sm"
+                  variant={valueMetric.available ? 'subtitle-sm' : 'body-sm'}
                   className={cn(
-                    METRIC_CONFIG[valueMetricKey].valueClassName,
+                    valueMetric.available
+                      ? METRIC_CONFIG[valueMetricKey].valueClassName
+                      : 'text-text-low',
                     '[grid-area:1/1] whitespace-nowrap transition-opacity ease-out-cubic motion-reduce:transition-none',
                     isActive ? 'opacity-100 duration-150' : 'opacity-0 duration-100',
                   )}
                 >
-                  {channel[valueMetricKey].value}
+                  {valueMetric.value}
                 </Text>
               );
             })}
