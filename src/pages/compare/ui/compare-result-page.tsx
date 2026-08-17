@@ -80,7 +80,7 @@ function CompareResultWithQuery({
         aria-busy={comparisonQuery.isPlaceholderData}
         className="bg-surface-low px-016 sm:px-032 flex min-h-0 flex-1 justify-center overflow-y-auto lg:px-120"
       >
-        <Box className="gap-020 py-040 flex w-full max-w-[792px] flex-col">
+        <Box className="gap-020 pt-040 pb-072 flex w-full max-w-[792px] flex-col self-start">
           {comparisonQuery.isPlaceholderData ? (
             <span role="status" className="sr-only">
               변경된 채널의 비교 결과를 불러오는 중이에요

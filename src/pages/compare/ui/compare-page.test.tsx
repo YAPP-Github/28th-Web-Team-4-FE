@@ -812,9 +812,10 @@ describe('ComparePage', () => {
     expect(
       within(screen.getByRole('region', { name: '채널별 CPC와 CPM' })).getAllByText('응답 B'),
     ).toHaveLength(2);
-    expect(
-      within(screen.getByRole('region', { name: '채널별 인사이트' })).getByText(/B 태그/),
-    ).toBeVisible();
+    const insightsRegion = screen.getByRole('region', { name: '채널별 인사이트' });
+
+    expect(within(insightsRegion).getByText(/B 태그/)).toBeVisible();
+    expect(insightsRegion.parentElement).toHaveClass('pt-040', 'pb-072', 'self-start');
     expect(screen.getByText('B 장점')).toBeVisible();
     expect(screen.queryByText('채널 추가하기')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: '결과 저장하기' })).toBeVisible();
