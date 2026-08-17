@@ -10,10 +10,7 @@ import {
   type RecommendOnboardingStepId,
 } from '@/features/ad-onboarding/model/onboarding-step';
 import type { RecommendOnboardingAnswer } from '@/features/ad-onboarding/model/onboarding-answer';
-import {
-  createRecommendOnboardingDraft,
-  type RecommendOnboardingDraft,
-} from '@/features/ad-onboarding/model/onboarding-draft';
+import type { RecommendOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
 import type {
   ManualPerformanceChannel,
   UploadedPerformanceFile,
@@ -66,11 +63,12 @@ export function RecommendOnboardingFlow({
     scrollToLatestAnswer,
   } = useRecommendOnboardingScroll(scrollContainerRef);
   const [editingStep, setEditingStep] = useState<number | null>(null);
-  const [furthestStep, setFurthestStep] = useState(0);
+  const [furthestStep, setFurthestStep] = useState(currentStep);
 
   return (
     <FormProvider {...form}>
       <RecommendOnboardingFlowContent
+        defaultDraft={form.getValues()}
         activeStepRef={activeStepRef}
         latestAnswerRef={latestAnswerRef}
         contentEndRef={contentEndRef}
@@ -114,6 +112,7 @@ export function RecommendOnboardingFlow({
 }
 
 type RecommendOnboardingFlowContentProps = {
+  defaultDraft: RecommendOnboardingDraft;
   activeStepRef: RefObject<HTMLDivElement | null>;
   latestAnswerRef: RefObject<HTMLDivElement | null>;
   contentEndRef: RefObject<HTMLDivElement | null>;
@@ -139,6 +138,7 @@ type RecommendOnboardingFlowContentProps = {
  * @param props.onAdvance 다음 step 진행 콜백
  */
 function RecommendOnboardingFlowContent({
+  defaultDraft,
   activeStepRef,
   latestAnswerRef,
   contentEndRef,
@@ -150,25 +150,24 @@ function RecommendOnboardingFlowContent({
   onAdvance,
 }: RecommendOnboardingFlowContentProps): JSX.Element {
   const { control } = useFormContext<RecommendOnboardingDraft>();
-  const initialDraft = createRecommendOnboardingDraft();
   const watchedDraft = useWatch({
     control,
-    defaultValue: initialDraft,
+    defaultValue: defaultDraft,
   });
   const draft: RecommendOnboardingDraft = {
-    ...initialDraft,
+    ...defaultDraft,
     ...watchedDraft,
-    serviceName: watchedDraft?.serviceName ?? initialDraft.serviceName,
+    serviceName: watchedDraft?.serviceName ?? defaultDraft.serviceName,
     budget: {
-      ...initialDraft.budget,
+      ...defaultDraft.budget,
       ...watchedDraft?.budget,
     },
     budgetInputRange: {
-      ...initialDraft.budgetInputRange,
+      ...defaultDraft.budgetInputRange,
       ...watchedDraft?.budgetInputRange,
     },
-    ageRangeList: watchedDraft?.ageRangeList ?? initialDraft.ageRangeList,
-    performanceMode: watchedDraft?.performanceMode ?? initialDraft.performanceMode,
+    ageRangeList: watchedDraft?.ageRangeList ?? defaultDraft.ageRangeList,
+    performanceMode: watchedDraft?.performanceMode ?? defaultDraft.performanceMode,
     performanceFileList: normalizePerformanceFileList(watchedDraft?.performanceFileList),
     performanceManualChannelList: normalizeManualPerformanceChannelList(
       watchedDraft?.performanceManualChannelList,
