@@ -21,6 +21,7 @@ import {
 } from '@/features/ad-onboarding/model/recommend-onboarding-rules';
 import { useRecommendOnboardingForm } from '@/features/ad-onboarding/model/use-recommend-onboarding-form';
 import { useRecommendOnboardingScroll } from '@/features/ad-onboarding/lib/use-recommend-onboarding-scroll';
+import { useScrollToInitialStep } from '@/features/ad-onboarding/lib/use-scroll-to-initial-step';
 import { Bubble } from '@/shared/ui/bubble';
 import { OnboardingQuestion } from '@/features/ad-onboarding/ui/onboarding-question';
 import { Stack } from '@/shared/ui/layout/stack';
@@ -64,6 +65,7 @@ export function RecommendOnboardingFlow({
   } = useRecommendOnboardingScroll(scrollContainerRef);
   const [editingStep, setEditingStep] = useState<number | null>(null);
   const [furthestStep, setFurthestStep] = useState(currentStep);
+  useScrollToInitialStep({ currentStep, scrollToActiveStep });
 
   return (
     <FormProvider {...form}>

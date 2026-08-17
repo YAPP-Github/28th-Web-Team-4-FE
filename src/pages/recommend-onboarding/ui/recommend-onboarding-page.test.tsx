@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createElement } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -107,7 +107,7 @@ describe('RecommendOnboardingPage', () => {
     });
   });
 
-  it('starts from the category step when serviceName is prefilled', () => {
+  it('starts from the category step and scrolls to it when serviceName is prefilled', async () => {
     renderRecommendOnboardingPage({ initialServiceName: '채소집' });
 
     expect(screen.getByText('2')).toBeVisible();
@@ -120,6 +120,12 @@ describe('RecommendOnboardingPage', () => {
     expect(screen.getByText('채소집')).toBeVisible();
     expect(screen.getByRole('heading', { name: '어떤 업종인가요?' })).toBeVisible();
     expect(screen.queryByRole('textbox', { name: '서비스 이름' })).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(scrollToMock).toHaveBeenCalledWith({
+        top: 0,
+        behavior: 'smooth',
+      });
+    });
   });
 
   it('reopens the prefilled serviceName step when the edit button is clicked', async () => {
