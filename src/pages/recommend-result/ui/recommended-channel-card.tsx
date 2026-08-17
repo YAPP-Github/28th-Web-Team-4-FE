@@ -1,8 +1,7 @@
 import type { JSX } from 'react';
 
-import { Check, Lock } from 'lucide-react';
+import { Check } from 'lucide-react';
 import Image, { type ImageProps } from 'next/image';
-import Link from 'next/link';
 
 import type { RecommendedChannel } from '@/pages/recommend-result/model/recommended-channels';
 import { Badge } from '@/shared/ui/badge';
@@ -14,6 +13,8 @@ import { Stack } from '@/shared/ui/layout/stack';
 import { Tooltip } from '@/shared/ui/tooltip';
 import { Text } from '@/shared/ui/text';
 import { VStack } from '@/shared/ui/layout/v-stack';
+
+import { RecommendedChannelLockOverlay } from './recommended-channel-lock-overlay';
 
 type RecommendedChannelCardProps = {
   channel: RecommendedChannel;
@@ -46,14 +47,18 @@ export function RecommendedChannelCard({
     <Stack
       as="article"
       data-selected={selected ? 'true' : undefined}
+      data-locked={locked ? 'true' : undefined}
       className={cn(
-        'group relative h-full w-full max-w-[282px] cursor-pointer overflow-visible rounded-[var(--radius-l)]',
-        'motion-safe:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)] motion-safe:transition-[translate,box-shadow] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:focus-within:-translate-y-1 motion-safe:hover:-translate-y-1 motion-safe:hover:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)]',
+        'group relative h-full w-full max-w-[282px] overflow-visible rounded-[var(--radius-l)]',
+        !locked && 'motion-safe:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)]',
+        !locked &&
+          'cursor-pointer motion-safe:transition-[translate,box-shadow] motion-safe:duration-200 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:focus-within:-translate-y-1 motion-safe:hover:-translate-y-1 motion-safe:hover:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)]',
         'max-sm:max-w-[min(282px,calc(100%_-_80px))]',
       )}
-      aria-labelledby={`${channel.id}-title`}
+      aria-label={locked ? channel.name : undefined}
+      aria-labelledby={locked ? undefined : `${channel.id}-title`}
     >
-      {channel.isLowestCpc ? (
+      {!locked && channel.isLowestCpc ? (
         <Box className="pointer-events-none absolute inset-x-0 top-0 z-40 h-0">
           <Tooltip.Root
             placement="top"
@@ -85,7 +90,11 @@ export function RecommendedChannelCard({
       )}
 
       <Stack className="relative h-full">
-        <Box className={cn('flex h-full flex-col', locked && 'blur-[4px]')}>
+        <Box
+          aria-hidden={locked || undefined}
+          inert={locked || undefined}
+          className="flex h-full flex-col"
+        >
           <Box className="pointer-events-none relative h-[124px] w-full overflow-hidden rounded-t-[var(--radius-l)]">
             <Image
               src={channel.thumbnailSrc}
@@ -184,20 +193,7 @@ export function RecommendedChannelCard({
           )}
         />
 
-        {locked && (
-          <Box className="bg-sys-blur gap-008 absolute inset-0 z-30 flex flex-col items-center justify-center text-center">
-            <Lock aria-hidden="true" className="text-text-high size-020" />
-            <Text as="p" variant="body-md" className="text-text-high whitespace-pre-line">
-              로그인하면{`\n`}전체 결과를 볼 수 있어요
-            </Text>
-            <Link
-              href="/login"
-              className="text-text-login typo-body-md underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2"
-            >
-              로그인하기
-            </Link>
-          </Box>
-        )}
+        {locked && <RecommendedChannelLockOverlay />}
       </Stack>
     </Stack>
   );
