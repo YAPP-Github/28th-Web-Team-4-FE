@@ -2,6 +2,7 @@ import type {
   CountRangeResponse,
   RecommendationItemResponse,
 } from '@/shared/api/generated/types.gen';
+import { formatCountRange, formatKoreanNumber } from '@/shared/lib/number-format';
 
 export type RecommendedChannelMetric = {
   label: string;
@@ -34,24 +35,20 @@ const PRICING_MODEL_LABEL_MAP = {
   OTHER: '기타',
 } as const satisfies Record<NonNullable<RecommendationItemResponse['pricingModel']>, string>;
 
-function formatWon(value: number): string {
+function formatCompactWon(value: number): string {
   if (value >= 10000 && value % 10000 === 0) {
-    return `${(value / 10000).toLocaleString('ko-KR')}만`;
+    return `${formatKoreanNumber(value / 10000)}만`;
   }
 
-  return value.toLocaleString('ko-KR');
+  return formatKoreanNumber(value);
 }
 
-function formatCount(value: number): string {
-  return value.toLocaleString('ko-KR');
-}
-
-function formatCountRange(range: CountRangeResponse | null): string {
+function formatOptionalCountRange(range: CountRangeResponse | null): string {
   if (!range) {
     return '정보 없음';
   }
 
-  return `${formatCount(range.min)}~${formatCount(range.max)}회`;
+  return formatCountRange(range);
 }
 
 function getRecommendationThumbnailSrc(item: RecommendationItemResponse): string {
@@ -73,7 +70,7 @@ function getRecommendationThumbnailSrc(item: RecommendationItemResponse): string
 }
 
 function formatCpcPrice(cpcWon: number): string {
-  return `클릭 1회당 ${cpcWon.toLocaleString('ko-KR')}원~`;
+  return `클릭 1회당 ${formatKoreanNumber(cpcWon)}원~`;
 }
 
 function getCpcPriceLabel(cpcWon: RecommendationItemResponse['cpcWon']): string {
@@ -108,11 +105,12 @@ export function mapRecommendationItemsToChannels(
     matchRate: item.matchRate,
     thumbnailSrc: getRecommendationThumbnailSrc(item),
     metrics: [
-      { label: '예상 노출', value: formatCountRange(item.estImpressions) },
-      { label: '예상 클릭', value: formatCountRange(item.estClicks) },
+      { label: '예상 노출', value: formatOptionalCountRange(item.estImpressions) },
+      { label: '예상 클릭', value: formatOptionalCountRange(item.estClicks) },
       {
         label: '최소 예산',
-        value: typeof item.minBudgetWon === 'number' ? formatWon(item.minBudgetWon) : '정보 없음',
+        value:
+          typeof item.minBudgetWon === 'number' ? formatCompactWon(item.minBudgetWon) : '정보 없음',
       },
       { label: '주요 타깃', value: item.primaryTarget },
       {

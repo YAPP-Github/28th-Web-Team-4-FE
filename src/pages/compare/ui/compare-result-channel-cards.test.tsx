@@ -9,19 +9,19 @@ const MOCK_CHANNELS = [
     id: 'naver',
     name: '네이버 검색 광고',
     matchRate: 95,
-    iconSrc: '/compare-assets/naver.png',
+    logoSrc: '/compare-assets/naver.png',
   },
   {
     id: 'kakao',
     name: '카카오 키워드 광고',
     matchRate: 88,
-    iconSrc: '/compare-assets/kakao.png',
+    logoSrc: '/compare-assets/kakao.png',
   },
   {
     id: 'meta',
     name: '메타 피드 광고',
     matchRate: 82,
-    iconSrc: '/compare-assets/meta.png',
+    logoSrc: '/compare-assets/meta.png',
   },
 ] as const satisfies readonly CompareResultChannelSummary[];
 
@@ -42,5 +42,23 @@ describe('CompareResultChannelCards', () => {
     render(<CompareResultChannelCards channels={MOCK_CHANNELS.slice(0, 2)} />);
 
     expect(screen.getByText('채널 추가하기')).toBeVisible();
+  });
+
+  it('임시 로고가 없는 채널은 채널명의 첫 글자를 표시한다', () => {
+    render(
+      <CompareResultChannelCards
+        channels={[
+          {
+            id: 'unknown-channel',
+            name: '새로운 채널',
+            matchRate: 70,
+            logoSrc: null,
+          },
+          MOCK_CHANNELS[0],
+        ]}
+      />,
+    );
+
+    expect(screen.getByText('새')).toBeVisible();
   });
 });

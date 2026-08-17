@@ -1,13 +1,13 @@
 import type { JSX } from 'react';
-import Image from 'next/image';
 import { Plus, X } from 'lucide-react';
 
 import { Badge } from '@/shared/ui/badge';
-import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
 import type { CompareResultChannelSummary } from '@/pages/compare/model/compare-result-channel';
+
+import { CompareResultChannelLogo } from './compare-result-channel-logo';
 
 type CompareResultChannelCardsProps = {
   channels: readonly CompareResultChannelSummary[];
@@ -28,15 +28,12 @@ function CompareResultChannelCard({
       <Box className="flex w-full items-start justify-between">
         <Box aria-hidden="true" className="size-016 shrink-0" />
         <Box className="gap-010 flex flex-col items-center">
-          <Box className="size-024 overflow-hidden rounded-[var(--radius-xs)]">
-            <Image
-              src={channel.iconSrc}
-              alt=""
-              width={24}
-              height={24}
-              className={cn('size-024 object-cover', channel.cropIcon && 'scale-[1.42]')}
-            />
-          </Box>
+          <CompareResultChannelLogo
+            name={channel.name}
+            logoSrc={channel.logoSrc}
+            cropIcon={channel.cropIcon}
+            size="small"
+          />
           <Box className="gap-004 flex flex-col items-center">
             <Text as="h2" variant="subtitle-lg" className="text-text-high whitespace-nowrap">
               {channel.name}

@@ -2,7 +2,6 @@
 
 import { useState, type JSX } from 'react';
 import { Popover } from '@base-ui/react/popover';
-import Image from 'next/image';
 import { Info } from 'lucide-react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 
@@ -15,6 +14,8 @@ import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Tabs } from '@/shared/ui/tabs';
 import { Text } from '@/shared/ui/text';
+
+import { CompareResultChannelLogo } from './compare-result-channel-logo';
 
 type CompareResultMetric = 'impressions' | 'clicks';
 
@@ -124,15 +125,12 @@ function ChannelPerformanceRow({
 
   return (
     <Box className="gap-014 flex w-full items-center">
-      <Box className="size-040 shrink-0 overflow-hidden rounded-[var(--radius-xs)]">
-        <Image
-          src={channel.iconSrc}
-          alt=""
-          width={40}
-          height={40}
-          className={cn('size-040 object-cover', channel.cropIcon && 'scale-[1.42]')}
-        />
-      </Box>
+      <CompareResultChannelLogo
+        name={channel.name}
+        logoSrc={channel.logoSrc}
+        cropIcon={channel.cropIcon}
+        size="large"
+      />
       <Box className="gap-008 flex min-w-0 flex-1 flex-col">
         <Box className="flex w-full items-center justify-between">
           <Text variant="subtitle-md" className="text-text-default truncate">
