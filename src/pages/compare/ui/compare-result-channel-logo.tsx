@@ -1,4 +1,6 @@
-import type { JSX } from 'react';
+'use client';
+
+import { useState, type JSX } from 'react';
 import Image from 'next/image';
 
 import { cn } from '@/shared/ui/cn';
@@ -21,7 +23,9 @@ export function CompareResultChannelLogo({
   cropIcon = false,
   size,
 }: CompareResultChannelLogoProps): JSX.Element {
+  const [failedLogoSrc, setFailedLogoSrc] = useState<string | null>(null);
   const sizeClassName = LOGO_SIZE_CLASS[size];
+  const showImage = logoSrc !== null && failedLogoSrc !== logoSrc;
 
   return (
     <span
@@ -31,13 +35,14 @@ export function CompareResultChannelLogo({
         sizeClassName,
       )}
     >
-      {logoSrc ? (
+      {showImage ? (
         <Image
           src={logoSrc}
           alt=""
           width={size === 'small' ? 24 : 40}
           height={size === 'small' ? 24 : 40}
           className={cn('size-full object-cover', cropIcon && 'scale-[1.42]')}
+          onError={() => setFailedLogoSrc(logoSrc)}
         />
       ) : (
         <span className={cn(size === 'small' ? 'typo-caption-lg' : 'typo-subtitle-md')}>

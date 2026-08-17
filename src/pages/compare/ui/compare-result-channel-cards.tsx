@@ -38,14 +38,16 @@ function CompareResultChannelCard({
             <Text as="h2" variant="subtitle-lg" className="text-text-high whitespace-nowrap">
               {channel.name}
             </Text>
-            <Badge
-              frame="indicator"
-              tone={highlighted ? 'orange' : 'gray'}
-              size="s"
-              className={highlighted ? 'bg-sys-primary-lowest' : undefined}
-            >
-              적합도 {channel.matchRate}%
-            </Badge>
+            {channel.matchRate === null ? null : (
+              <Badge
+                frame="indicator"
+                tone={highlighted ? 'orange' : 'gray'}
+                size="s"
+                className={highlighted ? 'bg-sys-primary-lowest' : undefined}
+              >
+                적합도 {channel.matchRate}%
+              </Badge>
+            )}
           </Box>
         </Box>
         <X aria-hidden="true" className="text-icon-default size-016 shrink-0" />

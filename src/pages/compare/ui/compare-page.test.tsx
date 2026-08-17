@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { withNuqsTestingAdapter } from 'nuqs/adapters/testing';
@@ -81,7 +81,10 @@ const COMPARISON_CHANNEL_NAMES: Record<string, string> = {
   'channel-meta': '메타 피드 광고',
 };
 
-function createComparisonItem(channelId: string): ChannelComparisonItemResponse {
+function createComparisonItem(
+  channelId: string,
+  overrides: Partial<ChannelComparisonItemResponse> = {},
+): ChannelComparisonItemResponse {
   return {
     channelId,
     channelName: COMPARISON_CHANNEL_NAMES[channelId] ?? `${channelId} 채널`,
@@ -96,6 +99,7 @@ function createComparisonItem(channelId: string): ChannelComparisonItemResponse 
     matchRate: 90,
     estImpressions: { min: 10_000, max: 20_000 },
     estClicks: { min: 100, max: 200 },
+    ...overrides,
   };
 }
 
@@ -239,7 +243,7 @@ describe('ComparePage', () => {
       http.get(/\/api\/v1\/channel-comparisons$/, ({ request }) => {
         const channelIds = new URL(request.url).searchParams.getAll('channelIds');
 
-        return comparisonResponse(channelIds.map(createComparisonItem));
+        return comparisonResponse(channelIds.map((channelId) => createComparisonItem(channelId)));
       }),
     );
   });
@@ -749,18 +753,66 @@ describe('ComparePage', () => {
     expect(getCompareButton()).toHaveTextContent('선택한 채널 비교하기 (0/3)');
   });
 
-  it('비교 결과 임시 페이지는 고정 목 채널과 추가 카드를 보여준다', async () => {
+  it('API 응답 순서와 필드를 모든 비교 결과 섹션에 표시한다', async () => {
+    server.use(
+      http.get(/\/api\/v1\/channel-comparisons$/, () =>
+        comparisonResponse([
+          createComparisonItem('channel-meta', {
+            channelName: '응답 B',
+            audienceSummary: 'B 오디언스',
+            adFormats: ['피드', '영상'],
+            targetingMethods: ['지역', '관심사'],
+            minBudgetWon: 123_456,
+            advantages: ['B 장점'],
+            tags: ['B 태그'],
+            cpcWon: 111,
+            cpmWon: 1_111,
+            estImpressions: { min: 11_000, max: 22_000 },
+            estClicks: { min: 110, max: 220 },
+          }),
+          createComparisonItem('channel-naver', { channelName: '응답 A', matchRate: null }),
+          createComparisonItem('channel-kakao', { channelName: '응답 C' }),
+        ]),
+      ),
+    );
+
     renderCompareResultPage();
 
+    const firstChannelHeading = await screen.findByRole('heading', {
+      level: 2,
+      name: '응답 B',
+    });
+    const channelCardList = firstChannelHeading.closest('ul');
+
+    if (!channelCardList) {
+      throw new Error('채널 비교 카드 목록을 찾지 못했습니다.');
+    }
+
     expect(
-      await screen.findByRole('heading', {
-        name: '선택한 채널별 특징과 성과를 비교한 결과예요',
-      }),
+      within(channelCardList)
+        .getAllByRole('heading', { level: 2 })
+        .map((heading) => heading.textContent),
+    ).toEqual(['응답 B', '응답 A', '응답 C']);
+    expect(
+      within(screen.getByRole('region', { name: '채널별 예상 노출 · 클릭 수' })).getByText(
+        '응답 B',
+      ),
     ).toBeVisible();
-    expect(screen.getByRole('heading', { level: 2, name: '네이버 검색 광고' })).toBeVisible();
-    expect(screen.getByRole('heading', { level: 2, name: '카카오 키워드 광고' })).toBeVisible();
-    expect(screen.getByText('채널 추가하기')).toBeVisible();
-    expect(screen.getByRole('region', { name: '채널별 인사이트' })).toBeVisible();
+    expect(
+      within(screen.getByRole('region', { name: '채널별 상세 정보' })).getByText('123,456원'),
+    ).toBeVisible();
+    expect(screen.getByText('B 오디언스')).toBeVisible();
+    expect(screen.getByText('피드 · 영상')).toBeVisible();
+    expect(screen.getByText('지역 · 관심사')).toBeVisible();
+    expect(
+      within(screen.getByRole('region', { name: '채널별 CPC와 CPM' })).getAllByText('응답 B'),
+    ).toHaveLength(2);
+    expect(
+      within(screen.getByRole('region', { name: '채널별 인사이트' })).getByText(/B 태그/),
+    ).toBeVisible();
+    expect(screen.getByText('B 장점')).toBeVisible();
+    expect(screen.queryByText('채널 추가하기')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '결과 저장하기' })).toBeVisible();
   });
 
   it('최초 비교 결과를 조회하는 동안 전체 로딩 화면을 보여준다', async () => {
@@ -771,7 +823,7 @@ describe('ComparePage', () => {
         await responseGate.promise;
         const channelIds = new URL(request.url).searchParams.getAll('channelIds');
 
-        return comparisonResponse(channelIds.map(createComparisonItem));
+        return comparisonResponse(channelIds.map((channelId) => createComparisonItem(channelId)));
       }),
     );
 
@@ -832,7 +884,7 @@ describe('ComparePage', () => {
         }
 
         const channelIds = new URL(request.url).searchParams.getAll('channelIds');
-        return comparisonResponse(channelIds.map(createComparisonItem));
+        return comparisonResponse(channelIds.map((channelId) => createComparisonItem(channelId)));
       }),
     );
 
