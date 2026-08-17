@@ -188,7 +188,10 @@ function renderRecommendResultWithRecommendations(
 
   return renderWithProviders(
     <Suspense fallback={<div>loading</div>}>
-      <RecommendResultWithRecommendations onboardingId={RECOMMENDATION_ONBOARDING_ID} />
+      <RecommendResultWithRecommendations
+        isGuest={false}
+        onboardingId={RECOMMENDATION_ONBOARDING_ID}
+      />
     </Suspense>,
   );
 }

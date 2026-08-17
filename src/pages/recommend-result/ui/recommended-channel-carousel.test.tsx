@@ -28,11 +28,11 @@ function createMediaQueryList(query: string, matches: boolean): MediaQueryList {
   } as MediaQueryList;
 }
 
-function mockViewport(columns: 1 | 2 | 3 | 4): void {
+function mockViewport(columns: 1 | 2 | 3 | 4, prefersReducedMotion = true): void {
   vi.mocked(window.matchMedia).mockImplementation((query) =>
     createMediaQueryList(
       query,
-      query.includes('prefers-reduced-motion') ||
+      (query.includes('prefers-reduced-motion') && prefersReducedMotion) ||
         (query === TABLET_MEDIA_QUERY && columns >= 2) ||
         (query === SMALL_DESKTOP_MEDIA_QUERY && columns >= 3) ||
         (query === DESKTOP_MEDIA_QUERY && columns >= 4),
@@ -223,14 +223,54 @@ describe('RecommendedChannelCarousel', () => {
     );
   });
 
-  it('locks only the first two channels for guests across both pages', () => {
-    mockViewport(4);
+  it.each([1, 2, 3, 4] as const)(
+    'locks only the first two guest channels with %i channel per page',
+    (columns) => {
+      mockViewport(columns);
+      renderCarousel(recommendedChannels, { isGuest: true });
+
+      const articles = screen.getAllByRole('article', { hidden: true });
+
+      expect(
+        within(articles[0]).getByRole('link', { name: '로그인하기', hidden: true }),
+      ).toBeInTheDocument();
+      expect(
+        within(articles[1]).getByRole('link', { name: '로그인하기', hidden: true }),
+      ).toBeInTheDocument();
+
+      for (const article of articles.slice(2)) {
+        expect(
+          within(article).queryByRole('link', { name: '로그인하기', hidden: true }),
+        ).not.toBeInTheDocument();
+      }
+    },
+  );
+
+  it('uses the same guest locks when entrance motion is enabled', () => {
+    mockViewport(4, false);
     renderCarousel(recommendedChannels, { isGuest: true });
 
-    expect(screen.getAllByRole('link', { name: '로그인하기' })).toHaveLength(2);
+    expect(screen.getAllByRole('link', { name: '로그인하기', hidden: true })).toHaveLength(2);
+  });
+
+  it('keeps every channel unlocked for authenticated users', () => {
+    renderCarousel(recommendedChannels, { isGuest: false });
+
     expect(
-      screen.getByRole('button', { name: '네이버 쇼핑 광고 상세 정보 열기', hidden: true }),
-    ).toBeInTheDocument();
+      screen.queryByRole('link', { name: '로그인하기', hidden: true }),
+    ).not.toBeInTheDocument();
+    expect(screen.getAllByRole('checkbox', { hidden: true })).toHaveLength(
+      recommendedChannels.length,
+    );
+    expect(screen.getAllByRole('button', { name: /상세 정보 열기/, hidden: true })).toHaveLength(
+      recommendedChannels.length,
+    );
+  });
+
+  it('locks only the available result when a guest receives one channel', () => {
+    renderCarousel(recommendedChannels.slice(0, 1), { isGuest: true });
+
+    expect(screen.getAllByRole('link', { name: '로그인하기' })).toHaveLength(1);
   });
 
   it('loads the first page images eagerly and the second page lazily', () => {
