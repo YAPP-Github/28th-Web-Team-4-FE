@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
-import { withNuqsTestingAdapter } from 'nuqs/adapters/testing';
+import { withNuqsTestingAdapter, type OnUrlUpdateFunction } from 'nuqs/adapters/testing';
 
 import type {
   ChannelComparisonItemResponse,
@@ -188,7 +188,11 @@ function createDeferred<T>() {
   return { promise, resolve };
 }
 
-function renderCompareRoute(page: ReactNode, searchParams = '') {
+function renderCompareRoute(
+  page: ReactNode,
+  searchParams = '',
+  onUrlUpdate: OnUrlUpdateFunction = () => {},
+) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -196,7 +200,7 @@ function renderCompareRoute(page: ReactNode, searchParams = '') {
       },
     },
   });
-  const NuqsTestingAdapter = withNuqsTestingAdapter({ searchParams, hasMemory: true });
+  const NuqsTestingAdapter = withNuqsTestingAdapter({ searchParams, hasMemory: true, onUrlUpdate });
 
   function Wrapper({ children }: { children: ReactNode }) {
     return (
@@ -215,8 +219,9 @@ function renderComparePage(searchParams = '') {
 
 function renderCompareResultPage(
   searchParams = '?channels=channel-naver,channel-kakao,channel-meta',
+  onUrlUpdate: OnUrlUpdateFunction = () => {},
 ) {
-  return renderCompareRoute(<CompareResultPage />, searchParams);
+  return renderCompareRoute(<CompareResultPage />, searchParams, onUrlUpdate);
 }
 
 function escapeRegExp(value: string) {
@@ -813,6 +818,63 @@ describe('ComparePage', () => {
     expect(screen.getByText('B 장점')).toBeVisible();
     expect(screen.queryByText('채널 추가하기')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: '결과 저장하기' })).toBeVisible();
+  });
+
+  it('3개 결과에서 채널을 제거하면 URL을 보존하며 2개 결과로 교체한다', async () => {
+    const user = userEvent.setup();
+    const nextResponseGate = createDeferred<void>();
+    const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
+    const requestedChannelIds: string[][] = [];
+
+    server.use(
+      http.get(/\/api\/v1\/channel-comparisons$/, async ({ request }) => {
+        const url = new URL(request.url);
+        const channelIds = url.searchParams.getAll('channelIds');
+        requestedChannelIds.push(channelIds);
+
+        if (channelIds.length === 2) {
+          await nextResponseGate.promise;
+        }
+
+        return comparisonResponse(channelIds.map((channelId) => createComparisonItem(channelId)));
+      }),
+    );
+
+    renderCompareResultPage(
+      '?channels=channel-naver,channel-kakao,channel-meta&onboardingId=onboarding-87',
+      onUrlUpdate,
+    );
+
+    expect(await screen.findByRole('heading', { level: 2, name: '메타 피드 광고' })).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: '메타 피드 광고 비교에서 제거' }));
+
+    await waitFor(() => {
+      const event = onUrlUpdate.mock.lastCall?.[0];
+      expect(event?.searchParams.get('channels')).toBe('channel-naver,channel-kakao');
+      expect(event?.searchParams.get('onboardingId')).toBe('onboarding-87');
+      expect(event?.options.history).toBe('replace');
+    });
+    expect(screen.getByRole('main')).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '변경된 채널의 비교 결과를 불러오는 중이에요',
+    );
+    expect(screen.getByRole('heading', { level: 2, name: '메타 피드 광고' })).toBeVisible();
+    for (const button of screen.getAllByRole('button', { name: /비교에서 제거/ })) {
+      expect(button).toBeDisabled();
+    }
+
+    nextResponseGate.resolve();
+
+    expect(await screen.findByText('채널 추가하기')).toBeVisible();
+    expect(
+      screen.queryByRole('heading', { level: 2, name: '메타 피드 광고' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /비교에서 제거/ })).not.toBeInTheDocument();
+    expect(requestedChannelIds).toEqual([
+      ['channel-naver', 'channel-kakao', 'channel-meta'],
+      ['channel-naver', 'channel-kakao'],
+    ]);
   });
 
   it('최초 비교 결과를 조회하는 동안 전체 로딩 화면을 보여준다', async () => {

@@ -18,23 +18,32 @@ import { CompareResultErrorState, CompareResultLoadingState } from './compare-re
 import { CompareResultSubHeader } from './compare-result-sub-header';
 
 function CompareResultPageContent(): JSX.Element | null {
-  const { channelIds, onboardingId, isValid } = useChannelComparisonResultQueryState();
+  const { channelIds, onboardingId, isValid, setChannelIds } =
+    useChannelComparisonResultQueryState();
 
   if (!isValid) {
     return null;
   }
 
-  return <CompareResultWithQuery channelIds={channelIds} onboardingId={onboardingId} />;
+  return (
+    <CompareResultWithQuery
+      channelIds={channelIds}
+      onboardingId={onboardingId}
+      setChannelIds={setChannelIds}
+    />
+  );
 }
 
 type CompareResultWithQueryProps = {
   channelIds: readonly string[];
   onboardingId: string | null;
+  setChannelIds: (channelIds: readonly string[]) => Promise<URLSearchParams>;
 };
 
 function CompareResultWithQuery({
   channelIds,
   onboardingId,
+  setChannelIds,
 }: CompareResultWithQueryProps): JSX.Element {
   const router = useRouter();
   const { data: authSession } = useAuthSession();
@@ -42,6 +51,14 @@ function CompareResultWithQuery({
     channelIds,
     onboardingId,
   });
+
+  const removeChannel = (channelId: string) => {
+    if (channelIds.length !== 3) {
+      return;
+    }
+
+    void setChannelIds(channelIds.filter((id) => id !== channelId));
+  };
 
   if (comparisonQuery.isPending) {
     return <CompareResultLoadingState />;
@@ -59,9 +76,21 @@ function CompareResultWithQuery({
   return (
     <>
       <CompareResultSubHeader isGuest={authSession?.authenticated === false} />
-      <main className="bg-surface-low px-016 sm:px-032 flex min-h-0 flex-1 justify-center overflow-y-auto lg:px-120">
+      <main
+        aria-busy={comparisonQuery.isPlaceholderData}
+        className="bg-surface-low px-016 sm:px-032 flex min-h-0 flex-1 justify-center overflow-y-auto lg:px-120"
+      >
         <Box className="gap-020 py-040 flex w-full max-w-[792px] flex-col">
-          <CompareResultChannelCards channels={comparisonQuery.data} />
+          {comparisonQuery.isPlaceholderData ? (
+            <span role="status" className="sr-only">
+              변경된 채널의 비교 결과를 불러오는 중이에요
+            </span>
+          ) : null}
+          <CompareResultChannelCards
+            channels={comparisonQuery.data}
+            removeDisabled={comparisonQuery.isPlaceholderData}
+            onRemoveChannel={removeChannel}
+          />
           <CompareResultChannelPerformance channels={comparisonQuery.data} />
           <CompareResultChannelDetailsTable channels={comparisonQuery.data} />
           <CompareResultChannelCost channels={comparisonQuery.data} />
