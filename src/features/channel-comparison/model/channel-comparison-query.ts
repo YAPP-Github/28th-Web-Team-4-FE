@@ -1,6 +1,7 @@
 import { createSerializer, parseAsArrayOf, parseAsString } from 'nuqs/server';
 
 export const MAX_COMPARISON_CHANNELS = 3;
+export const MIN_COMPARISON_CHANNELS = 2;
 
 type ChannelComparisonHrefOptions = {
   onboardingId?: string;
@@ -22,6 +23,12 @@ export function normalizeComparisonChannelIds(channelIds: readonly string[]): st
 
 export function isComparisonSelectionComplete(channelIds: readonly string[]): boolean {
   return normalizeComparisonChannelIds(channelIds).length === MAX_COMPARISON_CHANNELS;
+}
+
+export function isComparisonResultQueryValid(channelIds: readonly string[]): boolean {
+  const channelCount = normalizeComparisonChannelIds(channelIds).length;
+
+  return channelCount >= MIN_COMPARISON_CHANNELS && channelCount <= MAX_COMPARISON_CHANNELS;
 }
 
 export function createChannelComparisonHref(

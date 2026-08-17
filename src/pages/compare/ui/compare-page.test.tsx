@@ -14,13 +14,14 @@ import { server } from '@/shared/api/mocks/server';
 import { ComparePage } from './compare-page';
 import { CompareResultPage } from './compare-result-page';
 
-const { pushMock, showWarningToastMock } = vi.hoisted(() => ({
+const { pushMock, replaceMock, showWarningToastMock } = vi.hoisted(() => ({
   pushMock: vi.fn<(href: string) => void>(),
+  replaceMock: vi.fn<(href: string) => void>(),
   showWarningToastMock: vi.fn<(description: string, options?: { id?: string }) => void>(),
 }));
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: pushMock }),
+  useRouter: () => ({ push: pushMock, replace: replaceMock }),
 }));
 
 vi.mock('@/shared/api/hey-api', () => ({
@@ -179,8 +180,10 @@ function renderComparePage(searchParams = '') {
   return renderCompareRoute(<ComparePage />, searchParams);
 }
 
-function renderCompareResultPage() {
-  return renderCompareRoute(<CompareResultPage />);
+function renderCompareResultPage(
+  searchParams = '?channels=channel-naver,channel-kakao,channel-meta',
+) {
+  return renderCompareRoute(<CompareResultPage />, searchParams);
 }
 
 function escapeRegExp(value: string) {
@@ -199,6 +202,7 @@ describe('ComparePage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     pushMock.mockReset();
+    replaceMock.mockReset();
     server.use(
       http.get(/\/api\/v1\/channels$/, ({ request }) =>
         defaultChannelResponse(new URL(request.url)),

@@ -1,4 +1,8 @@
-import type { JSX } from 'react';
+'use client';
+
+import { Suspense, type JSX } from 'react';
+
+import { useChannelComparisonResultQueryState } from '@/features/channel-comparison';
 
 import { MOCK_COMPARE_RESULT_CHANNELS } from '@/pages/compare/model/compare-result-channel';
 import { Box } from '@/shared/ui/layout/box';
@@ -10,7 +14,13 @@ import { CompareResultChannelInsightsDqa } from './compare-result-channel-insigh
 import { CompareResultChannelPerformance } from './compare-result-channel-performance';
 import { CompareResultSubHeader } from './compare-result-sub-header';
 
-export function CompareResultPage(): JSX.Element {
+function CompareResultPageContent(): JSX.Element | null {
+  const { isValid } = useChannelComparisonResultQueryState();
+
+  if (!isValid) {
+    return null;
+  }
+
   return (
     <>
       <CompareResultSubHeader />
@@ -24,5 +34,13 @@ export function CompareResultPage(): JSX.Element {
         </Box>
       </main>
     </>
+  );
+}
+
+export function CompareResultPage(): JSX.Element {
+  return (
+    <Suspense>
+      <CompareResultPageContent />
+    </Suspense>
   );
 }
