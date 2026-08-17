@@ -32,8 +32,8 @@ export type CompareResultChannelInsightsCollapsedView =
 /** 선택한 채널의 인사이트 목록을 하나의 Collapsible 영역으로 표시한다. */
 export function CompareResultChannelInsights({
   channels,
-  variant = 'stacked',
-  collapsedView = 'first',
+  variant = 'split',
+  collapsedView = 'title',
   defaultOpen = true,
   open,
   onOpenChange,

@@ -12,7 +12,7 @@ export const channelInsightDqaModeParser = parseAsStringLiteral([CHANNEL_INSIGHT
 export const channelInsightVariantParser = parseAsStringLiteral(
   COMPARE_RESULT_CHANNEL_INSIGHT_VARIANTS,
 )
-  .withDefault('stacked')
+  .withDefault('split')
   .withOptions({ history: 'replace', shallow: true });
 
 export const channelInsightOpenParser = parseAsBoolean
@@ -22,5 +22,5 @@ export const channelInsightOpenParser = parseAsBoolean
 export const channelInsightCollapseParser = parseAsStringLiteral(
   COMPARE_RESULT_CHANNEL_INSIGHTS_COLLAPSED_VIEWS,
 )
-  .withDefault('first')
+  .withDefault('title')
   .withOptions({ history: 'replace', shallow: true });
