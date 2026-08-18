@@ -6,7 +6,6 @@ import { useState, type JSX, type PropsWithChildren } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FormProvider } from 'react-hook-form';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { vi } from 'vitest';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
 import {
@@ -15,13 +14,6 @@ import {
 } from '@/features/ad-onboarding/model/onboarding-draft';
 import { useRecommendOnboardingForm } from '@/features/ad-onboarding/model/use-recommend-onboarding-form';
 import { RecommendOnboardingStepContent } from '@/features/ad-onboarding/ui/recommend-onboarding-step-content';
-
-vi.mock('@/shared/api/hey-api', () => ({
-  createClientConfig: (config?: Record<string, unknown>) => ({
-    ...config,
-    baseUrl: 'http://localhost',
-  }),
-}));
 
 const ONBOARDING_DRAFT_PARAMETER_KEY = 'onboardingDraft';
 const EMPTY_BUDGET_DRAFT = {

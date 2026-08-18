@@ -102,21 +102,26 @@ describe('AuthenticatedChannelResults', () => {
     await user.click(addChannelButton);
 
     expect(screen.getByRole('dialog', { name: '어떤 방식으로 추가할까요?' })).toBeVisible();
-    expect(screen.getByRole('button', { name: '추천 결과 불러오기' })).not.toHaveAttribute('href');
+    expect(screen.getByRole('button', { name: '추천 결과 불러오기' })).toHaveAttribute(
+      'href',
+      '/simulator/recommendations',
+    );
     expect(screen.getByRole('button', { name: '직접 선택하기' })).toHaveAttribute(
       'href',
       '/simulator/channels',
     );
   });
 
-  it('추천 결과 불러오기 버튼을 눌러도 모달을 유지한다', async () => {
+  it('추천 결과 불러오기 버튼을 누르면 추천 결과 선택 화면으로 이동한다', async () => {
     const user = userEvent.setup();
     render(<AuthenticatedChannelResults isChannelSelectionComplete={false} />);
 
     await user.click(screen.getByRole('button', { name: '채널 추가하기' }));
-    await user.click(screen.getByRole('button', { name: '추천 결과 불러오기' }));
 
-    expect(screen.getByRole('dialog', { name: '어떤 방식으로 추가할까요?' })).toBeVisible();
+    expect(screen.getByRole('button', { name: '추천 결과 불러오기' })).toHaveAttribute(
+      'href',
+      '/simulator/recommendations',
+    );
   });
 
   it('선택 완료 상태에서는 채널 추가 링크를 보여주지 않는다', () => {

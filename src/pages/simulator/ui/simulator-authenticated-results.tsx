@@ -76,7 +76,13 @@ function LoggedInEmptyState(): JSX.Element {
           }
           actions={
             <>
-              <Button frame="button" tone="stroke" className="h-12 flex-1">
+              <Button
+                frame="button"
+                tone="stroke"
+                className="h-12 flex-1"
+                nativeButton={false}
+                render={<Link href="/simulator/recommendations" />}
+              >
                 추천 결과 불러오기
               </Button>
               <Button
