@@ -18,11 +18,13 @@ import { MyPageSkeleton } from './my-page-skeleton';
 import { MyPageSubHeader } from './my-page-sub-header';
 import { SavedResultsCard } from './saved-results-card';
 
-type MyPageProps = {
+export type MyPageProps = {
   isLoggedIn?: boolean;
   isLoading?: boolean;
   adsCondition?: MyAdsCondition;
   savedRecommendations?: readonly SavedRecommendation[];
+  savedRecommendationsLoading?: boolean;
+  savedRecommendationsError?: boolean;
 };
 
 export function MyPage({
@@ -30,6 +32,8 @@ export function MyPage({
   isLoading = false,
   adsCondition,
   savedRecommendations,
+  savedRecommendationsLoading = false,
+  savedRecommendationsError = false,
 }: MyPageProps): JSX.Element {
   const onboardingTagQuery = useMyOnboardingTag(isLoggedIn && !adsCondition);
   const resolvedAdsCondition =
@@ -49,7 +53,12 @@ export function MyPage({
           {isLoggedIn && resolvedAdsCondition ? (
             <MyAdsConditionCard tags={resolvedAdsCondition.tags} />
           ) : null}
-          <SavedResultsCard isLoggedIn={isLoggedIn} recommendations={savedRecommendations} />
+          <SavedResultsCard
+            isLoggedIn={isLoggedIn}
+            recommendations={savedRecommendations}
+            recommendationsLoading={savedRecommendationsLoading}
+            recommendationsError={savedRecommendationsError}
+          />
           {isLoggedIn ? <AccountActions /> : null}
         </Box>
       </Box>

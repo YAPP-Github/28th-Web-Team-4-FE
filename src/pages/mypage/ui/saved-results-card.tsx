@@ -17,6 +17,8 @@ type SavedResultPanelProps = {
   isLoggedIn: boolean;
   kind: SavedResultPanelKind;
   recommendations: readonly SavedRecommendation[];
+  isLoading?: boolean;
+  isError?: boolean;
 };
 
 const SAVED_RESULT_EMPTY_STATES = {
@@ -77,6 +79,8 @@ function SavedResultPanel({
   isLoggedIn,
   kind,
   recommendations,
+  isLoading = false,
+  isError = false,
 }: SavedResultPanelProps): JSX.Element {
   const emptyState = SAVED_RESULT_EMPTY_STATES[kind];
 
@@ -88,6 +92,30 @@ function SavedResultPanel({
         className="text-text-low flex h-[96px] w-full items-center justify-center text-center"
       >
         {emptyState.description}
+      </Text>
+    );
+  }
+
+  if (kind === 'recommendation' && isLoading) {
+    return (
+      <Text
+        as="p"
+        variant="body-xl"
+        className="text-text-low flex h-[96px] w-full items-center justify-center text-center"
+      >
+        추천 결과를 불러오고 있어요
+      </Text>
+    );
+  }
+
+  if (kind === 'recommendation' && isError) {
+    return (
+      <Text
+        as="p"
+        variant="body-xl"
+        className="text-text-low flex h-[96px] w-full items-center justify-center text-center"
+      >
+        추천 결과를 불러오지 못했어요
       </Text>
     );
   }
@@ -128,11 +156,15 @@ function SavedResultPanel({
 type SavedResultsCardProps = {
   isLoggedIn: boolean;
   recommendations?: readonly SavedRecommendation[];
+  recommendationsLoading?: boolean;
+  recommendationsError?: boolean;
 };
 
 export function SavedResultsCard({
   isLoggedIn,
   recommendations = [],
+  recommendationsLoading = false,
+  recommendationsError = false,
 }: SavedResultsCardProps): JSX.Element {
   const hasRecommendations = isLoggedIn && recommendations.length > 0;
 
@@ -189,6 +221,8 @@ export function SavedResultsCard({
               isLoggedIn={isLoggedIn}
               kind="recommendation"
               recommendations={recommendations}
+              isLoading={recommendationsLoading}
+              isError={recommendationsError}
             />
           </Tabs.Panel>
           <Tabs.Panel value="comparison">

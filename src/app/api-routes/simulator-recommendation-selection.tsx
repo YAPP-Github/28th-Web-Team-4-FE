@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-import { SimulatorRecommendationSelectionPage } from '@/pages/simulator';
+import { SimulatorRecommendationSelectionApiPage } from '@/pages/simulator';
 import { hasActiveAuthSession } from '@/shared/lib/auth/session-cookie';
 
 export { metadata } from '@/pages/simulator';
@@ -10,5 +10,5 @@ export default async function SimulatorRecommendationSelectionRoute() {
     redirect('/login');
   }
 
-  return <SimulatorRecommendationSelectionPage />;
+  return <SimulatorRecommendationSelectionApiPage />;
 }
