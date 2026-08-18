@@ -5,10 +5,10 @@
 import { formatBudgetRange, isBudgetRangeEmpty } from '@/features/ad-onboarding/lib/budget-snap';
 
 import {
-  CAMPAIGN_PERIOD_OPTION_LIST,
-  CATEGORY_OPTION_LIST,
-  SERVICE_TYPE_OPTION_LIST,
-  type OnboardingOption,
+  CAMPAIGN_PERIOD_OPTION_BY_VALUE,
+  CATEGORY_OPTION_BY_VALUE,
+  SERVICE_TYPE_OPTION_BY_VALUE,
+  type OnboardingOptionByValue,
 } from './common-onboarding-options';
 import type { CommonOnboardingDraft } from './onboarding-draft';
 import type { CommonOnboardingStepId } from './onboarding-step';
@@ -53,26 +53,26 @@ export function getCommonOnboardingAnswerLabel(
     case 'service-name':
       return draft.serviceName.trim();
     case 'category':
-      return getOnboardingOptionLabel(CATEGORY_OPTION_LIST, draft.category);
+      return getOnboardingOptionLabel(CATEGORY_OPTION_BY_VALUE, draft.category);
     case 'service-type':
-      return getOnboardingOptionLabel(SERVICE_TYPE_OPTION_LIST, draft.serviceType);
+      return getOnboardingOptionLabel(SERVICE_TYPE_OPTION_BY_VALUE, draft.serviceType);
     case 'budget':
       return formatBudgetRange(draft.budget);
     case 'campaign-period':
-      return getOnboardingOptionLabel(CAMPAIGN_PERIOD_OPTION_LIST, draft.campaignPeriod);
+      return getOnboardingOptionLabel(CAMPAIGN_PERIOD_OPTION_BY_VALUE, draft.campaignPeriod);
   }
 }
 
 /**
  * enum 스타일 value에 대응하는 화면 표시 label을 찾는다.
  *
- * @param optionList 검색할 선택지 목록
+ * @param optionByValue value를 key로 찾을 선택지 record
  * @param value 현재 저장된 선택지 value
  * @returns 선택지 label. 값이 없으면 빈 문자열
  */
 export function getOnboardingOptionLabel<TValue extends string>(
-  optionList: readonly OnboardingOption<TValue>[],
+  optionByValue: OnboardingOptionByValue<TValue>,
   value?: TValue,
 ): string {
-  return optionList.find((option) => option.value === value)?.label ?? '';
+  return value ? (optionByValue[value]?.label ?? '') : '';
 }
