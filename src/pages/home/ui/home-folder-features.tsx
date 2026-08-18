@@ -138,7 +138,7 @@ export function HomeFolderFeatures(): JSX.Element {
               </h3>
               <Link
                 href={FEATURE_FOLDERS[0].buttonHref}
-                className="font-pre hover:border-sys-primary-default hover:text-sys-primary-default mt-[20px] inline-flex items-center gap-[8px] rounded-[8px] border border-[#E4E4E7] bg-white px-[18px] py-[10px] text-[14px] font-semibold text-[var(--color-primitive-gray-900,#2E2E33)] shadow-2xs transition-all active:scale-95"
+                className="font-pre hover:border-sys-primary-default hover:text-sys-primary-default mt-[20px] inline-flex items-center gap-[8px] rounded-[8px] border border-[var(--color-primitive-gray-200,#E4E4E7)] bg-white px-[18px] py-[10px] text-[14px] font-semibold text-[var(--color-primitive-gray-900,#2E2E33)] shadow-2xs transition-all active:scale-95"
               >
                 <span>{FEATURE_FOLDERS[0].buttonLabel}</span>
                 <ArrowRight aria-hidden className="size-[15px]" />
@@ -180,7 +180,7 @@ export function HomeFolderFeatures(): JSX.Element {
               </h3>
               <Link
                 href={FEATURE_FOLDERS[1].buttonHref}
-                className="font-pre hover:border-sys-primary-default hover:text-sys-primary-default mt-[20px] inline-flex items-center gap-[8px] rounded-[8px] border border-[#E4E4E7] bg-white px-[18px] py-[10px] text-[14px] font-semibold text-[var(--color-primitive-gray-900,#2E2E33)] shadow-2xs transition-all active:scale-95"
+                className="font-pre hover:border-sys-primary-default hover:text-sys-primary-default mt-[20px] inline-flex items-center gap-[8px] rounded-[8px] border border-[var(--color-primitive-gray-200,#E4E4E7)] bg-white px-[18px] py-[10px] text-[14px] font-semibold text-[var(--color-primitive-gray-900,#2E2E33)] shadow-2xs transition-all active:scale-95"
               >
                 <span>{FEATURE_FOLDERS[1].buttonLabel}</span>
                 <ArrowRight aria-hidden className="size-[15px]" />
@@ -221,7 +221,7 @@ export function HomeFolderFeatures(): JSX.Element {
               </h3>
               <Link
                 href={FEATURE_FOLDERS[2].buttonHref}
-                className="font-pre hover:border-sys-primary-default hover:text-sys-primary-default mt-[20px] inline-flex items-center gap-[8px] rounded-[8px] border border-[#E4E4E7] bg-white px-[18px] py-[10px] text-[14px] font-semibold text-[var(--color-primitive-gray-900,#2E2E33)] shadow-2xs transition-all active:scale-95"
+                className="font-pre hover:border-sys-primary-default hover:text-sys-primary-default mt-[20px] inline-flex items-center gap-[8px] rounded-[8px] border border-[var(--color-primitive-gray-200,#E4E4E7)] bg-white px-[18px] py-[10px] text-[14px] font-semibold text-[var(--color-primitive-gray-900,#2E2E33)] shadow-2xs transition-all active:scale-95"
               >
                 <span>{FEATURE_FOLDERS[2].buttonLabel}</span>
                 <ArrowRight aria-hidden className="size-[15px]" />

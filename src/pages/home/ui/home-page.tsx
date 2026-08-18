@@ -1,6 +1,7 @@
 import { GoogleLinkSuccessToast } from './google-link-success-toast';
 import { Footer } from './footer';
 import { HomeChannelBanner } from './home-channel-banner';
+import { HomeFaq } from './home-faq';
 import { HomeFinalCta } from './home-final-cta';
 import { HomeFolderFeatures } from './home-folder-features';
 import { HomeHero } from './home-hero';
@@ -15,6 +16,7 @@ export function HomePage() {
         <HomeQuestion />
         <HomeChannelBanner />
         <HomeFolderFeatures />
+        <HomeFaq />
         <HomeFinalCta />
       </main>
       <Footer />
