@@ -171,8 +171,6 @@ export function createChannelResults(
     return channels.map((channel) => ({
       channelId: channel.id,
       name: channel.name,
-      basisNote: undefined,
-      isExecutable: undefined,
       budgetWon: 0,
       cpcWon: null,
       impressions: {
