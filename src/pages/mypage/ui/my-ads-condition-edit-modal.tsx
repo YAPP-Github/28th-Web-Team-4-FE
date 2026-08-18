@@ -24,41 +24,16 @@ import {
 } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import { isAgeRangeOptionDisabled } from '@/features/ad-onboarding/model/recommend-onboarding-rules';
 import { BudgetRangeControl } from '@/features/ad-onboarding/ui/questions/common/budget/budget-range-control';
+import {
+  AGE_RANGE_VALUES_BY_LABEL,
+  DEFAULT_MY_ADS_CONDITION_EDIT_VALUES,
+  type MyAdsConditionEditValues,
+} from '@/pages/mypage/model/my-ads-condition-edit';
 import { Dropdown, type DropdownOption } from '@/shared/ui/dropdown';
 import { Box } from '@/shared/ui/layout/box';
 import { Modal } from '@/shared/ui/modal';
 import { Select } from '@/shared/ui/select';
 import { Text } from '@/shared/ui/text';
-
-export type MyAdsConditionEditValues = {
-  category: string;
-  serviceType: string;
-  ageRange: string;
-  adGoal: string;
-  minBudget: string;
-  maxBudget: string;
-  campaignPeriod: string;
-};
-
-const DEFAULT_EDIT_VALUES: MyAdsConditionEditValues = {
-  category: '쇼핑·커머스',
-  serviceType: '웹 서비스',
-  ageRange: '30~40대',
-  adGoal: '구매 전환',
-  minBudget: '0',
-  maxBudget: '50',
-  campaignPeriod: '1개월',
-};
-
-const AGE_RANGE_VALUES_BY_LABEL: Readonly<Record<string, readonly AgeRangeId[]>> = {
-  '10대': ['TEENS'],
-  '20대': ['TWENTIES'],
-  '30대': ['THIRTIES'],
-  '40대': ['FORTIES'],
-  '30~40대': ['THIRTIES', 'FORTIES'],
-  '50대 이상': ['FIFTIES_AND_OVER'],
-  '잘 모르겠어요': ['UNKNOWN'],
-};
 
 const EDITABLE_CATEGORY_VALUES = new Set([
   'GAME',
@@ -96,19 +71,22 @@ export function createMyAdsConditionEditValues(tags: readonly string[]): MyAdsCo
   const budgetValues = budgetTag
     ? [...budgetTag.matchAll(/([\d,]+)\s*만\s*원/g)].map((match) => match[1].replaceAll(',', ''))
     : [];
-  const minBudget = budgetValues.length > 1 ? budgetValues[0] : DEFAULT_EDIT_VALUES.minBudget;
+  const minBudget =
+    budgetValues.length > 1 ? budgetValues[0] : DEFAULT_MY_ADS_CONDITION_EDIT_VALUES.minBudget;
   const maxBudget = budgetValues.at(-1);
 
   return {
-    category: normalizedTags[0] ?? DEFAULT_EDIT_VALUES.category,
-    serviceType: normalizedTags[1] ?? DEFAULT_EDIT_VALUES.serviceType,
-    ageRange: normalizedTags[2] ?? DEFAULT_EDIT_VALUES.ageRange,
-    adGoal: normalizedTags[3]?.replace('구매·결제 전환', '구매 전환') ?? DEFAULT_EDIT_VALUES.adGoal,
+    category: normalizedTags[0] ?? DEFAULT_MY_ADS_CONDITION_EDIT_VALUES.category,
+    serviceType: normalizedTags[1] ?? DEFAULT_MY_ADS_CONDITION_EDIT_VALUES.serviceType,
+    ageRange: normalizedTags[2] ?? DEFAULT_MY_ADS_CONDITION_EDIT_VALUES.ageRange,
+    adGoal:
+      normalizedTags[3]?.replace('구매·결제 전환', '구매 전환') ??
+      DEFAULT_MY_ADS_CONDITION_EDIT_VALUES.adGoal,
     minBudget,
-    maxBudget: maxBudget ?? DEFAULT_EDIT_VALUES.maxBudget,
+    maxBudget: maxBudget ?? DEFAULT_MY_ADS_CONDITION_EDIT_VALUES.maxBudget,
     campaignPeriod: normalizedTags[5]
       ? normalizeCampaignPeriodLabel(normalizedTags[5])
-      : DEFAULT_EDIT_VALUES.campaignPeriod,
+      : DEFAULT_MY_ADS_CONDITION_EDIT_VALUES.campaignPeriod,
   };
 }
 
@@ -124,7 +102,7 @@ export function createMyAdsConditionTags(values: MyAdsConditionEditValues): stri
 }
 
 export function MyAdsConditionEditModal({
-  initialValues = DEFAULT_EDIT_VALUES,
+  initialValues = DEFAULT_MY_ADS_CONDITION_EDIT_VALUES,
   onSave,
   onStartOver,
 }: MyAdsConditionEditModalProps): JSX.Element {
