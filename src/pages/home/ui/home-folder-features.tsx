@@ -11,6 +11,7 @@ import {
   useReducedMotion,
   AnimatePresence,
 } from 'motion/react';
+import { Button } from '@/shared/ui/button';
 
 type FolderFeatureItem = {
   id: string;
@@ -27,7 +28,7 @@ const FEATURE_FOLDERS: FolderFeatureItem[] = [
     id: 'recommendation',
     category: 'Recommendation',
     title: '내게 맞는 광고 채널을\n추천받아요',
-    buttonLabel: '채널 추천받으러 가기',
+    buttonLabel: '채널 추천받기',
     buttonHref: '/login',
     imageSrc: '/home-assets/feature-folders/folder-recommend-v3.png',
     imageAlt: '채소집 채널 추천 기능 소개',
@@ -36,7 +37,7 @@ const FEATURE_FOLDERS: FolderFeatureItem[] = [
     id: 'comparison',
     category: 'Comparison',
     title: '여러 광고 채널을\n한눈에 비교해요',
-    buttonLabel: '채널 비교하러 가기',
+    buttonLabel: '채널 비교하기',
     buttonHref: '/compare',
     imageSrc: '/home-assets/feature-folders/folder-compare-v3.png',
     imageAlt: '채소집 채널 비교 기능 소개',
@@ -45,7 +46,7 @@ const FEATURE_FOLDERS: FolderFeatureItem[] = [
     id: 'simulator',
     category: 'Simulator',
     title: '예산에 따른 광고 성과를\n미리 시뮬레이션해요',
-    buttonLabel: '시뮬레이션 해보기',
+    buttonLabel: '예산 시뮬레이션 하기',
     buttonHref: '/simulator',
     imageSrc: '/home-assets/feature-folders/folder-simulator-v3.png',
     imageAlt: '채소집 예산 시뮬레이션 기능 소개',
@@ -211,13 +212,17 @@ export function HomeFolderFeatures(): JSX.Element {
                 <h3 className="font-pre mt-[10px] text-[24px] leading-[1.28] font-bold tracking-[-0.02em] break-keep whitespace-pre-line text-[var(--color-primitive-gray-900,#2E2E33)] sm:text-[30px] lg:text-[36px]">
                   {FEATURE_FOLDERS[0].title}
                 </h3>
-                <Link
-                  href={FEATURE_FOLDERS[0].buttonHref}
-                  className="font-pre hover:border-sys-primary-default hover:text-sys-primary-default mt-[20px] inline-flex items-center gap-[8px] rounded-[8px] border border-[var(--color-primitive-gray-200,#E4E4E7)] bg-white px-[18px] py-[10px] text-[14px] font-semibold text-[var(--color-primitive-gray-900,#2E2E33)] shadow-2xs transition-all active:scale-95"
-                >
-                  <span>{FEATURE_FOLDERS[0].buttonLabel}</span>
-                  <ArrowRight aria-hidden className="size-[15px]" />
-                </Link>
+                <div className="mt-[20px]">
+                  <Button
+                    frame="button"
+                    tone="stroke"
+                    nativeButton={false}
+                    render={<Link href={FEATURE_FOLDERS[0].buttonHref} />}
+                    rightIcon={<ArrowRight aria-hidden className="size-[16px]" />}
+                  >
+                    {FEATURE_FOLDERS[0].buttonLabel}
+                  </Button>
+                </div>
               </div>
             </motion.div>
 
@@ -251,13 +256,17 @@ export function HomeFolderFeatures(): JSX.Element {
                 <h3 className="font-pre mt-[10px] text-[24px] leading-[1.28] font-bold tracking-[-0.02em] break-keep whitespace-pre-line text-[var(--color-primitive-gray-900,#2E2E33)] sm:text-[30px] lg:text-[36px]">
                   {FEATURE_FOLDERS[1].title}
                 </h3>
-                <Link
-                  href={FEATURE_FOLDERS[1].buttonHref}
-                  className="font-pre hover:border-sys-primary-default hover:text-sys-primary-default mt-[20px] inline-flex items-center gap-[8px] rounded-[8px] border border-[var(--color-primitive-gray-200,#E4E4E7)] bg-white px-[18px] py-[10px] text-[14px] font-semibold text-[var(--color-primitive-gray-900,#2E2E33)] shadow-2xs transition-all active:scale-95"
-                >
-                  <span>{FEATURE_FOLDERS[1].buttonLabel}</span>
-                  <ArrowRight aria-hidden className="size-[15px]" />
-                </Link>
+                <div className="mt-[20px]">
+                  <Button
+                    frame="button"
+                    tone="stroke"
+                    nativeButton={false}
+                    render={<Link href={FEATURE_FOLDERS[1].buttonHref} />}
+                    rightIcon={<ArrowRight aria-hidden className="size-[16px]" />}
+                  >
+                    {FEATURE_FOLDERS[1].buttonLabel}
+                  </Button>
+                </div>
               </div>
             </motion.div>
 
@@ -290,13 +299,17 @@ export function HomeFolderFeatures(): JSX.Element {
                 <h3 className="font-pre mt-[10px] text-[24px] leading-[1.28] font-bold tracking-[-0.02em] break-keep whitespace-pre-line text-[var(--color-primitive-gray-900,#2E2E33)] sm:text-[30px] lg:text-[36px]">
                   {FEATURE_FOLDERS[2].title}
                 </h3>
-                <Link
-                  href={FEATURE_FOLDERS[2].buttonHref}
-                  className="font-pre hover:border-sys-primary-default hover:text-sys-primary-default mt-[20px] inline-flex items-center gap-[8px] rounded-[8px] border border-[var(--color-primitive-gray-200,#E4E4E7)] bg-white px-[18px] py-[10px] text-[14px] font-semibold text-[var(--color-primitive-gray-900,#2E2E33)] shadow-2xs transition-all active:scale-95"
-                >
-                  <span>{FEATURE_FOLDERS[2].buttonLabel}</span>
-                  <ArrowRight aria-hidden className="size-[15px]" />
-                </Link>
+                <div className="mt-[20px]">
+                  <Button
+                    frame="button"
+                    tone="stroke"
+                    nativeButton={false}
+                    render={<Link href={FEATURE_FOLDERS[2].buttonHref} />}
+                    rightIcon={<ArrowRight aria-hidden className="size-[16px]" />}
+                  >
+                    {FEATURE_FOLDERS[2].buttonLabel}
+                  </Button>
+                </div>
               </div>
             </motion.div>
           </div>

@@ -164,18 +164,18 @@ function HomeQuestionAnimated(): JSX.Element {
     offset: ['start start', 'end end'],
   });
 
-  // 스크롤 위치에 따라 단계별 전환
+  // 스크롤 위치에 따라 단계별 전환 (빠르고 경쾌한 템포)
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    if (latest < 0.16) {
-      setActiveStep(-1);
-    } else if (latest < 0.32) {
-      setActiveStep(0);
-    } else if (latest < 0.48) {
-      setActiveStep(1);
-    } else if (latest < 0.62) {
-      setActiveStep(2);
+    if (latest < 0.2) {
+      setActiveStep(-1); // 첫 질문 단계
+    } else if (latest < 0.35) {
+      setActiveStep(0); // 고민 1
+    } else if (latest < 0.5) {
+      setActiveStep(1); // 고민 2
+    } else if (latest < 0.65) {
+      setActiveStep(2); // 고민 3
     } else {
-      setActiveStep(3);
+      setActiveStep(3); // 오렌지 타이틀 (65% 지점에서 시작하여 2번 스크롤 시 바로 다음 섹션 전환)
     }
   });
 
@@ -218,23 +218,29 @@ function HomeQuestionAnimated(): JSX.Element {
     return () => clearTimeout(startTimer);
   }, [isOrangeActive]);
 
-  // 1. Phase 1: 흰색 문 오픈 (0 -> 0.12)
-  const topWhitePanelY = useTransform(scrollYProgress, [0, 0.12], ['0%', '-100%']);
-  const bottomWhitePanelY = useTransform(scrollYProgress, [0, 0.12], ['0%', '100%']);
+  // 1. Phase 1: 흰색 문 오픈 (0 -> 0.08)
+  const topWhitePanelY = useTransform(scrollYProgress, [0, 0.08], ['0%', '-100%']);
+  const bottomWhitePanelY = useTransform(scrollYProgress, [0, 0.08], ['0%', '100%']);
 
-  // 2. Phase 1: 첫 질문 텍스트는 0.12까지 머물다가 0.12~0.18에서 완전히 페이드아웃
-  const introQuestionOpacity = useTransform(scrollYProgress, [0, 0.12, 0.18, 1.0], [1, 1, 0, 0]);
-  const introQuestionY = useTransform(scrollYProgress, [0.12, 0.18, 1.0], [0, -30, -30]);
-
-  // 3. Phase 2: 3개 고민 리스트 등장 (0.16 -> 0.22) 및 퇴장 (0.58 -> 0.64)
-  const listOpacity = useTransform(scrollYProgress, [0.16, 0.22, 0.58, 0.64, 1.0], [0, 1, 1, 0, 0]);
-  const listY = useTransform(scrollYProgress, [0.16, 0.22, 0.58, 0.64, 1.0], [30, 0, 0, -30, -30]);
-
-  // 4. Phase 3: 그 자리에서 배경색 전환 (#262626 다크 -> var(--color-sys-primary-default, #ff6817))
-  const backgroundColor = useTransform(
+  // 2. Phase 1: 첫 질문 텍스트는 문이 열리며 부드럽게 스케일업(0.92 -> 1.03)되고, 0.12~0.16에서 완전히 사라짐
+  const introQuestionScale = useTransform(
     scrollYProgress,
-    [0, 0.58, 0.66, 1.0],
-    ['#262626', '#262626', '#ff6817', '#ff6817'],
+    [0, 0.08, 0.12, 0.16, 1.0],
+    [0.92, 1.03, 1.03, 1.06, 1.06],
+  );
+  const introQuestionOpacity = useTransform(scrollYProgress, [0, 0.12, 0.16, 1.0], [1, 1, 0, 0]);
+  const introQuestionY = useTransform(scrollYProgress, [0.12, 0.16, 1.0], [0, -30, -30]);
+
+  // 3. Phase 2: 첫 질문이 완전히 사라진 후(0.20) 3개 고민 리스트가 등장 (0.20 -> 0.24) 및 퇴장 (0.64 -> 0.67)
+  const listOpacity = useTransform(
+    scrollYProgress,
+    [0.16, 0.2, 0.24, 0.64, 0.67, 1.0],
+    [0, 0, 1, 1, 0, 0],
+  );
+  const listY = useTransform(
+    scrollYProgress,
+    [0.16, 0.2, 0.24, 0.6, 0.64, 1.0],
+    [30, 30, 0, 0, -30, -30],
   );
 
   const currentLogo = CHANNEL_LOGOS[currentLogoIndex] ?? CHANNEL_LOGOS[0];
@@ -243,15 +249,22 @@ function HomeQuestionAnimated(): JSX.Element {
     <section
       ref={sectionRef}
       aria-label="서비스 핵심 질문 및 타이틀"
-      className="relative h-[420vh] w-full"
+      className="relative h-[280vh] w-full"
     >
       <motion.div
-        style={{ backgroundColor }}
+        animate={{
+          backgroundColor: isOrangeActive ? 'var(--color-sys-primary-default, #ff6817)' : '#262626',
+        }}
+        transition={{ duration: 0.15, ease: 'easeOut' }}
         className="px-016 sticky top-0 flex h-dvh w-full items-center justify-center overflow-hidden select-none"
       >
-        {/* Phase 1: 첫 질문 ("지금, 이런 고민을 하고 계시지 않나요?") */}
+        {/* Phase 1: 첫 질문 ("지금, 이런 고민을 하고 계시지 않나요?") - 문 열림과 함께 스케일업! */}
         <motion.div
-          style={{ opacity: introQuestionOpacity, y: introQuestionY }}
+          style={{
+            opacity: introQuestionOpacity,
+            y: introQuestionY,
+            scale: introQuestionScale,
+          }}
           className="px-016 pointer-events-none absolute z-10 flex flex-col items-center justify-center text-center"
         >
           <h2 className="font-wanted text-center text-[32px] leading-[1.35] font-bold tracking-tight text-white sm:text-[42px] lg:text-[48px]">
@@ -261,20 +274,20 @@ function HomeQuestionAnimated(): JSX.Element {
           </h2>
         </motion.div>
 
-        {/* Phase 2: 3개 고민 리스트 (쫀쫀한 6px 간격 및 완벽한 중앙 정렬) */}
+        {/* Phase 2: 3개 고민 리스트 (0.20 ~ 0.60 구간에만 단독 노출) */}
         <motion.div
           style={{ opacity: listOpacity, y: listY }}
-          className="px-016 z-10 flex w-full max-w-[1200px] flex-col items-center justify-center gap-[6px] text-center"
+          className="px-016 pointer-events-none z-10 flex w-full max-w-[1200px] flex-col items-center justify-center gap-[6px] text-center"
         >
           {WORRY_ITEMS.map((item, index) => (
             <WorryRow key={item.id} item={item} isActive={activeStep === index} />
           ))}
         </motion.div>
 
-        {/* Phase 3: 오렌지 배경 전환 완료 시 나타나는 대형 타이포그래피 (조화로운 갭 설정) */}
+        {/* Phase 3: 오렌지 배경 전환 완료 시에만 나타나는 대형 타이포그래피 (isOrangeActive일 때만 표시) */}
         <div
-          className={`absolute z-10 flex w-full max-w-[1200px] flex-col items-center justify-center gap-[24px] text-center text-white sm:gap-[36px] lg:gap-[48px] ${
-            isOrangeActive ? 'pointer-events-auto' : 'pointer-events-none'
+          className={`absolute z-10 flex w-full max-w-[1200px] flex-col items-center justify-center gap-[24px] text-center text-white transition-opacity duration-200 sm:gap-[36px] lg:gap-[48px] ${
+            isOrangeActive ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
           }`}
         >
           {/* Line 1: 진짜 ( [1초마다 바뀌는 채널 로고] ) 채널을 (Pretendard ExtraBold) */}
@@ -284,7 +297,7 @@ function HomeQuestionAnimated(): JSX.Element {
               opacity: isOrangeActive ? 1 : 0,
               y: isOrangeActive ? 0 : 36,
             }}
-            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             className="font-pre flex items-center justify-center gap-[6px] text-center text-[36px] leading-[1.15] font-extrabold tracking-tight whitespace-nowrap sm:gap-[14px] sm:text-[64px] lg:gap-[20px] lg:text-[100px]"
           >
             <span>진짜</span>
@@ -298,7 +311,7 @@ function HomeQuestionAnimated(): JSX.Element {
                   width: isOrangeActive ? 320 : 0,
                 }}
                 transition={{
-                  delay: 0.2,
+                  delay: 0.15,
                   type: 'spring',
                   stiffness: 280,
                   damping: 22,
@@ -317,7 +330,7 @@ function HomeQuestionAnimated(): JSX.Element {
                         rotate: currentLogo.rotate,
                       }}
                       exit={{ opacity: 0, scale: 0.8, y: -14 }}
-                      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                       className="relative flex h-full w-[220px] items-center justify-center sm:w-[300px] lg:w-[360px]"
                     >
                       <Image
@@ -345,8 +358,8 @@ function HomeQuestionAnimated(): JSX.Element {
               y: isOrangeActive ? 0 : 36,
             }}
             transition={{
-              delay: 0.25,
-              duration: 0.55,
+              delay: 0.2,
+              duration: 0.45,
               ease: [0.16, 1, 0.3, 1],
             }}
             className="font-pre text-center text-[36px] leading-[1.15] font-extrabold tracking-tight whitespace-nowrap sm:text-[64px] lg:text-[100px]"
@@ -362,8 +375,8 @@ function HomeQuestionAnimated(): JSX.Element {
               y: isOrangeActive ? 0 : 36,
             }}
             transition={{
-              delay: 0.45,
-              duration: 0.55,
+              delay: 0.35,
+              duration: 0.45,
               ease: [0.16, 1, 0.3, 1],
             }}
             className="flex w-full items-center justify-center overflow-visible text-center"
