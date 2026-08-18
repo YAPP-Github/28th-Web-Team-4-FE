@@ -31,7 +31,7 @@ const {
   withdrawOptions,
 } = vi.hoisted(() => ({
   logoutMock: vi.fn<(options?: LogoutOptions) => void>(),
-  onboardingTagQueryMock: vi.fn<() => { data?: MyOnboardingTagResponse }>(),
+  onboardingTagQueryMock: vi.fn<() => { data?: MyOnboardingTagResponse; isPending?: boolean }>(),
   replaceMock: vi.fn<(href: string) => void>(),
   refreshMock: vi.fn<() => void>(),
   showToastMock: vi.fn<(options: ShowToastOptions) => void>(),
@@ -586,6 +586,25 @@ describe('MyPage', () => {
     expect(screen.getByRole('status', { name: '내 정보를 불러오고 있어요' })).toBeVisible();
     expect(screen.getByTestId('my-profile-skeleton')).toBeVisible();
     expect(screen.queryByText('YAPP')).not.toBeInTheDocument();
+  });
+
+  it('renders the ad condition skeleton while the onboarding tag request is pending', () => {
+    onboardingTagQueryMock.mockReturnValue({ data: undefined, isPending: true });
+
+    renderMyPage(true);
+
+    expect(screen.getByTestId('my-ads-condition-skeleton')).toBeVisible();
+    expect(screen.getByRole('heading', { name: '내 광고 조건' })).toBeVisible();
+    expect(screen.getByText('온보딩에서 입력한 조건이에요')).toBeVisible();
+    expect(screen.queryByText('#쇼핑·커머스')).not.toBeInTheDocument();
+  });
+
+  it('renders saved result skeletons while the recommendation request is pending', () => {
+    renderMyPage(true, { savedRecommendationsLoading: true });
+
+    expect(screen.getByTestId('recommendation-results-skeleton')).toBeVisible();
+    expect(screen.getByRole('status', { name: '저장된 결과를 불러오고 있어요' })).toBeVisible();
+    expect(screen.queryByText('저장된 결과를 불러오는 중이에요')).not.toBeInTheDocument();
   });
 
   it('refreshes the page when the profile request returns unauthorized', async () => {

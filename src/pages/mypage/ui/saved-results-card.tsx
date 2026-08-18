@@ -11,6 +11,8 @@ import { Box } from '@/shared/ui/layout/box';
 import { Tabs } from '@/shared/ui/tabs';
 import { Text } from '@/shared/ui/text';
 
+import { SavedResultSkeletonList } from './my-page-skeleton';
+
 type SavedResultPanelKind = 'recommendation' | 'comparison' | 'simulation';
 
 type SavedResultPanelProps = {
@@ -134,16 +136,7 @@ function SavedResultPanel({
   }
 
   if (isLoading) {
-    return (
-      <Text
-        as="p"
-        variant="body-xl"
-        role="status"
-        className="text-text-low flex h-[96px] w-full items-center justify-center text-center"
-      >
-        저장된 결과를 불러오는 중이에요
-      </Text>
-    );
+    return <SavedResultSkeletonList testId={`${kind}-results-skeleton`} announceLoading />;
   }
 
   if (isError) {
