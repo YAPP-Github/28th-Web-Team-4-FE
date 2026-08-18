@@ -84,7 +84,9 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
 
 describe('toChannelDetailViewModel', () => {
   it('상세 응답의 설명, 상품, 오디언스 지표와 집행 사례를 표시 모델로 변환한다', () => {
-    const result = toChannelDetailViewModel(createChannelDetail());
+    const result = toChannelDetailViewModel(
+      createChannelDetail({ tags: [' KPI 최적 ', '입문자 추천', ' '] }),
+    );
 
     expect(result).toMatchObject({
       id: 'channel-meta',
@@ -92,6 +94,7 @@ describe('toChannelDetailViewModel', () => {
       logoUrl: 'https://cdn.example.com/meta.png',
       tagline: '퍼포먼스와 브랜딩을 모두 커버하는 채널',
       summary: {
+        keywords: ['KPI 최적', '입문자 추천'],
         paragraphs: ['정교한 관심사 타기팅을 제공해요.'],
         recommendationReason: {
           category: '쇼핑·커머스',
@@ -159,12 +162,14 @@ describe('toChannelDetailViewModel', () => {
         ],
         audienceMetrics: [],
         recommendationBasis: null,
+        tags: [],
       }),
     );
 
     expect(result.logoUrl).toBe('');
     expect(result.tagline).toBe('');
     expect(result.summary.paragraphs).toEqual([]);
+    expect(result.summary.keywords).toEqual([]);
     expect(result.summary.recommendationReason).toBeNull();
     expect(result.products).toEqual([
       {
@@ -210,6 +215,22 @@ describe('toChannelDetailViewModel', () => {
         expectedClicks: '-',
       },
     ]);
+  });
+
+  it('tags를 trim하고 빈 문자열을 제거해 핵심 요약 keyword로 변환한다', () => {
+    const result = toChannelDetailViewModel(
+      createChannelDetail({
+        tags: [' KPI 최적 ', '', '  ', '입문자 추천'],
+      }),
+    );
+
+    expect(result.summary.keywords).toEqual(['KPI 최적', '입문자 추천']);
+  });
+
+  it('tags가 비어 있으면 핵심 요약 keyword도 빈 배열로 변환한다', () => {
+    const result = toChannelDetailViewModel(createChannelDetail({ tags: [] }));
+
+    expect(result.summary.keywords).toEqual([]);
   });
 
   it('오디언스 지표를 이름으로 필터링하지 않고 응답 순서대로 변환한다', () => {
@@ -289,6 +310,7 @@ describe('toChannelDetailViewModel', () => {
     );
 
     expect(result.tagline).toBe('검색 의도가 높은 고객에게 도달하기 좋아요');
+    expect(result.summary.keywords).toEqual([]);
     expect(result.summary.paragraphs).toEqual(['검색 광고에 적합한 채널이에요.']);
     expect(result.summary.recommendationReason).toEqual({
       category: '게임',

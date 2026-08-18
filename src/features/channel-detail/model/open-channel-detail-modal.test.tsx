@@ -149,7 +149,7 @@ describe('openChannelDetailModal', () => {
         requestedUrl = new URL(request.url);
         return HttpResponse.json({
           success: true,
-          data: createDetailResponse(),
+          data: createDetailResponse({ tags: [' KPI 최적 ', '입문자 추천'] }),
         });
       }),
     );
@@ -160,6 +160,9 @@ describe('openChannelDetailModal', () => {
     await user.click(screen.getByRole('button', { name: '상세보기' }));
     expect(await screen.findByText('메타 광고 상세 설명')).toBeVisible();
     expect(await screen.findByText('상세 API tagline')).toBeVisible();
+    expect(screen.getByRole('heading', { name: '이런 점이 좋아요' })).toBeVisible();
+    expect(screen.getByText('KPI 최적')).toBeVisible();
+    expect(screen.getByText('입문자 추천')).toBeVisible();
     expect(requestedUrl?.searchParams.get('onboardingId')).toBe('onboarding-87');
   });
 
