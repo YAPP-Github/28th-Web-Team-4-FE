@@ -1,4 +1,7 @@
-import { getMyOnboardingTag as getBackendMyOnboardingTag } from '@/shared/api/generated';
+import {
+  getMyOnboardingTag as getBackendMyOnboardingTag,
+  type MyOnboardingTagResponse,
+} from '@/shared/api/generated';
 import type { AuthSession } from '@/shared/lib/auth/session';
 import { clearAuthSession, readAuthSession } from '@/app/api-routes/auth/session-cookie';
 
@@ -23,13 +26,13 @@ const session: AuthSession = {
   refreshTokenExpiresAt: now + 3_600_000,
 };
 
-const onboardingTag = {
+const onboardingTag: MyOnboardingTagResponse = {
   hasOnboarding: true,
   onboardingId: 'onboarding-1',
   serviceName: '채소집',
   industry: 'SHOPPING_COMMERCE' as const,
   serviceType: 'WEB' as const,
-  targetAgeBands: ['AGE_30S', 'AGE_40S'] as const,
+  targetAgeBands: ['AGE_30S', 'AGE_40S'],
   campaignObjective: 'CONVERSION' as const,
   budgetMin: 500_000,
   budgetMax: 5_000_000,

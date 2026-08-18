@@ -52,6 +52,7 @@ const SIMULATION_RESULT: SimulationResponse = {
       estClicks: { min: 300, max: 400 },
       cpcWon: null,
       cpmWon: null,
+      minBudgetWon: null,
       isExecutable: false,
       shortfallWon: null,
       basisNote:
@@ -67,6 +68,7 @@ const SIMULATION_RESULT: SimulationResponse = {
       estClicks: { min: 200, max: 200 },
       cpcWon: null,
       cpmWon: null,
+      minBudgetWon: null,
       isExecutable: false,
       shortfallWon: null,
       basisNote:

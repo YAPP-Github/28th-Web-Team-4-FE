@@ -33,6 +33,7 @@ vi.mock('motion/react', () => ({
 }));
 
 const SIMULATION_RESULT: SimulationResponse = {
+  simulationId: null,
   totalBudgetWon: 1_000_000,
   period: 'M1',
   totalEstImpressions: 38_000,

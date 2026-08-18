@@ -49,6 +49,7 @@ function createDetailResponse(
     executionType: 'SELF',
     adFormats: ['피드'],
     targetingMethods: ['관심사'],
+    tags: [],
     products: [
       {
         id: 'product-feed',
@@ -61,6 +62,7 @@ function createDetailResponse(
         expectedClicks: 1_200,
         expectedPeriod: null,
         pricing: [],
+        isExecutable: null,
       },
     ],
     audienceMetrics: [
