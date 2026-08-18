@@ -42,6 +42,7 @@ describe('HomePage', () => {
       screen.getByText('필요한 순간에 맞춰 추천, 비교, 시뮬레이션을 따로 살펴봐요'),
     ).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: '추천 시작' })).toHaveLength(2);
-    expect(screen.getByText('내게 맞는 광고 채널을 한눈에! 채소집')).toBeInTheDocument();
+    expect(screen.getByText('© 2026 CHAESOZIP. ALL RIGHTS RESERVED')).toBeInTheDocument();
+    expect(screen.getByText('개인정보 처리방침')).toBeInTheDocument();
   });
 });
