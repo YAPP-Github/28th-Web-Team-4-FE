@@ -24,6 +24,13 @@ function getNonEmptyText(value?: string | null): string | undefined {
   return trimmedValue && trimmedValue.length > 0 ? trimmedValue : undefined;
 }
 
+function getNonEmptyTextList(values: readonly string[]): string[] {
+  return values.flatMap((value) => {
+    const text = getNonEmptyText(value);
+    return text ? [text] : [];
+  });
+}
+
 function formatNumber(value: number): string {
   return new Intl.NumberFormat('ko-KR').format(value);
 }
@@ -123,6 +130,7 @@ export function toChannelDetailViewModel(channel: ChannelDetailResponseForAdapte
     logoUrl: channel.logoUrl?.trim() ?? '',
     tagline: tagline ?? '',
     summary: {
+      keywords: getNonEmptyTextList(channel.tags),
       paragraphs: description ? [description] : [],
       recommendationReason: createRecommendationReason(channel.recommendationBasis),
     },
