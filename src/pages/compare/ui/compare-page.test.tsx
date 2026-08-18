@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
@@ -58,6 +58,22 @@ vi.mock('@/shared/ui/toast', () => ({
 }));
 
 vi.mock('motion/react', () => ({
+  AnimatePresence: ({ children }: { children: ReactNode }) => <>{children}</>,
+  motion: {
+    span: ({
+      animate: _animate,
+      children,
+      exit: _exit,
+      initial: _initial,
+      transition: _transition,
+      ...props
+    }: ComponentProps<'span'> & {
+      animate?: unknown;
+      exit?: unknown;
+      initial?: unknown;
+      transition?: unknown;
+    }) => <span {...props}>{children}</span>,
+  },
   useReducedMotion: () => false,
 }));
 
