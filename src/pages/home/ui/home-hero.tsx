@@ -279,14 +279,14 @@ function HomeHeroScrollScrub(): JSX.Element {
     return () => resetHeaderTone();
   }, [resetHeaderTone]);
 
-  // ---- 스크롤 구간: 고민 3개 페이지처럼 스크롤 15% 이상 시 띠요옹 등장 ----
+  // ---- 스크롤 구간: 고민 3개 페이지처럼 스크롤 10% 이상 시 띠요옹 등장 ----
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end end'],
   });
 
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    if (latest > 0.15) {
+    if (latest > 0.1) {
       setIsRevealed(true);
     } else {
       setIsRevealed(false);

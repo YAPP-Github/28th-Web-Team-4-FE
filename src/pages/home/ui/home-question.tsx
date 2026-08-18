@@ -5,7 +5,6 @@ import Image from 'next/image';
 import {
   motion,
   useScroll,
-  useTransform,
   useMotionValueEvent,
   useReducedMotion,
   AnimatePresence,
@@ -129,7 +128,7 @@ export function HomeQuestion(): JSX.Element {
     return (
       <section
         aria-label="서비스 핵심 질문 및 타이틀"
-        className="gap-032 px-016 flex min-h-screen w-full flex-col items-center justify-center bg-[#262626] py-[120px]"
+        className="gap-032 px-016 flex min-h-screen w-full flex-col items-center justify-center bg-[#262626] py-[120px] lg:px-120"
       >
         <h2 className="font-wanted text-center text-[32px] leading-[1.35] font-bold text-white sm:text-[42px] lg:text-[48px]">
           지금,
@@ -155,6 +154,7 @@ export function HomeQuestion(): JSX.Element {
 
 function HomeQuestionAnimated(): JSX.Element {
   const sectionRef = useRef<HTMLElement>(null);
+  const [isDoorOpen, setIsDoorOpen] = useState(false);
   const [activeStep, setActiveStep] = useState<number>(-1); // -1: 첫질문, 0: 고민1, 1: 고민2, 2: 고민3, 3: 오렌지타이틀
   const [zipTypedCount, setZipTypedCount] = useState<number>(0);
   const [currentLogoIndex, setCurrentLogoIndex] = useState<number>(0);
@@ -164,18 +164,26 @@ function HomeQuestionAnimated(): JSX.Element {
     offset: ['start start', 'end end'],
   });
 
-  // 스크롤 위치에 따라 단계별 전환
+  // 스크롤 위치에 따라 자동 문 열림 및 단계별 전환
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    if (latest < 0.25) {
+    // 1) 해당 섹션에 닿자마자(0.005 이상) 흰색 문이 지체 없이 즉시 자동으로 스르륵 완전 개방!
+    if (latest > 0.005) {
+      setIsDoorOpen(true);
+    } else {
+      setIsDoorOpen(false);
+    }
+
+    // 2) 각 질문 및 타이틀 단계 전환
+    if (latest < 0.22) {
       setActiveStep(-1); // 첫 질문 단계
-    } else if (latest < 0.4) {
+    } else if (latest < 0.38) {
       setActiveStep(0); // 고민 1
-    } else if (latest < 0.55) {
+    } else if (latest < 0.54) {
       setActiveStep(1); // 고민 2
     } else if (latest < 0.7) {
       setActiveStep(2); // 고민 3
     } else {
-      setActiveStep(3); // 오렌지 타이틀 (70% 지점부터)
+      setActiveStep(3); // 오렌지 타이틀
     }
   });
 
@@ -218,22 +226,21 @@ function HomeQuestionAnimated(): JSX.Element {
     return () => clearTimeout(startTimer);
   }, [isOrangeActive]);
 
-  // 1. Phase 1: 흰색 문 오픈 (기존 0~0.08의 너무 빠른 속도 -> 0~0.22로 천천히 부드럽게 위아래로 오픈!)
-  const topWhitePanelY = useTransform(scrollYProgress, [0, 0.22], ['0%', '-100%']);
-  const bottomWhitePanelY = useTransform(scrollYProgress, [0, 0.22], ['0%', '100%']);
+  // 1. Phase 1: 첫 질문 모션 상태값
+  const isIntroActive = isDoorOpen && activeStep === -1;
+  let introY = 50;
+  if (isDoorOpen) {
+    introY = activeStep === -1 ? 0 : -50;
+  }
 
-  // 2. Phase 1: 첫 질문 텍스트는 문이 열리며 부드럽게 스케일업(0.92 -> 1.03)되고, 0.18~0.24에서 완전히 사라짐
-  const introQuestionScale = useTransform(
-    scrollYProgress,
-    [0, 0.22, 0.26, 1.0],
-    [0.92, 1.03, 1.06, 1.06],
-  );
-  const introQuestionOpacity = useTransform(scrollYProgress, [0, 0.18, 0.24, 1.0], [1, 1, 0, 0]);
-  const introQuestionY = useTransform(scrollYProgress, [0.18, 0.24, 1.0], [0, -30, -30]);
-
-  // 3. Phase 2: 첫 질문이 완전히 사라진 후(0.25) 3개 고민 리스트가 등장 (0.22 -> 0.26) 및 퇴장 (0.68 -> 0.71)
-  const listOpacity = useTransform(scrollYProgress, [0.22, 0.26, 0.68, 0.71, 1.0], [0, 1, 1, 0, 0]);
-  const listY = useTransform(scrollYProgress, [0.22, 0.26, 0.68, 0.71, 1.0], [30, 0, 0, -30, -30]);
+  // 2. Phase 2: 고민 리스트 모션 상태값
+  const isWorryListActive = activeStep >= 0 && activeStep <= 2;
+  let worryListY = 50;
+  if (activeStep > 2) {
+    worryListY = -50;
+  } else if (activeStep >= 0) {
+    worryListY = 0;
+  }
 
   const currentLogo = CHANNEL_LOGOS[currentLogoIndex] ?? CHANNEL_LOGOS[0];
 
@@ -250,13 +257,15 @@ function HomeQuestionAnimated(): JSX.Element {
         transition={{ duration: 0.15, ease: 'easeOut' }}
         className="px-016 sm:px-032 sticky top-0 flex h-dvh w-full items-center justify-center overflow-hidden select-none lg:px-120"
       >
-        {/* Phase 1: 첫 질문 ("지금, 이런 고민을 하고 계시지 않나요?") - 문 열림과 함께 스케일업! */}
+        {/* Phase 1: 첫 질문 ("지금, 이런 고민을 하고 계시지 않나요?") - 문 열림과 함께 아래에서 띠요옹 팝인 등장! */}
         <motion.div
-          style={{
-            opacity: introQuestionOpacity,
-            y: introQuestionY,
-            scale: introQuestionScale,
+          initial={{ opacity: 0, y: 50, scale: 0.92 }}
+          animate={{
+            opacity: isIntroActive ? 1 : 0,
+            y: introY,
+            scale: isIntroActive ? 1 : 0.95,
           }}
+          transition={SPRING_TRANSITION}
           className="px-016 pointer-events-none absolute z-10 flex flex-col items-center justify-center text-center"
         >
           <h2 className="font-wanted text-center text-[32px] leading-[1.35] font-bold tracking-tight text-white sm:text-[42px] lg:text-[48px]">
@@ -266,9 +275,14 @@ function HomeQuestionAnimated(): JSX.Element {
           </h2>
         </motion.div>
 
-        {/* Phase 2: 3개 고민 리스트 (0.20 ~ 0.60 구간에만 단독 노출) */}
+        {/* Phase 2: 3개 고민 리스트 (activeStep 0~2 구간에 아래에서 띠요옹 등장 및 고정) */}
         <motion.div
-          style={{ opacity: listOpacity, y: listY }}
+          initial={{ opacity: 0, y: 50 }}
+          animate={{
+            opacity: isWorryListActive ? 1 : 0,
+            y: worryListY,
+          }}
+          transition={SPRING_TRANSITION}
           className="px-016 pointer-events-none z-10 flex w-full max-w-[1200px] flex-col items-center justify-center gap-[6px] text-center"
         >
           {WORRY_ITEMS.map((item, index) => (
@@ -382,15 +396,19 @@ function HomeQuestionAnimated(): JSX.Element {
           </motion.div>
         </div>
 
-        {/* 앞을 덮고 있다가 위로 열리는 상단 흰색 패널 */}
+        {/* 앞을 덮고 있다가 위로 자동으로 열리는 상단 흰색 패널 */}
         <motion.div
-          style={{ y: topWhitePanelY }}
+          initial={{ y: '0%' }}
+          animate={{ y: isDoorOpen ? '-100%' : '0%' }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="bg-surface-lowest absolute inset-x-0 top-0 z-20 h-1/2 shadow-[0_12px_24px_rgba(0,0,0,0.06)]"
         />
 
-        {/* 앞을 덮고 있다가 아래로 열리는 하단 흰색 패널 */}
+        {/* 앞을 덮고 있다가 아래로 자동으로 열리는 하단 흰색 패널 */}
         <motion.div
-          style={{ y: bottomWhitePanelY }}
+          initial={{ y: '0%' }}
+          animate={{ y: isDoorOpen ? '100%' : '0%' }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="bg-surface-lowest absolute inset-x-0 bottom-0 z-20 h-1/2 shadow-[0_-12px_24px_rgba(0,0,0,0.06)]"
         />
       </motion.div>
