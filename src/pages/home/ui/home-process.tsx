@@ -59,12 +59,10 @@ export function HomeProcess(): JSX.Element {
       aria-labelledby="process-title"
       className="w-full bg-[var(--color-primitive-gray-900,#1D1D20)] py-[90px] sm:py-[120px] lg:py-[140px]"
     >
-      <div className="px-016 sm:px-032 mx-auto flex w-full max-w-[1200px] flex-col items-center gap-[40px] sm:gap-[52px] lg:gap-[60px]">
+      <div className="px-016 sm:px-032 mx-auto flex w-full max-w-[1200px] flex-col items-center gap-[56px] sm:gap-[72px] lg:gap-[110px]">
         {/* 상단 헤더 (피그마 중앙 정렬 & gap: 6px) */}
         <div className="flex flex-col items-center gap-[6px] text-center">
-          <span className="font-pre text-[18px] leading-[32px] font-semibold tracking-[-0.5px] text-[var(--color-primitive-gray-400,#A2A2A8)] sm:text-[20px] lg:text-[22px]">
-            The Process
-          </span>
+          <span className="text-surface-higher typo-heading-xl">The Process</span>
           <h2
             id="process-title"
             className="font-pre text-[26px] leading-[1.28] font-bold tracking-[-1px] break-keep text-white sm:text-[32px] sm:leading-[52px] lg:text-[36px]"
@@ -125,9 +123,7 @@ export function HomeProcess(): JSX.Element {
                       <h3 className="font-pre text-[20px] leading-[32px] font-bold tracking-[-0.5px] break-keep whitespace-pre-line text-white sm:text-[22px]">
                         {item.title}
                       </h3>
-                      <span className="font-pre text-[16px] leading-[24px] font-semibold tracking-[-0.5px] text-[var(--color-primitive-gray-400,#A2A2A8)]">
-                        {item.stepLabel}
-                      </span>
+                      <span className="text-text-low typo-subtitle-xxl">{item.stepLabel}</span>
                     </div>
                   </>
                 )}

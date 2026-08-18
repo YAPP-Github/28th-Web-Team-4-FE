@@ -91,7 +91,7 @@ export function HomeFinalCta(): JSX.Element {
   return (
     <section
       aria-label="채소집 시작하기 안내 배너"
-      className="bg-surface-lowest px-016 sm:px-032 w-full py-[60px] sm:py-[80px] lg:py-[100px]"
+      className="bg-surface-lowest px-016 sm:px-032 w-full py-[60px] sm:py-[80px] lg:px-120 lg:py-[100px]"
     >
       <div className="bg-sys-primary-default relative mx-auto flex min-h-[380px] w-full max-w-[1380px] flex-col items-center justify-center overflow-hidden rounded-[24px] px-[24px] py-[48px] text-center shadow-[inset_0_0_72px_rgba(255,255,255,0.4)] sm:min-h-[410px] sm:rounded-[32px] sm:px-[40px] sm:py-[60px] lg:px-[60px]">
         {/* ================= 피그마 순수 오렌지 캔버스 배경 ================= */}

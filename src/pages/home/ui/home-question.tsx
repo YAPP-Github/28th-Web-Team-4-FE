@@ -248,7 +248,7 @@ function HomeQuestionAnimated(): JSX.Element {
           backgroundColor: isOrangeActive ? 'var(--color-sys-primary-default, #ff6817)' : '#262626',
         }}
         transition={{ duration: 0.15, ease: 'easeOut' }}
-        className="px-016 sticky top-0 flex h-dvh w-full items-center justify-center overflow-hidden select-none"
+        className="px-016 sm:px-032 sticky top-0 flex h-dvh w-full items-center justify-center overflow-hidden select-none lg:px-120"
       >
         {/* Phase 1: 첫 질문 ("지금, 이런 고민을 하고 계시지 않나요?") - 문 열림과 함께 스케일업! */}
         <motion.div

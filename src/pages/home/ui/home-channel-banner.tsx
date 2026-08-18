@@ -138,7 +138,7 @@ export function HomeChannelBanner(): JSX.Element {
       className="bg-surface-lowest relative flex w-full flex-col items-center justify-center overflow-hidden py-[90px] sm:py-[120px] lg:py-[140px]"
     >
       {/* 상단 텍스트 및 스탯 영역 (Figma 3722:34484) */}
-      <div className="gap-008 px-016 sm:px-032 flex w-full max-w-[1200px] flex-col text-left">
+      <div className="gap-008 px-016 sm:px-032 flex w-full max-w-[1440px] flex-col text-left lg:px-120">
         <h2 className="font-pre text-[24px] leading-[1.3] font-bold tracking-tight text-[var(--color-primitive-gray-900,#1d1d20)] sm:text-[32px] lg:text-[36px]">
           채소집에서 바로 비교하는 국내외 주요 광고 매체
         </h2>

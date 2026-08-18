@@ -55,7 +55,7 @@ export function HomeFaq(): JSX.Element {
       aria-labelledby="faq-title"
       className="w-full bg-[var(--color-surface-background-white,#FFFFFF)] py-[80px] sm:py-[100px] lg:py-[120px]"
     >
-      <div className="px-016 sm:px-032 mx-auto flex w-full max-w-[1200px] flex-col gap-[36px] sm:gap-[44px] lg:gap-[48px]">
+      <div className="px-016 sm:px-032 mx-auto flex w-full max-w-[1440px] flex-col gap-[36px] sm:gap-[44px] lg:gap-[48px] lg:px-120">
         {/* 섹션 타이틀 */}
         <h2
           id="faq-title"
