@@ -77,9 +77,13 @@ export function HomeHeroServicePreview(): JSX.Element {
     };
 
     updateScale();
+    window.addEventListener('resize', updateScale);
     const observer = new ResizeObserver(updateScale);
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      window.removeEventListener('resize', updateScale);
+      observer.disconnect();
+    };
   }, [TOTAL_WIDTH]);
 
   return (

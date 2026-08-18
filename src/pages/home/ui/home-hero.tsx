@@ -288,10 +288,10 @@ function HomeHeroScrollScrub(): JSX.Element {
   const revealOpacity = useTransform(revealTextY, [160, 0], [0, 1]);
 
   return (
-    <section ref={sectionRef} aria-label="채소ZIP 소개" className="relative h-[200vh] w-full">
+    <section ref={sectionRef} aria-label="채소ZIP 소개" className="relative h-[240vh] w-full">
       <motion.div
         style={{ backgroundColor: background }}
-        className="sticky top-0 flex h-dvh w-full flex-col items-center justify-start overflow-hidden"
+        className="sticky top-0 flex min-h-screen w-full flex-col items-center justify-start overflow-visible"
       >
         {/* Figma 은은한 배경 그리드 그래픽 (리빌 시 페이드인) */}
         <HeroBackgroundGrid opacity={revealOpacity} />
@@ -307,22 +307,22 @@ function HomeHeroScrollScrub(): JSX.Element {
           />
         </motion.div>
 
-        {/* 스크롤 리빌: 국문 타이틀 + 서브텍스트 + CTA + 예산 시뮬레이션 결과 화면 (화면 상하 중앙 정렬) */}
+        {/* 스크롤 리빌: 국문 타이틀 + 서브텍스트 + CTA + 예산 시뮬레이션 결과 화면 (원하는 위치 유지 + 바닥까지 온전히 노출) */}
         <motion.div
           style={{ opacity: revealOpacity, y: revealTextY }}
-          className="px-016 sm:px-032 py-024 sm:py-032 z-10 flex w-full max-w-[1170px] flex-1 flex-col items-center justify-center"
+          className="px-016 sm:px-032 z-10 flex w-full max-w-[1170px] flex-1 flex-col items-center justify-start pt-[130px] pb-[80px] sm:pt-[155px] sm:pb-[100px] lg:pt-[175px] lg:pb-[120px]"
         >
           {/* 타이틀 + 서브타이틀 + CTA */}
-          <div className="gap-016 sm:gap-020 flex flex-col items-center text-center">
+          <div className="flex flex-col items-center gap-[12px] text-center sm:gap-[16px]">
             <HeroRevealTitle />
             <HeroRevealSubtext />
-            <div className="mt-008 sm:mt-012">
+            <div className="mt-[4px] sm:mt-[8px]">
               <HeroRevealCta />
             </div>
           </div>
 
-          {/* 예산 시뮬레이션 결과 화면 */}
-          <div className="mt-[24px] w-full max-w-[1170px] sm:mt-[36px] lg:mt-[44px]">
+          {/* 예산 시뮬레이션 결과 화면 (원래 크기 100% 온전하게 노출) */}
+          <div className="mt-[24px] flex w-full max-w-[1170px] justify-center drop-shadow-[0_24px_48px_rgba(0,0,0,0.06)] sm:mt-[32px] lg:mt-[40px]">
             <HomeHeroServicePreview />
           </div>
         </motion.div>
