@@ -120,4 +120,29 @@ describe('SimulatorSaveAction', () => {
       type: 'success',
     });
   });
+
+  it('결과 저장하기를 누르면 서비스명 입력 모달을 연다', async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorSaveAction simulationResult={SIMULATION_RESULT} />);
+
+    await user.click(screen.getByRole('button', { name: '결과 저장하기' }));
+
+    expect(screen.getByRole('heading', { name: '어떤 이름으로 결과를 저장할까요?' })).toBeVisible();
+    expect(mutateMock).not.toHaveBeenCalled();
+  });
+
+  it('서비스명 입력 모달에서 취소하면 저장하지 않는다', async () => {
+    const user = userEvent.setup();
+
+    render(<SimulatorSaveAction simulationResult={SIMULATION_RESULT} />);
+
+    await user.click(screen.getByRole('button', { name: '결과 저장하기' }));
+    await user.click(screen.getByRole('button', { name: '취소' }));
+
+    expect(
+      screen.queryByRole('heading', { name: '어떤 이름으로 결과를 저장할까요?' }),
+    ).not.toBeInTheDocument();
+    expect(mutateMock).not.toHaveBeenCalled();
+  });
 });

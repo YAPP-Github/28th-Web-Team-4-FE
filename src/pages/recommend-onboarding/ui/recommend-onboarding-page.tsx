@@ -8,6 +8,11 @@ import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
 import { submitRecommendOnboarding } from '@/features/ad-onboarding/api/submit-recommend-onboarding';
 import { useResetScrollOnEntry } from '@/features/ad-onboarding/lib/use-reset-scroll-on-entry';
 import type { RecommendOnboardingAnswer } from '@/features/ad-onboarding/model/onboarding-answer';
+import {
+  createRecommendOnboardingDraft,
+  type RecommendOnboardingDraft,
+} from '@/features/ad-onboarding/model/onboarding-draft';
+import { RECOMMEND_ONBOARDING_STEP_ID_LIST } from '@/features/ad-onboarding/model/onboarding-step';
 import { RecommendOnboardingFlow } from '@/features/ad-onboarding/ui/recommend-onboarding-flow';
 import { getApiErrorMessage } from '@/shared/api/api-error';
 import { Bubble } from '@/shared/ui/bubble';
@@ -17,12 +22,38 @@ import { showWarningToast } from '@/shared/ui/toast';
 
 import { RecommendOnboardingSubHeader } from './recommend-onboarding-sub-header';
 
-export function RecommendOnboardingPage(): JSX.Element {
+export type RecommendOnboardingPageProps = {
+  initialServiceName?: string;
+};
+
+const SERVICE_NAME_PREFILLED_STEP_INDEX = RECOMMEND_ONBOARDING_STEP_ID_LIST.indexOf('category');
+
+function getInitialStep(initialServiceName: string | undefined): number {
+  return initialServiceName ? SERVICE_NAME_PREFILLED_STEP_INDEX : 0;
+}
+
+function createInitialDraft(
+  initialServiceName: string | undefined,
+): RecommendOnboardingDraft | undefined {
+  if (!initialServiceName) {
+    return undefined;
+  }
+
+  return {
+    ...createRecommendOnboardingDraft(),
+    serviceName: initialServiceName,
+  };
+}
+
+export function RecommendOnboardingPage({
+  initialServiceName,
+}: RecommendOnboardingPageProps): JSX.Element {
   const scrollContainerRef = useResetScrollOnEntry();
 
   const router = useRouter();
   const setAnswer = useRecommendOnboardingStore((state) => state.setAnswer);
-  const [currentStep, setCurrentStep] = useState(0);
+  const initialDraft = createInitialDraft(initialServiceName);
+  const [currentStep, setCurrentStep] = useState(() => getInitialStep(initialServiceName));
   const submitMutation = useMutation({
     mutationFn: submitRecommendOnboarding,
     onSuccess: (result) => {
@@ -59,6 +90,7 @@ export function RecommendOnboardingPage(): JSX.Element {
             </Bubble>
 
             <RecommendOnboardingFlow
+              initialDraft={initialDraft}
               scrollContainerRef={scrollContainerRef}
               currentStep={currentStep}
               onStepChange={setCurrentStep}

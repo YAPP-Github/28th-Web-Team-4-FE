@@ -38,7 +38,7 @@ type RecommendResultPageProps = {
 };
 
 type RecommendResultWithRecommendationsProps = {
-  isGuest?: boolean;
+  isGuest: boolean;
   onboardingId: string;
 };
 
@@ -119,7 +119,7 @@ export function RecommendResultPage({
 }
 
 export function RecommendResultWithRecommendations({
-  isGuest = false,
+  isGuest,
   onboardingId,
 }: RecommendResultWithRecommendationsProps): JSX.Element {
   const router = useRouter();

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createElement } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -24,7 +24,7 @@ vi.mock('@number-flow/react', () => ({
     createElement('span', undefined, `${value}${suffix}`),
 }));
 
-function renderRecommendOnboardingPage() {
+function renderRecommendOnboardingPage(props?: { initialServiceName?: string }) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -34,7 +34,7 @@ function renderRecommendOnboardingPage() {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <RecommendOnboardingPage />
+      <RecommendOnboardingPage {...props} />
     </QueryClientProvider>,
   );
 }
@@ -105,6 +105,39 @@ describe('RecommendOnboardingPage', () => {
       top: 0,
       behavior: 'smooth',
     });
+  });
+
+  it('starts from the category step and scrolls to it when serviceName is prefilled', async () => {
+    renderRecommendOnboardingPage({ initialServiceName: '채소집' });
+
+    expect(screen.getByText('2')).toBeVisible();
+    expect(screen.getByText('업종 선택')).toBeVisible();
+    expect(screen.getByRole('progressbar', { name: '광고 채널 추천 진행률' })).toHaveAttribute(
+      'aria-valuetext',
+      '12%',
+    );
+    expect(screen.getByRole('heading', { name: '서비스 이름을 알려 주세요' })).toBeVisible();
+    expect(screen.getByText('채소집')).toBeVisible();
+    expect(screen.getByRole('heading', { name: '어떤 업종인가요?' })).toBeVisible();
+    expect(screen.queryByRole('textbox', { name: '서비스 이름' })).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(scrollToMock).toHaveBeenCalledWith({
+        top: 0,
+        behavior: 'smooth',
+      });
+    });
+  });
+
+  it('reopens the prefilled serviceName step when the edit button is clicked', async () => {
+    const user = userEvent.setup();
+
+    renderRecommendOnboardingPage({ initialServiceName: '채소집' });
+
+    await user.click(screen.getByRole('button', { name: '수정' }));
+
+    expect(screen.getByRole('heading', { name: '서비스 이름을 알려 주세요' })).toBeVisible();
+    expect(screen.queryByRole('heading', { name: '어떤 업종인가요?' })).not.toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: '서비스 이름' })).toHaveValue('채소집');
   });
 
   it('reopens a completed step when the edit button is clicked', async () => {

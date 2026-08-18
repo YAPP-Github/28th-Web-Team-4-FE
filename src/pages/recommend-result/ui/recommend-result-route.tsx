@@ -2,6 +2,7 @@ import { Suspense, type JSX } from 'react';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
 import { getRecommendationsOptions } from '@/shared/api/generated/@tanstack/react-query.gen';
+import { hasActiveAuthSession } from '@/shared/lib/auth/session-cookie';
 import { getQueryClient } from '@/shared/lib/query-client';
 import { Placeholder } from '@/shared/ui/placeholder';
 
@@ -16,7 +17,7 @@ type RecommendResultRouteProps = {
 export async function RecommendResultRoute({
   params,
 }: RecommendResultRouteProps): Promise<JSX.Element> {
-  const { id } = await params;
+  const [{ id }, isAuthenticated] = await Promise.all([params, hasActiveAuthSession()]);
   const queryClient = getQueryClient();
 
   void queryClient.prefetchQuery(
@@ -28,7 +29,7 @@ export async function RecommendResultRoute({
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback={<RecommendResultLoadingFallback />}>
-        <RecommendResultWithRecommendations onboardingId={id} />
+        <RecommendResultWithRecommendations isGuest={!isAuthenticated} onboardingId={id} />
       </Suspense>
     </HydrationBoundary>
   );
