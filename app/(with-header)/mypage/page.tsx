@@ -1,4 +1,4 @@
-import { MyPage } from '@/pages/mypage';
+import { MyPageWithRecommendations } from '@/pages/mypage';
 import { MY_PAGE_ONBOARDING_DATA_FIXTURE } from '@/pages/mypage/model/my-page-preview-data';
 import { hasActiveAuthSession } from '@/shared/lib/auth/session-cookie';
 
@@ -12,7 +12,7 @@ export default async function MyPageRoute({ searchParams }: MyPageRouteProps) {
     process.env.NODE_ENV === 'development' && query.preview === 'onboarding-data';
 
   return (
-    <MyPage
+    <MyPageWithRecommendations
       isLoggedIn={isLoggedIn || isOnboardingDataPreview}
       adsCondition={isOnboardingDataPreview ? MY_PAGE_ONBOARDING_DATA_FIXTURE : undefined}
     />
