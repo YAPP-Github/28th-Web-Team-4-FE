@@ -50,6 +50,7 @@ const SIMULATION_RESULT: SimulationResponse = {
       estClicks: { min: 300, max: 400 },
       cpcWon: 580,
       cpmWon: null,
+      minBudgetWon: null,
       isExecutable: true,
       shortfallWon: null,
       basisNote: '기준 데이터',
@@ -78,10 +79,13 @@ describe('SimulatorSaveAction', () => {
     render(<SimulatorSaveAction simulationResult={SIMULATION_RESULT} />);
 
     await user.click(screen.getByRole('button', { name: '결과 저장하기' }));
+    await user.type(screen.getByRole('textbox', { name: '서비스명' }), '채소집');
+    await user.click(screen.getByRole('button', { name: /^저장하기$/ }));
 
     expect(mutateMock).toHaveBeenCalledWith(
       {
         body: {
+          serviceName: '채소집',
           totalBudgetWon: 1_000_000,
           period: 'M1',
           allocations: [
@@ -106,6 +110,8 @@ describe('SimulatorSaveAction', () => {
     render(<SimulatorSaveAction simulationResult={SIMULATION_RESULT} />);
 
     await user.click(screen.getByRole('button', { name: '결과 저장하기' }));
+    await user.type(screen.getByRole('textbox', { name: '서비스명' }), '채소집');
+    await user.click(screen.getByRole('button', { name: /^저장하기$/ }));
     mutateMock.mock.calls[0]?.[1]?.onSuccess?.();
 
     expect(showToastMock).toHaveBeenCalledWith({
