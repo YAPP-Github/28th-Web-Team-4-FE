@@ -1,5 +1,4 @@
 import type { ReactElement } from 'react';
-import type * as ReactQuery from '@tanstack/react-query';
 
 import { hasActiveAuthSession } from '@/shared/lib/auth/session-cookie';
 
@@ -21,7 +20,7 @@ vi.mock('@/shared/lib/query-client', () => ({
   getQueryClient: () => ({ prefetchQuery: prefetchQueryMock }),
 }));
 vi.mock('@tanstack/react-query', async (importOriginal) => {
-  const actual = await importOriginal<ReactQuery>();
+  const actual = await importOriginal<Record<string, unknown>>();
 
   return {
     ...actual,
@@ -31,10 +30,17 @@ vi.mock('@tanstack/react-query', async (importOriginal) => {
 
 const hasActiveAuthSessionMock = vi.mocked(hasActiveAuthSession);
 
-function getResultElement(routeElement: ReactElement): ReactElement {
-  const suspenseElement = routeElement.props.children as ReactElement;
+type ResultElementProps = {
+  isGuest: boolean;
+  onboardingId: string;
+};
 
-  return suspenseElement.props.children as ReactElement;
+function getResultElement(routeElement: ReactElement): ReactElement {
+  const routeProps = routeElement.props as {
+    children: ReactElement<{ children: ReactElement<ResultElementProps> }>;
+  };
+
+  return routeProps.children.props.children;
 }
 
 describe('RecommendResultRoute', () => {

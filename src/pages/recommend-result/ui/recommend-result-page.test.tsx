@@ -52,6 +52,7 @@ const apiRecommendation = {
   estImpressions: { min: 12000, max: 15000 },
   estClicks: { min: 300, max: 450 },
   isExecutable: true,
+  shortfallWon: null,
 } as const satisfies RecommendationItemResponse;
 
 const recommendationChannel = {
@@ -59,6 +60,7 @@ const recommendationChannel = {
   name: apiRecommendation.channelName,
   description: apiRecommendation.recommendationReason,
   cpcPrice: '클릭 1회당 320원~',
+  isLowestCpc: false,
   matchRate: apiRecommendation.matchRate,
   thumbnailSrc: '/recommend-assets/naver-search-ad.png',
   metrics: [
@@ -164,6 +166,7 @@ function createChannelDetailResponse(
     audienceMetrics: [],
     references: [],
     recommendationBasis: null,
+    tags: [],
     ...overrides,
   };
 }
@@ -424,7 +427,10 @@ describe('RecommendResultPage', () => {
     await user.click(saveButton);
 
     await waitFor(() => {
-      expect(requestBody).toEqual({ onboardingId: RECOMMENDATION_ONBOARDING_ID });
+      expect(requestBody).toEqual({
+        onboardingId: RECOMMENDATION_ONBOARDING_ID,
+        serviceName: '채소집',
+      });
     });
     expect(screen.getByRole('button', { name: '저장 중' })).toBeDisabled();
 

@@ -8,6 +8,7 @@ function createComparisonItem(
   return {
     channelId: 'channel-naver',
     channelName: '네이버 검색 광고',
+    previewImageUrl: null,
     audienceSummary: '20~40대 여성',
     adFormats: ['배너', '피드', '릴스'],
     targetingMethods: ['관심사', '행동'],

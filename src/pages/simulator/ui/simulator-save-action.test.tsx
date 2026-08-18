@@ -50,6 +50,7 @@ const SIMULATION_RESULT: SimulationResponse = {
       estClicks: { min: 300, max: 400 },
       cpcWon: 580,
       cpmWon: null,
+      minBudgetWon: null,
       isExecutable: true,
       shortfallWon: null,
       basisNote: '기준 데이터',
@@ -84,6 +85,7 @@ describe('SimulatorSaveAction', () => {
     expect(mutateMock).toHaveBeenCalledWith(
       {
         body: {
+          serviceName: '채소집',
           totalBudgetWon: 1_000_000,
           period: 'M1',
           allocations: [

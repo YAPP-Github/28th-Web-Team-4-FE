@@ -26,6 +26,7 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
     executionType: 'SELF',
     adFormats: ['피드', '스토리'],
     targetingMethods: ['관심사'],
+    tags: [],
     products: [
       {
         id: 'product-feed',
@@ -38,6 +39,7 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
         expectedClicks: 1_800,
         expectedPeriod: '1주',
         pricing: [],
+        isExecutable: null,
       },
       {
         id: 'product-story',
@@ -50,6 +52,7 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
         expectedClicks: 700,
         expectedPeriod: null,
         pricing: [],
+        isExecutable: null,
       },
     ],
     audienceMetrics: [
@@ -149,6 +152,7 @@ describe('toChannelDetailViewModel', () => {
             expectedClicks: null,
             expectedPeriod: null,
             pricing: [],
+            isExecutable: null,
           },
         ],
         audienceMetrics: [],
@@ -191,6 +195,7 @@ describe('toChannelDetailViewModel', () => {
       expectedClicks: null,
       expectedPeriod: null,
       pricing: [],
+      isExecutable: null,
     } satisfies ChannelDetailApiModel['products'][number];
 
     const result = toChannelDetailViewModel(createChannelDetail({ products: [nullProduct] }));

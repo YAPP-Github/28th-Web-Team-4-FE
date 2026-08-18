@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type JSX } from 'react';
 import { Download } from 'lucide-react';
-import type { SimulationRequest, SimulationResponse } from '@/shared/api/generated';
+import type { SaveSimulationRequest, SimulationResponse } from '@/shared/api/generated';
 
 import { getApiErrorMessage } from '@/shared/api/api-error';
 import { useSaveSimulation } from '@/pages/simulator/api/use-save-simulation';
@@ -23,8 +23,12 @@ const SAVE_SIMULATION_BUTTON_LABEL = {
 
 type SaveSimulationButtonStatus = keyof typeof SAVE_SIMULATION_BUTTON_LABEL;
 
-function createSimulationRequest(result: SimulationResponse): SimulationRequest {
+function createSimulationRequest(
+  result: SimulationResponse,
+  serviceName: string,
+): SaveSimulationRequest {
   return {
+    serviceName,
     totalBudgetWon: result.totalBudgetWon,
     period: result.period,
     allocations: result.items.map((item) => ({
@@ -84,7 +88,7 @@ export function SimulatorSaveAction({
     setIsServiceNameModalOpen(true);
   };
 
-  const handleSaveWithServiceName = (_serviceName: string): void => {
+  const handleSaveWithServiceName = (nextServiceName: string): void => {
     if (!simulationResult) {
       return;
     }
@@ -92,7 +96,7 @@ export function SimulatorSaveAction({
     setIsServiceNameModalOpen(false);
 
     mutate(
-      { body: createSimulationRequest(simulationResult) },
+      { body: createSimulationRequest(simulationResult, nextServiceName) },
       {
         onSuccess: () => {
           showToast({

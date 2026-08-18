@@ -22,6 +22,7 @@ function createComparisonItem(
   return {
     channelId,
     channelName: `${channelId} 채널`,
+    previewImageUrl: null,
     audienceSummary: '20~40대',
     adFormats: ['배너'],
     targetingMethods: ['관심사'],
