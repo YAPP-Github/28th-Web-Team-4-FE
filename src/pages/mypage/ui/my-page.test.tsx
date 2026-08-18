@@ -311,6 +311,9 @@ describe('MyPage', () => {
     expect(screen.getByRole('heading', { name: '예산 시뮬레이션' })).toBeVisible();
     expect(screen.getByText('마지막 시뮬레이션 : 2026년 8월 17일')).toBeVisible();
     expect(screen.getByText('카카오모먼트')).toBeVisible();
+    expect(
+      screen.getByRole('link', { name: '예산 시뮬레이션 저장된 시뮬레이션 결과' }),
+    ).toHaveAttribute('href', '/simulator/saved/simulation-1');
   });
 
   it('renders the ad conditions and saved recommendations when onboarding exists', () => {
