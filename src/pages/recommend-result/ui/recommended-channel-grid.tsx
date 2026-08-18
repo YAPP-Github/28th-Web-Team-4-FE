@@ -21,6 +21,11 @@ const MotionList = motion.ul;
 const MotionItem = motion.li;
 const CARD_ENTER_EASE = [0.23, 1, 0.32, 1] as const;
 const CARD_STAGGER_DELAY = 0.07;
+const GUEST_LOCKED_CHANNEL_COUNT = 2;
+
+function isRecommendedChannelLocked(isGuest: boolean, channelIndex: number): boolean {
+  return isGuest && channelIndex < GUEST_LOCKED_CHANNEL_COUNT;
+}
 
 const gridVariants = {
   hidden: {},
@@ -69,7 +74,7 @@ export function RecommendedChannelGrid({
               <RecommendedChannelCard
                 channel={channel}
                 selected={selectedChannelIds.includes(channel.id)}
-                locked={isGuest && channelIndex < 2}
+                locked={isRecommendedChannelLocked(isGuest, channelIndex)}
                 imageLoading={channelIndex < 4 ? 'eager' : 'lazy'}
                 onOpenDetail={onOpenDetail}
                 onToggleSelection={onToggleSelection}
@@ -101,7 +106,7 @@ export function RecommendedChannelGrid({
             <RecommendedChannelCard
               channel={channel}
               selected={selectedChannelIds.includes(channel.id)}
-              locked={isGuest && channelIndex < 2}
+              locked={isRecommendedChannelLocked(isGuest, channelIndex)}
               imageLoading={channelIndex < 4 ? 'eager' : 'lazy'}
               onOpenDetail={onOpenDetail}
               onToggleSelection={onToggleSelection}
