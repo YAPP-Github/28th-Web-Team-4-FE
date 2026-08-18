@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
+import { OverlayProvider } from 'overlay-kit';
 import { withNuqsTestingAdapter, type OnUrlUpdateFunction } from 'nuqs/adapters/testing';
 
 import type {
@@ -15,10 +16,25 @@ import { server } from '@/shared/api/mocks/server';
 import { ComparePage } from './compare-page';
 import { CompareResultPage } from './compare-result-page';
 
-const { pushMock, replaceMock, showWarningToastMock } = vi.hoisted(() => ({
-  pushMock: vi.fn<(href: string) => void>(),
-  replaceMock: vi.fn<(href: string) => void>(),
-  showWarningToastMock: vi.fn<(description: string, options?: { id?: string }) => void>(),
+const { authSessionState, pushMock, replaceMock, showToastMock, showWarningToastMock } = vi.hoisted(
+  () => ({
+    authSessionState: {
+      value: {
+        authenticated: true,
+        accessTokenExpiresAt: Date.now() + 60_000,
+      } as { authenticated: false } | { authenticated: true; accessTokenExpiresAt: number },
+    },
+    pushMock: vi.fn<(href: string) => void>(),
+    replaceMock: vi.fn<(href: string) => void>(),
+    showToastMock: vi.fn<(options: unknown) => void>(),
+    showWarningToastMock: vi.fn<(description: string, options?: { id?: string }) => void>(),
+  }),
+);
+
+vi.mock('@/features/auth/session', () => ({
+  useAuthSession: () => ({
+    data: authSessionState.value,
+  }),
 }));
 
 vi.mock('next/navigation', () => ({
@@ -37,6 +53,7 @@ vi.mock('@number-flow/react', () => ({
 }));
 
 vi.mock('@/shared/ui/toast', () => ({
+  showToast: showToastMock,
   showWarningToast: showWarningToastMock,
 }));
 
@@ -201,12 +218,15 @@ function renderCompareRoute(
       },
     },
   });
+
   const NuqsTestingAdapter = withNuqsTestingAdapter({ searchParams, hasMemory: true, onUrlUpdate });
 
   function Wrapper({ children }: { children: ReactNode }) {
     return (
       <NuqsTestingAdapter>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <OverlayProvider>{children}</OverlayProvider>
+        </QueryClientProvider>
       </NuqsTestingAdapter>
     );
   }
@@ -221,7 +241,12 @@ function renderComparePage(searchParams = '') {
 function renderCompareResultPage(
   searchParams = '?channels=channel-naver,channel-kakao,channel-meta',
   onUrlUpdate: OnUrlUpdateFunction = () => {},
+  authSession?: { authenticated: false } | { authenticated: true; accessTokenExpiresAt: number },
 ) {
+  if (authSession) {
+    authSessionState.value = authSession;
+  }
+
   return renderCompareRoute(<CompareResultPage />, searchParams, onUrlUpdate);
 }
 
@@ -242,6 +267,10 @@ describe('ComparePage', () => {
     vi.clearAllMocks();
     pushMock.mockReset();
     replaceMock.mockReset();
+    authSessionState.value = {
+      authenticated: true,
+      accessTokenExpiresAt: Date.now() + 60_000,
+    };
     server.use(
       http.get(/\/api\/v1\/channels$/, ({ request }) =>
         defaultChannelResponse(new URL(request.url)),
@@ -820,6 +849,206 @@ describe('ComparePage', () => {
     expect(screen.getByText('B 장점')).toBeVisible();
     expect(screen.queryByText('채널 추가하기')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: '결과 저장하기' })).toBeVisible();
+  });
+
+  it('onboardingId가 있으면 서비스명 모달 없이 채널 비교 결과를 바로 저장한다', async () => {
+    const user = userEvent.setup();
+    const saveResponseGate = createDeferred<void>();
+    let requestBody: unknown;
+
+    server.use(
+      http.post(/\/api\/v1\/channel-comparisons$/, async ({ request }) => {
+        requestBody = await request.json();
+        await saveResponseGate.promise;
+
+        return HttpResponse.json(
+          {
+            success: true,
+            data: {
+              comparisonId: 'comparison-87',
+              items: [
+                createComparisonItem('channel-naver'),
+                createComparisonItem('channel-kakao'),
+                createComparisonItem('channel-meta'),
+              ],
+            },
+            error: null,
+            code: null,
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    renderCompareResultPage(
+      '?channels=channel-naver,channel-kakao,channel-meta&onboardingId=onboarding-87',
+    );
+
+    await user.click(await screen.findByRole('button', { name: '결과 저장하기' }));
+
+    await waitFor(() => {
+      expect(requestBody).toEqual({
+        channelIds: ['channel-naver', 'channel-kakao', 'channel-meta'],
+        onboardingId: 'onboarding-87',
+      });
+    });
+    expect(
+      screen.queryByRole('heading', { name: '서비스명을 입력해 주세요' }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '저장 중' })).toBeDisabled();
+
+    saveResponseGate.resolve(undefined);
+
+    expect(await screen.findByRole('button', { name: '저장 완료' })).toBeDisabled();
+    expect(showToastMock).toHaveBeenCalledWith({
+      id: 'compare-result-save-success',
+      description: '마이페이지에 결과를 저장했어요',
+      type: 'success',
+    });
+  });
+
+  it('onboardingId가 없으면 서비스명 입력 후 채널 비교 결과를 저장한다', async () => {
+    const user = userEvent.setup();
+    let requestBody: unknown;
+
+    server.use(
+      http.post(/\/api\/v1\/channel-comparisons$/, async ({ request }) => {
+        requestBody = await request.json();
+
+        return HttpResponse.json(
+          {
+            success: true,
+            data: {
+              comparisonId: 'comparison-with-service-name',
+              items: [createComparisonItem('channel-naver'), createComparisonItem('channel-kakao')],
+            },
+            error: null,
+            code: null,
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    renderCompareResultPage('?channels=channel-naver,channel-kakao');
+
+    await user.click(await screen.findByRole('button', { name: '결과 저장하기' }));
+
+    expect(await screen.findByRole('heading', { name: '서비스명을 입력해 주세요' })).toBeVisible();
+    expect(screen.getByText('예: 채소집, 앱 설치 유도 캠페인')).toBeVisible();
+
+    await user.type(screen.getByRole('textbox', { name: '서비스명' }), '  채소집  ');
+    await user.click(screen.getByRole('button', { name: /^저장하기$/ }));
+
+    await waitFor(() => {
+      expect(requestBody).toEqual({
+        channelIds: ['channel-naver', 'channel-kakao'],
+        serviceName: '채소집',
+      });
+    });
+    expect(
+      screen.queryByRole('heading', { name: '서비스명을 입력해 주세요' }),
+    ).not.toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: '저장 완료' })).toBeDisabled();
+  });
+
+  it('서비스명이 비어 있으면 채널 비교 결과를 저장하지 않는다', async () => {
+    const user = userEvent.setup();
+    const saveMock = vi.fn<(body: unknown) => void>();
+
+    server.use(
+      http.post(/\/api\/v1\/channel-comparisons$/, async ({ request }) => {
+        saveMock(await request.json());
+
+        return HttpResponse.json(
+          {
+            success: true,
+            data: {
+              comparisonId: 'comparison-with-empty-service-name',
+              items: [createComparisonItem('channel-naver'), createComparisonItem('channel-kakao')],
+            },
+            error: null,
+            code: null,
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    renderCompareResultPage('?channels=channel-naver,channel-kakao');
+
+    await user.click(await screen.findByRole('button', { name: '결과 저장하기' }));
+
+    const saveButton = await screen.findByRole('button', { name: /^저장하기$/ });
+
+    expect(saveButton).toBeDisabled();
+
+    await user.type(screen.getByRole('textbox', { name: '서비스명' }), '   ');
+
+    expect(saveButton).toBeDisabled();
+    expect(saveMock).not.toHaveBeenCalled();
+  });
+
+  it('비로그인 사용자는 저장 안내 툴팁만 표시하고 저장하지 않는다', async () => {
+    const user = userEvent.setup();
+    const saveMock = vi.fn<(body: unknown) => void>();
+
+    server.use(
+      http.post(/\/api\/v1\/channel-comparisons$/, async ({ request }) => {
+        saveMock(await request.json());
+
+        return HttpResponse.json({ success: false }, { status: 401 });
+      }),
+    );
+
+    renderCompareResultPage('?channels=channel-naver,channel-kakao', undefined, {
+      authenticated: false,
+    });
+
+    const saveButton = await screen.findByRole('button', { name: '결과 저장하기' });
+    const tooltip = screen.getByRole('tooltip');
+
+    expect(saveButton).toHaveAttribute('aria-describedby', tooltip.id);
+    expect(tooltip).toHaveTextContent('로그인 후 저장 가능해요');
+
+    await user.click(saveButton);
+
+    expect(
+      screen.queryByRole('heading', { name: '서비스명을 입력해 주세요' }),
+    ).not.toBeInTheDocument();
+    expect(saveMock).not.toHaveBeenCalled();
+  });
+
+  it('채널 비교 결과 저장에 실패하면 경고 토스트를 보여준다', async () => {
+    const user = userEvent.setup();
+
+    server.use(
+      http.post(/\/api\/v1\/channel-comparisons$/, () =>
+        HttpResponse.json(
+          {
+            success: false,
+            error: {
+              code: 'CH-001',
+              message: '저장할 채널 비교 결과를 찾을 수 없어요.',
+            },
+          },
+          { status: 404 },
+        ),
+      ),
+    );
+
+    renderCompareResultPage(
+      '?channels=channel-naver,channel-kakao,channel-meta&onboardingId=onboarding-87',
+    );
+
+    await user.click(await screen.findByRole('button', { name: '결과 저장하기' }));
+
+    await waitFor(() => {
+      expect(showWarningToastMock).toHaveBeenCalledWith('저장할 채널 비교 결과를 찾을 수 없어요.', {
+        id: 'compare-result-save-error',
+      });
+    });
+    expect(screen.getByRole('button', { name: '결과 저장하기' })).toBeEnabled();
   });
 
   it('3개 결과에서 채널을 제거하면 URL을 보존하며 2개 결과로 교체한다', async () => {
