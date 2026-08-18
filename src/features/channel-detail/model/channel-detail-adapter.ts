@@ -6,7 +6,7 @@ import type {
 
 import { createRecommendationReason } from '@/features/channel-detail/lib/create-recommendation-reason';
 
-import type { ChannelDetail, ChannelProductRow } from './channel-detail';
+import type { ChannelAudienceMetric, ChannelDetail, ChannelProductRow } from './channel-detail';
 
 const EMPTY_VALUE = '-';
 
@@ -15,9 +15,6 @@ type PrimaryGender = ChannelDetailApiModel['primaryGender'];
 type ChannelDetailResponseForAdapter = Omit<ChannelDetailApiModel, 'audienceTraits'> & {
   audienceTraits?: string | null;
 };
-
-const USER_SCALE_METRIC_NAME = 'MAU';
-const DAILY_ACTIVE_USER_METRIC_NAME = 'DAU';
 
 function getNonEmptyText(value?: string | null): string | undefined {
   const trimmedValue = value?.trim();
@@ -105,12 +102,11 @@ function formatPrimaryGender(gender: PrimaryGender): string {
   }
 }
 
-function findAudienceMetricText(
-  metrics: readonly AudienceMetricResponse[],
-  metricName: string,
-): string {
-  const metric = metrics.find((candidate) => candidate.metricName.trim() === metricName);
-  return getNonEmptyText(metric?.valueText) ?? EMPTY_VALUE;
+function toAudienceMetric(metric: AudienceMetricResponse): ChannelAudienceMetric {
+  return {
+    label: getNonEmptyText(metric.metricName) ?? EMPTY_VALUE,
+    value: getNonEmptyText(metric.valueText) ?? EMPTY_VALUE,
+  };
 }
 
 export function toChannelDetailViewModel(channel: ChannelDetailResponseForAdapter): ChannelDetail {
@@ -131,11 +127,7 @@ export function toChannelDetailViewModel(channel: ChannelDetailResponseForAdapte
     audience: {
       primaryAgeBand: getNonEmptyText(channel.primaryAgeBand) ?? EMPTY_VALUE,
       primaryGender: formatPrimaryGender(channel.primaryGender),
-      userScale: findAudienceMetricText(channel.audienceMetrics, USER_SCALE_METRIC_NAME),
-      dailyActiveUsers: findAudienceMetricText(
-        channel.audienceMetrics,
-        DAILY_ACTIVE_USER_METRIC_NAME,
-      ),
+      metrics: channel.audienceMetrics.map(toAudienceMetric),
       traits: getNonEmptyText(channel.audienceTraits) ?? EMPTY_VALUE,
     },
     similarCases: channel.references,
