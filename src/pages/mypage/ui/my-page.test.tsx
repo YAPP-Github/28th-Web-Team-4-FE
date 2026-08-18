@@ -4,7 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
 import { authSessionQueryKey } from '@/features/auth/session/model/auth-session-query';
-import type { UserProfileResponse } from '@/shared/api/generated/types.gen';
+import type {
+  MyOnboardingTagResponse,
+  UserProfileResponse,
+} from '@/shared/api/generated/types.gen';
 import type { ShowToastOptions } from '@/shared/ui/toast';
 
 import { MyPage } from './my-page';
@@ -18,15 +21,23 @@ type WithdrawOptions = {
   onSuccess?: () => void;
 };
 
-const { logoutMock, replaceMock, refreshMock, showToastMock, withdrawMock, withdrawOptions } =
-  vi.hoisted(() => ({
-    logoutMock: vi.fn<(options?: LogoutOptions) => void>(),
-    replaceMock: vi.fn<(href: string) => void>(),
-    refreshMock: vi.fn<() => void>(),
-    showToastMock: vi.fn<(options: ShowToastOptions) => void>(),
-    withdrawMock: vi.fn<() => void>(),
-    withdrawOptions: [] as WithdrawOptions[],
-  }));
+const {
+  logoutMock,
+  onboardingTagQueryMock,
+  replaceMock,
+  refreshMock,
+  showToastMock,
+  withdrawMock,
+  withdrawOptions,
+} = vi.hoisted(() => ({
+  logoutMock: vi.fn<(options?: LogoutOptions) => void>(),
+  onboardingTagQueryMock: vi.fn<() => { data?: MyOnboardingTagResponse }>(),
+  replaceMock: vi.fn<(href: string) => void>(),
+  refreshMock: vi.fn<() => void>(),
+  showToastMock: vi.fn<(options: ShowToastOptions) => void>(),
+  withdrawMock: vi.fn<() => void>(),
+  withdrawOptions: [] as WithdrawOptions[],
+}));
 
 const fetchMock = vi.fn<typeof fetch>();
 
@@ -35,6 +46,33 @@ const DEFAULT_PROFILE: UserProfileResponse = {
   email: 'Web4team@naver.com',
   companyName: 'YAPP',
   occupation: 'DESIGN' as const,
+};
+
+const DEFAULT_ONBOARDING_TAG: MyOnboardingTagResponse = {
+  hasOnboarding: false,
+  onboardingId: null,
+  serviceName: null,
+  industry: 'OTHERS',
+  serviceType: 'OTHER',
+  targetAgeBands: [],
+  campaignObjective: 'AWARENESS',
+  budgetMin: null,
+  budgetMax: null,
+  period: 'M1',
+  adExperience: 'NONE',
+};
+
+const ACTIVE_ONBOARDING_TAG: MyOnboardingTagResponse = {
+  ...DEFAULT_ONBOARDING_TAG,
+  hasOnboarding: true,
+  onboardingId: 'onboarding-1',
+  serviceName: '채소집',
+  industry: 'SHOPPING_COMMERCE',
+  serviceType: 'WEB',
+  targetAgeBands: ['AGE_30S', 'AGE_40S'],
+  campaignObjective: 'CONVERSION',
+  budgetMin: 500_000,
+  budgetMax: 500_000,
 };
 
 function createProfileResponse(profile = DEFAULT_PROFILE): Response {
@@ -92,6 +130,10 @@ vi.mock('@/features/auth/session/model/use-withdraw', () => ({
   },
 }));
 
+vi.mock('@/pages/mypage/api/use-my-onboarding-tag', () => ({
+  useMyOnboardingTag: onboardingTagQueryMock,
+}));
+
 vi.mock('@/shared/ui/toast', () => ({
   showToast: showToastMock,
   showWarningToast:
@@ -108,6 +150,8 @@ describe('MyPage', () => {
   beforeEach(() => {
     fetchMock.mockResolvedValue(createProfileResponse());
     vi.stubGlobal('fetch', fetchMock);
+    onboardingTagQueryMock.mockReset();
+    onboardingTagQueryMock.mockReturnValue({ data: DEFAULT_ONBOARDING_TAG });
     logoutMock.mockReset();
     replaceMock.mockReset();
     refreshMock.mockReset();
@@ -271,6 +315,26 @@ describe('MyPage', () => {
     expect(screen.getByText('사이드 프로젝트 B')).toBeVisible();
     expect(screen.getByText('사이드 프로젝트 C')).toBeVisible();
     expect(screen.queryByText('네 번째 프로젝트')).not.toBeInTheDocument();
+  });
+
+  it('renders ad conditions from the onboarding tag query when onboarding exists', () => {
+    onboardingTagQueryMock.mockReturnValue({ data: ACTIVE_ONBOARDING_TAG });
+
+    renderMyPage(true);
+
+    expect(screen.getByRole('heading', { name: '내 광고 조건' })).toBeVisible();
+    expect(screen.getByText('#쇼핑·커머스')).toBeVisible();
+    expect(screen.getByText('#웹 서비스')).toBeVisible();
+    expect(screen.getByText('#30~40대')).toBeVisible();
+    expect(screen.getByText('#구매 전환')).toBeVisible();
+    expect(screen.getByText('#총 50만 원')).toBeVisible();
+    expect(screen.getByText('#1개월')).toBeVisible();
+  });
+
+  it('hides ad conditions when the onboarding tag query has no onboarding', () => {
+    renderMyPage(true);
+
+    expect(screen.queryByRole('heading', { name: '내 광고 조건' })).not.toBeInTheDocument();
   });
 
   it('opens the ad condition edit modal with editable fields', async () => {
