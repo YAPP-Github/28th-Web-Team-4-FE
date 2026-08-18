@@ -26,23 +26,28 @@ function isUnauthorizedError(error: unknown): boolean {
   return typeof error === 'object' && error !== null && 'status' in error && error.status === 401;
 }
 
-export function useMyProfile() {
+type UseMyProfileOptions = {
+  enabled?: boolean;
+};
+
+export function useMyProfile({ enabled = true }: UseMyProfileOptions = {}) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const profileQuery = useQuery({
     queryKey: myProfileQueryKey,
     queryFn: fetchMyProfile,
+    enabled,
     retry: false,
   });
 
   useEffect(() => {
-    if (!isUnauthorizedError(profileQuery.error)) {
+    if (!enabled || !isUnauthorizedError(profileQuery.error)) {
       return;
     }
 
     queryClient.setQueryData(authSessionQueryKey, { authenticated: false });
     router.refresh();
-  }, [profileQuery.error, queryClient, router]);
+  }, [enabled, profileQuery.error, queryClient, router]);
 
   return profileQuery;
 }
