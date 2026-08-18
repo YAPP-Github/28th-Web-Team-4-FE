@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type JSX, type ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { RotateCcw } from 'lucide-react';
 
 import {
@@ -24,11 +25,17 @@ import {
 } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import { isAgeRangeOptionDisabled } from '@/features/ad-onboarding/model/recommend-onboarding-rules';
 import { BudgetRangeControl } from '@/features/ad-onboarding/ui/questions/common/budget/budget-range-control';
+import type { ApiResponseMyOnboardingTagResponse } from '@/shared/api/generated/types.gen';
+import { getApiErrorMessage } from '@/shared/api/api-error';
+import { myOnboardingTagQueryKey } from '@/shared/lib/query-keys';
 import {
   AGE_RANGE_VALUES_BY_LABEL,
   DEFAULT_MY_ADS_CONDITION_EDIT_VALUES,
   type MyAdsConditionEditValues,
 } from '@/pages/mypage/model/my-ads-condition-edit';
+import { createUpdateOnboardingTagRequest } from '@/pages/mypage/lib/create-update-onboarding-tag-request';
+import { useUpdateMyOnboardingTag } from '@/pages/mypage/api/use-update-my-onboarding-tag';
+import { Button } from '@/shared/ui/button';
 import { Dropdown, type DropdownOption } from '@/shared/ui/dropdown';
 import { Box } from '@/shared/ui/layout/box';
 import { Modal } from '@/shared/ui/modal';
@@ -107,6 +114,29 @@ export function MyAdsConditionEditModal({
   onStartOver,
 }: MyAdsConditionEditModalProps): JSX.Element {
   const [values, setValues] = useState(initialValues);
+  const queryClient = useQueryClient();
+  const updateMutation = useUpdateMyOnboardingTag();
+
+  const handleSave = (): void => {
+    if (updateMutation.isPending) {
+      return;
+    }
+
+    updateMutation.reset();
+    updateMutation.mutate(
+      { body: createUpdateOnboardingTagRequest(values) },
+      {
+        onSuccess: ({ data: updatedTag }) => {
+          queryClient.setQueryData<ApiResponseMyOnboardingTagResponse>(
+            myOnboardingTagQueryKey,
+            (currentResponse) =>
+              currentResponse ? { ...currentResponse, data: updatedTag } : currentResponse,
+          );
+          onSave(values);
+        },
+      },
+    );
+  };
 
   const updateValue = <Key extends keyof MyAdsConditionEditValues>(
     key: Key,
@@ -141,6 +171,7 @@ export function MyAdsConditionEditModal({
             <button
               type="button"
               onClick={onStartOver}
+              disabled={updateMutation.isPending}
               className="gap-002 typo-body-sm text-text-low focus-visible:outline-sys-primary-default rounded-xxs inline-flex shrink-0 items-center underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               <RotateCcw aria-hidden className="size-014" strokeWidth={1.5} />
@@ -192,19 +223,35 @@ export function MyAdsConditionEditModal({
           </Box>
         </Box>
 
+        {updateMutation.error ? (
+          <Text as="p" variant="body-sm" className="text-sys-error-default w-full" role="alert">
+            {getApiErrorMessage(
+              updateMutation.error,
+              '광고 조건을 저장하지 못했어요. 다시 시도해 주세요.',
+            )}
+          </Text>
+        ) : null}
+
         <Box className="gap-010 flex h-12 w-full">
-          <Modal.CloseButton frame="button" tone="stroke" className="h-12 flex-1">
+          <Modal.CloseButton
+            frame="button"
+            tone="stroke"
+            className="h-12 flex-1"
+            disabled={updateMutation.isPending}
+          >
             취소
           </Modal.CloseButton>
-          <Modal.CloseButton
+          <Button
             frame="button"
             tone="secondary"
             size="m"
             className="h-12 flex-1"
-            onClick={() => onSave(values)}
+            type="button"
+            disabled={updateMutation.isPending}
+            onClick={handleSave}
           >
-            저장하기
-          </Modal.CloseButton>
+            {updateMutation.isPending ? '저장 중...' : '저장하기'}
+          </Button>
         </Box>
       </Modal.Popup>
     </Modal.Portal>

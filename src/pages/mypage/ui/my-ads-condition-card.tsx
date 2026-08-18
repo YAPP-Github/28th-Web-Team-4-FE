@@ -69,7 +69,10 @@ export function MyAdsConditionCard({ tags }: MyAdsConditionCardProps): JSX.Eleme
         />
         <MyAdsConditionEditModal
           initialValues={initialValues}
-          onSave={(values) => setConditionTags(createMyAdsConditionTags(values))}
+          onSave={(values) => {
+            setConditionTags(createMyAdsConditionTags(values));
+            setActiveModal(null);
+          }}
           onStartOver={() => setActiveModal('reset')}
         />
       </Modal.Root>
