@@ -126,7 +126,7 @@ describe('SimulatorSaveAction', () => {
 
     await user.click(screen.getByRole('button', { name: '결과 저장하기' }));
 
-    expect(screen.getByRole('heading', { name: '서비스명을 입력해 주세요' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: '어떤 이름으로 결과를 저장할까요?' })).toBeVisible();
     expect(mutateMock).not.toHaveBeenCalled();
   });
 
@@ -139,7 +139,7 @@ describe('SimulatorSaveAction', () => {
     await user.click(screen.getByRole('button', { name: '취소' }));
 
     expect(
-      screen.queryByRole('heading', { name: '서비스명을 입력해 주세요' }),
+      screen.queryByRole('heading', { name: '어떤 이름으로 결과를 저장할까요?' }),
     ).not.toBeInTheDocument();
     expect(mutateMock).not.toHaveBeenCalled();
   });
