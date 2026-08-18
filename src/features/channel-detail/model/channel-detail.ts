@@ -28,6 +28,7 @@ export type ChannelDetail = {
   logoUrl: string;
   tagline: string;
   summary: {
+    keywords: string[];
     paragraphs: string[];
     recommendationReason: ChannelRecommendationReason | null;
   };
