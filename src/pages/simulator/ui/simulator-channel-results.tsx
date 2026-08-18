@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type JSX } from 'react';
+import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 import { Info } from 'lucide-react';
 import type { SimulationResponse } from '@/shared/api/generated';
 
@@ -8,7 +9,6 @@ import { useSimulatorFilterChannels } from '@/features/simulator-filter/api/use-
 import type { SimulatorFilterChannel } from '@/features/simulator-filter/model/simulator-filter-options';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
-import { Tooltip } from '@/shared/ui/tooltip';
 
 import { AuthenticatedChannelResults } from './simulator-authenticated-results';
 import { GuestChannelResults } from './simulator-guest-results';
@@ -65,32 +65,43 @@ function ChannelCostInfo({
   }
 
   return (
-    <Tooltip.Root placement="right-start" offset={{ mainAxis: 10, crossAxis: 8 }}>
-      <Tooltip.Anchor>
-        <button
-          type="button"
+    <BaseTooltip.Provider delay={150} timeout={400}>
+      <BaseTooltip.Root>
+        <BaseTooltip.Trigger
           aria-label="채널별 클릭당 비용 안내"
-          className="text-icon-default focus-visible:outline-outline-selected size-018 flex items-center justify-center rounded-full outline-offset-2 focus-visible:outline-2"
+          delay={0}
+          className="text-icon-default focus-visible:outline-outline-selected size-018 relative inline-flex items-center justify-center rounded-full before:absolute before:-inset-[5px] before:content-[''] focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           {infoIcon}
-        </button>
-      </Tooltip.Anchor>
-      <Tooltip.Content
-        showArrow={false}
-        className="bg-surface-lowest p-016 shadow-drop-shadow-02 pointer-events-none invisible items-start rounded-[var(--radius-m)] rounded-tl-none opacity-0 transition-opacity duration-150 group-focus-within:pointer-events-auto group-focus-within:visible group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:visible group-hover:opacity-100"
-      >
-        <span className="gap-008 flex flex-col items-start">
-          <span className="typo-subtitle-sm text-text-high">채널별 클릭당 비용</span>
-          <span className="typo-body-xs text-text-medium gap-002 flex flex-col items-start whitespace-nowrap">
-            {costLines.length > 0 ? (
-              costLines.map(({ id, text }) => <span key={id}>{text}</span>)
-            ) : (
-              <span>등록된 비용 정보가 없어요.</span>
-            )}
-          </span>
-        </span>
-      </Tooltip.Content>
-    </Tooltip.Root>
+        </BaseTooltip.Trigger>
+        <BaseTooltip.Portal>
+          <BaseTooltip.Positioner
+            side="bottom"
+            align="start"
+            sideOffset={2}
+            collisionPadding={8}
+            positionMethod="fixed"
+            className="z-50"
+          >
+            <BaseTooltip.Popup
+              role="tooltip"
+              className="bg-surface-lowest p-016 shadow-drop-shadow-02 w-max max-w-[calc(100vw-32px)] rounded-[var(--radius-m)] rounded-tl-none"
+            >
+              <Box className="gap-008 flex flex-col items-start">
+                <span className="typo-subtitle-sm text-text-high">채널별 클릭당 비용</span>
+                <span className="typo-body-xs text-text-medium gap-002 flex flex-col items-start whitespace-nowrap">
+                  {costLines.length > 0 ? (
+                    costLines.map(({ id, text }) => <span key={id}>{text}</span>)
+                  ) : (
+                    <span>등록된 비용 정보가 없어요.</span>
+                  )}
+                </span>
+              </Box>
+            </BaseTooltip.Popup>
+          </BaseTooltip.Positioner>
+        </BaseTooltip.Portal>
+      </BaseTooltip.Root>
+    </BaseTooltip.Provider>
   );
 }
 

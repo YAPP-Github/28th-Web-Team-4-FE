@@ -93,14 +93,18 @@ type MyAdsConditionEditModalProps = {
 export function createMyAdsConditionEditValues(tags: readonly string[]): MyAdsConditionEditValues {
   const normalizedTags = tags.map((tag) => tag.replace(/^#/, ''));
   const budgetTag = normalizedTags.find((tag) => tag.includes('만 원'));
-  const maxBudget = budgetTag?.match(/([\d,]+)\s*만\s*원/)?.[1]?.replaceAll(',', '');
+  const budgetValues = budgetTag
+    ? [...budgetTag.matchAll(/([\d,]+)\s*만\s*원/g)].map((match) => match[1].replaceAll(',', ''))
+    : [];
+  const minBudget = budgetValues.length > 1 ? budgetValues[0] : DEFAULT_EDIT_VALUES.minBudget;
+  const maxBudget = budgetValues.at(-1);
 
   return {
     category: normalizedTags[0] ?? DEFAULT_EDIT_VALUES.category,
     serviceType: normalizedTags[1] ?? DEFAULT_EDIT_VALUES.serviceType,
     ageRange: normalizedTags[2] ?? DEFAULT_EDIT_VALUES.ageRange,
     adGoal: normalizedTags[3]?.replace('구매·결제 전환', '구매 전환') ?? DEFAULT_EDIT_VALUES.adGoal,
-    minBudget: DEFAULT_EDIT_VALUES.minBudget,
+    minBudget,
     maxBudget: maxBudget ?? DEFAULT_EDIT_VALUES.maxBudget,
     campaignPeriod: normalizedTags[5]
       ? normalizeCampaignPeriodLabel(normalizedTags[5])
