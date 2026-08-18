@@ -18,12 +18,12 @@ export function MyPageWithRecommendations(props: MyPageWithRecommendationsProps)
 
   return (
     <MyPage
-      {...props}
       savedRecommendations={
         recommendations ? createSavedRecommendations(recommendations) : undefined
       }
       savedRecommendationsLoading={props.isLoggedIn === true && recommendationsQuery.isPending}
       savedRecommendationsError={props.isLoggedIn === true && recommendationsQuery.isError}
+      {...props}
     />
   );
 }
