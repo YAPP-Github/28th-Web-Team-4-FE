@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { SimulatorChannelResults } from './simulator-channel-results';
@@ -78,10 +78,12 @@ describe('SimulatorChannelResults', () => {
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: '채널별 클릭당 비용 안내' }));
+    await user.hover(screen.getByRole('button', { name: '채널별 클릭당 비용 안내' }));
 
-    expect(screen.getByText('채널 B 580원')).toBeVisible();
-    expect(screen.getByText('채널 C 노출 1,000회 당 약 3,500원')).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText('채널 B 580원')).toBeVisible();
+      expect(screen.getByText('채널 C 노출 1,000회 당 약 3,500원')).toBeVisible();
+    });
   });
 
   it('채널 선택 전에는 단가 툴팁을 열 수 없다', () => {

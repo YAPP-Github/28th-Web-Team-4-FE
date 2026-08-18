@@ -1,16 +1,19 @@
 'use client';
 
 import type { JSX } from 'react';
+import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 import Image from 'next/image';
+import { Info } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 
 import { Box } from '@/shared/ui/layout/box';
 import { cn } from '@/shared/ui/cn';
 import { Text } from '@/shared/ui/text';
-import type {
-  ChannelMetric,
-  ChannelResult,
-  ChannelType,
+import {
+  getSimulatorBasisTooltip,
+  type ChannelMetric,
+  type ChannelResult,
+  type ChannelType,
 } from '@/pages/simulator/model/simulator-channel';
 
 const CHANNEL_ICON_SRC: Record<ChannelType, string> = {
@@ -142,14 +145,91 @@ function ChannelMetricRow({
   );
 }
 
+function ChannelBasisInfo({
+  channelName,
+  basisNote,
+  isExecutable,
+}: {
+  channelName: string;
+  basisNote?: string;
+  isExecutable?: boolean;
+}): JSX.Element | null {
+  const tooltip = getSimulatorBasisTooltip(basisNote);
+
+  if (isExecutable !== false) {
+    return null;
+  }
+
+  const infoButton = (
+    <button
+      type="button"
+      aria-label={`${channelName} 기준 정보 안내`}
+      className="text-icon-default hover:text-icon-high focus-visible:outline-outline-selected size-014 flex shrink-0 items-center justify-center rounded-full outline-offset-2 focus-visible:outline-2"
+    >
+      <Info aria-hidden className="size-full" strokeWidth={1.8} />
+    </button>
+  );
+
+  if (!tooltip) {
+    return infoButton;
+  }
+
+  return (
+    <BaseTooltip.Provider delay={150} timeout={400}>
+      <BaseTooltip.Root>
+        <BaseTooltip.Trigger
+          aria-label={`${channelName} 기준 정보 안내`}
+          delay={0}
+          className="text-icon-default hover:text-icon-high focus-visible:outline-outline-selected size-014 relative inline-flex shrink-0 items-center justify-center rounded-full before:absolute before:-inset-[5px] before:content-[''] focus-visible:outline-2 focus-visible:outline-offset-2"
+        >
+          <Info aria-hidden className="size-014" strokeWidth={1.8} />
+        </BaseTooltip.Trigger>
+        <BaseTooltip.Portal>
+          <BaseTooltip.Positioner
+            side="bottom"
+            align="start"
+            sideOffset={2}
+            collisionPadding={8}
+            positionMethod="fixed"
+            className="z-50"
+          >
+            <BaseTooltip.Popup
+              role="tooltip"
+              className="bg-surface-lowest p-016 shadow-drop-shadow-02 w-max max-w-[calc(100vw-32px)] rounded-[var(--radius-m)] rounded-tl-none"
+            >
+              <Box className="gap-008 flex flex-col items-start text-left">
+                <span className="typo-subtitle-sm text-text-high">{tooltip.title}</span>
+                <span className="typo-body-xs text-text-medium whitespace-nowrap">
+                  {tooltip.description[0]}
+                  <br />
+                  {tooltip.description[1]}
+                </span>
+              </Box>
+            </BaseTooltip.Popup>
+          </BaseTooltip.Positioner>
+        </BaseTooltip.Portal>
+      </BaseTooltip.Root>
+    </BaseTooltip.Provider>
+  );
+}
+
 function ChannelResultRow({ channel }: { channel: ChannelResult }): JSX.Element {
   return (
     <Box className="gap-014 flex w-full items-start">
       <ChannelIcon type={channel.type} name={channel.name} />
       <Box className="gap-006 flex min-w-0 flex-1 flex-col">
-        <Text variant="subtitle-md" className="text-text-default truncate">
-          {channel.name}
-        </Text>
+        <Box className="gap-006 flex min-w-0 items-center">
+          <Text variant="subtitle-md" className="text-text-default truncate">
+            {channel.name}
+          </Text>
+          <Box className="group flex shrink-0">
+            <ChannelBasisInfo
+              channelName={channel.name}
+              basisNote={channel.basisNote}
+              isExecutable={channel.isExecutable}
+            />
+          </Box>
+        </Box>
         <Box className="gap-004 flex w-full flex-col">
           <ChannelMetricRow
             metric={channel.impressions}
