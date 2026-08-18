@@ -33,6 +33,9 @@ import type {
   GetMyProfileData,
   GetMyProfileErrors,
   GetMyProfileResponses,
+  GetMyRecommendationsData,
+  GetMyRecommendationsErrors,
+  GetMyRecommendationsResponses,
   GetMySimulationsData,
   GetMySimulationsErrors,
   GetMySimulationsResponses,
@@ -165,7 +168,9 @@ export const updateMyOnboardingTag = <ThrowOnError extends boolean = false>(
 /**
  * 내가 저장한 시뮬레이션 목록
  *
- * 로그인한 사용자가 저장한 시뮬레이션을 최신순으로 반환한다. 목록은 요약만 담으며 매체별 항목은 상세 조회에서 받는다. 정렬은 최신순 고정이고 page/size 를 생략하면 0 페이지 5건을 반환한다. 저장된 결과가 없으면 빈 목록으로 200 을 반환한다.
+ * 로그인한 사용자가 저장한 시뮬레이션을 최신순으로 반환한다. 목록은 어떤 조합을 저장했는지 알아볼 정도의 요약만 담으며, 예산·추정치와 매체별 항목은 상세 조회에서 받는다. 매체명은 예산을 배분한 매체만 저장 순서대로 담는다.
+ *
+ * 정렬은 최신순 고정이고 page/size 를 생략하면 0 페이지 5건을 반환한다. 저장된 결과가 없으면 빈 목록으로 200 을 반환한다.
  */
 export const getMySimulations = <ThrowOnError extends boolean = false>(
   options?: Options<GetMySimulationsData, ThrowOnError>,
@@ -268,7 +273,7 @@ export const getRecommendations = <ThrowOnError extends boolean = false>(
 /**
  * 채널 추천 결과 저장
  *
- * 추천을 다시 계산해 그 시점 값을 스냅샷으로 저장한다. 채널 1개가 1행이고, 요청한 온보딩이 저장된 추천 1건을 가리키는 키가 된다.
+ * 추천을 다시 계산해 그 시점 값을 스냅샷으로 저장한다. 채널 1개가 1행이고, 그 행들은 저장 시점에 발급되는 추천 id 하나로 묶인다. 상세 조회·목록에는 이 id 를 쓴다.
  *
  * 이후 채널의 단가·상품이 바뀌어도 저장된 추천은 변하지 않는다. 마이페이지는 이 저장분을 그대로 읽는다.
  *
@@ -650,6 +655,28 @@ export const getSampleById = <ThrowOnError extends boolean = false>(
   (options.client ?? client).get<GetSampleByIdResponses, GetSampleByIdErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/samples/{id}',
+    ...options,
+  });
+
+/**
+ * 내가 저장한 채널 추천 목록
+ *
+ * 로그인한 사용자가 저장한 추천 결과를 최신순으로 반환한다. 목록에는 요약만 담고, 매체별 추정값·추천 근거는 상세 조회에서 받는다.
+ *
+ * 매체명은 저장 당시 이름을 추천 순위 순으로 준다.
+ *
+ * page/size 생략시 0 페이지 5건을 반환하며, 저장된 결과가 없으면 빈 목록으로 200 응답.
+ */
+export const getMyRecommendations = <ThrowOnError extends boolean = false>(
+  options?: Options<GetMyRecommendationsData, ThrowOnError>,
+): RequestResult<GetMyRecommendationsResponses, GetMyRecommendationsErrors, ThrowOnError> =>
+  (options?.client ?? client).get<
+    GetMyRecommendationsResponses,
+    GetMyRecommendationsErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/recommendations/my',
     ...options,
   });
 
