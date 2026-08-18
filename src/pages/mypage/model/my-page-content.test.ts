@@ -7,6 +7,7 @@ import type {
 import {
   createMyAdsCondition,
   createSavedChannelComparisons,
+  createSavedRecommendations,
   createSavedSimulations,
 } from './my-page-content';
 
@@ -42,6 +43,44 @@ describe('createMyAdsCondition', () => {
         targetAgeBands: ['UNDECIDED'],
       })?.tags[2],
     ).toBe('잘 모르겠어요');
+  });
+});
+
+describe('createSavedRecommendations', () => {
+  it('maps saved recommendation summaries to the mypage card model', () => {
+    expect(
+      createSavedRecommendations([
+        {
+          id: 'recommendation-1',
+          serviceName: '채소집',
+          createdAt: '2026-06-11T15:00:00Z',
+          channelNames: ['네이버 검색광고', '메타 광고'],
+        },
+      ]),
+    ).toEqual([
+      {
+        onboardingId: 'recommendation-1',
+        title: '채소집',
+        lastRecommendedAt: '2026.06.12',
+        channelNames: ['네이버 검색광고', '메타 광고'],
+      },
+    ]);
+  });
+
+  it('uses a fallback title when the saved service name is null', () => {
+    expect(
+      createSavedRecommendations([
+        {
+          id: 'recommendation-2',
+          serviceName: null,
+          createdAt: 'invalid-date',
+          channelNames: [],
+        },
+      ])[0],
+    ).toMatchObject({
+      title: '이름 없는 서비스',
+      lastRecommendedAt: 'invalid-date',
+    });
   });
 });
 

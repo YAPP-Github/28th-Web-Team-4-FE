@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type JSX, type ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { RotateCcw } from 'lucide-react';
 
 import {
@@ -24,41 +25,22 @@ import {
 } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import { isAgeRangeOptionDisabled } from '@/features/ad-onboarding/model/recommend-onboarding-rules';
 import { BudgetRangeControl } from '@/features/ad-onboarding/ui/questions/common/budget/budget-range-control';
+import type { ApiResponseMyOnboardingTagResponse } from '@/shared/api/generated/types.gen';
+import { getApiErrorMessage } from '@/shared/api/api-error';
+import { myOnboardingTagQueryKey } from '@/shared/lib/query-keys';
+import {
+  AGE_RANGE_VALUES_BY_LABEL,
+  DEFAULT_MY_ADS_CONDITION_EDIT_VALUES,
+  type MyAdsConditionEditValues,
+} from '@/pages/mypage/model/my-ads-condition-edit';
+import { createUpdateOnboardingTagRequest } from '@/pages/mypage/lib/create-update-onboarding-tag-request';
+import { useUpdateMyOnboardingTag } from '@/pages/mypage/api/use-update-my-onboarding-tag';
+import { Button } from '@/shared/ui/button';
 import { Dropdown, type DropdownOption } from '@/shared/ui/dropdown';
 import { Box } from '@/shared/ui/layout/box';
 import { Modal } from '@/shared/ui/modal';
 import { Select } from '@/shared/ui/select';
 import { Text } from '@/shared/ui/text';
-
-export type MyAdsConditionEditValues = {
-  category: string;
-  serviceType: string;
-  ageRange: string;
-  adGoal: string;
-  minBudget: string;
-  maxBudget: string;
-  campaignPeriod: string;
-};
-
-const DEFAULT_EDIT_VALUES: MyAdsConditionEditValues = {
-  category: '쇼핑·커머스',
-  serviceType: '웹 서비스',
-  ageRange: '30~40대',
-  adGoal: '구매 전환',
-  minBudget: '0',
-  maxBudget: '50',
-  campaignPeriod: '1개월',
-};
-
-const AGE_RANGE_VALUES_BY_LABEL: Readonly<Record<string, readonly AgeRangeId[]>> = {
-  '10대': ['TEENS'],
-  '20대': ['TWENTIES'],
-  '30대': ['THIRTIES'],
-  '40대': ['FORTIES'],
-  '30~40대': ['THIRTIES', 'FORTIES'],
-  '50대 이상': ['FIFTIES_AND_OVER'],
-  '잘 모르겠어요': ['UNKNOWN'],
-};
 
 const EDITABLE_CATEGORY_VALUES = new Set([
   'GAME',
@@ -96,19 +78,22 @@ export function createMyAdsConditionEditValues(tags: readonly string[]): MyAdsCo
   const budgetValues = budgetTag
     ? [...budgetTag.matchAll(/([\d,]+)\s*만\s*원/g)].map((match) => match[1].replaceAll(',', ''))
     : [];
-  const minBudget = budgetValues.length > 1 ? budgetValues[0] : DEFAULT_EDIT_VALUES.minBudget;
+  const minBudget =
+    budgetValues.length > 1 ? budgetValues[0] : DEFAULT_MY_ADS_CONDITION_EDIT_VALUES.minBudget;
   const maxBudget = budgetValues.at(-1);
 
   return {
-    category: normalizedTags[0] ?? DEFAULT_EDIT_VALUES.category,
-    serviceType: normalizedTags[1] ?? DEFAULT_EDIT_VALUES.serviceType,
-    ageRange: normalizedTags[2] ?? DEFAULT_EDIT_VALUES.ageRange,
-    adGoal: normalizedTags[3]?.replace('구매·결제 전환', '구매 전환') ?? DEFAULT_EDIT_VALUES.adGoal,
+    category: normalizedTags[0] ?? DEFAULT_MY_ADS_CONDITION_EDIT_VALUES.category,
+    serviceType: normalizedTags[1] ?? DEFAULT_MY_ADS_CONDITION_EDIT_VALUES.serviceType,
+    ageRange: normalizedTags[2] ?? DEFAULT_MY_ADS_CONDITION_EDIT_VALUES.ageRange,
+    adGoal:
+      normalizedTags[3]?.replace('구매·결제 전환', '구매 전환') ??
+      DEFAULT_MY_ADS_CONDITION_EDIT_VALUES.adGoal,
     minBudget,
-    maxBudget: maxBudget ?? DEFAULT_EDIT_VALUES.maxBudget,
+    maxBudget: maxBudget ?? DEFAULT_MY_ADS_CONDITION_EDIT_VALUES.maxBudget,
     campaignPeriod: normalizedTags[5]
       ? normalizeCampaignPeriodLabel(normalizedTags[5])
-      : DEFAULT_EDIT_VALUES.campaignPeriod,
+      : DEFAULT_MY_ADS_CONDITION_EDIT_VALUES.campaignPeriod,
   };
 }
 
@@ -124,11 +109,34 @@ export function createMyAdsConditionTags(values: MyAdsConditionEditValues): stri
 }
 
 export function MyAdsConditionEditModal({
-  initialValues = DEFAULT_EDIT_VALUES,
+  initialValues = DEFAULT_MY_ADS_CONDITION_EDIT_VALUES,
   onSave,
   onStartOver,
 }: MyAdsConditionEditModalProps): JSX.Element {
   const [values, setValues] = useState(initialValues);
+  const queryClient = useQueryClient();
+  const updateMutation = useUpdateMyOnboardingTag();
+
+  const handleSave = (): void => {
+    if (updateMutation.isPending) {
+      return;
+    }
+
+    updateMutation.reset();
+    updateMutation.mutate(
+      { body: createUpdateOnboardingTagRequest(values) },
+      {
+        onSuccess: ({ data: updatedTag }) => {
+          queryClient.setQueryData<ApiResponseMyOnboardingTagResponse>(
+            myOnboardingTagQueryKey,
+            (currentResponse) =>
+              currentResponse ? { ...currentResponse, data: updatedTag } : currentResponse,
+          );
+          onSave(values);
+        },
+      },
+    );
+  };
 
   const updateValue = <Key extends keyof MyAdsConditionEditValues>(
     key: Key,
@@ -163,6 +171,7 @@ export function MyAdsConditionEditModal({
             <button
               type="button"
               onClick={onStartOver}
+              disabled={updateMutation.isPending}
               className="gap-002 typo-body-sm text-text-low focus-visible:outline-sys-primary-default rounded-xxs inline-flex shrink-0 items-center underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               <RotateCcw aria-hidden className="size-014" strokeWidth={1.5} />
@@ -214,19 +223,35 @@ export function MyAdsConditionEditModal({
           </Box>
         </Box>
 
+        {updateMutation.error ? (
+          <Text as="p" variant="body-sm" className="text-sys-error-default w-full" role="alert">
+            {getApiErrorMessage(
+              updateMutation.error,
+              '광고 조건을 저장하지 못했어요. 다시 시도해 주세요.',
+            )}
+          </Text>
+        ) : null}
+
         <Box className="gap-010 flex h-12 w-full">
-          <Modal.CloseButton frame="button" tone="stroke" className="h-12 flex-1">
+          <Modal.CloseButton
+            frame="button"
+            tone="stroke"
+            className="h-12 flex-1"
+            disabled={updateMutation.isPending}
+          >
             취소
           </Modal.CloseButton>
-          <Modal.CloseButton
+          <Button
             frame="button"
             tone="secondary"
             size="m"
             className="h-12 flex-1"
-            onClick={() => onSave(values)}
+            type="button"
+            disabled={updateMutation.isPending}
+            onClick={handleSave}
           >
-            저장하기
-          </Modal.CloseButton>
+            {updateMutation.isPending ? '저장 중...' : '저장하기'}
+          </Button>
         </Box>
       </Modal.Popup>
     </Modal.Portal>

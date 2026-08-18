@@ -31,6 +31,8 @@ export type MyPageProps = {
   isComparisonsError?: boolean;
   isSimulationsLoading?: boolean;
   isSimulationsError?: boolean;
+  savedRecommendationsLoading?: boolean;
+  savedRecommendationsError?: boolean;
 };
 
 export function MyPage({
@@ -44,6 +46,8 @@ export function MyPage({
   isComparisonsError = false,
   isSimulationsLoading = false,
   isSimulationsError = false,
+  savedRecommendationsLoading = false,
+  savedRecommendationsError = false,
 }: MyPageProps): JSX.Element {
   const onboardingTagQuery = useMyOnboardingTag(isLoggedIn && !adsCondition);
   const resolvedAdsCondition =
@@ -72,6 +76,8 @@ export function MyPage({
             isComparisonsError={isComparisonsError}
             isSimulationsLoading={isSimulationsLoading}
             isSimulationsError={isSimulationsError}
+            recommendationsLoading={savedRecommendationsLoading}
+            recommendationsError={savedRecommendationsError}
           />
           {isLoggedIn ? <AccountActions /> : null}
         </Box>

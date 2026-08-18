@@ -211,6 +211,8 @@ type SavedResultsCardProps = {
   isComparisonsError?: boolean;
   isSimulationsLoading?: boolean;
   isSimulationsError?: boolean;
+  recommendationsLoading?: boolean;
+  recommendationsError?: boolean;
 };
 
 export function SavedResultsCard({
@@ -222,6 +224,8 @@ export function SavedResultsCard({
   isComparisonsError = false,
   isSimulationsLoading = false,
   isSimulationsError = false,
+  recommendationsLoading = false,
+  recommendationsError = false,
 }: SavedResultsCardProps): JSX.Element {
   const hasRecommendations = isLoggedIn && recommendations.length > 0;
 
@@ -279,6 +283,8 @@ export function SavedResultsCard({
               kind="recommendation"
               results={[]}
               recommendations={recommendations}
+              isLoading={recommendationsLoading}
+              isError={recommendationsError}
             />
           </Tabs.Panel>
           <Tabs.Panel value="comparison">

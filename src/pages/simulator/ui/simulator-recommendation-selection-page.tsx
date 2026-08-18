@@ -14,7 +14,7 @@ import { Text } from '@/shared/ui/text';
 
 import {
   SIMULATOR_RECOMMENDATION_CHANNEL_LIMIT,
-  SIMULATOR_RECOMMENDATION_SELECTION_PAGE_COUNT,
+  SIMULATOR_RECOMMENDATION_SELECTION_PAGE_SIZE,
   SIMULATOR_RECOMMENDATION_SELECTION_PREVIEW,
   type SimulatorRecommendationChannel,
   type SimulatorRecommendationSelection,
@@ -214,11 +214,13 @@ function RecommendationSelectionEmptyState(): JSX.Element {
 
 function RecommendationSelectionBottomNavigation({
   currentPage,
+  totalPages,
   canSubmit,
   onPageChange,
   onComplete,
 }: {
   currentPage: number;
+  totalPages: number;
   canSubmit: boolean;
   onPageChange: (page: number) => void;
   onComplete: () => void;
@@ -230,7 +232,7 @@ function RecommendationSelectionBottomNavigation({
         <Box className="flex justify-center">
           <Pagination
             currentPage={currentPage}
-            totalPages={SIMULATOR_RECOMMENDATION_SELECTION_PAGE_COUNT}
+            totalPages={totalPages}
             onPageChange={onPageChange}
           />
         </Box>
@@ -262,6 +264,14 @@ export function SimulatorRecommendationSelectionScreen({
   const [currentPage, setCurrentPage] = useState(1);
 
   const canSubmit = selectedChannelIds.size === SIMULATOR_RECOMMENDATION_CHANNEL_LIMIT;
+  const totalPages = Math.max(
+    1,
+    Math.ceil(recommendations.length / SIMULATOR_RECOMMENDATION_SELECTION_PAGE_SIZE),
+  );
+  const visibleRecommendations = recommendations.slice(
+    (currentPage - 1) * SIMULATOR_RECOMMENDATION_SELECTION_PAGE_SIZE,
+    currentPage * SIMULATOR_RECOMMENDATION_SELECTION_PAGE_SIZE,
+  );
 
   const handleRecommendationToggle = (recommendationId: string): void => {
     const nextId = expandedRecommendationId === recommendationId ? null : recommendationId;
@@ -292,6 +302,12 @@ export function SimulatorRecommendationSelectionScreen({
     onComplete([...selectedChannelIds]);
   };
 
+  const handlePageChange = (page: number): void => {
+    setCurrentPage(page);
+    setExpandedRecommendationId(null);
+    setSelectedChannelIds(new Set());
+  };
+
   if (recommendations.length === 0) {
     return <RecommendationSelectionEmptyState />;
   }
@@ -300,7 +316,7 @@ export function SimulatorRecommendationSelectionScreen({
     <>
       <Box className="bg-surface-background-default px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto lg:px-120">
         <Box className="gap-014 py-024 flex w-full max-w-[792px] flex-col items-center">
-          {recommendations.map((recommendation) => (
+          {visibleRecommendations.map((recommendation) => (
             <RecommendationCard
               key={recommendation.id}
               recommendation={recommendation}
@@ -314,8 +330,9 @@ export function SimulatorRecommendationSelectionScreen({
       </Box>
       <RecommendationSelectionBottomNavigation
         currentPage={currentPage}
+        totalPages={totalPages}
         canSubmit={canSubmit}
-        onPageChange={setCurrentPage}
+        onPageChange={handlePageChange}
         onComplete={handleComplete}
       />
     </>

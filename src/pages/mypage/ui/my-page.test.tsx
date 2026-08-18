@@ -87,6 +87,18 @@ function createProfileResponse(profile = DEFAULT_PROFILE): Response {
   );
 }
 
+function createOnboardingTagResponse(tag = ACTIVE_ONBOARDING_TAG): Response {
+  return new Response(
+    JSON.stringify({
+      success: true,
+      data: tag,
+      error: null,
+      code: null,
+    }),
+    { status: 200, headers: { 'content-type': 'application/json' } },
+  );
+}
+
 type MyPageRenderOptions = Omit<Parameters<typeof MyPage>[0], 'isLoggedIn'>;
 
 function renderMyPage(isLoggedIn: boolean, options: MyPageRenderOptions = {}) {
@@ -420,6 +432,46 @@ describe('MyPage', () => {
     const reopenedDialog = await screen.findByRole('dialog', { name: '내 광고 조건' });
     await user.click(within(reopenedDialog).getByRole('button', { name: '취소' }));
     expect(screen.queryByRole('dialog', { name: '내 광고 조건' })).not.toBeInTheDocument();
+  });
+
+  it('updates ad conditions through the onboarding tag API', async () => {
+    const user = userEvent.setup();
+    fetchMock
+      .mockReset()
+      .mockResolvedValueOnce(createProfileResponse())
+      .mockResolvedValueOnce(createOnboardingTagResponse());
+
+    renderMyPage(true, {
+      adsCondition: {
+        tags: ['쇼핑·커머스', '#웹 서비스', '30~40대', '구매 전환', '총 50만 원', '1개월'],
+      },
+    });
+
+    await waitFor(() => expect(screen.getByRole('button', { name: '수정하기' })).toBeEnabled());
+    await user.click(screen.getByRole('button', { name: '수정하기' }));
+    const dialog = await screen.findByRole('dialog', { name: '내 광고 조건' });
+
+    await user.click(within(dialog).getByRole('button', { name: '저장하기' }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      '/api/backend/api/v1/onboarding/me/tags',
+      expect.objectContaining({
+        method: 'PUT',
+        body: JSON.stringify({
+          industry: 'SHOPPING_COMMERCE',
+          serviceType: 'WEB',
+          targetAgeBands: ['AGE_30S', 'AGE_40S'],
+          campaignObjective: 'CONVERSION',
+          budgetMin: 0,
+          budgetMax: 500_000,
+          period: 'M1',
+        }),
+      }),
+    );
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: '내 광고 조건' })).not.toBeInTheDocument();
+    });
   });
 
   it('opens the service type dropdown with the Figma options', async () => {

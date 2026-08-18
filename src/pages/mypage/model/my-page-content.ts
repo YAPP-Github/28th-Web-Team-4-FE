@@ -3,8 +3,10 @@ import type {
   MyOnboardingTagResponse,
   PageResponseChannelComparisonSummaryResponse,
   PageResponseSimulationSummaryResponse,
+  RecommendationSummaryResponse,
   SimulationSummaryResponse,
 } from '@/shared/api/generated/types.gen';
+import { formatRecommendationDate } from '@/shared/lib/format-recommendation-date';
 import { getRecommendationCategoryLabel } from '@/shared/lib/recommendation-labels';
 
 export type MyAdsCondition = {
@@ -13,7 +15,7 @@ export type MyAdsCondition = {
 };
 
 export type SavedRecommendation = {
-  /** 추천 결과 상세 페이지로 이동할 때 사용하는 온보딩 식별자. */
+  /** 추천 결과 상세 페이지 경로에 사용하는 저장된 추천 식별자. */
   onboardingId: string;
   /** 사용자가 온보딩에서 입력한 서비스명. */
   title: string;
@@ -71,6 +73,18 @@ export function createSavedSimulations(
   data: PageResponseSimulationSummaryResponse,
 ): readonly SavedSimulation[] {
   return data.content.map(createSavedResult);
+}
+
+/** 저장된 추천 목록 요약을 마이페이지 카드 모델로 변환한다. */
+export function createSavedRecommendations(
+  recommendations: readonly RecommendationSummaryResponse[],
+): SavedRecommendation[] {
+  return recommendations.map((recommendation) => ({
+    onboardingId: recommendation.id,
+    title: recommendation.serviceName ?? '이름 없는 서비스',
+    lastRecommendedAt: formatRecommendationDate(recommendation.createdAt),
+    channelNames: recommendation.channelNames,
+  }));
 }
 
 const SERVICE_TYPE_LABELS: Record<MyOnboardingTagResponse['serviceType'], string> = {
