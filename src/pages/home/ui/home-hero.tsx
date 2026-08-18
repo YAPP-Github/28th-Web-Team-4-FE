@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type JSX } from 'react';
+import { useEffect, useRef, useState, type JSX } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import {
@@ -210,17 +210,23 @@ function HomeHeroReducedMotion(): JSX.Element {
 }
 
 // 스크롤 구간:
-// 1) 0 ~ 0.25: 온로드 태그라인이 위로 이동하며 opacity가 완전히 0으로 퇴장
-// 2) 0.25 ~ 0.85: 국문 타이틀 + 예산 시뮬레이션 화면이 아래(160px)에서부터 위로 이동
-//    y가 0(transform: none)에 도달하는 순간 opacity가 정확히 1이 됨!
-const TAGLINE_EXIT_RANGE: [number, number] = [0, 0.25];
-const REVEAL_RANGE: [number, number] = [0.25, 0.85];
+// 1) 0 ~ 0.15: 온로드 태그라인이 위로 이동하며 opacity가 완전히 0으로 퇴장
+// 2) 0.15 ~ 0.5: 국문 타이틀 + 예산 시뮬레이션 결과 화면이 아래에서부터 위로 이동
+// -> 고민 3개 페이지처럼 State 기반 띠요옹 스프링 모션으로 개선하기 위해 기존 스크러빙 범위는 비활성화하고 SPRING_TRANSITION을 정의합니다.
+const SPRING_TRANSITION = {
+  type: 'spring',
+  stiffness: 260,
+  damping: 26,
+  mass: 1,
+} as const;
 
-function HeroBackgroundGrid({ opacity }: { opacity: MotionValue<number> }): JSX.Element {
+function HeroBackgroundGrid({ opacity }: { opacity: number }): JSX.Element {
   return (
     <motion.div
       aria-hidden
-      style={{ opacity }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
       className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
     >
       {/* 80px 격자 그리드 */}
@@ -246,6 +252,7 @@ function HeroBackgroundGrid({ opacity }: { opacity: MotionValue<number> }): JSX.
 
 function HomeHeroScrollScrub(): JSX.Element {
   const sectionRef = useRef<HTMLElement>(null);
+  const [isRevealed, setIsRevealed] = useState(false);
   const setHeaderProgress = useHeroHeaderToneStore((state) => state.setProgress);
   const resetHeaderTone = useHeroHeaderToneStore((state) => state.reset);
 
@@ -272,34 +279,40 @@ function HomeHeroScrollScrub(): JSX.Element {
     return () => resetHeaderTone();
   }, [resetHeaderTone]);
 
-  // ---- 스크롤 구간: 태그라인 퇴장(0~0.25) -> 국문 타이틀/예산 시뮬레이션 등장(0.25~0.85) ----
+  // ---- 스크롤 구간: 고민 3개 페이지처럼 스크롤 15% 이상 시 띠요옹 등장 ----
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end end'],
   });
 
-  // 1. 태그라인: 스크롤 시작 시 위로 이동하며 opacity가 서서히 0으로 퇴장
-  const taglineExitY = useTransform(scrollYProgress, TAGLINE_EXIT_RANGE, [0, -60]);
-  const taglineExitOpacity = useTransform(taglineExitY, [0, -60], [1, 0]);
-
-  // 2. 국문 타이틀 & 예산 시뮬레이션 화면:
-  //    아래(160px)에서부터 위로 올라오며, y가 0(목표 위치)에 도달할 때 opacity가 정확히 1이 됨
-  const revealTextY = useTransform(scrollYProgress, REVEAL_RANGE, [160, 0]);
-  const revealOpacity = useTransform(revealTextY, [160, 0], [0, 1]);
+  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
+    if (latest > 0.15) {
+      setIsRevealed(true);
+    } else {
+      setIsRevealed(false);
+    }
+  });
 
   return (
-    <section ref={sectionRef} aria-label="채소ZIP 소개" className="relative h-[240vh] w-full">
+    <section ref={sectionRef} aria-label="채소ZIP 소개" className="relative h-[160vh] w-full">
       <motion.div
         style={{ backgroundColor: background }}
         className="sticky top-0 flex min-h-screen w-full flex-col items-center justify-start overflow-visible"
       >
         {/* Figma 은은한 배경 그리드 그래픽 (리빌 시 페이드인) */}
-        <HeroBackgroundGrid opacity={revealOpacity} />
+        <HeroBackgroundGrid opacity={isRevealed ? 1 : 0} />
 
-        {/* 온로드 태그라인: 뷰포트 상단 영역 정중앙 배치 (스크롤 시 퇴장) */}
+        {/* 온로드 태그라인: 뷰포트 상단 영역 정중앙 배치 (스크롤 시 스프링 퇴장) */}
         <motion.div
-          style={{ opacity: taglineExitOpacity, y: taglineExitY }}
-          className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center pb-[100px] sm:pb-[140px] lg:pb-[160px]"
+          initial={{ opacity: 1, y: 0 }}
+          animate={{
+            opacity: isRevealed ? 0 : 1,
+            y: isRevealed ? -60 : 0,
+          }}
+          transition={SPRING_TRANSITION}
+          className={`absolute inset-0 z-10 flex items-center justify-center pb-[100px] sm:pb-[140px] lg:pb-[160px] ${
+            isRevealed ? 'pointer-events-none' : 'pointer-events-auto'
+          }`}
         >
           <HeroTagline
             whiteOpacity={taglineWhiteOpacity}
@@ -309,8 +322,15 @@ function HomeHeroScrollScrub(): JSX.Element {
 
         {/* 스크롤 리빌: 국문 타이틀 + 서브텍스트 + CTA + 예산 시뮬레이션 결과 화면 (원하는 위치 유지 + 바닥까지 온전히 노출) */}
         <motion.div
-          style={{ opacity: revealOpacity, y: revealTextY }}
-          className="px-016 sm:px-032 z-10 flex w-full max-w-[1170px] flex-1 flex-col items-center justify-start pt-[130px] pb-[80px] sm:pt-[155px] sm:pb-[100px] lg:pt-[175px] lg:pb-[120px]"
+          initial={{ opacity: 0, y: 120 }}
+          animate={{
+            opacity: isRevealed ? 1 : 0,
+            y: isRevealed ? 0 : 120,
+          }}
+          transition={SPRING_TRANSITION}
+          className={`px-016 sm:px-032 z-10 flex w-full max-w-[1170px] flex-1 flex-col items-center justify-start pt-[130px] pb-[80px] sm:pt-[155px] sm:pb-[100px] lg:pt-[175px] lg:pb-[120px] ${
+            isRevealed ? 'pointer-events-auto' : 'pointer-events-none'
+          }`}
         >
           {/* 타이틀 + 서브타이틀 + CTA */}
           <div className="flex flex-col items-center gap-[12px] text-center sm:gap-[16px]">
