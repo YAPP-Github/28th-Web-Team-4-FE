@@ -1,3 +1,4 @@
+import type { ComponentProps, ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { SimulationResponse } from '@/shared/api/generated';
@@ -30,6 +31,26 @@ vi.mock('@/pages/simulator/api/use-save-simulation', () => ({
 vi.mock('@/shared/ui/toast', () => ({
   showToast: showToastMock,
   showWarningToast: vi.fn<(description: string, options?: unknown) => void>(),
+}));
+
+vi.mock('motion/react', () => ({
+  AnimatePresence: ({ children }: { children: ReactNode }) => <>{children}</>,
+  motion: {
+    span: ({
+      animate: _animate,
+      children,
+      exit: _exit,
+      initial: _initial,
+      transition: _transition,
+      ...props
+    }: ComponentProps<'span'> & {
+      animate?: unknown;
+      exit?: unknown;
+      initial?: unknown;
+      transition?: unknown;
+    }) => <span {...props}>{children}</span>,
+  },
+  useReducedMotion: () => false,
 }));
 
 const SIMULATION_RESULT: SimulationResponse = {
