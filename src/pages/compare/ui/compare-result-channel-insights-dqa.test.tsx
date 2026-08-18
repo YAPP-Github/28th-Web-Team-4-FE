@@ -9,6 +9,56 @@ import { MOCK_COMPARE_RESULT_CHANNELS } from '@/pages/compare/model/compare-resu
 
 import { CompareResultChannelInsightsDqa } from './compare-result-channel-insights-dqa';
 
+type LevaControl = {
+  value: string | boolean;
+  options?: readonly string[] | Record<string, string>;
+  label: string;
+  onChange?: (value: never, path: string, context: { initial: boolean }) => void;
+};
+
+const { levaPanelState } = vi.hoisted(() => ({
+  levaPanelState: {
+    controls: {} as Record<string, LevaControl>,
+  },
+}));
+
+vi.mock('leva', () => ({
+  useCreateStore: () => ({}),
+  useControls: (controls: Record<string, LevaControl>) => {
+    levaPanelState.controls = controls;
+  },
+  LevaPanel: ({ titleBar }: { titleBar: { title: string } }) => {
+    const variantControl = levaPanelState.controls.variant;
+    const variantOptions = Array.isArray(variantControl.options)
+      ? variantControl.options.map((option) => ({ label: option, value: option }))
+      : Object.entries(variantControl.options ?? {}).map(([label, value]) => ({ label, value }));
+
+    return (
+      <section aria-label={titleBar.title}>
+        <p>{titleBar.title}</p>
+        <label>
+          {variantControl.label}
+          <select
+            aria-label={variantControl.label}
+            value={String(variantControl.value)}
+            onChange={(event) => {
+              variantControl.onChange?.(event.target.value as never, 'variant', {
+                initial: false,
+              });
+            }}
+          >
+            {variantOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </section>
+    );
+  },
+}));
+
 function renderDqaInsights(
   searchParams: string,
   onUrlUpdate: (event: Parameters<OnUrlUpdateFunction>[0]) => void = () => {},
