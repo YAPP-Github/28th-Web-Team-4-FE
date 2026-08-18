@@ -123,6 +123,7 @@ export function RecommendResultWithRecommendations({
   onboardingId,
 }: RecommendResultWithRecommendationsProps): JSX.Element {
   const router = useRouter();
+  const serviceName = useRecommendOnboardingStore((state) => state.answer?.serviceName ?? '채소집');
   const recommendationsQuery = useRecommendations(onboardingId);
 
   const handleCompare = (channelIds: readonly string[]): void => {
@@ -132,7 +133,9 @@ export function RecommendResultWithRecommendations({
   return (
     <RecommendResultPage
       channels={recommendationsQuery.data}
-      headerAction={<RecommendResultSaveAction onboardingId={onboardingId} />}
+      headerAction={
+        <RecommendResultSaveAction onboardingId={onboardingId} serviceName={serviceName} />
+      }
       isGuest={isGuest}
       onboardingId={onboardingId}
       onCompare={handleCompare}

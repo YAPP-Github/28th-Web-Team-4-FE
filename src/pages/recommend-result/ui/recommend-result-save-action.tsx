@@ -10,6 +10,7 @@ import { showWarningToast } from '@/shared/ui/toast';
 
 type RecommendResultSaveActionProps = {
   onboardingId: string;
+  serviceName: string;
 };
 
 const SAVE_RECOMMENDATION_ERROR_TOAST_ID = 'recommend-result-save-error';
@@ -42,6 +43,7 @@ function getSaveRecommendationButtonStatus({
 
 export function RecommendResultSaveAction({
   onboardingId,
+  serviceName,
 }: RecommendResultSaveActionProps): JSX.Element {
   const saveRecommendation = useSaveRecommendation();
   const isSaved = saveRecommendation.isSuccess;
@@ -60,6 +62,7 @@ export function RecommendResultSaveAction({
       {
         body: {
           onboardingId,
+          serviceName,
         },
       },
       {
