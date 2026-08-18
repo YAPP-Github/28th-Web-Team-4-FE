@@ -42,9 +42,8 @@ describe('HomePage', () => {
     const heroHeading = screen.getByRole('heading', { level: 1 });
     expect(heroHeading).toHaveTextContent('내게 맞는 광고 채널을 한눈에!');
     expect(heroHeading).toHaveTextContent('광고 채널 고민, 여기서 끝내 보세요');
-    expect(screen.getByText('채소집에서 바로 비교하는 국내외 주요 광고 매체')).toBeInTheDocument();
-    expect(screen.getByText('채소집 제공 채널 수')).toBeInTheDocument();
-    expect(screen.getByText('무료로 시작하기')).toBeInTheDocument();
+    expect(screen.getByText('3초 만에 시작하기')).toBeInTheDocument();
+    expect(screen.getByText('바로 채널 추천받기')).toBeInTheDocument();
     expect(screen.getByText('내게 맞는 광고 채널을 한눈에! 채소집')).toBeInTheDocument();
   });
 });

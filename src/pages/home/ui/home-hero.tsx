@@ -14,7 +14,6 @@ import {
   type MotionValue,
 } from 'motion/react';
 
-import { useAuthSession } from '@/features/auth/session';
 import { Button } from '@/shared/ui/button';
 
 import { useHeroHeaderToneStore } from '@/shared/lib/hero-header-tone';
@@ -126,16 +125,13 @@ function HeroTagline({
 }
 
 function HeroRevealCta(): JSX.Element {
-  const { isAuthenticated } = useAuthSession();
-  const href = isAuthenticated ? '/recommend/onboarding/new' : '/login';
-
   return (
     <Button
       frame="button"
       tone="secondary"
       size="m"
       nativeButton={false}
-      render={<Link href={href} />}
+      render={<Link href="/login" />}
       rightIcon={<ArrowRight aria-hidden className="size-016" />}
     >
       {HERO_REVEAL_CTA_LABEL}
@@ -161,7 +157,7 @@ function HeroRevealTitle(): JSX.Element {
   return (
     <h1 className="text-text-highest flex flex-col items-center text-center font-bold tracking-[-1px]">
       <span className="flex flex-wrap items-center justify-center text-[28px] leading-[1.3] sm:text-[40px] lg:text-[48px] lg:leading-[70px]">
-        <span>내게 맞는 광고 채널을</span>
+        <span>내게 맞는 광고 채널을 </span>
         <span className="relative ml-[7px] inline-flex -rotate-[4.78deg] items-center justify-center border-[1.5px] border-[#41BCF6] px-[10px] py-[1.5px] sm:px-[12px] sm:py-[2px] lg:px-[14.4px] lg:py-[2px]">
           {/* 네 모서리 꼭짓점 데코 포인트 (피그마 13.33px 사각형, 2.06px border, 중앙 정렬) */}
           <span className="bg-surface-lowest absolute top-0 left-0 size-[8px] -translate-x-1/2 -translate-y-1/2 rounded-[1.5px] border-[1.5px] border-[#41BCF6] sm:size-[11px] lg:size-[13.3px] lg:rounded-[2px] lg:border-[2px]" />
@@ -192,17 +188,21 @@ function HomeHeroReducedMotion(): JSX.Element {
   return (
     <section
       aria-label="채소ZIP 소개"
-      className="bg-surface-lowest gap-020 px-016 sm:px-032 flex w-full flex-col items-center justify-center py-[96px] lg:px-120"
+      className="bg-surface-lowest px-016 sm:px-032 flex w-full flex-col items-center justify-center py-[96px] lg:px-120"
     >
       <p
         className={`font-wanted text-center leading-[1.15] font-bold whitespace-nowrap ${TAGLINE_SIZE_CLASS} ${GRADIENT_TEXT_CLASS}`}
       >
         {HERO_TAGLINE_WORDS.join(' ')}
       </p>
-      <HeroRevealTitle />
-      <HeroRevealSubtext />
-      <HeroRevealCta />
-      <div className="mt-036 sm:mt-048 w-full max-w-[1170px]">
+      <div className="mt-024 flex flex-col items-center gap-[12px] text-center sm:gap-[16px] lg:gap-[20px]">
+        <HeroRevealTitle />
+        <HeroRevealSubtext />
+        <div className="mt-[10px] sm:mt-[16px] lg:mt-[20px]">
+          <HeroRevealCta />
+        </div>
+      </div>
+      <div className="mt-[28px] w-full max-w-[1170px] sm:mt-[40px] lg:mt-[52px]">
         <HomeHeroServicePreview />
       </div>
     </section>
@@ -328,21 +328,21 @@ function HomeHeroScrollScrub(): JSX.Element {
             y: isRevealed ? 0 : 120,
           }}
           transition={SPRING_TRANSITION}
-          className={`px-016 sm:px-032 z-10 flex w-full max-w-[1170px] flex-1 flex-col items-center justify-start pt-[130px] pb-[80px] sm:pt-[155px] sm:pb-[100px] lg:pt-[175px] lg:pb-[120px] ${
+          className={`px-016 sm:px-032 z-10 flex w-full max-w-[1170px] flex-1 flex-col items-center justify-start pt-[120px] pb-[80px] sm:pt-[140px] sm:pb-[100px] lg:pt-[160px] lg:pb-[120px] ${
             isRevealed ? 'pointer-events-auto' : 'pointer-events-none'
           }`}
         >
           {/* 타이틀 + 서브타이틀 + CTA */}
-          <div className="flex flex-col items-center gap-[12px] text-center sm:gap-[16px]">
+          <div className="flex flex-col items-center gap-[12px] text-center sm:gap-[16px] lg:gap-[20px]">
             <HeroRevealTitle />
             <HeroRevealSubtext />
-            <div className="mt-[4px] sm:mt-[8px]">
+            <div className="mt-[10px] sm:mt-[16px] lg:mt-[20px]">
               <HeroRevealCta />
             </div>
           </div>
 
           {/* 예산 시뮬레이션 결과 화면 (원래 크기 100% 온전하게 노출) */}
-          <div className="mt-[24px] flex w-full max-w-[1170px] justify-center drop-shadow-[0_24px_48px_rgba(0,0,0,0.06)] sm:mt-[32px] lg:mt-[40px]">
+          <div className="mt-[28px] flex w-full max-w-[1170px] justify-center drop-shadow-[0_24px_48px_rgba(0,0,0,0.06)] sm:mt-[40px] lg:mt-[52px]">
             <HomeHeroServicePreview />
           </div>
         </motion.div>
