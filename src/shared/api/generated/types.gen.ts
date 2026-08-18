@@ -527,7 +527,11 @@ export type RecommendationItemResponse = {
  */
 export type SavedRecommendationResponse = {
   /**
-   * 추천을 묶는 온보딩 응답 식별자. 이 값으로 저장된 추천 1건을 가리킨다
+   * 저장된 추천 id
+   */
+  id: string;
+  /**
+   * 추천의 근거가 된 온보딩 응답 식별자
    */
   onboardingId: string;
   /**
@@ -1288,43 +1292,23 @@ export type PageResponseSimulationSummaryResponse = {
 };
 
 /**
- * 저장된 시뮬레이션 목록 요약. 매체별 상세는 상세 조회에서 받는다
+ * 저장된 시뮬레이션 목록 요약. 예산·추정치와 매체별 상세는 상세 조회에서 받는다
  */
 export type SimulationSummaryResponse = {
   /**
    * 저장된 시뮬레이션 id
    */
-  simulationId: string;
+  id: string;
+  /**
+   * 저장 요청시 입력받은 서비스명
+   */
+  serviceName: string | null;
   /**
    * 저장 시각
    */
   createdAt: string;
   /**
-   * 총 예산(원)
-   */
-  totalBudgetWon: number;
-  /**
-   * 집행 기간(온보딩과 같은 구간)
-   */
-  period: 'LE_1W' | 'W2_3' | 'M1' | 'M2_3' | 'GE_3M';
-  /**
-   * 저장 당시 추정 노출 수 합(범위 중앙값 기준)
-   */
-  totalEstImpressions: number;
-  /**
-   * 저장 당시 추정 클릭 수 합(범위 중앙값 기준)
-   */
-  totalEstClicks: number;
-  /**
-   * 예산을 배분한 매체 개수
-   */
-  channelCount: number;
-  /**
-   * 집행 가능한 매체 개수
-   */
-  executableChannelCount: number;
-  /**
-   * 어떤 조합이었는지 알아볼 수 있게 예산을 배분한 매체명만 최대 3개 보여 준다. null 이 아닌 배열
+   * 예산을 배분한 매체명 리스트. 저장 순서이며 null 이 아닌 배열
    */
   channelNames: Array<string>;
 };
@@ -1359,6 +1343,75 @@ export type ApiResponseListRecommendationItemResponse = {
    * 성공 안내 코드. 안내할 것이 없으면 null
    */
   code: string | null;
+};
+
+export type ApiResponsePageResponseRecommendationSummaryResponse = {
+  /**
+   * 요청 성공 여부
+   */
+  success: boolean;
+  data: PageResponseRecommendationSummaryResponse;
+  error: ErrorResponse | null;
+  /**
+   * 성공 안내 코드. 안내할 것이 없으면 null
+   */
+  code: string | null;
+};
+
+/**
+ * 페이지네이션 응답
+ */
+export type PageResponseRecommendationSummaryResponse = {
+  /**
+   * 현재 페이지 항목
+   */
+  content: Array<RecommendationSummaryResponse>;
+  /**
+   * 현재 페이지 번호(0-base)
+   */
+  number: number;
+  /**
+   * 페이지 크기
+   */
+  size: number;
+  /**
+   * 전체 항목 수
+   */
+  totalElements: number;
+  /**
+   * 전체 페이지 수
+   */
+  totalPages: number;
+  /**
+   * 첫 페이지 여부
+   */
+  first: boolean;
+  /**
+   * 마지막 페이지 여부
+   */
+  last: boolean;
+};
+
+/**
+ * 저장된 채널 추천 목록 요약. 채널별 상세는 상세 조회에서 받는다
+ */
+export type RecommendationSummaryResponse = {
+  /**
+   * 저장된 추천 id
+   */
+  id: string;
+  /**
+   * 저장 요청시 입력받은 서비스명
+   */
+  serviceName: string | null;
+  /**
+   * 저장 시각
+   */
+  createdAt: string;
+  /**
+   * 추천된 매체명 리스트. 추천 순위 순이며 null 이 아닌 배열
+   */
+  channelNames: Array<string>;
 };
 
 export type ApiResponsePageResponseChannelListItemResponse = {
@@ -1610,7 +1663,7 @@ export type ChannelDetailResponse = {
    */
   products: Array<ProductResponse>;
   /**
-   * 오디언스 규모 지표 목록
+   * 대표 오디언스 규모 지표 목록(우선순위 상위 최대 2개, 없으면 빈 배열)
    */
   audienceMetrics: Array<AudienceMetricResponse>;
   /**
@@ -2916,6 +2969,50 @@ export type GetSampleByIdResponses = {
 };
 
 export type GetSampleByIdResponse = GetSampleByIdResponses[keyof GetSampleByIdResponses];
+
+export type GetMyRecommendationsData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * 페이지 번호(0-base)
+     */
+    page?: number;
+    /**
+     * 페이지 크기
+     */
+    size?: number;
+  };
+  url: '/api/v1/recommendations/my';
+};
+
+export type GetMyRecommendationsErrors = {
+  /**
+   * page/size 범위 위반(C-001). size 는 1 이상 50 이하여야 한다
+   */
+  400: ApiResponse;
+  /**
+   * 인증 필요(C-004)
+   */
+  401: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type GetMyRecommendationsError =
+  GetMyRecommendationsErrors[keyof GetMyRecommendationsErrors];
+
+export type GetMyRecommendationsResponses = {
+  /**
+   * 조회 성공
+   */
+  200: ApiResponsePageResponseRecommendationSummaryResponse;
+};
+
+export type GetMyRecommendationsResponse =
+  GetMyRecommendationsResponses[keyof GetMyRecommendationsResponses];
 
 export type GetChannelsData = {
   body?: never;
