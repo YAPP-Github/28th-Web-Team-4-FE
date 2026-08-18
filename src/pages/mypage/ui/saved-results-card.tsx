@@ -4,7 +4,7 @@ import type { JSX } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 
-import type { SavedRecommendation } from '@/pages/mypage/model/my-page-content';
+import type { SavedRecommendation, SavedResult } from '@/pages/mypage/model/my-page-content';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
@@ -16,7 +16,8 @@ type SavedResultPanelKind = 'recommendation' | 'comparison' | 'simulation';
 type SavedResultPanelProps = {
   isLoggedIn: boolean;
   kind: SavedResultPanelKind;
-  recommendations: readonly SavedRecommendation[];
+  recommendations?: readonly SavedRecommendation[];
+  results: readonly SavedResult[];
   isLoading?: boolean;
   isError?: boolean;
 };
@@ -75,10 +76,46 @@ function SavedRecommendationCard({
   );
 }
 
+function SavedResultCard({
+  result,
+  kind,
+}: {
+  result: SavedResult;
+  kind: 'comparison' | 'simulation';
+}): JSX.Element {
+  return (
+    <Box className="bg-surface-lowest border-outline-low px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border">
+      <Box className="gap-010 flex min-w-0 flex-1 flex-col items-start">
+        <Box className="gap-002 flex w-full flex-col">
+          <Text as="h3" variant="subtitle-md" className="text-text-high">
+            {result.title}
+          </Text>
+          <Text as="p" variant="body-sm" className="text-text-low">
+            {kind === 'comparison' ? '마지막 비교' : '마지막 시뮬레이션'} : {result.savedAt}
+          </Text>
+        </Box>
+        <Box className="gap-006 flex max-w-full items-center overflow-hidden">
+          {result.channelNames.map((channelName) => (
+            <Badge key={channelName} frame="badge" tone="deep-gray">
+              {channelName}
+            </Badge>
+          ))}
+        </Box>
+      </Box>
+      <ChevronRight
+        aria-hidden="true"
+        className="text-icon-low size-020 shrink-0"
+        strokeWidth={1.5}
+      />
+    </Box>
+  );
+}
+
 function SavedResultPanel({
   isLoggedIn,
   kind,
   recommendations,
+  results,
   isLoading = false,
   isError = false,
 }: SavedResultPanelProps): JSX.Element {
@@ -96,31 +133,33 @@ function SavedResultPanel({
     );
   }
 
-  if (kind === 'recommendation' && isLoading) {
+  if (isLoading) {
     return (
       <Text
         as="p"
         variant="body-xl"
+        role="status"
         className="text-text-low flex h-[96px] w-full items-center justify-center text-center"
       >
-        추천 결과를 불러오고 있어요
+        저장된 결과를 불러오는 중이에요
       </Text>
     );
   }
 
-  if (kind === 'recommendation' && isError) {
+  if (isError) {
     return (
       <Text
         as="p"
         variant="body-xl"
+        role="alert"
         className="text-text-low flex h-[96px] w-full items-center justify-center text-center"
       >
-        추천 결과를 불러오지 못했어요
+        저장된 결과를 불러오지 못했어요
       </Text>
     );
   }
 
-  if (kind === 'recommendation' && recommendations.length > 0) {
+  if (kind === 'recommendation' && recommendations && recommendations.length > 0) {
     return (
       <Box className="gap-010 mt-018 flex w-full flex-col">
         {recommendations.slice(0, 3).map((recommendation) => (
@@ -128,6 +167,16 @@ function SavedResultPanel({
             key={recommendation.onboardingId}
             recommendation={recommendation}
           />
+        ))}
+      </Box>
+    );
+  }
+
+  if (kind !== 'recommendation' && results.length > 0) {
+    return (
+      <Box className="gap-010 mt-018 flex w-full flex-col">
+        {results.slice(0, 3).map((result) => (
+          <SavedResultCard key={result.id} result={result} kind={kind} />
         ))}
       </Box>
     );
@@ -156,6 +205,12 @@ function SavedResultPanel({
 type SavedResultsCardProps = {
   isLoggedIn: boolean;
   recommendations?: readonly SavedRecommendation[];
+  comparisons?: readonly SavedResult[];
+  simulations?: readonly SavedResult[];
+  isComparisonsLoading?: boolean;
+  isComparisonsError?: boolean;
+  isSimulationsLoading?: boolean;
+  isSimulationsError?: boolean;
   recommendationsLoading?: boolean;
   recommendationsError?: boolean;
 };
@@ -163,6 +218,12 @@ type SavedResultsCardProps = {
 export function SavedResultsCard({
   isLoggedIn,
   recommendations = [],
+  comparisons = [],
+  simulations = [],
+  isComparisonsLoading = false,
+  isComparisonsError = false,
+  isSimulationsLoading = false,
+  isSimulationsError = false,
   recommendationsLoading = false,
   recommendationsError = false,
 }: SavedResultsCardProps): JSX.Element {
@@ -220,16 +281,29 @@ export function SavedResultsCard({
             <SavedResultPanel
               isLoggedIn={isLoggedIn}
               kind="recommendation"
+              results={[]}
               recommendations={recommendations}
               isLoading={recommendationsLoading}
               isError={recommendationsError}
             />
           </Tabs.Panel>
           <Tabs.Panel value="comparison">
-            <SavedResultPanel isLoggedIn={isLoggedIn} kind="comparison" recommendations={[]} />
+            <SavedResultPanel
+              isLoggedIn={isLoggedIn}
+              kind="comparison"
+              results={comparisons}
+              isLoading={isComparisonsLoading}
+              isError={isComparisonsError}
+            />
           </Tabs.Panel>
           <Tabs.Panel value="simulation">
-            <SavedResultPanel isLoggedIn={isLoggedIn} kind="simulation" recommendations={[]} />
+            <SavedResultPanel
+              isLoggedIn={isLoggedIn}
+              kind="simulation"
+              results={simulations}
+              isLoading={isSimulationsLoading}
+              isError={isSimulationsError}
+            />
           </Tabs.Panel>
         </Tabs.Root>
       </Box>

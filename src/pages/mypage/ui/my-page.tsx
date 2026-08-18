@@ -6,7 +6,9 @@ import { useMyOnboardingTag } from '@/pages/mypage/api/use-my-onboarding-tag';
 import {
   createMyAdsCondition,
   type MyAdsCondition,
+  type SavedChannelComparison,
   type SavedRecommendation,
+  type SavedSimulation,
 } from '@/pages/mypage/model/my-page-content';
 import { Box } from '@/shared/ui/layout/box';
 
@@ -23,6 +25,12 @@ export type MyPageProps = {
   isLoading?: boolean;
   adsCondition?: MyAdsCondition;
   savedRecommendations?: readonly SavedRecommendation[];
+  savedComparisons?: readonly SavedChannelComparison[];
+  savedSimulations?: readonly SavedSimulation[];
+  isComparisonsLoading?: boolean;
+  isComparisonsError?: boolean;
+  isSimulationsLoading?: boolean;
+  isSimulationsError?: boolean;
   savedRecommendationsLoading?: boolean;
   savedRecommendationsError?: boolean;
 };
@@ -32,6 +40,12 @@ export function MyPage({
   isLoading = false,
   adsCondition,
   savedRecommendations,
+  savedComparisons,
+  savedSimulations,
+  isComparisonsLoading = false,
+  isComparisonsError = false,
+  isSimulationsLoading = false,
+  isSimulationsError = false,
   savedRecommendationsLoading = false,
   savedRecommendationsError = false,
 }: MyPageProps): JSX.Element {
@@ -56,6 +70,12 @@ export function MyPage({
           <SavedResultsCard
             isLoggedIn={isLoggedIn}
             recommendations={savedRecommendations}
+            comparisons={savedComparisons}
+            simulations={savedSimulations}
+            isComparisonsLoading={isComparisonsLoading}
+            isComparisonsError={isComparisonsError}
+            isSimulationsLoading={isSimulationsLoading}
+            isSimulationsError={isSimulationsError}
             recommendationsLoading={savedRecommendationsLoading}
             recommendationsError={savedRecommendationsError}
           />

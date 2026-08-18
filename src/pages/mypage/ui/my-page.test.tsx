@@ -278,6 +278,41 @@ describe('MyPage', () => {
     );
   });
 
+  it('renders saved comparison and simulation results in their tabs', async () => {
+    const user = userEvent.setup();
+
+    renderMyPage(true, {
+      savedComparisons: [
+        {
+          id: 'comparison-1',
+          title: '채소집',
+          savedAt: '2026년 8월 18일',
+          channelNames: ['네이버 검색광고', '메타 광고'],
+        },
+      ],
+      savedSimulations: [
+        {
+          id: 'simulation-1',
+          title: '예산 시뮬레이션',
+          savedAt: '2026년 8월 17일',
+          channelNames: ['카카오모먼트'],
+        },
+      ],
+    });
+
+    await user.click(screen.getByRole('tab', { name: '채널 비교' }));
+
+    expect(screen.getByRole('heading', { name: '채소집' })).toBeVisible();
+    expect(screen.getByText('마지막 비교 : 2026년 8월 18일')).toBeVisible();
+    expect(screen.getByText('네이버 검색광고')).toBeVisible();
+
+    await user.click(screen.getByRole('tab', { name: '예산 시뮬레이션' }));
+
+    expect(screen.getByRole('heading', { name: '예산 시뮬레이션' })).toBeVisible();
+    expect(screen.getByText('마지막 시뮬레이션 : 2026년 8월 17일')).toBeVisible();
+    expect(screen.getByText('카카오모먼트')).toBeVisible();
+  });
+
   it('renders the ad conditions and saved recommendations when onboarding exists', () => {
     renderMyPage(true, {
       adsCondition: {

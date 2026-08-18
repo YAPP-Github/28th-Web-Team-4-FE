@@ -1,6 +1,15 @@
-import type { MyOnboardingTagResponse } from '@/shared/api/generated/types.gen';
+import type {
+  MyOnboardingTagResponse,
+  PageResponseChannelComparisonSummaryResponse,
+  PageResponseSimulationSummaryResponse,
+} from '@/shared/api/generated/types.gen';
 
-import { createMyAdsCondition, createSavedRecommendations } from './my-page-content';
+import {
+  createMyAdsCondition,
+  createSavedChannelComparisons,
+  createSavedRecommendations,
+  createSavedSimulations,
+} from './my-page-content';
 
 const BASE_ONBOARDING_TAG: MyOnboardingTagResponse = {
   hasOnboarding: true,
@@ -72,5 +81,63 @@ describe('createSavedRecommendations', () => {
       title: '이름 없는 서비스',
       lastRecommendedAt: 'invalid-date',
     });
+  });
+});
+
+describe('saved result mappers', () => {
+  it('maps saved channel comparisons to the MyPage card model', () => {
+    const response: PageResponseChannelComparisonSummaryResponse = {
+      content: [
+        {
+          id: 'comparison-1',
+          serviceName: '채소집',
+          createdAt: '2026-08-18T10:30:00Z',
+          channelNames: ['네이버 검색광고', '메타 광고'],
+        },
+      ],
+      number: 0,
+      size: 3,
+      totalElements: 1,
+      totalPages: 1,
+      first: true,
+      last: true,
+    };
+
+    expect(createSavedChannelComparisons(response)).toEqual([
+      {
+        id: 'comparison-1',
+        title: '채소집',
+        savedAt: '2026년 8월 18일',
+        channelNames: ['네이버 검색광고', '메타 광고'],
+      },
+    ]);
+  });
+
+  it('uses a fallback title when a saved simulation has no service name', () => {
+    const response: PageResponseSimulationSummaryResponse = {
+      content: [
+        {
+          id: 'simulation-1',
+          serviceName: null,
+          createdAt: '2026-08-17T10:30:00Z',
+          channelNames: ['네이버 검색광고'],
+        },
+      ],
+      number: 0,
+      size: 3,
+      totalElements: 1,
+      totalPages: 1,
+      first: true,
+      last: true,
+    };
+
+    expect(createSavedSimulations(response)).toEqual([
+      {
+        id: 'simulation-1',
+        title: '예산 시뮬레이션',
+        savedAt: '2026년 8월 17일',
+        channelNames: ['네이버 검색광고'],
+      },
+    ]);
   });
 });
