@@ -27,7 +27,7 @@ import { Text } from '@/shared/ui/text';
 const DRAG_STEP_INTERVAL = 0.1;
 const BUDGET_THUMB_CLASS_NAME = [
   'bg-surface-lowest border-outline-default shadow-drop-shadow-01',
-  'size-022 rounded-[var(--radius-max)] border',
+  'size-022 cursor-grab rounded-[var(--radius-max)] border active:cursor-grabbing',
   'transition-[inset-inline-start,transform] duration-150 ease-in-out',
   'motion-reduce:transition-none',
   'has-[:focus-visible]:border-sys-primary-default',
@@ -108,8 +108,18 @@ export function BudgetRangeSlider({
           setDragValue(null);
         }}
       >
-        <Slider.Control className="h-022 mx-[11px] flex w-[calc(100%-22px)] touch-none items-center select-none">
-          <Slider.Track className="bg-outline-default h-006 relative w-full rounded-[var(--radius-max)]">
+        <Slider.Control
+          className={cn(
+            'h-022 mx-[11px] flex w-[calc(100%-22px)] touch-none items-center select-none',
+            isPointerDragging && 'cursor-grabbing',
+          )}
+        >
+          <Slider.Track
+            className={cn(
+              'bg-outline-default h-006 relative w-full rounded-[var(--radius-max)]',
+              isPointerDragging && 'cursor-grabbing',
+            )}
+          >
             <Slider.Indicator
               className={cn(
                 'bg-sys-primary-default h-full rounded-[var(--radius-max)]',
@@ -124,7 +134,10 @@ export function BudgetRangeSlider({
               aria-valuetext={formatBudgetAmount(
                 getBudgetAmountByStepIndex(snapBudgetSliderStepIndex(sliderValue[0])),
               )}
-              className={cn(BUDGET_THUMB_CLASS_NAME, isPointerDragging && 'transition-none')}
+              className={cn(
+                BUDGET_THUMB_CLASS_NAME,
+                isPointerDragging && 'cursor-grabbing transition-none',
+              )}
             />
             <Slider.Thumb
               index={1}
@@ -132,7 +145,10 @@ export function BudgetRangeSlider({
               aria-valuetext={formatBudgetAmount(
                 getBudgetAmountByStepIndex(snapBudgetSliderStepIndex(sliderValue[1])),
               )}
-              className={cn(BUDGET_THUMB_CLASS_NAME, isPointerDragging && 'transition-none')}
+              className={cn(
+                BUDGET_THUMB_CLASS_NAME,
+                isPointerDragging && 'cursor-grabbing transition-none',
+              )}
             />
           </Slider.Track>
         </Slider.Control>
