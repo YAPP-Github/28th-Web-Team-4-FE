@@ -19,7 +19,7 @@ describe('CompareResultChannelInsights', () => {
     expect(within(region).getByRole('article', { name: '카카오 키워드 광고' })).toBeVisible();
   });
 
-  it('접으면 첫 번째 인사이트만 남기고 다시 펼치면 전체를 보여준다', async () => {
+  it('접으면 제목만 남기고 다시 펼치면 전체를 보여준다', async () => {
     const user = userEvent.setup();
 
     render(<CompareResultChannelInsights channels={MOCK_COMPARE_RESULT_CHANNELS} />);
@@ -30,10 +30,7 @@ describe('CompareResultChannelInsights', () => {
     await user.click(trigger);
 
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
-    expect(within(region).getByRole('article', { name: '네이버 검색 광고' })).toBeVisible();
-    expect(
-      within(region).queryByRole('article', { name: '카카오 키워드 광고' }),
-    ).not.toBeInTheDocument();
+    expect(within(region).queryAllByRole('article')).toHaveLength(0);
 
     await user.click(trigger);
 
@@ -42,13 +39,13 @@ describe('CompareResultChannelInsights', () => {
     expect(within(region).getByRole('article', { name: '카카오 키워드 광고' })).toBeVisible();
   });
 
-  it('제목만 남기는 접힘 방식에서는 모든 인사이트 카드를 숨긴다', async () => {
+  it('DQA에서 첫 카드 유지를 선택하면 접힌 뒤에도 첫 인사이트를 남긴다', async () => {
     const user = userEvent.setup();
 
     render(
       <CompareResultChannelInsights
         channels={MOCK_COMPARE_RESULT_CHANNELS}
-        collapsedView="title"
+        collapsedView="first"
       />,
     );
 
@@ -56,6 +53,9 @@ describe('CompareResultChannelInsights', () => {
 
     await user.click(within(region).getByRole('button', { name: '채널별 인사이트' }));
 
-    expect(within(region).queryAllByRole('article')).toHaveLength(0);
+    expect(within(region).getByRole('article', { name: '네이버 검색 광고' })).toBeVisible();
+    expect(
+      within(region).queryByRole('article', { name: '카카오 키워드 광고' }),
+    ).not.toBeInTheDocument();
   });
 });

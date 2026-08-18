@@ -25,7 +25,7 @@ const meta = {
   tags: ['autodocs'],
   args: {
     channel: MOCK_COMPARE_RESULT_CHANNELS[0],
-    variant: 'stacked',
+    variant: 'split',
   },
   argTypes: {
     channel: { control: false },

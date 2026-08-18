@@ -2,7 +2,6 @@
 
 import { useState, type JSX } from 'react';
 import { Popover } from '@base-ui/react/popover';
-import Image from 'next/image';
 import { Info } from 'lucide-react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 
@@ -15,6 +14,8 @@ import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Tabs } from '@/shared/ui/tabs';
 import { Text } from '@/shared/ui/text';
+
+import { CompareResultChannelLogo } from './compare-result-channel-logo';
 
 type CompareResultMetric = 'impressions' | 'clicks';
 
@@ -88,8 +89,20 @@ function PerformanceBar({
   metric: CompareResultChannelMetric;
   color: string;
 }): JSX.Element {
+  if (!metric.available) {
+    return (
+      <Box
+        aria-hidden="true"
+        data-availability="unavailable"
+        className="bg-surface-low h-012 w-full overflow-hidden rounded-[var(--radius-xxs)]"
+      >
+        <Box className="bg-sys-empty h-012 w-008 rounded-[var(--radius-xxs)]" />
+      </Box>
+    );
+  }
+
   return (
-    <Box aria-hidden="true" className="h-012 w-full">
+    <Box aria-hidden="true" data-availability="available" className="h-012 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={[{ name: 'metric', value: metric.fillPercentage }]}
@@ -124,15 +137,12 @@ function ChannelPerformanceRow({
 
   return (
     <Box className="gap-014 flex w-full items-center">
-      <Box className="size-040 shrink-0 overflow-hidden rounded-[var(--radius-xs)]">
-        <Image
-          src={channel.iconSrc}
-          alt=""
-          width={40}
-          height={40}
-          className={cn('size-040 object-cover', channel.cropIcon && 'scale-[1.42]')}
-        />
-      </Box>
+      <CompareResultChannelLogo
+        name={channel.name}
+        logoSrc={channel.logoSrc}
+        cropIcon={channel.cropIcon}
+        size="large"
+      />
       <Box className="gap-008 flex min-w-0 flex-1 flex-col">
         <Box className="flex w-full items-center justify-between">
           <Text variant="subtitle-md" className="text-text-default truncate">
@@ -141,19 +151,22 @@ function ChannelPerformanceRow({
           <Box className="grid shrink-0 justify-items-end">
             {METRIC_KEYS.map((valueMetricKey) => {
               const isActive = valueMetricKey === metricKey;
+              const valueMetric = channel[valueMetricKey];
 
               return (
                 <Text
                   key={valueMetricKey}
                   aria-hidden={!isActive}
-                  variant="subtitle-sm"
+                  variant={valueMetric.available ? 'subtitle-sm' : 'body-sm'}
                   className={cn(
-                    METRIC_CONFIG[valueMetricKey].valueClassName,
+                    valueMetric.available
+                      ? METRIC_CONFIG[valueMetricKey].valueClassName
+                      : 'text-text-low',
                     '[grid-area:1/1] whitespace-nowrap transition-opacity ease-out-cubic motion-reduce:transition-none',
                     isActive ? 'opacity-100 duration-150' : 'opacity-0 duration-100',
                   )}
                 >
-                  {channel[valueMetricKey].value}
+                  {valueMetric.value}
                 </Text>
               );
             })}

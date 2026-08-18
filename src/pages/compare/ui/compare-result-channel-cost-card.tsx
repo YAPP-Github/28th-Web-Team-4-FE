@@ -35,9 +35,17 @@ type CompareResultChannelCostColumnProps = {
   channel: CompareResultChannel;
   metric: CompareResultChannelCostMetric;
   maximumValue: number;
-  minimumValue: number;
+  minimumValue: number | null;
   recommendation: string;
 };
+
+function getChannelNameClassName(value: number | null, recommended: boolean): string {
+  if (recommended) {
+    return 'text-text-high';
+  }
+
+  return value === null ? 'text-text-low' : 'text-text-default';
+}
 
 /** 채널 하나의 비용 막대와 채널명을 카드 열로 표시한다. */
 function CompareResultChannelCostColumn({
@@ -48,7 +56,7 @@ function CompareResultChannelCostColumn({
   recommendation,
 }: CompareResultChannelCostColumnProps): JSX.Element {
   const value = channel[metric];
-  const recommended = value !== null && value === minimumValue;
+  const recommended = value !== null && minimumValue !== null && value === minimumValue;
 
   return (
     <Box className="gap-010 flex min-w-0 flex-col items-center">
@@ -60,10 +68,7 @@ function CompareResultChannelCostColumn({
       />
       <Text
         variant={recommended ? 'subtitle-xs' : 'subtitle-xxs'}
-        className={cn(
-          'w-full truncate text-center',
-          recommended ? 'text-text-high' : 'text-text-default',
-        )}
+        className={cn('w-full truncate text-center', getChannelNameClassName(value, recommended))}
       >
         {channel.name}
       </Text>
@@ -86,7 +91,7 @@ export function CompareResultChannelCostCard({
     return value === null ? [] : [value];
   });
   const maximumValue = Math.max(...availableValues, 1);
-  const minimumValue = Math.min(...availableValues);
+  const minimumValue = availableValues.length > 0 ? Math.min(...availableValues) : null;
   const titleId = `compare-result-channel-${metric}-title`;
 
   return (

@@ -1,5 +1,6 @@
 import {
   createChannelComparisonHref,
+  isComparisonResultQueryValid,
   isComparisonSelectionComplete,
   normalizeComparisonChannelIds,
 } from './channel-comparison-query';
@@ -21,6 +22,14 @@ describe('channel comparison query', () => {
   it('진입 선택은 세 개를 모두 골라야 완료된다', () => {
     expect(isComparisonSelectionComplete(['channel-a', 'channel-b'])).toBe(false);
     expect(isComparisonSelectionComplete(['channel-a', 'channel-b', 'channel-c'])).toBe(true);
+  });
+
+  it('결과 조회는 정규화한 채널이 두 개 또는 세 개일 때만 허용한다', () => {
+    expect(isComparisonResultQueryValid([])).toBe(false);
+    expect(isComparisonResultQueryValid(['channel-a'])).toBe(false);
+    expect(isComparisonResultQueryValid(['channel-a', 'channel-a'])).toBe(false);
+    expect(isComparisonResultQueryValid(['channel-a', 'channel-b'])).toBe(true);
+    expect(isComparisonResultQueryValid(['channel-a', 'channel-b', 'channel-c'])).toBe(true);
   });
 
   it('비교 페이지 URL에 정규화한 채널 ID를 직렬화한다', () => {

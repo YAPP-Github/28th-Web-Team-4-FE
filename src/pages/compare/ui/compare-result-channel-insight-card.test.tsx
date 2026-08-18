@@ -26,4 +26,22 @@ describe('CompareResultChannelInsightCard', () => {
       expect(within(card).queryByText('추천 이유')).not.toBeInTheDocument();
     },
   );
+
+  it('split 카드에서는 장점을 앞의 2개까지만 보여준다', () => {
+    const channel = {
+      ...MOCK_COMPARE_RESULT_CHANNELS[0],
+      insight: {
+        ...MOCK_COMPARE_RESULT_CHANNELS[0].insight,
+        advantages: ['첫 번째 장점', '두 번째 장점', '세 번째 장점'],
+      },
+    };
+
+    render(<CompareResultChannelInsightCard channel={channel} variant="split" />);
+
+    const card = screen.getByRole('article', { name: channel.name });
+
+    expect(within(card).getByText('첫 번째 장점')).toBeVisible();
+    expect(within(card).getByText('두 번째 장점')).toBeVisible();
+    expect(within(card).queryByText('세 번째 장점')).not.toBeInTheDocument();
+  });
 });
