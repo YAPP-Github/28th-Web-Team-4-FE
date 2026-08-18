@@ -155,20 +155,20 @@ function HeroRevealSubtext(): JSX.Element {
 }
 
 // Figma(node 3766:110383 / 3766:110421) 스펙:
-// 1줄: "내게 맞는 광고 채널을" + [한눈에! 데코 박스 (약 -4.8deg 기울기 + 라디얼/선형 그라데이션 텍스트 + 모서리 4개 사각형)]
+// 1줄: "내게 맞는 광고 채널을" + [한눈에! 데코 박스 (-4.78deg 기울기 + 42px 라디얼 그라데이션 텍스트 + 모서리 4개 13.33px 사각형)]
 // 2줄: "광고 채널 고민, 여기서 끝내 보세요"
 function HeroRevealTitle(): JSX.Element {
   return (
-    <h1 className="text-text-highest flex flex-col items-center text-center font-bold tracking-[-0.02em]">
-      <span className="gap-x-012 flex flex-wrap items-center justify-center text-[28px] leading-[1.3] sm:text-[40px] lg:text-[48px] lg:leading-[70px]">
-        <span>내게 맞는 광고 채널을&nbsp;</span>
-        <span className="px-014 py-002 relative inline-flex -rotate-[4.8deg] items-center justify-center rounded-[6px] border border-[#41BCF6] text-[26px] leading-tight sm:text-[38px] lg:text-[46px] lg:leading-[68px]">
-          {/* 네 모서리 데코 포인트 */}
-          <span className="bg-surface-lowest absolute -top-[3px] -left-[3px] size-[7px] rounded-[1px] border border-[#41BCF6]" />
-          <span className="bg-surface-lowest absolute -top-[3px] -right-[3px] size-[7px] rounded-[1px] border border-[#41BCF6]" />
-          <span className="bg-surface-lowest absolute -bottom-[3px] -left-[3px] size-[7px] rounded-[1px] border border-[#41BCF6]" />
-          <span className="bg-surface-lowest absolute -right-[3px] -bottom-[3px] size-[7px] rounded-[1px] border border-[#41BCF6]" />
-          <span className="bg-[linear-gradient(135deg,#2E2E33_30%,#75757D_100%)] bg-clip-text font-bold text-transparent">
+    <h1 className="text-text-highest flex flex-col items-center text-center font-bold tracking-[-1px]">
+      <span className="flex flex-wrap items-center justify-center text-[28px] leading-[1.3] sm:text-[40px] lg:text-[48px] lg:leading-[70px]">
+        <span>내게 맞는 광고 채널을</span>
+        <span className="relative ml-[7px] inline-flex -rotate-[4.78deg] items-center justify-center border-[1.5px] border-[#41BCF6] px-[10px] py-[1.5px] sm:px-[12px] sm:py-[2px] lg:px-[14.4px] lg:py-[2px]">
+          {/* 네 모서리 꼭짓점 데코 포인트 (피그마 13.33px 사각형, 2.06px border, 중앙 정렬) */}
+          <span className="bg-surface-lowest absolute top-0 left-0 size-[8px] -translate-x-1/2 -translate-y-1/2 rounded-[1.5px] border-[1.5px] border-[#41BCF6] sm:size-[11px] lg:size-[13.3px] lg:rounded-[2px] lg:border-[2px]" />
+          <span className="bg-surface-lowest absolute top-0 right-0 size-[8px] translate-x-1/2 -translate-y-1/2 rounded-[1.5px] border-[1.5px] border-[#41BCF6] sm:size-[11px] lg:size-[13.3px] lg:rounded-[2px] lg:border-[2px]" />
+          <span className="bg-surface-lowest absolute bottom-0 left-0 size-[8px] -translate-x-1/2 translate-y-1/2 rounded-[1.5px] border-[1.5px] border-[#41BCF6] sm:size-[11px] lg:size-[13.3px] lg:rounded-[2px] lg:border-[2px]" />
+          <span className="bg-surface-lowest absolute right-0 bottom-0 size-[8px] translate-x-1/2 translate-y-1/2 rounded-[1.5px] border-[1.5px] border-[#41BCF6] sm:size-[11px] lg:size-[13.3px] lg:rounded-[2px] lg:border-[2px]" />
+          <span className="bg-[linear-gradient(135deg,#2E2E33_30.3%,#9E9E9E_100%)] bg-clip-text text-[24.5px] leading-tight font-bold text-transparent sm:text-[35px] lg:text-[42px] lg:leading-[66px]">
             한눈에!
           </span>
         </span>

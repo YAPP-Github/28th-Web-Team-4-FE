@@ -164,18 +164,18 @@ function HomeQuestionAnimated(): JSX.Element {
     offset: ['start start', 'end end'],
   });
 
-  // 스크롤 위치에 따라 단계별 전환 (빠르고 경쾌한 템포)
+  // 스크롤 위치에 따라 단계별 전환
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    if (latest < 0.2) {
+    if (latest < 0.25) {
       setActiveStep(-1); // 첫 질문 단계
-    } else if (latest < 0.35) {
+    } else if (latest < 0.4) {
       setActiveStep(0); // 고민 1
-    } else if (latest < 0.5) {
+    } else if (latest < 0.55) {
       setActiveStep(1); // 고민 2
-    } else if (latest < 0.65) {
+    } else if (latest < 0.7) {
       setActiveStep(2); // 고민 3
     } else {
-      setActiveStep(3); // 오렌지 타이틀 (65% 지점에서 시작하여 2번 스크롤 시 바로 다음 섹션 전환)
+      setActiveStep(3); // 오렌지 타이틀 (70% 지점부터)
     }
   });
 
@@ -218,30 +218,22 @@ function HomeQuestionAnimated(): JSX.Element {
     return () => clearTimeout(startTimer);
   }, [isOrangeActive]);
 
-  // 1. Phase 1: 흰색 문 오픈 (0 -> 0.08)
-  const topWhitePanelY = useTransform(scrollYProgress, [0, 0.08], ['0%', '-100%']);
-  const bottomWhitePanelY = useTransform(scrollYProgress, [0, 0.08], ['0%', '100%']);
+  // 1. Phase 1: 흰색 문 오픈 (기존 0~0.08의 너무 빠른 속도 -> 0~0.22로 천천히 부드럽게 위아래로 오픈!)
+  const topWhitePanelY = useTransform(scrollYProgress, [0, 0.22], ['0%', '-100%']);
+  const bottomWhitePanelY = useTransform(scrollYProgress, [0, 0.22], ['0%', '100%']);
 
-  // 2. Phase 1: 첫 질문 텍스트는 문이 열리며 부드럽게 스케일업(0.92 -> 1.03)되고, 0.12~0.16에서 완전히 사라짐
+  // 2. Phase 1: 첫 질문 텍스트는 문이 열리며 부드럽게 스케일업(0.92 -> 1.03)되고, 0.18~0.24에서 완전히 사라짐
   const introQuestionScale = useTransform(
     scrollYProgress,
-    [0, 0.08, 0.12, 0.16, 1.0],
-    [0.92, 1.03, 1.03, 1.06, 1.06],
+    [0, 0.22, 0.26, 1.0],
+    [0.92, 1.03, 1.06, 1.06],
   );
-  const introQuestionOpacity = useTransform(scrollYProgress, [0, 0.12, 0.16, 1.0], [1, 1, 0, 0]);
-  const introQuestionY = useTransform(scrollYProgress, [0.12, 0.16, 1.0], [0, -30, -30]);
+  const introQuestionOpacity = useTransform(scrollYProgress, [0, 0.18, 0.24, 1.0], [1, 1, 0, 0]);
+  const introQuestionY = useTransform(scrollYProgress, [0.18, 0.24, 1.0], [0, -30, -30]);
 
-  // 3. Phase 2: 첫 질문이 완전히 사라진 후(0.20) 3개 고민 리스트가 등장 (0.20 -> 0.24) 및 퇴장 (0.64 -> 0.67)
-  const listOpacity = useTransform(
-    scrollYProgress,
-    [0.16, 0.2, 0.24, 0.64, 0.67, 1.0],
-    [0, 0, 1, 1, 0, 0],
-  );
-  const listY = useTransform(
-    scrollYProgress,
-    [0.16, 0.2, 0.24, 0.6, 0.64, 1.0],
-    [30, 30, 0, 0, -30, -30],
-  );
+  // 3. Phase 2: 첫 질문이 완전히 사라진 후(0.25) 3개 고민 리스트가 등장 (0.22 -> 0.26) 및 퇴장 (0.68 -> 0.71)
+  const listOpacity = useTransform(scrollYProgress, [0.22, 0.26, 0.68, 0.71, 1.0], [0, 1, 1, 0, 0]);
+  const listY = useTransform(scrollYProgress, [0.22, 0.26, 0.68, 0.71, 1.0], [30, 0, 0, -30, -30]);
 
   const currentLogo = CHANNEL_LOGOS[currentLogoIndex] ?? CHANNEL_LOGOS[0];
 
