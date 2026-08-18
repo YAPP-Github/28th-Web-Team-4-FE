@@ -1,5 +1,7 @@
+import { CATEGORY_LABELS } from '@/shared/lib/recommendation-labels';
+
 /**
- * 추천과 시뮬레이터 온보딩이 공유하는 선택지 value와 표시 데이터를 정의한다.
+ * 추천 온보딩 공통 질문에서 사용하는 선택지 value와 표시 데이터를 정의한다.
  */
 
 /**
@@ -54,23 +56,23 @@ export type BudgetRange = {
 };
 
 export const CATEGORY_OPTION_LIST = [
-  { value: 'GAME', label: '게임' },
-  { value: 'ENTERTAINMENT', label: '엔터테인먼트' },
-  { value: 'EDUCATION', label: '교육' },
-  { value: 'SOCIAL_COMMUNITY', label: '소셜·커뮤니티' },
-  { value: 'LIFESTYLE', label: '라이프 스타일' },
-  { value: 'HEALTH_FITNESS', label: '건강·피트니스' },
-  { value: 'FOOD_BEVERAGE', label: '음식·음료' },
-  { value: 'SHOPPING_COMMERCE', label: '쇼핑·커머스' },
-  { value: 'FINANCE_FINTECH', label: '금융·핀테크' },
-  { value: 'BUSINESS_B2B', label: '비즈니스·B2B' },
-  { value: 'MEDICAL_HEALTHCARE', label: '의료·헬스케어' },
-  { value: 'TRAVEL_ACCOMMODATION', label: '여행·숙박' },
-  { value: 'MUSIC_MEDIA', label: '음악·미디어' },
-  { value: 'PRODUCTIVITY_UTILITY', label: '생산성·유틸리티' },
-  { value: 'SPORTS', label: '스포츠' },
-  { value: 'NEWS_INFORMATION', label: '뉴스·정보' },
-  { value: 'OTHER', label: '기타' },
+  { value: 'GAME', label: CATEGORY_LABELS.GAME },
+  { value: 'ENTERTAINMENT', label: CATEGORY_LABELS.ENTERTAINMENT },
+  { value: 'EDUCATION', label: CATEGORY_LABELS.EDUCATION },
+  { value: 'SOCIAL_COMMUNITY', label: CATEGORY_LABELS.SOCIAL_COMMUNITY },
+  { value: 'LIFESTYLE', label: CATEGORY_LABELS.LIFESTYLE },
+  { value: 'HEALTH_FITNESS', label: CATEGORY_LABELS.HEALTH_FITNESS },
+  { value: 'FOOD_BEVERAGE', label: CATEGORY_LABELS.FOOD_BEVERAGE },
+  { value: 'SHOPPING_COMMERCE', label: CATEGORY_LABELS.SHOPPING_COMMERCE },
+  { value: 'FINANCE_FINTECH', label: CATEGORY_LABELS.FINANCE_FINTECH },
+  { value: 'BUSINESS_B2B', label: CATEGORY_LABELS.BUSINESS_B2B },
+  { value: 'MEDICAL_HEALTHCARE', label: CATEGORY_LABELS.MEDICAL_HEALTHCARE },
+  { value: 'TRAVEL_ACCOMMODATION', label: CATEGORY_LABELS.TRAVEL_ACCOMMODATION },
+  { value: 'MUSIC_MEDIA', label: CATEGORY_LABELS.MUSIC_MEDIA },
+  { value: 'PRODUCTIVITY_UTILITY', label: CATEGORY_LABELS.PRODUCTIVITY_UTILITY },
+  { value: 'SPORTS', label: CATEGORY_LABELS.SPORTS },
+  { value: 'NEWS_INFORMATION', label: CATEGORY_LABELS.NEWS_INFORMATION },
+  { value: 'OTHER', label: CATEGORY_LABELS.OTHER },
 ] as const satisfies readonly OnboardingOption<CategoryId>[];
 
 export const SERVICE_TYPE_OPTION_LIST = [

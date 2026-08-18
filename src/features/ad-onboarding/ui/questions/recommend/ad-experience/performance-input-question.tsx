@@ -4,7 +4,7 @@
  * 추천 광고 운영 경험자의 선택적 성과 입력을 업로드/직접 입력 탭으로 조합한다.
  */
 
-import type { JSX, ReactNode } from 'react';
+import { useState, type JSX, type ReactNode } from 'react';
 import { useController, useFormContext, useWatch } from 'react-hook-form';
 import { Tabs } from '@base-ui/react/tabs';
 
@@ -13,9 +13,10 @@ import {
   type PerformanceMode,
 } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import type { RecommendOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
+import { isManualPerformanceChannelComplete } from '@/features/ad-onboarding/model/recommend-onboarding-rules';
 import { OnboardingQuestion } from '@/features/ad-onboarding/ui/onboarding-question';
-import { PerformanceChannelCombobox } from '@/features/ad-onboarding/ui/questions/recommend/ad-experience/performance-channel-combobox';
 import { PerformanceFileDropzone } from '@/features/ad-onboarding/ui/questions/recommend/ad-experience/performance-file-dropzone';
+import { PerformanceManualInput } from '@/features/ad-onboarding/ui/questions/recommend/ad-experience/performance-manual-input';
 import {
   StepActionButton,
   type StepActionButtonProps,
@@ -28,6 +29,45 @@ export type PerformanceInputQuestionProps = {
   onSkip: NonNullable<StepActionButtonProps['onClick']>;
 };
 
+/**
+ * 업로드 탭의 완료 여부를 판단한다.
+ *
+ * @param draft 현재 추천 온보딩 draft
+ * @returns 성과 파일이 1개 이상 있으면 true
+ */
+function hasUploadedPerformanceFile(draft: RecommendOnboardingDraft): boolean {
+  return draft.performanceFileList.length > 0;
+}
+
+/**
+ * 직접 입력 탭의 완료 여부를 판단한다.
+ *
+ * @param draft 현재 추천 온보딩 draft
+ * @returns 직접 입력 채널이 있고 모든 채널 row가 완료됐으면 true
+ */
+function hasCompleteManualPerformanceInput(draft: RecommendOnboardingDraft): boolean {
+  const { performanceManualChannelList } = draft;
+
+  return (
+    performanceManualChannelList.length > 0 &&
+    performanceManualChannelList.every(isManualPerformanceChannelComplete)
+  );
+}
+
+/**
+ * 현재 활성 성과 입력 방식에 맞춰 다음 버튼 활성화 조건을 계산한다.
+ *
+ * @param draft 현재 추천 온보딩 draft
+ * @returns 성과 입력 step을 제출할 수 있으면 true
+ */
+function isPerformanceInputComplete(draft: RecommendOnboardingDraft): boolean {
+  if (draft.performanceMode === 'UPLOAD') {
+    return hasUploadedPerformanceFile(draft);
+  }
+
+  return hasCompleteManualPerformanceInput(draft);
+}
+
 /** 활성 탭에 맞는 성과 입력과 완료 조건을 RHF draft에 연결한다. */
 export function PerformanceInputQuestion({
   actionLabel = '다음',
@@ -35,26 +75,24 @@ export function PerformanceInputQuestion({
   onSkip,
 }: PerformanceInputQuestionProps): JSX.Element {
   const { control } = useFormContext<RecommendOnboardingDraft>();
+  const [manualSearchKeyword, setManualSearchKeyword] = useState('');
   const { field: performanceModeField } = useController({ control, name: 'performanceMode' });
   const { field: performanceFileListField } = useController({
     control,
     name: 'performanceFileList',
   });
-  const { field: performanceChannelField } = useController({
+  const { field: performanceManualChannelListField } = useController({
     control,
-    name: 'performanceChannel',
+    name: 'performanceManualChannelList',
   });
   const isInputComplete = useWatch({
     control,
-    compute: (draft) =>
-      draft.performanceMode === 'UPLOAD'
-        ? draft.performanceFileList.length > 0
-        : Boolean(draft.performanceChannel),
+    compute: isPerformanceInputComplete,
   });
 
   const clearPerformanceInput = (): void => {
     performanceFileListField.onChange([]);
-    performanceChannelField.onChange(undefined);
+    performanceManualChannelListField.onChange([]);
   };
 
   return (
@@ -68,6 +106,7 @@ export function PerformanceInputQuestion({
         value={performanceModeField.value}
         onValueChange={(value) => {
           if (value === 'UPLOAD' || value === 'MANUAL') {
+            setManualSearchKeyword('');
             performanceModeField.onChange(value satisfies PerformanceMode);
           }
         }}
@@ -104,9 +143,9 @@ export function PerformanceInputQuestion({
           />
         </Tabs.Panel>
         <Tabs.Panel value="MANUAL" className="pt-020 outline-none [[hidden]]:hidden">
-          <PerformanceChannelCombobox
-            value={performanceChannelField.value}
-            onValueChange={performanceChannelField.onChange}
+          <PerformanceManualInput
+            searchKeyword={manualSearchKeyword}
+            onSearchKeywordChange={setManualSearchKeyword}
           />
         </Tabs.Panel>
       </Tabs.Root>

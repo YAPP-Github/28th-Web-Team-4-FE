@@ -28,9 +28,9 @@ const contentClassName = [
   'fixed left-1/2 top-1/2 z-50 flex w-[428px] max-w-[calc(100vw-32px)]',
   '-translate-x-1/2 -translate-y-1/2 flex-col bg-surface-lowest shadow-drop-shadow-01',
   'rounded-[var(--radius-l)] outline-none',
-  'transition-[scale,opacity] duration-150 ease-out',
-  'data-ending-style:scale-[0.9] data-ending-style:opacity-0',
-  'data-starting-style:scale-[0.9] data-starting-style:opacity-0',
+  'transition-[scale,opacity] duration-180 ease-out',
+  'data-ending-style:scale-[0.96] data-ending-style:opacity-0',
+  'data-starting-style:scale-[0.96] data-starting-style:opacity-0',
   'motion-reduce:transition-none',
 ].join(' ');
 

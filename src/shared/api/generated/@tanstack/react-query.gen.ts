@@ -13,10 +13,17 @@ import {
   estimateSimulation,
   getAllSamples,
   getChannel,
+  getChannelComparison,
   getChannels,
   getLatestSimulation,
+  getMyChannelComparisons,
+  getMyOnboardingTag,
+  getMyProfile,
+  getMySimulations,
   getRecommendations,
   getSampleById,
+  getSavedChannelComparison,
+  getSimulation,
   googleAuth,
   linkGoogle,
   login,
@@ -25,12 +32,17 @@ import {
   type Options,
   presignOnboardingPerformanceFiles,
   refresh,
+  saveChannelComparison,
+  saveRecommendation,
   saveSimulation,
   sendSignupCode,
   signup,
   signupGoogle,
   submitOnboarding,
+  updateMyOnboardingTag,
+  updateMyProfile,
   verifySignupCode,
+  withdraw,
 } from '../sdk.gen';
 import type {
   CreateSampleData,
@@ -42,6 +54,9 @@ import type {
   GetAllSamplesData,
   GetAllSamplesError,
   GetAllSamplesResponse,
+  GetChannelComparisonData,
+  GetChannelComparisonError,
+  GetChannelComparisonResponse,
   GetChannelData,
   GetChannelError,
   GetChannelResponse,
@@ -51,12 +66,30 @@ import type {
   GetLatestSimulationData,
   GetLatestSimulationError,
   GetLatestSimulationResponse,
+  GetMyChannelComparisonsData,
+  GetMyChannelComparisonsError,
+  GetMyChannelComparisonsResponse,
+  GetMyOnboardingTagData,
+  GetMyOnboardingTagError,
+  GetMyOnboardingTagResponse,
+  GetMyProfileData,
+  GetMyProfileError,
+  GetMyProfileResponse,
+  GetMySimulationsData,
+  GetMySimulationsError,
+  GetMySimulationsResponse,
   GetRecommendationsData,
   GetRecommendationsError,
   GetRecommendationsResponse,
   GetSampleByIdData,
   GetSampleByIdError,
   GetSampleByIdResponse,
+  GetSavedChannelComparisonData,
+  GetSavedChannelComparisonError,
+  GetSavedChannelComparisonResponse,
+  GetSimulationData,
+  GetSimulationError,
+  GetSimulationResponse,
   GoogleAuthData,
   GoogleAuthError,
   GoogleAuthResponse2,
@@ -78,6 +111,12 @@ import type {
   RefreshData,
   RefreshError,
   RefreshResponse,
+  SaveChannelComparisonData,
+  SaveChannelComparisonError,
+  SaveChannelComparisonResponse,
+  SaveRecommendationData,
+  SaveRecommendationError,
+  SaveRecommendationResponse,
   SaveSimulationData,
   SaveSimulationError,
   SaveSimulationResponse,
@@ -93,10 +132,222 @@ import type {
   SubmitOnboardingData,
   SubmitOnboardingError,
   SubmitOnboardingResponse,
+  UpdateMyOnboardingTagData,
+  UpdateMyOnboardingTagError,
+  UpdateMyOnboardingTagResponse,
+  UpdateMyProfileData,
+  UpdateMyProfileError,
+  UpdateMyProfileResponse,
   VerifySignupCodeData,
   VerifySignupCodeError,
   VerifySignupCodeResponse,
+  WithdrawData,
+  WithdrawError,
+  WithdrawResponse,
 } from '../types.gen';
+
+export type QueryKey<TOptions extends Options> = [
+  Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
+    _id: string;
+    _infinite?: boolean;
+    tags?: ReadonlyArray<string>;
+  },
+];
+
+const createQueryKey = <TOptions extends Options>(
+  id: string,
+  options?: TOptions,
+  infinite?: boolean,
+  tags?: ReadonlyArray<string>,
+): [QueryKey<TOptions>[0]] => {
+  const params: QueryKey<TOptions>[0] = {
+    _id: id,
+    baseUrl: options?.baseUrl || (options?.client ?? client).getConfig().baseUrl,
+  } as QueryKey<TOptions>[0];
+  if (infinite) {
+    params._infinite = infinite;
+  }
+  if (tags) {
+    params.tags = tags;
+  }
+  if (options?.body) {
+    params.body = options.body;
+  }
+  if (options?.headers) {
+    params.headers = options.headers;
+  }
+  if (options?.path) {
+    params.path = options.path;
+  }
+  if (options?.query) {
+    params.query = options.query;
+  }
+  return [params];
+};
+
+export const getMyOnboardingTagQueryKey = (options?: Options<GetMyOnboardingTagData>) =>
+  createQueryKey('getMyOnboardingTag', options);
+
+/**
+ * 내 최신 집행 온보딩 태그 조회
+ *
+ * 로그인한 유저의 가장 최근 활성 온보딩 태그 정보를 조회한다. 온보딩 기록이 없는 경우 hasOnboarding = false
+ */
+export const getMyOnboardingTagOptions = (options?: Options<GetMyOnboardingTagData>) =>
+  queryOptions<
+    GetMyOnboardingTagResponse,
+    GetMyOnboardingTagError,
+    GetMyOnboardingTagResponse,
+    ReturnType<typeof getMyOnboardingTagQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getMyOnboardingTag({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getMyOnboardingTagQueryKey(options),
+  });
+
+/**
+ * 내 최신 집행 온보딩 태그 수정
+ *
+ * 로그인한 유저의 최신 집행 온보딩 태그 정보를 수정한다. 태그가 변경되면 기존 온보딩을 비활성화하고 신규 온보딩을 생성하며, 동일한 태그면 기존 온보딩을 유지한다.
+ */
+export const updateMyOnboardingTagMutation = (
+  options?: Partial<Options<UpdateMyOnboardingTagData>>,
+): UseMutationOptions<
+  UpdateMyOnboardingTagResponse,
+  UpdateMyOnboardingTagError,
+  Options<UpdateMyOnboardingTagData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateMyOnboardingTagResponse,
+    UpdateMyOnboardingTagError,
+    Options<UpdateMyOnboardingTagData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await updateMyOnboardingTag({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const getMySimulationsQueryKey = (options?: Options<GetMySimulationsData>) =>
+  createQueryKey('getMySimulations', options);
+
+/**
+ * 내가 저장한 시뮬레이션 목록
+ *
+ * 로그인한 사용자가 저장한 시뮬레이션을 최신순으로 반환한다. 목록은 요약만 담으며 매체별 항목은 상세 조회에서 받는다. 정렬은 최신순 고정이고 page/size 를 생략하면 0 페이지 5건을 반환한다. 저장된 결과가 없으면 빈 목록으로 200 을 반환한다.
+ */
+export const getMySimulationsOptions = (options?: Options<GetMySimulationsData>) =>
+  queryOptions<
+    GetMySimulationsResponse,
+    GetMySimulationsError,
+    GetMySimulationsResponse,
+    ReturnType<typeof getMySimulationsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getMySimulations({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getMySimulationsQueryKey(options),
+  });
+
+const createInfiniteParams = <
+  K extends Pick<QueryKey<Options>[0], 'body' | 'headers' | 'path' | 'query'>,
+>(
+  queryKey: QueryKey<Options>,
+  page: K,
+) => {
+  const params = { ...queryKey[0] };
+  if (page.body) {
+    params.body = {
+      ...(queryKey[0].body as any),
+      ...(page.body as any),
+    };
+  }
+  if (page.headers) {
+    params.headers = {
+      ...queryKey[0].headers,
+      ...page.headers,
+    };
+  }
+  if (page.path) {
+    params.path = {
+      ...(queryKey[0].path as any),
+      ...(page.path as any),
+    };
+  }
+  if (page.query) {
+    params.query = {
+      ...(queryKey[0].query as any),
+      ...(page.query as any),
+    };
+  }
+  return params as unknown as typeof page;
+};
+
+export const getMySimulationsInfiniteQueryKey = (
+  options?: Options<GetMySimulationsData>,
+): QueryKey<Options<GetMySimulationsData>> => createQueryKey('getMySimulations', options, true);
+
+/**
+ * 내가 저장한 시뮬레이션 목록
+ *
+ * 로그인한 사용자가 저장한 시뮬레이션을 최신순으로 반환한다. 목록은 요약만 담으며 매체별 항목은 상세 조회에서 받는다. 정렬은 최신순 고정이고 page/size 를 생략하면 0 페이지 5건을 반환한다. 저장된 결과가 없으면 빈 목록으로 200 을 반환한다.
+ */
+export const getMySimulationsInfiniteOptions = (options?: Options<GetMySimulationsData>) => {
+  const opts = infiniteQueryOptions<
+    GetMySimulationsResponse,
+    GetMySimulationsError,
+    InfiniteData<GetMySimulationsResponse>,
+    QueryKey<Options<GetMySimulationsData>>,
+    number | Pick<QueryKey<Options<GetMySimulationsData>>[0], 'body' | 'headers' | 'path' | 'query'>
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetMySimulationsData>>[0],
+          'body' | 'headers' | 'path' | 'query'
+        > =
+          typeof pageParam === 'object'
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              };
+        const params = createInfiniteParams(queryKey, page);
+        const { data } = await getMySimulations({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        });
+        return data;
+      },
+      queryKey: getMySimulationsInfiniteQueryKey(options),
+    },
+  );
+  return opts as Omit<typeof opts, 'initialData'>;
+};
 
 /**
  * 예산 시뮬레이션 결과 저장
@@ -152,45 +403,6 @@ export const estimateSimulationMutation = (
   return mutationOptions;
 };
 
-export type QueryKey<TOptions extends Options> = [
-  Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
-    _id: string;
-    _infinite?: boolean;
-    tags?: ReadonlyArray<string>;
-  },
-];
-
-const createQueryKey = <TOptions extends Options>(
-  id: string,
-  options?: TOptions,
-  infinite?: boolean,
-  tags?: ReadonlyArray<string>,
-): [QueryKey<TOptions>[0]] => {
-  const params: QueryKey<TOptions>[0] = {
-    _id: id,
-    baseUrl: options?.baseUrl || (options?.client ?? client).getConfig().baseUrl,
-  } as QueryKey<TOptions>[0];
-  if (infinite) {
-    params._infinite = infinite;
-  }
-  if (tags) {
-    params.tags = tags;
-  }
-  if (options?.body) {
-    params.body = options.body;
-  }
-  if (options?.headers) {
-    params.headers = options.headers;
-  }
-  if (options?.path) {
-    params.path = options.path;
-  }
-  if (options?.query) {
-    params.query = options.query;
-  }
-  return [params];
-};
-
 export const getAllSamplesQueryKey = (options?: Options<GetAllSamplesData>) =>
   createQueryKey('getAllSamples', options);
 
@@ -233,6 +445,72 @@ export const createSampleMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await createSample({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const getRecommendationsQueryKey = (options: Options<GetRecommendationsData>) =>
+  createQueryKey('getRecommendations', options);
+
+/**
+ * 온보딩 기반 채널 추천
+ *
+ * 온보딩 응답을 업종·광고 목적·타깃 연령대로 매칭해 적합한 채널을 적합도 순으로 반환한다.
+ *
+ * 적합도가 같으면 집행 가능한 채널을 먼저, 그다음 매체명 순으로 정렬한다.
+ *
+ * 매체별로 단가가 가장 싼 상품을 대표로 삼고, 온보딩 예산의 상한(budgetMax)과 집행 기간을 적용한다. 예산이 최소 단가에 못 미치는 채널도 적합도가 있으면 추천에 넣되, 노출·클릭은 최소 단가로 집행했을 때를 기준으로 채우고 부족액(shortfallWon)을 함께 준다.
+ */
+export const getRecommendationsOptions = (options: Options<GetRecommendationsData>) =>
+  queryOptions<
+    GetRecommendationsResponse,
+    GetRecommendationsError,
+    GetRecommendationsResponse,
+    ReturnType<typeof getRecommendationsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getRecommendations({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getRecommendationsQueryKey(options),
+  });
+
+/**
+ * 채널 추천 결과 저장
+ *
+ * 추천을 다시 계산해 그 시점 값을 스냅샷으로 저장한다. 채널 1개가 1행이고, 요청한 온보딩이 저장된 추천 1건을 가리키는 키가 된다.
+ *
+ * 이후 채널의 단가·상품이 바뀌어도 저장된 추천은 변하지 않는다. 마이페이지는 이 저장분을 그대로 읽는다.
+ *
+ * 같은 온보딩으로 다시 저장하면 이전 추천을 지우고 다시 넣는다. 온보딩 응답은 불변이고 추천도 결정적이라 결과는 같으며, 재요청·재시도로 행이 쌓이지 않는다.
+ *
+ * 본인이 제출한 온보딩만 저장할 수 있다. 맞는 채널이 없으면 저장할 것도 없으므로 channelCount 0 과 빈 배열을 반환한다.
+ */
+export const saveRecommendationMutation = (
+  options?: Partial<Options<SaveRecommendationData>>,
+): UseMutationOptions<
+  SaveRecommendationResponse,
+  SaveRecommendationError,
+  Options<SaveRecommendationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SaveRecommendationResponse,
+    SaveRecommendationError,
+    Options<SaveRecommendationData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await saveRecommendation({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -292,6 +570,78 @@ export const presignOnboardingPerformanceFilesMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await presignOnboardingPerformanceFiles({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const getChannelComparisonQueryKey = (options: Options<GetChannelComparisonData>) =>
+  createQueryKey('getChannelComparison', options);
+
+/**
+ * 채널 비교 조회
+ *
+ * 채널을 2~3개까지 비교한다.
+ * [비로그인]
+ * 매체명, CPC/CPM, 태그, 장점, 최소광고비를 요청순 반환.
+ * 오디언스·광고형태·타기팅·적합도·예상 노출·클릭은 고정 MOCK 값
+ *
+ * [로그인]
+ * 온보딩O: 매체명, 채널 상세, 적합도, 예상 노출·클릭, CPC/CPM, 채널 태그, 장점을 적합도순 반환
+ * 온보딩X: 매체명, 채널 상세, 기본 예산(100만원/1개월) 기준 예상 노출·클릭, CPC/CPM, 채널 태그, 장점을 요청순 반환
+ *
+ * 예산이 부족하면 예상 노출·클릭은 null.
+ * 회원이 만든 온보딩은 해당 회원만 사용할 수 있다.
+ */
+export const getChannelComparisonOptions = (options: Options<GetChannelComparisonData>) =>
+  queryOptions<
+    GetChannelComparisonResponse,
+    GetChannelComparisonError,
+    GetChannelComparisonResponse,
+    ReturnType<typeof getChannelComparisonQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getChannelComparison({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getChannelComparisonQueryKey(options),
+  });
+
+/**
+ * 채널 비교 결과 저장
+ *
+ * 요청할 때마다 스냅샷 형태로 새로 저장 된다.
+ * 이후 채널 단가/상품이 바뀌어도 저장된 값은 그대로 유지된다.
+ *
+ * 온보딩 O: 적합도순 정렬로 저장, 본인 온보딩만 사용 가능
+ * 온보딩 X: 요청 순서 그대로 저장, serviceName 필수
+ *
+ * 로그인한 사용자만 저장할 수 있다.
+ */
+export const saveChannelComparisonMutation = (
+  options?: Partial<Options<SaveChannelComparisonData>>,
+): UseMutationOptions<
+  SaveChannelComparisonResponse,
+  SaveChannelComparisonError,
+  Options<SaveChannelComparisonData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SaveChannelComparisonResponse,
+    SaveChannelComparisonError,
+    Options<SaveChannelComparisonData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await saveChannelComparison({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -494,7 +844,7 @@ export const loginMethodsMutation = (
 /**
  * 구글 인증 진입
  *
- * 구글 idToken 을 검증하고 계정 상태에 따라 status 로 분기한다.
+ * 구글 idToken 을 검증하고 계정 상태에 따라 status 로 분기한다. 탈퇴 처리된 계정인 경우 가입 수단과 관계없이 409(AUTH-013) 예외를 반환한다.
  * LOGIN: 토큰 발급. LINK_REQUIRED: linkRequired 와 email 을 내려주며, 사용자 확인 후 POST /auth/google/link 호출. SIGNUP_REQUIRED: signupRequired 와 일회성 signupToken, 프리필 값을 내려준다.
  */
 export const googleAuthMutation = (
@@ -541,6 +891,114 @@ export const linkGoogleMutation = (
   };
   return mutationOptions;
 };
+
+/**
+ * 회원 탈퇴
+ *
+ * 회원 계정을 즉시 비활성화하고 탈퇴 시각을 반환한다.
+ */
+export const withdrawMutation = (
+  options?: Partial<Options<WithdrawData>>,
+): UseMutationOptions<WithdrawResponse, WithdrawError, Options<WithdrawData>> => {
+  const mutationOptions: UseMutationOptions<
+    WithdrawResponse,
+    WithdrawError,
+    Options<WithdrawData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await withdraw({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const getMyProfileQueryKey = (options?: Options<GetMyProfileData>) =>
+  createQueryKey('getMyProfile', options);
+
+/**
+ * 내 정보 조회
+ *
+ * 닉네임, 이메일, 회사, 직무를 반환한다.
+ */
+export const getMyProfileOptions = (options?: Options<GetMyProfileData>) =>
+  queryOptions<
+    GetMyProfileResponse,
+    GetMyProfileError,
+    GetMyProfileResponse,
+    ReturnType<typeof getMyProfileQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getMyProfile({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getMyProfileQueryKey(options),
+  });
+
+/**
+ * 내 정보 수정
+ *
+ * 회사와 직무만 수정한다.
+ */
+export const updateMyProfileMutation = (
+  options?: Partial<Options<UpdateMyProfileData>>,
+): UseMutationOptions<
+  UpdateMyProfileResponse,
+  UpdateMyProfileError,
+  Options<UpdateMyProfileData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateMyProfileResponse,
+    UpdateMyProfileError,
+    Options<UpdateMyProfileData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await updateMyProfile({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const getSimulationQueryKey = (options: Options<GetSimulationData>) =>
+  createQueryKey('getSimulation', options);
+
+/**
+ * 저장된 시뮬레이션 상세
+ *
+ * 저장된 시뮬레이션 하나를 매체별 항목까지 재계산 없이 그대로 반환한다. 본인이 저장한 것만 조회할 수 있고, 다른 사용자의 시뮬레이션은 그 id 가 존재한다는 사실을 숨기기 위해 없는 것과 같은 404(SIM-001) 로 응답한다.
+ */
+export const getSimulationOptions = (options: Options<GetSimulationData>) =>
+  queryOptions<
+    GetSimulationResponse,
+    GetSimulationError,
+    GetSimulationResponse,
+    ReturnType<typeof getSimulationQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getSimulation({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getSimulationQueryKey(options),
+  });
 
 export const getLatestSimulationQueryKey = (options?: Options<GetLatestSimulationData>) =>
   createQueryKey('getLatestSimulation', options);
@@ -596,44 +1054,13 @@ export const getSampleByIdOptions = (options: Options<GetSampleByIdData>) =>
     queryKey: getSampleByIdQueryKey(options),
   });
 
-export const getRecommendationsQueryKey = (options: Options<GetRecommendationsData>) =>
-  createQueryKey('getRecommendations', options);
-
-/**
- * 온보딩 기반 채널 추천
- *
- * 온보딩 응답을 업종·광고 목적·타깃 연령대로 매칭해 적합한 채널을 적합도 순으로 반환한다.
- *
- * 적합도가 같으면 집행 가능한 채널을 먼저, 그다음 매체명 순으로 정렬한다.
- *
- * 매체별로 단가가 가장 싼 상품을 대표로 삼고, 온보딩 예산의 상한(budgetMax)과 집행 기간을 적용한다. 예산이 최소 단가에 못 미치는 채널도 적합도가 있으면 추천에 넣되, 노출·클릭은 최소 단가로 집행했을 때를 기준으로 채우고 부족액(shortfallWon)을 함께 준다.
- */
-export const getRecommendationsOptions = (options: Options<GetRecommendationsData>) =>
-  queryOptions<
-    GetRecommendationsResponse,
-    GetRecommendationsError,
-    GetRecommendationsResponse,
-    ReturnType<typeof getRecommendationsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await getRecommendations({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: getRecommendationsQueryKey(options),
-  });
-
 export const getChannelsQueryKey = (options?: Options<GetChannelsData>) =>
   createQueryKey('getChannels', options);
 
 /**
  * 채널 목록 조회
  *
- * 채널을 조회한다. page/size 를 모두 생략하면 페이지네이션 없이 전체 채널을 반환한다. page 또는 size 중 하나라도 지정하면 페이지 조회로 동작한다(생략된 값은 page=0, size=12). size 는 최대 100. name 지정 시 채널명으로 필터링. 정렬은 name, createdAt 만 지원한다(형식: sort=name,desc / 기본값 name,asc)
+ * 채널을 조회한다. page/size 를 모두 생략하면 페이지네이션 없이 전체 채널을 반환한다. page 또는 size 중 하나라도 지정하면 페이지 조회로 동작한다(생략된 값은 page=0, size=12). size 는 최대 100. name 지정 시 채널명으로 필터링. primaryCategory 지정 시 그 대표 업종의 채널만 반환한다. 여러 번 넘기거나(primaryCategory=A&primaryCategory=B) 쉼표로 이어(primaryCategory=A,B) 여러 업종을 고를 수 있고, 그중 하나에 해당하면 남는다. 정렬은 name, createdAt 만 지원한다(형식: sort=name,desc / 기본값 name,asc)
  */
 export const getChannelsOptions = (options?: Options<GetChannelsData>) =>
   queryOptions<
@@ -654,40 +1081,6 @@ export const getChannelsOptions = (options?: Options<GetChannelsData>) =>
     queryKey: getChannelsQueryKey(options),
   });
 
-const createInfiniteParams = <
-  K extends Pick<QueryKey<Options>[0], 'body' | 'headers' | 'path' | 'query'>,
->(
-  queryKey: QueryKey<Options>,
-  page: K,
-) => {
-  const params = { ...queryKey[0] };
-  if (page.body) {
-    params.body = {
-      ...(queryKey[0].body as any),
-      ...(page.body as any),
-    };
-  }
-  if (page.headers) {
-    params.headers = {
-      ...queryKey[0].headers,
-      ...page.headers,
-    };
-  }
-  if (page.path) {
-    params.path = {
-      ...(queryKey[0].path as any),
-      ...(page.path as any),
-    };
-  }
-  if (page.query) {
-    params.query = {
-      ...(queryKey[0].query as any),
-      ...(page.query as any),
-    };
-  }
-  return params as unknown as typeof page;
-};
-
 export const getChannelsInfiniteQueryKey = (
   options?: Options<GetChannelsData>,
 ): QueryKey<Options<GetChannelsData>> => createQueryKey('getChannels', options, true);
@@ -695,7 +1088,7 @@ export const getChannelsInfiniteQueryKey = (
 /**
  * 채널 목록 조회
  *
- * 채널을 조회한다. page/size 를 모두 생략하면 페이지네이션 없이 전체 채널을 반환한다. page 또는 size 중 하나라도 지정하면 페이지 조회로 동작한다(생략된 값은 page=0, size=12). size 는 최대 100. name 지정 시 채널명으로 필터링. 정렬은 name, createdAt 만 지원한다(형식: sort=name,desc / 기본값 name,asc)
+ * 채널을 조회한다. page/size 를 모두 생략하면 페이지네이션 없이 전체 채널을 반환한다. page 또는 size 중 하나라도 지정하면 페이지 조회로 동작한다(생략된 값은 page=0, size=12). size 는 최대 100. name 지정 시 채널명으로 필터링. primaryCategory 지정 시 그 대표 업종의 채널만 반환한다. 여러 번 넘기거나(primaryCategory=A&primaryCategory=B) 쉼표로 이어(primaryCategory=A,B) 여러 업종을 고를 수 있고, 그중 하나에 해당하면 남는다. 정렬은 name, createdAt 만 지원한다(형식: sort=name,desc / 기본값 name,asc)
  */
 export const getChannelsInfiniteOptions = (options?: Options<GetChannelsData>) => {
   const opts = infiniteQueryOptions<
@@ -742,6 +1135,10 @@ export const getChannelQueryKey = (options: Options<GetChannelData>) =>
  * 채널 상세 조회
  *
  * 채널 단건을 상세 조회한다. 채널 정보와 함께 광고 상품 목록, 오디언스 규모 지표, 집행 사례를 반환한다. 상품이 없는 채널은 products 를 빈 배열로 반환한다.
+ *
+ * 추천 목록에서 들어온 경우 그 추천의 onboardingId 를 함께 넘기면, 추천 근거가 된 온보딩 선택지(광고 목표·업종·예산)를 recommendationBasis 로 반환한다.
+ *
+ * 매체 키워드(tags)는 채널 고유의 키워드라 맞춤 여부와 무관하게 누구에게나 같은 값을 최대 2개까지 준다.
  */
 export const getChannelOptions = (options: Options<GetChannelData>) =>
   queryOptions<
@@ -761,3 +1158,118 @@ export const getChannelOptions = (options: Options<GetChannelData>) =>
     },
     queryKey: getChannelQueryKey(options),
   });
+
+export const getSavedChannelComparisonQueryKey = (
+  options: Options<GetSavedChannelComparisonData>,
+) => createQueryKey('getSavedChannelComparison', options);
+
+/**
+ * 저장된 채널 비교 상세
+ *
+ * 저장된 채널 비교 하나를 저장 시점 스냅샷 그대로 반환한다.
+ *
+ * 본인이 저장한 것만 조회할 수 있고,
+ * 그외의 채널 비교 id는 일관적으로 404(CMP-001) 응답을 반환한다.
+ */
+export const getSavedChannelComparisonOptions = (options: Options<GetSavedChannelComparisonData>) =>
+  queryOptions<
+    GetSavedChannelComparisonResponse,
+    GetSavedChannelComparisonError,
+    GetSavedChannelComparisonResponse,
+    ReturnType<typeof getSavedChannelComparisonQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getSavedChannelComparison({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getSavedChannelComparisonQueryKey(options),
+  });
+
+export const getMyChannelComparisonsQueryKey = (options?: Options<GetMyChannelComparisonsData>) =>
+  createQueryKey('getMyChannelComparisons', options);
+
+/**
+ * 내가 저장한 채널 비교 목록
+ *
+ * 로그인한 사용자가 저장한 채널 비교 결과를 최신순으로 반환한다.
+ *
+ * page/size 생략시 0 페이지 5건을 반환하며,
+ * 저장된 결과가 없으면 빈 목록으로 200 응답.
+ */
+export const getMyChannelComparisonsOptions = (options?: Options<GetMyChannelComparisonsData>) =>
+  queryOptions<
+    GetMyChannelComparisonsResponse,
+    GetMyChannelComparisonsError,
+    GetMyChannelComparisonsResponse,
+    ReturnType<typeof getMyChannelComparisonsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getMyChannelComparisons({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getMyChannelComparisonsQueryKey(options),
+  });
+
+export const getMyChannelComparisonsInfiniteQueryKey = (
+  options?: Options<GetMyChannelComparisonsData>,
+): QueryKey<Options<GetMyChannelComparisonsData>> =>
+  createQueryKey('getMyChannelComparisons', options, true);
+
+/**
+ * 내가 저장한 채널 비교 목록
+ *
+ * 로그인한 사용자가 저장한 채널 비교 결과를 최신순으로 반환한다.
+ *
+ * page/size 생략시 0 페이지 5건을 반환하며,
+ * 저장된 결과가 없으면 빈 목록으로 200 응답.
+ */
+export const getMyChannelComparisonsInfiniteOptions = (
+  options?: Options<GetMyChannelComparisonsData>,
+) => {
+  const opts = infiniteQueryOptions<
+    GetMyChannelComparisonsResponse,
+    GetMyChannelComparisonsError,
+    InfiniteData<GetMyChannelComparisonsResponse>,
+    QueryKey<Options<GetMyChannelComparisonsData>>,
+    | number
+    | Pick<QueryKey<Options<GetMyChannelComparisonsData>>[0], 'body' | 'headers' | 'path' | 'query'>
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetMyChannelComparisonsData>>[0],
+          'body' | 'headers' | 'path' | 'query'
+        > =
+          typeof pageParam === 'object'
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              };
+        const params = createInfiniteParams(queryKey, page);
+        const { data } = await getMyChannelComparisons({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        });
+        return data;
+      },
+      queryKey: getMyChannelComparisonsInfiniteQueryKey(options),
+    },
+  );
+  return opts as Omit<typeof opts, 'initialData'>;
+};

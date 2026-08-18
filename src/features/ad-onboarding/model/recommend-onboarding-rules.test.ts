@@ -7,6 +7,7 @@ import {
   buildRecommendOnboardingAnswer,
   getRecommendOnboardingAnswerLabel,
   isAgeRangeOptionDisabled,
+  isManualPerformanceChannelComplete,
   isRecommendOnboardingStepComplete,
   toggleAgeRange,
 } from './recommend-onboarding-rules';
@@ -108,20 +109,44 @@ describe('recommend onboarding rules', () => {
       });
     });
 
-    it('운영 경험 직접 입력 채널을 최종 답변에 포함한다', () => {
+    it('운영 경험 직접 입력 채널 목록을 최종 답변에 포함한다', () => {
       expect(
         buildRecommendOnboardingAnswer(
           createCompleteRecommendDraft({
             adExperienceType: 'EXPERIENCED',
             performanceMode: 'MANUAL',
-            performanceChannel: 'META_ADS',
+            performanceManualChannelList: [
+              {
+                channelId: 'naver-sa',
+                channelNameRaw: '네이버 SA',
+                budgetWon: 1000000,
+                periodDays: 14,
+              },
+              {
+                channelNameRaw: '커스텀 채널',
+                impressions: 10000,
+                clicks: 200,
+              },
+            ],
           }),
         ).adExperience,
       ).toEqual({
         type: 'EXPERIENCED',
         performanceInput: {
           mode: 'MANUAL',
-          channel: 'META_ADS',
+          channelList: [
+            {
+              channelId: 'naver-sa',
+              channelNameRaw: '네이버 SA',
+              budgetWon: 1000000,
+              periodDays: 14,
+            },
+            {
+              channelNameRaw: '커스텀 채널',
+              impressions: 10000,
+              clicks: 200,
+            },
+          ],
         },
       });
     });
@@ -150,16 +175,63 @@ describe('recommend onboarding rules', () => {
       expect(getRecommendOnboardingAnswerLabel('age-ranges', draft)).toBe('20대');
     });
 
-    it('운영 경험과 직접 입력 채널을 함께 요약한다', () => {
+    it('운영 경험과 직접 입력 채널 목록을 요약한다', () => {
       const draft = createCompleteRecommendDraft({
         adExperienceType: 'EXPERIENCED',
         performanceMode: 'MANUAL',
-        performanceChannel: 'META_ADS',
+        performanceManualChannelList: [
+          {
+            channelNameRaw: '메타 광고',
+            budgetWon: 100000,
+            periodDays: 14,
+          },
+        ],
       });
 
       expect(getRecommendOnboardingAnswerLabel('ad-experience', draft)).toBe(
-        '광고를 운영해 봤어요 · 메타 광고',
+        '광고를 운영해 봤어요',
       );
+    });
+
+    it('연령대 답변 label을 낮은 연령대부터 정렬한다', () => {
+      const draft = createCompleteRecommendDraft({
+        ageRangeList: ['FORTIES', 'TEENS', 'TWENTIES'],
+      });
+
+      expect(getRecommendOnboardingAnswerLabel('age-ranges', draft)).toBe('10대, 20대, 40대');
+      expect(buildRecommendOnboardingAnswer(draft).ageRangeList).toEqual([
+        'TEENS',
+        'TWENTIES',
+        'FORTIES',
+      ]);
+    });
+  });
+
+  describe('isManualPerformanceChannelComplete', () => {
+    it('채널명과 성과 필드 2개 이상이 있으면 완료로 본다', () => {
+      expect(
+        isManualPerformanceChannelComplete({
+          channelNameRaw: '네이버 SA',
+          budgetWon: 1000000,
+          periodDays: 14,
+        }),
+      ).toBe(true);
+    });
+
+    it('채널명이 없거나 성과 필드가 2개 미만이면 완료로 보지 않는다', () => {
+      expect(
+        isManualPerformanceChannelComplete({
+          channelNameRaw: '',
+          budgetWon: 1000000,
+          periodDays: 14,
+        }),
+      ).toBe(false);
+      expect(
+        isManualPerformanceChannelComplete({
+          channelNameRaw: '네이버 SA',
+          budgetWon: 1000000,
+        }),
+      ).toBe(false);
     });
   });
 });

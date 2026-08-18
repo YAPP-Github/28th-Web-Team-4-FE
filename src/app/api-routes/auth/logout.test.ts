@@ -43,14 +43,14 @@ function logoutRequest(): Request {
 
 function logoutSuccessResponse(): Awaited<ReturnType<typeof logout>> {
   return {
-    data: { success: true, data: undefined },
+    data: { success: true, data: null, error: null, code: null },
     response: new Response(null, { status: 200 }),
   };
 }
 
 function refreshSuccessResponse(): Awaited<ReturnType<typeof refresh>> {
   return {
-    data: { success: true, data: refreshedTokens },
+    data: { success: true, data: refreshedTokens, error: null, code: null },
     response: new Response(null, { status: 200 }),
   };
 }
@@ -62,7 +62,9 @@ function errorResponse(
     data: undefined,
     error: {
       success: false,
+      data: null,
       error: { code: 'AUTH-004', message: '인증 실패', fieldErrors: [] },
+      code: null,
     },
     response: new Response(null, { status }),
   };
@@ -70,6 +72,7 @@ function errorResponse(
 
 describe('logout BFF', () => {
   beforeEach(() => {
+    vi.stubEnv('BFF_ALLOWED_ORIGINS', 'https://chaeso-zip.com,http://localhost:3000');
     vi.spyOn(Date, 'now').mockReturnValue(now);
     readAuthSessionMock.mockResolvedValue(session);
     clearAuthSessionMock.mockResolvedValue();
@@ -78,6 +81,7 @@ describe('logout BFF', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
   });
 
   it('revokes with the current token while the access token is usable', async () => {

@@ -1,12 +1,12 @@
 /**
- * 광고 온보딩 입력 중 사용하는 공통·추천·시뮬레이터 Draft와 초기값 factory를 정의한다.
+ * 추천 광고 온보딩 입력 중 사용하는 공통·추천 Draft와 초기값 factory를 정의한다.
  */
 
 import type { BudgetInputRange } from './budget-range-input';
 import type { CommonOnboardingAnswer, RecommendOnboardingAnswer } from './onboarding-answer';
 import type {
   AdExperienceType,
-  PerformanceChannelId,
+  ManualPerformanceChannel,
   PerformanceMode,
   UploadedPerformanceFile,
 } from './recommend-onboarding-options';
@@ -19,7 +19,7 @@ export type OptionalCommonDraftAnswer = Partial<
 /** 입력 시작부터 안전한 초기값을 갖는 공통 답변. */
 export type InitializedCommonDraftAnswer = Pick<CommonOnboardingAnswer, 'serviceName' | 'budget'>;
 
-/** 추천과 시뮬레이터가 공유하는 입력 중 상태. */
+/** 추천 온보딩 공통 질문 입력 중 상태. */
 export type CommonOnboardingDraft = OptionalCommonDraftAnswer &
   InitializedCommonDraftAnswer & {
     /**
@@ -46,15 +46,8 @@ export type RecommendOnboardingDraft = CommonOnboardingDraft &
     adExperienceType?: AdExperienceType;
     performanceMode: PerformanceMode;
     performanceFileList: UploadedPerformanceFile[];
-    performanceChannel?: PerformanceChannelId;
+    performanceManualChannelList: ManualPerformanceChannel[];
   };
-
-/**
- * 시뮬레이터 5단계 입력 중 사용하는 상태.
- *
- * budget을 포함하며 추천 전용 ageRangeList, adGoal, 광고 경험 필드는 포함하지 않는다.
- */
-export type SimulatorOnboardingDraft = CommonOnboardingDraft;
 
 /** 공통 5단계를 빈 값으로 시작하는 새 Draft를 만든다. */
 export function createCommonOnboardingDraft(): CommonOnboardingDraft {
@@ -78,10 +71,6 @@ export function createRecommendOnboardingDraft(): RecommendOnboardingDraft {
     ageRangeList: [],
     performanceMode: 'UPLOAD',
     performanceFileList: [],
+    performanceManualChannelList: [],
   };
-}
-
-/** 시뮬레이터 5단계를 빈 값으로 시작하는 새 Draft를 만든다. */
-export function createSimulatorOnboardingDraft(): SimulatorOnboardingDraft {
-  return createCommonOnboardingDraft();
 }

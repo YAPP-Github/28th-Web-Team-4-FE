@@ -2,7 +2,8 @@
  * 추천 8개 질문의 React Hook Form 연결과 단계별 상호작용을 검증한다.
  */
 
-import type { JSX, PropsWithChildren } from 'react';
+import { useState, type JSX, type PropsWithChildren } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FormProvider } from 'react-hook-form';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
@@ -59,9 +60,23 @@ type OnboardingStoryFormProps = PropsWithChildren<{
 
 /** 각 story가 독립적인 온보딩 draft를 사용하도록 폼 컨텍스트를 제공한다. */
 function OnboardingStoryForm({ children, initialDraft }: OnboardingStoryFormProps): JSX.Element {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+          },
+        },
+      }),
+  );
   const form = useRecommendOnboardingForm({ initialDraft });
 
-  return <FormProvider {...form}>{children}</FormProvider>;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <FormProvider {...form}>{children}</FormProvider>
+    </QueryClientProvider>
+  );
 }
 
 export const ServiceName: Story = {
@@ -121,12 +136,12 @@ export const AgeRanges: Story = {
 
     await userEvent.click(canvas.getByText('20대'));
     await expect(twenties).toBeChecked();
-    await expect(unknown).toHaveAttribute('aria-disabled', 'true');
+    await expect(unknown).toBeDisabled();
 
     await userEvent.click(canvas.getByText('20대'));
     await userEvent.click(canvas.getByText('잘 모르겠어요'));
     await expect(unknown).toBeChecked();
-    await expect(teens).toHaveAttribute('aria-disabled', 'true');
+    await expect(teens).toBeDisabled();
     await expect(canvas.getByRole('button', { name: '다음' })).toBeEnabled();
   },
 };
@@ -139,8 +154,14 @@ export const AdGoal: Story = {
     const canvas = within(canvasElement);
     const option = canvas.getByRole('radio', { name: '구매·결제 전환' });
 
-    await expect(canvas.getByRole('heading', { name: '더 많은 사람에게 알리기' })).toBeVisible();
-    await expect(canvas.getByRole('heading', { name: '고객의 행동 유도하기' })).toBeVisible();
+    await expect(canvas.getByRole('radio', { name: '앱 설치' })).toBeVisible();
+    await expect(canvas.getByRole('radio', { name: '인앱 구매·행동' })).toBeVisible();
+    await expect(
+      canvas.queryByRole('heading', { name: '더 많은 사람에게 알리기' }),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('heading', { name: '고객의 행동 유도하기' }),
+    ).not.toBeInTheDocument();
     await userEvent.click(canvas.getByText('구매·결제 전환'));
     await expect(option).toBeChecked();
     await expect(canvas.getByRole('button', { name: '다음' })).toBeEnabled();
@@ -273,10 +294,13 @@ export const AdExperience: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const firstTime = canvas.getByRole('radio', { name: '집행은 처음이에요' });
+    const firstTime = canvas.getByRole('radio', { name: '광고 운영은 처음이에요' });
 
-    await userEvent.click(canvas.getByText('집행은 처음이에요'));
+    await userEvent.click(canvas.getByText('광고 운영은 처음이에요'));
     await expect(firstTime).toBeChecked();
+    await expect(
+      canvas.getByText('최대 5개의 데이터를 바탕으로 더 정확한 채널을 추천해요'),
+    ).toBeVisible();
     await userEvent.click(canvas.getByRole('button', { name: '다음' }));
     await expect(args.onAction).toHaveBeenCalledOnce();
   },
@@ -289,9 +313,9 @@ export const AdExperienceDetails: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const body = within(canvasElement.ownerDocument.body);
 
     await userEvent.click(canvas.getByText('광고를 운영해 봤어요'));
+    await expect(canvas.getByText('데이터를 바탕으로 더 정확한 채널을 추천해요')).toBeVisible();
     await userEvent.click(canvas.getByRole('button', { name: '다음' }));
 
     await expect(
@@ -317,13 +341,5 @@ export const AdExperienceDetails: Story = {
 
     await userEvent.click(canvas.getByRole('button', { name: 'meta-performance.csv 삭제' }));
     await expect(canvas.getByRole('button', { name: '다음' })).toBeDisabled();
-
-    await userEvent.click(canvas.getByRole('tab', { name: '직접 입력' }));
-    const channelCombobox = canvas.getByRole('combobox', { name: '광고 채널' });
-    await userEvent.click(channelCombobox);
-    await userEvent.click(body.getByRole('option', { name: '메타 광고' }));
-
-    await expect(channelCombobox).toHaveValue('메타 광고');
-    await expect(canvas.getByRole('button', { name: '다음' })).toBeEnabled();
   },
 };

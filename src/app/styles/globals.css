@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import '../../styles/tokens/index.css';
+@import './easings.css';
 
 @theme inline {
   /* next/font가 주입한 값을 토큰 `--font-pre`에 연결 (typography.css의 문자열 값 override) */
@@ -8,6 +9,71 @@
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
     monospace;
+}
+
+@utility animate-page-header-mobile-sidebar-enter {
+  animation: page-header-mobile-sidebar-enter 250ms cubic-bezier(0.03, 0.4, 0.1, 1) both;
+}
+
+@utility animate-page-header-mobile-sidebar-item-enter {
+  animation: page-header-mobile-sidebar-item-enter 750ms cubic-bezier(0.03, 0.4, 0.1, 1) both;
+  animation-delay: calc(333ms + var(--sidebar-item-index, 0) * 60ms);
+}
+
+@utility animate-simulator-channel-selection-enter {
+  animation: simulator-channel-selection-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@utility animate-skeleton-pulse {
+  animation: skeleton-pulse 1s cubic-bezier(0.5, 0, 0.5, 1);
+  animation-iteration-count: infinite;
+}
+
+@keyframes page-header-mobile-sidebar-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-100%) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0%) scale(1);
+  }
+}
+
+@keyframes page-header-mobile-sidebar-item-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes simulator-channel-selection-enter {
+  from {
+    opacity: 0;
+    transform: translateY(150%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
 }
 
 body {

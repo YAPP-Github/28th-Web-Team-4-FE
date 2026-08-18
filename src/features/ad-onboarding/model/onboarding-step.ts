@@ -1,9 +1,9 @@
 /**
- * 광고 온보딩 질문 정의와 추천·시뮬레이터별 순서 및 진행률을 관리한다.
+ * 추천 광고 온보딩 질문 정의와 순서 및 진행률을 관리한다.
  * 진행 판단은 각 step ID 배열 index를 단일 기준으로 사용한다.
  */
 
-/** 추천과 시뮬레이터가 공유하는 단계 ID. */
+/** 추천 온보딩 공통 질문 단계 ID. */
 export type CommonOnboardingStepId =
   | 'service-name'
   | 'category'
@@ -16,9 +16,6 @@ export type RecommendOnlyOnboardingStepId = 'age-ranges' | 'ad-goal' | 'ad-exper
 
 /** 추천 8단계에서 사용하는 단계 ID. */
 export type RecommendOnboardingStepId = CommonOnboardingStepId | RecommendOnlyOnboardingStepId;
-
-/** 시뮬레이터는 공통 5단계만 사용한다. */
-export type SimulatorOnboardingStepId = CommonOnboardingStepId;
 
 /** 질문 카드와 답변 Bubble에 사용하는 단계 메타데이터. */
 export type OnboardingStepDefinition<
@@ -43,7 +40,7 @@ export const ONBOARDING_STEP_DEFINITION_MAP = {
   },
   category: {
     id: 'category',
-    title: '업종',
+    title: '업종 선택',
     question: '어떤 업종인가요?',
   },
   'service-type': {
@@ -60,11 +57,11 @@ export const ONBOARDING_STEP_DEFINITION_MAP = {
   'ad-goal': {
     id: 'ad-goal',
     title: '광고 목표',
-    question: '광고 목표를 선택해 주세요',
+    question: '이번 광고를 통해 달성하고 싶은 가장 큰 목표는 무엇인가요?',
   },
   budget: {
     id: 'budget',
-    title: '예산',
+    title: '광고 예산',
     question: '광고에 사용할 수 있는 총 예산은 얼마인가요?',
   },
   'campaign-period': {
@@ -91,28 +88,13 @@ export const RECOMMEND_ONBOARDING_STEP_ID_LIST = [
   'ad-experience',
 ] as const satisfies readonly RecommendOnboardingStepId[];
 
-/** 시뮬레이터 질문 순서. age-ranges 대신 budget을 사용한다. */
-export const SIMULATOR_ONBOARDING_STEP_ID_LIST = [
-  'service-name',
-  'category',
-  'service-type',
-  'budget',
-  'campaign-period',
-] as const satisfies readonly SimulatorOnboardingStepId[];
-
 /** 추천 StepBar에 전달하는 표시 퍼센트. */
 export const RECOMMEND_ONBOARDING_PROGRESS_LABEL_LIST = [
   0, 12, 25, 37, 50, 62, 75, 87, 100,
 ] as const;
 
-/** 시뮬레이터 StepBar에 전달하는 표시 퍼센트. */
-export const SIMULATOR_ONBOARDING_PROGRESS_LABEL_LIST = [0, 20, 40, 60, 80, 100] as const;
-
 /** 추천 질문 수. */
 export const RECOMMEND_ONBOARDING_TOTAL_STEP_COUNT = RECOMMEND_ONBOARDING_STEP_ID_LIST.length;
-
-/** 시뮬레이터 질문 수. */
-export const SIMULATOR_ONBOARDING_TOTAL_STEP_COUNT = SIMULATOR_ONBOARDING_STEP_ID_LIST.length;
 
 /**
  * 안정적인 ID로 질문 메타데이터를 반환한다.

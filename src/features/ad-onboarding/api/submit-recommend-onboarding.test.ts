@@ -1,0 +1,275 @@
+import ky from 'ky';
+
+import { presignOnboardingPerformanceFiles, submitOnboarding } from '@/shared/api/generated';
+import type { RecommendOnboardingAnswer } from '@/features/ad-onboarding/model/onboarding-answer';
+
+import {
+  createSubmitOnboardingRequest,
+  submitRecommendOnboarding,
+} from './submit-recommend-onboarding';
+
+vi.mock('@/shared/api/generated', () => ({
+  presignOnboardingPerformanceFiles: vi.fn<typeof presignOnboardingPerformanceFiles>(),
+  submitOnboarding: vi.fn<typeof submitOnboarding>(),
+}));
+
+const presignOnboardingPerformanceFilesMock = vi.mocked(presignOnboardingPerformanceFiles);
+const submitOnboardingMock = vi.mocked(submitOnboarding);
+const kyPutMock = vi.spyOn(ky, 'put');
+
+const baseAnswer = {
+  serviceName: '채소집',
+  category: 'SHOPPING_COMMERCE',
+  serviceType: 'APP_AND_WEB',
+  ageRangeList: ['TWENTIES', 'THIRTIES'],
+  adGoal: 'PURCHASE_CONVERSION',
+  budget: {
+    minAmount: 500000,
+    maxAmount: 5000000,
+  },
+  campaignPeriod: 'ONE_MONTH',
+  adExperience: { type: 'FIRST_TIME' },
+} as const satisfies RecommendOnboardingAnswer;
+
+describe('createSubmitOnboardingRequest', () => {
+  it('maps the frontend onboarding answer to the submit API contract', () => {
+    expect(createSubmitOnboardingRequest(baseAnswer)).toMatchObject({
+      serviceName: '채소집',
+      industry: 'SHOPPING_COMMERCE',
+      serviceType: 'WEB_AND_APP',
+      targetAgeBands: ['AGE_20S', 'AGE_30S'],
+      campaignObjective: 'CONVERSION',
+      budgetMin: 500000,
+      budgetMax: 5000000,
+      period: 'M1',
+      adExperience: 'NONE',
+      adHistory: [],
+      rawFileKeys: [],
+    });
+  });
+
+  it('temporarily maps UNKNOWN age range to every supported API age band', () => {
+    const request = createSubmitOnboardingRequest({
+      ...baseAnswer,
+      ageRangeList: ['UNKNOWN'],
+    });
+
+    expect(request.targetAgeBands).toEqual([
+      'AGE_10S',
+      'AGE_20S',
+      'AGE_30S',
+      'AGE_40S',
+      'AGE_50S_PLUS',
+    ]);
+  });
+
+  it('maps manual ad history channel list to the API adHistory list', () => {
+    const request = createSubmitOnboardingRequest({
+      ...baseAnswer,
+      adExperience: {
+        type: 'EXPERIENCED',
+        performanceInput: {
+          mode: 'MANUAL',
+          channelList: [
+            {
+              channelId: 'channel-naver-sa',
+              channelNameRaw: '네이버 SA',
+              budgetWon: 1000000,
+              periodDays: 14,
+              impressions: 10000,
+              clicks: 300,
+              conversions: 12,
+            },
+            {
+              channelNameRaw: '커스텀 채널',
+              budgetWon: 500000,
+              clicks: 100,
+            },
+          ],
+        },
+      },
+    });
+
+    expect(request.adExperience).toBe('EXPERIENCED');
+    expect(request.adHistory).toEqual([
+      {
+        channelId: 'channel-naver-sa',
+        channelNameRaw: '네이버 SA',
+        budgetWon: 1000000,
+        periodDays: 14,
+        impressions: 10000,
+        clicks: 300,
+        conversions: 12,
+      },
+      {
+        channelNameRaw: '커스텀 채널',
+        budgetWon: 500000,
+        clicks: 100,
+      },
+    ]);
+  });
+
+  it('maps skipped experienced ad performance input to API NONE', () => {
+    const request = createSubmitOnboardingRequest({
+      ...baseAnswer,
+      adExperience: {
+        type: 'EXPERIENCED',
+      },
+    });
+
+    expect(request.adExperience).toBe('NONE');
+    expect(request.adHistory).toEqual([]);
+    expect(request.rawFileKeys).toEqual([]);
+  });
+
+  it('maps uploaded ad performance input to API EXPERIENCED when file keys exist', () => {
+    const request = createSubmitOnboardingRequest(
+      {
+        ...baseAnswer,
+        adExperience: {
+          type: 'EXPERIENCED',
+          performanceInput: {
+            mode: 'UPLOAD',
+            fileList: [{ id: 'first', name: 'first.csv', size: 3 }],
+          },
+        },
+      },
+      ['raw/first.csv'],
+    );
+
+    expect(request.adExperience).toBe('EXPERIENCED');
+    expect(request.rawFileKeys).toEqual(['raw/first.csv']);
+  });
+});
+
+describe('submitRecommendOnboarding', () => {
+  beforeEach(() => {
+    presignOnboardingPerformanceFilesMock.mockReset();
+    submitOnboardingMock.mockReset();
+    kyPutMock.mockReset();
+    kyPutMock.mockResolvedValue(new Response(null, { status: 200 }) as never);
+  });
+
+  it('requests performance file keys and passes them to the onboarding submit API', async () => {
+    const firstFile = new File(['one'], 'first.csv', { type: 'text/csv' });
+    const secondFile = new File(['two'], 'second.csv', { type: 'text/csv' });
+    const answer = {
+      ...baseAnswer,
+      adExperience: {
+        type: 'EXPERIENCED',
+        performanceInput: {
+          mode: 'UPLOAD',
+          fileList: [
+            { id: 'first', name: 'first.csv', size: 3, file: firstFile },
+            { id: 'second', name: 'second.csv', size: 3, file: secondFile },
+          ],
+        },
+      },
+    } as const satisfies RecommendOnboardingAnswer;
+
+    presignOnboardingPerformanceFilesMock.mockResolvedValue({
+      data: {
+        success: true,
+        data: [
+          {
+            key: 'raw/first.csv',
+            uploadUrl: 'https://storage.example/first',
+            contentType: 'text/csv',
+            expiresAt: '2026-08-07T00:00:00Z',
+          },
+          {
+            key: 'raw/second.csv',
+            uploadUrl: 'https://storage.example/second',
+            contentType: 'text/csv',
+            expiresAt: '2026-08-07T00:00:00Z',
+          },
+        ],
+        error: null,
+        code: null,
+      },
+      response: new Response(null, { status: 200 }),
+    });
+    submitOnboardingMock.mockResolvedValue({
+      data: {
+        success: true,
+        data: {
+          onboardingId: 'onboarding-1',
+          createdAt: '2026-08-07T00:00:00Z',
+        },
+        error: null,
+        code: null,
+      },
+      response: new Response(null, { status: 201 }),
+    });
+
+    await expect(submitRecommendOnboarding(answer)).resolves.toMatchObject({
+      onboardingId: 'onboarding-1',
+    });
+    expect(presignOnboardingPerformanceFilesMock).toHaveBeenCalledWith({
+      body: {
+        files: [
+          { fileName: 'first.csv', fileSizeBytes: 3 },
+          { fileName: 'second.csv', fileSizeBytes: 3 },
+        ],
+      },
+      throwOnError: true,
+    });
+    expect(kyPutMock).toHaveBeenNthCalledWith(1, 'https://storage.example/first', {
+      headers: {
+        'Content-Type': 'text/csv',
+        'x-amz-tagging': 'retain=pending',
+      },
+      body: firstFile,
+    });
+    expect(kyPutMock).toHaveBeenNthCalledWith(2, 'https://storage.example/second', {
+      headers: {
+        'Content-Type': 'text/csv',
+        'x-amz-tagging': 'retain=pending',
+      },
+      body: secondFile,
+    });
+    expect(submitOnboardingMock).toHaveBeenCalledWith({
+      body: expect.objectContaining({
+        rawFileKeys: ['raw/first.csv', 'raw/second.csv'],
+      }),
+      throwOnError: true,
+    });
+  });
+
+  it('does not submit onboarding when a performance file upload fails', async () => {
+    const file = new File(['one'], 'first.csv', { type: 'text/csv' });
+    const answer = {
+      ...baseAnswer,
+      adExperience: {
+        type: 'EXPERIENCED',
+        performanceInput: {
+          mode: 'UPLOAD',
+          fileList: [{ id: 'first', name: 'first.csv', size: 3, file }],
+        },
+      },
+    } as const satisfies RecommendOnboardingAnswer;
+
+    presignOnboardingPerformanceFilesMock.mockResolvedValue({
+      data: {
+        success: true,
+        data: [
+          {
+            key: 'raw/first.csv',
+            uploadUrl: 'https://storage.example/first',
+            contentType: 'text/csv',
+            expiresAt: '2026-08-07T00:00:00Z',
+          },
+        ],
+        error: null,
+        code: null,
+      },
+      response: new Response(null, { status: 200 }),
+    });
+    kyPutMock.mockRejectedValue(new Error('upload failed'));
+
+    await expect(submitRecommendOnboarding(answer)).rejects.toThrow(
+      '성과 파일 업로드에 실패했어요.',
+    );
+    expect(submitOnboardingMock).not.toHaveBeenCalled();
+  });
+});

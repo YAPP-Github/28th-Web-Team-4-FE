@@ -1,5 +1,5 @@
 /**
- * 광고 온보딩 변형별 완료 답변 계약을 정의한다.
+ * 추천 광고 온보딩 완료 답변 계약을 정의한다.
  */
 
 import type {
@@ -12,11 +12,11 @@ import type {
   AdExperienceType,
   AdGoalId,
   AgeRangeId,
-  PerformanceChannelId,
+  ManualPerformanceChannel,
   UploadedPerformanceFile,
 } from './recommend-onboarding-options';
 
-/** 추천과 시뮬레이터가 공통으로 확정하는 5개 답변. */
+/** 추천 온보딩이 공통으로 확정하는 5개 답변. */
 export type CommonOnboardingAnswer = {
   serviceName: string;
   category: CategoryId;
@@ -33,7 +33,7 @@ export type PerformanceInput =
     }
   | {
       mode: 'MANUAL';
-      channel: PerformanceChannelId;
+      channelList: ManualPerformanceChannel[];
     };
 
 /** 추천 온보딩에서 확정하는 광고 운영 경험 답변. */
@@ -50,10 +50,3 @@ export type RecommendOnboardingAnswer = CommonOnboardingAnswer & {
   adGoal: AdGoalId;
   adExperience: AdExperienceAnswer;
 };
-
-/**
- * 시뮬레이터 5단계 완료 후 제출하는 확정 답변.
- *
- * 광고 예산을 포함하며 ageRangeList, adGoal, adExperience는 포함하지 않는다.
- */
-export type SimulatorOnboardingAnswer = CommonOnboardingAnswer;

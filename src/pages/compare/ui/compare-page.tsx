@@ -1,12 +1,23 @@
-import { type JSX, Suspense } from 'react';
+'use client';
 
-import { ChannelSelectionView } from './channel-selection-view';
+import { Suspense, type JSX } from 'react';
+import { useRouter } from 'next/navigation';
+
+import { createChannelComparisonHref } from '@/features/channel-comparison';
+
+import { CompareChannelSelection } from './compare-channel-selection';
 
 export function ComparePage(): JSX.Element {
+  const router = useRouter();
+
   return (
-    <main className="bg-surface-background-default flex h-[calc(100dvh-var(--spacing-072))] min-h-0 flex-col overflow-hidden">
+    <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-hidden">
       <Suspense>
-        <ChannelSelectionView />
+        <CompareChannelSelection
+          onComplete={(channelIds) => {
+            router.push(createChannelComparisonHref(channelIds));
+          }}
+        />
       </Suspense>
     </main>
   );

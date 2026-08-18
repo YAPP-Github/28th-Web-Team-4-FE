@@ -9,8 +9,10 @@
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
   --tracking-spacing-md: 0px;
   --tracking-spacing-sm: -0.5px;
+  --tracking-spacing-xs: -1px;
   --leading-016: 16px;
   --leading-018: 18px;
   --leading-020: 20px;
@@ -20,6 +22,10 @@
   --leading-032: 32px;
   --leading-036: 36px;
   --leading-050: 50px;
+  --leading-052: 52px;
+  --leading-066: 66px;
+  --leading-070: 70px;
+  --leading-060: 60px;
   --text-10: 10px;
   --text-11: 11px;
   --text-12: 12px;
@@ -32,6 +38,10 @@
   --text-22: 22px;
   --text-24: 24px;
   --text-32: 32px;
+  --text-36: 36px;
+  --text-42: 42px;
+  --text-48: 48px;
+  --text-54: 54px;
 }
 
 @utility typo-body-lg {
@@ -70,8 +80,24 @@
   @apply text-24 leading-032 tracking-spacing-sm font-pre font-bold;
 }
 
+@utility typo-display-md {
+  @apply text-36 leading-052 tracking-spacing-md font-pre font-bold;
+}
+
+@utility typo-display-sm {
+  @apply text-32 leading-050 tracking-spacing-sm font-pre font-bold;
+}
+
 @utility typo-display-xl {
   @apply text-32 leading-050 tracking-spacing-md font-pre font-bold;
+}
+
+@utility typo-display-xs {
+  @apply text-24 leading-032 tracking-spacing-sm font-pre font-bold;
+}
+
+@utility typo-display-xxl {
+  @apply text-54 leading-060 tracking-spacing-md font-pre font-extrabold;
 }
 
 @utility typo-heading-lg {

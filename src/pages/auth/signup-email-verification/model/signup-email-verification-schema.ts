@@ -11,5 +11,5 @@ export const signupEmailVerificationSchema = z.object({
 
 export const sendSignupEmailVerificationCodeResponseSchema = z.object({
   success: z.literal(true),
-  code: z.literal('EMAIL_ALREADY_USED_WITH_GOOGLE').optional(),
+  code: z.literal('EMAIL_ALREADY_USED_WITH_GOOGLE').nullable(),
 });

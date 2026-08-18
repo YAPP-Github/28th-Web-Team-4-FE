@@ -17,9 +17,10 @@ import {
   AD_EXPERIENCE_OPTION_LIST,
   AD_GOAL_OPTION_LIST,
   AGE_RANGE_OPTION_LIST,
-  PERFORMANCE_CHANNEL_OPTION_LIST,
+  MANUAL_PERFORMANCE_METRIC_KEY_LIST,
   UNKNOWN_AGE_RANGE_ID,
   type AgeRangeId,
+  type ManualPerformanceChannel,
 } from './recommend-onboarding-options';
 
 /**
@@ -88,6 +89,20 @@ export function toggleAgeRange(selectedList: AgeRangeId[], option: AgeRangeId): 
 }
 
 /**
+ * 직접 입력한 채널 성과가 제출 가능한 최소 기준을 만족하는지 판단한다.
+ *
+ * @param channel 채널별 직접 입력 성과 row
+ * @returns 채널명이 있고 성과 필드 5개 중 2개 이상 입력되었는지 여부
+ */
+export function isManualPerformanceChannelComplete(channel: ManualPerformanceChannel): boolean {
+  const completedMetricCount = MANUAL_PERFORMANCE_METRIC_KEY_LIST.reduce((count, key) => {
+    return typeof channel[key] === 'number' ? count + 1 : count;
+  }, 0);
+
+  return channel.channelNameRaw.trim().length > 0 && completedMetricCount >= 2;
+}
+
+/**
  * 입력 중 draft를 결과 페이지와 store에 저장할 수 있는 확정 답변으로 변환한다.
  *
  * @param draft 현재 온보딩 입력 상태
@@ -102,7 +117,7 @@ export function buildRecommendOnboardingAnswer(
     serviceName: draft.serviceName.trim(),
     category: draft.category,
     serviceType: draft.serviceType,
-    ageRangeList: draft.ageRangeList,
+    ageRangeList: sortAgeRangeList(draft.ageRangeList),
     adGoal: draft.adGoal,
     budget: draft.budget,
     campaignPeriod: draft.campaignPeriod,
@@ -129,7 +144,7 @@ export function getRecommendOnboardingAnswerLabel(
     case 'campaign-period':
       return getCommonOnboardingAnswerLabel(stepId, draft);
     case 'age-ranges':
-      return draft.ageRangeList
+      return sortAgeRangeList(draft.ageRangeList)
         .map((ageRange) => getOnboardingOptionLabel(AGE_RANGE_OPTION_LIST, ageRange))
         .join(', ');
     case 'ad-goal':
@@ -137,6 +152,14 @@ export function getRecommendOnboardingAnswerLabel(
     case 'ad-experience':
       return getAdExperienceAnswerLabel(draft);
   }
+}
+
+function sortAgeRangeList(ageRangeList: AgeRangeId[]): AgeRangeId[] {
+  return ageRangeList.toSorted((left, right) => getAgeRangeOrder(left) - getAgeRangeOrder(right));
+}
+
+function getAgeRangeOrder(ageRange: AgeRangeId): number {
+  return AGE_RANGE_OPTION_LIST.findIndex((option) => option.value === ageRange);
 }
 
 /**
@@ -202,10 +225,14 @@ function getPerformanceInput(draft: RecommendOnboardingDraft): PerformanceInput 
     };
   }
 
-  if (draft.performanceMode === 'MANUAL' && draft.performanceChannel) {
+  if (
+    draft.performanceMode === 'MANUAL' &&
+    draft.performanceManualChannelList.length > 0 &&
+    draft.performanceManualChannelList.every(isManualPerformanceChannelComplete)
+  ) {
     return {
       mode: 'MANUAL',
-      channel: draft.performanceChannel,
+      channelList: draft.performanceManualChannelList,
     };
   }
 
@@ -232,10 +259,7 @@ function getAdExperienceAnswerLabel(draft: RecommendOnboardingDraft): string {
   }
 
   if (performanceInput?.mode === 'MANUAL') {
-    return `${label} · ${getOnboardingOptionLabel(
-      PERFORMANCE_CHANNEL_OPTION_LIST,
-      performanceInput.channel,
-    )}`;
+    return label;
   }
 
   return label;

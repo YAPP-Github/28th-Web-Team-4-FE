@@ -135,7 +135,7 @@ export function PerformanceFileDropzone({
             파일을 드래그하거나 클릭해서 업로드
           </Text>
           <Text variant="body-xs" className="text-icon-default">
-            지원 형식 · .xlsx, .csv (최대 10MB)
+            지원 형식 : xlsx, csv (최대 10MB)
           </Text>
         </div>
       </button>

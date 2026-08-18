@@ -20,6 +20,20 @@ import {
 
 const AD_EXPERIENCE_STEP = getOnboardingStepDefinition('ad-experience');
 
+function getAdExperienceQuestionDescription(
+  adExperienceType: RecommendOnboardingDraft['adExperienceType'],
+): string | undefined {
+  if (adExperienceType === 'FIRST_TIME') {
+    return '최대 5개의 데이터를 바탕으로 더 정확한 채널을 추천해요';
+  }
+
+  if (adExperienceType === 'EXPERIENCED') {
+    return '데이터를 바탕으로 더 정확한 채널을 추천해요';
+  }
+
+  return undefined;
+}
+
 export type AdExperienceStepContentProps = {
   actionLabel?: ReactNode;
   onAction: NonNullable<StepActionButtonProps['onClick']>;
@@ -48,7 +62,11 @@ export function AdExperienceStepContent({
   }
 
   return (
-    <OnboardingQuestion title={AD_EXPERIENCE_STEP.question} className="max-w-[410px]">
+    <OnboardingQuestion
+      title={AD_EXPERIENCE_STEP.question}
+      description={getAdExperienceQuestionDescription(adExperienceType)}
+      className="max-w-[410px]"
+    >
       <AdExperienceQuestion />
       <StepActionButton
         disabled={!isComplete}

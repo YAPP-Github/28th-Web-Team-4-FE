@@ -1,19 +1,18 @@
 /**
- * 추천과 시뮬레이터가 공유하는 5단계 검증과 시뮬레이터 답변 계약을 검증한다.
+ * 추천 온보딩 공통 5단계 검증과 답변 label 규칙을 검증한다.
  */
 
 import {
-  buildSimulatorOnboardingAnswer,
   getCommonOnboardingAnswerLabel,
   isCommonOnboardingStepComplete,
 } from './common-onboarding-rules';
-import { createSimulatorOnboardingDraft, type SimulatorOnboardingDraft } from './onboarding-draft';
+import { createCommonOnboardingDraft, type CommonOnboardingDraft } from './onboarding-draft';
 
-function createCompleteSimulatorDraft(
-  overrides: Partial<SimulatorOnboardingDraft> = {},
-): SimulatorOnboardingDraft {
+function createCompleteCommonDraft(
+  overrides: Partial<CommonOnboardingDraft> = {},
+): CommonOnboardingDraft {
   return {
-    ...createSimulatorOnboardingDraft(),
+    ...createCommonOnboardingDraft(),
     serviceName: ' 채소집 ',
     category: 'SHOPPING_COMMERCE',
     serviceType: 'WEB_SERVICE',
@@ -28,13 +27,13 @@ describe('common onboarding rules', () => {
       expect(
         isCommonOnboardingStepComplete(
           'service-name',
-          createCompleteSimulatorDraft({ serviceName: '   ' }),
+          createCompleteCommonDraft({ serviceName: '   ' }),
         ),
       ).toBe(false);
       expect(
         isCommonOnboardingStepComplete(
           'service-name',
-          createCompleteSimulatorDraft({ serviceName: '채소집' }),
+          createCompleteCommonDraft({ serviceName: '채소집' }),
         ),
       ).toBe(true);
     });
@@ -43,7 +42,7 @@ describe('common onboarding rules', () => {
       expect(
         isCommonOnboardingStepComplete(
           'budget',
-          createCompleteSimulatorDraft({
+          createCompleteCommonDraft({
             budget: {
               minAmount: 5000000,
               maxAmount: 2000000,
@@ -57,7 +56,7 @@ describe('common onboarding rules', () => {
       expect(
         isCommonOnboardingStepComplete(
           'budget',
-          createCompleteSimulatorDraft({
+          createCompleteCommonDraft({
             budget: {
               minAmount: 0,
               maxAmount: 0,
@@ -68,42 +67,9 @@ describe('common onboarding rules', () => {
     });
   });
 
-  describe('buildSimulatorOnboardingAnswer', () => {
-    it('budget을 포함한 공통 5개 필드만 시뮬레이터 답변으로 만든다', () => {
-      const answer = buildSimulatorOnboardingAnswer(
-        createCompleteSimulatorDraft({
-          budget: {
-            minAmount: 2000000,
-            maxAmount: 5000000,
-          },
-        }),
-      );
-
-      expect(answer).toEqual({
-        serviceName: '채소집',
-        category: 'SHOPPING_COMMERCE',
-        serviceType: 'WEB_SERVICE',
-        budget: {
-          minAmount: 2000000,
-          maxAmount: 5000000,
-        },
-        campaignPeriod: 'TWO_TO_THREE_MONTHS',
-      });
-      expect(answer).not.toHaveProperty('ageRangeList');
-      expect(answer).not.toHaveProperty('adGoal');
-      expect(answer).not.toHaveProperty('adExperience');
-    });
-
-    it('공통 필수 step이 비어 있으면 예외를 던진다', () => {
-      expect(() =>
-        buildSimulatorOnboardingAnswer(createCompleteSimulatorDraft({ category: undefined })),
-      ).toThrow('Simulator onboarding draft is incomplete: category');
-    });
-  });
-
   describe('getCommonOnboardingAnswerLabel', () => {
     it('공통 선택지와 예산 범위를 표시 label로 변환한다', () => {
-      const draft = createCompleteSimulatorDraft({
+      const draft = createCompleteCommonDraft({
         budget: {
           minAmount: 500000,
           maxAmount: 10000000,

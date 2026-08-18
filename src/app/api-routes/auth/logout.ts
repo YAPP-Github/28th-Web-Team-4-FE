@@ -6,7 +6,10 @@ import { forbiddenMutationResponse, isTrustedMutation } from '@/app/api-routes/a
 
 const ACCESS_TOKEN_EXPIRY_SKEW_MS = 30_000;
 
-type LogoutTokens = Pick<TokenResponse, 'accessToken' | 'refreshToken'>;
+type LogoutTokens = {
+  accessToken: string;
+  refreshToken: string;
+};
 
 function reportLogoutFailure(
   phase: 'logout' | 'refresh',
