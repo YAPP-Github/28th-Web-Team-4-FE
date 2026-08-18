@@ -1,4 +1,10 @@
-import type { MyOnboardingTagResponse } from '@/shared/api/generated/types.gen';
+import type {
+  ChannelComparisonSummaryResponse,
+  MyOnboardingTagResponse,
+  PageResponseChannelComparisonSummaryResponse,
+  PageResponseSimulationSummaryResponse,
+  SimulationSummaryResponse,
+} from '@/shared/api/generated/types.gen';
 import { getRecommendationCategoryLabel } from '@/shared/lib/recommendation-labels';
 
 export type MyAdsCondition = {
@@ -16,6 +22,56 @@ export type SavedRecommendation = {
   /** 추천 결과에 포함된 채널명 목록. */
   channelNames: readonly string[];
 };
+
+export type SavedResult = {
+  /** 저장된 결과 식별자. */
+  id: string;
+  /** 결과 저장 당시 입력한 서비스명. */
+  title: string;
+  /** 저장 일시를 화면에 표시할 문자열. */
+  savedAt: string;
+  /** 결과에 포함된 채널명 목록. */
+  channelNames: readonly string[];
+};
+
+export type SavedChannelComparison = SavedResult;
+export type SavedSimulation = SavedResult;
+
+function formatSavedResultDate(createdAt: string): string {
+  const dateMatch = /^(\d{4})-(\d{2})-(\d{2})/.exec(createdAt);
+
+  if (!dateMatch) {
+    return createdAt;
+  }
+
+  const [, year, month, day] = dateMatch;
+  return `${year}년 ${Number(month)}월 ${Number(day)}일`;
+}
+
+function createSavedResult(
+  result: ChannelComparisonSummaryResponse | SimulationSummaryResponse,
+): SavedResult {
+  return {
+    id: result.id,
+    title: result.serviceName ?? '예산 시뮬레이션',
+    savedAt: formatSavedResultDate(result.createdAt),
+    channelNames: result.channelNames,
+  };
+}
+
+/** 저장된 채널 비교 목록 API 응답을 마이페이지 카드 모델로 변환한다. */
+export function createSavedChannelComparisons(
+  data: PageResponseChannelComparisonSummaryResponse,
+): readonly SavedChannelComparison[] {
+  return data.content.map(createSavedResult);
+}
+
+/** 저장된 시뮬레이션 목록 API 응답을 마이페이지 카드 모델로 변환한다. */
+export function createSavedSimulations(
+  data: PageResponseSimulationSummaryResponse,
+): readonly SavedSimulation[] {
+  return data.content.map(createSavedResult);
+}
 
 const SERVICE_TYPE_LABELS: Record<MyOnboardingTagResponse['serviceType'], string> = {
   MOBILE_APP: '모바일 앱',
