@@ -48,10 +48,7 @@ function SavedRecommendationCard({
   recommendation: SavedRecommendation;
 }): JSX.Element {
   return (
-    <Link
-      href={`/recommend/${recommendation.onboardingId}`}
-      className="bg-surface-lowest border-outline-low focus-visible:outline-sys-primary-default px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
-    >
+    <Box className="bg-surface-lowest border-outline-low px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border">
       <Box className="gap-010 flex min-w-0 flex-1 flex-col items-start">
         <Box className="gap-002 flex w-full flex-col">
           <Text as="h3" variant="subtitle-md" className="text-text-high">
@@ -74,7 +71,7 @@ function SavedRecommendationCard({
         className="text-icon-low size-020 shrink-0"
         strokeWidth={1.5}
       />
-    </Link>
+    </Box>
   );
 }
 
@@ -156,10 +153,7 @@ function SavedResultPanel({
     return (
       <Box className="gap-010 mt-018 flex w-full flex-col">
         {recommendations.slice(0, 3).map((recommendation) => (
-          <SavedRecommendationCard
-            key={recommendation.onboardingId}
-            recommendation={recommendation}
-          />
+          <SavedRecommendationCard key={recommendation.id} recommendation={recommendation} />
         ))}
       </Box>
     );

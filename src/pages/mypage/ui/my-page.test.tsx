@@ -320,25 +320,25 @@ describe('MyPage', () => {
       },
       savedRecommendations: [
         {
-          onboardingId: 'onboarding-1',
+          id: 'recommendation-1',
           title: '채소집',
           lastRecommendedAt: '2026.06.12',
           channelNames: ['네이버 검색광고', '메타 광고', '카카오모먼트'],
         },
         {
-          onboardingId: 'onboarding-2',
+          id: 'recommendation-2',
           title: '사이드 프로젝트 B',
           lastRecommendedAt: '2026년 5월 23일',
           channelNames: ['유튜브', '인스타그램', '카카오모먼트'],
         },
         {
-          onboardingId: 'onboarding-3',
+          id: 'recommendation-3',
           title: '사이드 프로젝트 C',
           lastRecommendedAt: '2026년 5월 22일',
           channelNames: ['유튜브', '인스타그램', '카카오모먼트'],
         },
         {
-          onboardingId: 'onboarding-4',
+          id: 'recommendation-4',
           title: '네 번째 프로젝트',
           lastRecommendedAt: '2026년 5월 21일',
           channelNames: ['유튜브'],
@@ -355,10 +355,8 @@ describe('MyPage', () => {
     expect(screen.getByText('#웹 서비스')).toBeVisible();
     expect(screen.getByRole('button', { name: '수정하기' })).toBeVisible();
     expect(screen.getByRole('link', { name: /더보기/ })).toHaveAttribute('href', '/mypage');
-    expect(screen.getByRole('link', { name: /채소집/ })).toHaveAttribute(
-      'href',
-      '/recommend/onboarding-1',
-    );
+    expect(screen.getByRole('heading', { name: '채소집' })).toBeVisible();
+    expect(screen.queryByRole('link', { name: /채소집/ })).not.toBeInTheDocument();
     expect(screen.getByText('사이드 프로젝트 B')).toBeVisible();
     expect(screen.getByText('사이드 프로젝트 C')).toBeVisible();
     expect(screen.queryByText('네 번째 프로젝트')).not.toBeInTheDocument();
