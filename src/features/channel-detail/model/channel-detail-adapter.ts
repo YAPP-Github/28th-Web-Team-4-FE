@@ -91,6 +91,7 @@ function toProductRow(product: ProductResponse): ChannelProductRow {
     ),
     expectedImpressions: formatExpectedImpressions(product),
     expectedClicks: formatExpectedClicks(product),
+    isExecutable: product.isExecutable,
   };
 }
 

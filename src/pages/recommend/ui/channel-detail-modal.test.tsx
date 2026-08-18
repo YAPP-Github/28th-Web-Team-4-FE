@@ -50,6 +50,7 @@ describe('RecommendPage channel detail modal', () => {
     await waitFor(() => {
       expect(screen.getByText('피드 광고')).toBeVisible();
     });
+    expect(screen.getByRole('columnheader', { name: '집행 가능' })).toBeVisible();
 
     await user.click(screen.getByRole('tab', { name: '타깃층' }));
     await waitFor(() => {
