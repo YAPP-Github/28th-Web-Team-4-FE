@@ -10,6 +10,7 @@ const BASE_CHANNEL: ChannelDetail = {
   logoUrl: '',
   tagline: '관심사에 맞는 고객에게 도달하기 좋아요',
   summary: {
+    keywords: ['KPI 최적', '입문자 추천'],
     paragraphs: [],
     recommendationReason: {
       category: '쇼핑·커머스',
@@ -32,6 +33,14 @@ const BASE_CHANNEL: ChannelDetail = {
 };
 
 describe('ChannelDetailSummaryPanel', () => {
+  it('핵심 요약 keyword가 있으면 좋은 점 섹션에 칩으로 표시한다', () => {
+    render(<ChannelDetailSummaryPanel channel={BASE_CHANNEL} />);
+
+    expect(screen.getByRole('heading', { name: '이런 점이 좋아요' })).toBeVisible();
+    expect(screen.getByText('KPI 최적')).toBeVisible();
+    expect(screen.getByText('입문자 추천')).toBeVisible();
+  });
+
   it('recommendationBasis와 rationale을 예시 문장 순서로 조립하고 핵심 값을 강조한다', () => {
     render(<ChannelDetailSummaryPanel channel={BASE_CHANNEL} />);
 
@@ -63,7 +72,11 @@ describe('ChannelDetailSummaryPanel', () => {
       <ChannelDetailSummaryPanel
         channel={{
           ...BASE_CHANNEL,
-          summary: { paragraphs: ['핵심 요약만 있어요.'], recommendationReason: null },
+          summary: {
+            keywords: [],
+            paragraphs: ['핵심 요약만 있어요.'],
+            recommendationReason: null,
+          },
         }}
       />,
     );
@@ -72,12 +85,29 @@ describe('ChannelDetailSummaryPanel', () => {
     expect(screen.getByText('핵심 요약만 있어요.')).toBeVisible();
   });
 
-  it('핵심 요약과 추천 이유가 모두 없으면 기존 빈 상태를 표시한다', () => {
+  it('keywords가 없으면 좋은 점 섹션을 표시하지 않는다', () => {
     render(
       <ChannelDetailSummaryPanel
         channel={{
           ...BASE_CHANNEL,
-          summary: { paragraphs: [], recommendationReason: null },
+          summary: {
+            keywords: [],
+            paragraphs: BASE_CHANNEL.summary.paragraphs,
+            recommendationReason: BASE_CHANNEL.summary.recommendationReason,
+          },
+        }}
+      />,
+    );
+
+    expect(screen.queryByRole('heading', { name: '이런 점이 좋아요' })).not.toBeInTheDocument();
+  });
+
+  it('핵심 요약, keyword, 추천 이유가 모두 없으면 기존 빈 상태를 표시한다', () => {
+    render(
+      <ChannelDetailSummaryPanel
+        channel={{
+          ...BASE_CHANNEL,
+          summary: { keywords: [], paragraphs: [], recommendationReason: null },
         }}
       />,
     );
