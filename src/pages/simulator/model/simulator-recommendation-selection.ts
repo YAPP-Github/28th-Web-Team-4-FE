@@ -1,3 +1,9 @@
+import type {
+  ChannelListItemResponse,
+  RecommendationSummaryResponse,
+} from '@/shared/api/generated';
+import { formatRecommendationDate } from '@/shared/lib/format-recommendation-date';
+
 export type SimulatorRecommendationChannel = {
   id: string;
   name: string;
@@ -10,6 +16,25 @@ export type SimulatorRecommendationSelection = {
   channels: readonly SimulatorRecommendationChannel[];
 };
 
+/** 저장된 추천 요약과 채널 카탈로그를 시뮬레이터 선택 카드 모델로 변환한다. */
+export function createSimulatorRecommendationSelections(
+  recommendations: readonly RecommendationSummaryResponse[],
+  channels: readonly Pick<ChannelListItemResponse, 'id' | 'name'>[],
+): SimulatorRecommendationSelection[] {
+  const channelIdByName = new Map(channels.map((channel) => [channel.name, channel.id]));
+
+  return recommendations.map((recommendation) => ({
+    id: recommendation.id,
+    date: formatRecommendationDate(recommendation.createdAt),
+    title: recommendation.serviceName ?? '이름 없는 서비스',
+    channels: recommendation.channelNames.flatMap((name) => {
+      const id = channelIdByName.get(name);
+
+      return id ? [{ id, name }] : [];
+    }),
+  }));
+}
+
 const createChannels = (prefix: string, names: readonly string[]) =>
   names.map((name, index) => ({
     id: `${prefix}-${index + 1}`,
@@ -17,8 +42,7 @@ const createChannels = (prefix: string, names: readonly string[]) =>
   }));
 
 /**
- * 추천 목록 조회 API가 연결되기 전 화면 상태를 확인하기 위한 디자인 fixture.
- * 실제 데이터가 연결되면 SimulatorRecommendationSelectionPage의 props로 대체한다.
+ * 추천 결과 선택 화면의 UI 상태를 확인하기 위한 디자인 fixture.
  */
 export const SIMULATOR_RECOMMENDATION_SELECTION_PREVIEW = [
   {
@@ -80,5 +104,5 @@ export const SIMULATOR_RECOMMENDATION_SELECTION_PREVIEW = [
   },
 ] satisfies readonly SimulatorRecommendationSelection[];
 
-export const SIMULATOR_RECOMMENDATION_SELECTION_PAGE_COUNT = 5;
+export const SIMULATOR_RECOMMENDATION_SELECTION_PAGE_SIZE = 5;
 export const SIMULATOR_RECOMMENDATION_CHANNEL_LIMIT = 3;
