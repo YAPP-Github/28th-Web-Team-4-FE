@@ -15,7 +15,7 @@ import { Text } from '@/shared/ui/text';
 export type CompareResultChannelPickerProps = {
   disabled?: boolean;
   isError: boolean;
-  isLoading: boolean;
+  isPending: boolean;
   onOpenChange: (open: boolean) => void;
   onRetry: () => void;
   onSelect: (option: ComparisonChannelOption) => void;
@@ -25,10 +25,10 @@ export type CompareResultChannelPickerProps = {
 
 function PickerStatus({
   isError,
-  isLoading,
+  isPending,
   onRetry,
-}: Pick<CompareResultChannelPickerProps, 'isError' | 'isLoading' | 'onRetry'>): JSX.Element | null {
-  if (isLoading) {
+}: Pick<CompareResultChannelPickerProps, 'isError' | 'isPending' | 'onRetry'>): JSX.Element | null {
+  if (isPending) {
     return (
       <Box role="status" className="px-016 py-020 flex justify-center">
         <Text variant="body-xl" className="text-text-low">
@@ -38,26 +38,26 @@ function PickerStatus({
     );
   }
 
-  if (!isError) {
-    return null;
+  if (isError) {
+    return (
+      <Box role="alert" className="gap-012 px-016 py-020 flex flex-col items-center">
+        <Text variant="body-xl" className="text-text-medium text-center">
+          채널 목록을 불러오지 못했어요
+        </Text>
+        <Button frame="button" tone="stroke" className="h-036 px-012" onClick={onRetry}>
+          다시 시도
+        </Button>
+      </Box>
+    );
   }
 
-  return (
-    <Box role="alert" className="gap-012 px-016 py-020 flex flex-col items-center">
-      <Text variant="body-xl" className="text-text-medium text-center">
-        채널 목록을 불러오지 못했어요
-      </Text>
-      <Button frame="button" tone="stroke" className="h-036 px-012" onClick={onRetry}>
-        다시 시도
-      </Button>
-    </Box>
-  );
+  return null;
 }
 
 export function CompareResultChannelPicker({
   disabled = false,
   isError,
-  isLoading,
+  isPending,
   onOpenChange,
   onRetry,
   onSelect,
@@ -65,7 +65,7 @@ export function CompareResultChannelPicker({
   options,
 }: CompareResultChannelPickerProps): JSX.Element {
   const hasOptions = options.length > 0;
-  const showList = !isLoading && !isError;
+  const showList = !isPending && !isError;
 
   return (
     <Combobox.Root<ComparisonChannelOption>
@@ -113,7 +113,7 @@ export function CompareResultChannelPicker({
         >
           <Combobox.Popup
             aria-label="추가할 채널 선택"
-            aria-busy={isLoading || undefined}
+            aria-busy={isPending || undefined}
             className={[
               'bg-surface-lowest border-outline-default relative w-[var(--anchor-width)] max-w-[var(--available-width)] overflow-hidden rounded-[var(--radius-m)] border py-010',
               'origin-[var(--transform-origin)] opacity-100 transition-[scale,opacity] duration-150',
@@ -141,7 +141,7 @@ export function CompareResultChannelPicker({
               </Combobox.InputGroup>
             </Box>
 
-            <PickerStatus isError={isError} isLoading={isLoading} onRetry={onRetry} />
+            <PickerStatus isError={isError} isPending={isPending} onRetry={onRetry} />
 
             {showList ? (
               <>
@@ -158,7 +158,7 @@ export function CompareResultChannelPicker({
                       key={option.id}
                       value={option}
                       render={({ className, ...itemProps }, state) => (
-                        <div
+                        <Box
                           className={cn(
                             [
                               'flex min-h-[34px] w-full cursor-pointer items-center gap-010 px-016 py-006 outline-none select-none',
@@ -192,7 +192,7 @@ export function CompareResultChannelPicker({
                               추천
                             </Badge>
                           ) : null}
-                        </div>
+                        </Box>
                       )}
                     />
                   )}

@@ -20,13 +20,13 @@ const selectMock = vi.fn<(option: ComparisonChannelOption) => void>();
 
 type HarnessProps = Pick<
   CompareResultChannelPickerProps,
-  'disabled' | 'isError' | 'isLoading' | 'options'
+  'disabled' | 'isError' | 'isPending' | 'options'
 >;
 
 function PickerHarness({
   disabled = false,
   isError = false,
-  isLoading = false,
+  isPending = false,
   options = OPTIONS,
 }: Partial<HarnessProps>): JSX.Element {
   const [open, setOpen] = useState(false);
@@ -36,7 +36,7 @@ function PickerHarness({
       <CompareResultChannelPicker
         disabled={disabled}
         isError={isError}
-        isLoading={isLoading}
+        isPending={isPending}
         onOpenChange={setOpen}
         onRetry={retryMock}
         onSelect={selectMock}
@@ -49,12 +49,12 @@ function PickerHarness({
 }
 
 function renderOpenPicker(
-  props: Partial<Pick<CompareResultChannelPickerProps, 'isError' | 'isLoading' | 'options'>> = {},
+  props: Partial<Pick<CompareResultChannelPickerProps, 'isError' | 'isPending' | 'options'>> = {},
 ) {
   return render(
     <CompareResultChannelPicker
       isError={props.isError ?? false}
-      isLoading={props.isLoading ?? false}
+      isPending={props.isPending ?? false}
       onOpenChange={vi.fn<(open: boolean) => void>()}
       onRetry={retryMock}
       onSelect={selectMock}
@@ -153,7 +153,7 @@ describe('CompareResultChannelPicker', () => {
   });
 
   it('로딩 상태를 팝업 안에 표시한다', () => {
-    renderOpenPicker({ isLoading: true, options: [] });
+    renderOpenPicker({ isPending: true, options: [] });
 
     expect(screen.getByRole('status')).toHaveTextContent('채널을 불러오고 있어요');
     expect(screen.getByLabelText('추가할 채널 선택')).toHaveAttribute('aria-busy', 'true');
