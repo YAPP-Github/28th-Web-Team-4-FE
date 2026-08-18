@@ -47,8 +47,10 @@ export const CHANNEL_DETAIL_FIXTURE: ChannelDetail = {
   audience: {
     primaryAgeBand: '20~40대',
     primaryGender: '남성',
-    userScale: '16만 명',
-    dailyActiveUsers: '1.2만 명',
+    metrics: [
+      { label: '사용자 규모', value: '16만 명' },
+      { label: '하루 활성 사용자', value: '1.2만 명' },
+    ],
     traits: '뉴스를 읽고 리워드를 적립하는 적극적 유저',
   },
   similarCases: [

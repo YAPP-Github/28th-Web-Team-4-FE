@@ -41,6 +41,10 @@ function getPrimaryGenderIconVariant(primaryGender: string): AudienceIconVariant
   }
 }
 
+function getAudienceMetricIconVariant(label: string): AudienceIconVariant {
+  return label.includes('하루 활성') || label.toUpperCase().includes('DAU') ? 'dau' : 'users';
+}
+
 function AudienceIcon({ variant }: { variant: AudienceIconVariant }): JSX.Element {
   return (
     <Box
@@ -110,8 +114,14 @@ export function ChannelDetailAudiencePanel({
         label="주요 성별"
         value={audience.primaryGender}
       />
-      <AudienceMetricCard icon="users" label="사용자 규모" value={audience.userScale} />
-      <AudienceMetricCard icon="dau" label="하루 활성 사용자" value={audience.dailyActiveUsers} />
+      {audience.metrics.map((metric, index) => (
+        <AudienceMetricCard
+          key={`${metric.label}-${index}`}
+          icon={getAudienceMetricIconVariant(metric.label)}
+          label={metric.label}
+          value={metric.value}
+        />
+      ))}
       <AudienceMetricCard
         icon="traits"
         label="유저 특성"

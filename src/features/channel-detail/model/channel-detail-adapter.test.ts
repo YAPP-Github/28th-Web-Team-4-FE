@@ -105,8 +105,10 @@ describe('toChannelDetailViewModel', () => {
       audience: {
         primaryAgeBand: '20~40대',
         primaryGender: '여성',
-        userScale: '16만 명',
-        dailyActiveUsers: '약 1.2만 명',
+        metrics: [
+          { label: 'MAU', value: '16만 명' },
+          { label: 'DAU', value: '약 1.2만 명' },
+        ],
         traits: '구매 의도가 높은 사용자',
       },
       similarCases: ['브랜드 캠페인 A', '전환 캠페인 B'],
@@ -176,8 +178,7 @@ describe('toChannelDetailViewModel', () => {
     expect(result.audience).toEqual({
       primaryAgeBand: '-',
       primaryGender: '전체',
-      userScale: '-',
-      dailyActiveUsers: '-',
+      metrics: [],
       traits: '-',
     });
   });
@@ -211,21 +212,21 @@ describe('toChannelDetailViewModel', () => {
     ]);
   });
 
-  it('MAU와 DAU의 valueText를 고정 지표에 표시한다', () => {
+  it('오디언스 지표를 이름으로 필터링하지 않고 응답 순서대로 변환한다', () => {
     const result = toChannelDetailViewModel(
       createChannelDetail({
         audienceMetrics: [
           {
-            metricName: 'MAU',
-            valueNumeric: 160_000,
-            valueText: '16만 명',
+            metricName: ' 주간 순사용자 ',
+            valueNumeric: 80_000,
+            valueText: ' 8만 명 ',
             unit: null,
             period: null,
           },
           {
-            metricName: 'DAU',
-            valueNumeric: 12_000,
-            valueText: '1.2만 명',
+            metricName: '가입자 수',
+            valueNumeric: 240_000,
+            valueText: '24만 명',
             unit: null,
             period: null,
           },
@@ -233,22 +234,38 @@ describe('toChannelDetailViewModel', () => {
       }),
     );
 
-    expect(result.audience.userScale).toBe('16만 명');
-    expect(result.audience.dailyActiveUsers).toBe('1.2만 명');
+    expect(result.audience.metrics).toEqual([
+      { label: '주간 순사용자', value: '8만 명' },
+      { label: '가입자 수', value: '24만 명' },
+    ]);
   });
 
-  it('MAU와 DAU의 valueText가 없으면 -로 표시한다', () => {
+  it('오디언스 지표의 valueText가 null 또는 공백이면 -로 표시한다', () => {
     const result = toChannelDetailViewModel(
       createChannelDetail({
         audienceMetrics: [
-          { metricName: 'MAU', valueNumeric: 160_000, valueText: null, unit: null, period: null },
-          { metricName: 'DAU', valueNumeric: 12_000, valueText: null, unit: null, period: null },
+          {
+            metricName: '월간 사용자',
+            valueNumeric: 160_000,
+            valueText: null,
+            unit: '명',
+            period: null,
+          },
+          {
+            metricName: '주간 사용자',
+            valueNumeric: 80_000,
+            valueText: '   ',
+            unit: '명',
+            period: null,
+          },
         ],
       }),
     );
 
-    expect(result.audience.userScale).toBe('-');
-    expect(result.audience.dailyActiveUsers).toBe('-');
+    expect(result.audience.metrics).toEqual([
+      { label: '월간 사용자', value: '-' },
+      { label: '주간 사용자', value: '-' },
+    ]);
   });
 
   it('대표 연령대 텍스트를 그대로 표시한다', () => {
