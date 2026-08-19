@@ -16,7 +16,7 @@ export function HomePageHeader(): JSX.Element {
   const { isAuthenticated } = useAuthSession();
 
   if (isAuthenticated) {
-    return <SessionPageHeader />;
+    return <SessionPageHeader className="sticky top-0 z-50" />;
   }
 
   return <PublicHomePageHeader />;

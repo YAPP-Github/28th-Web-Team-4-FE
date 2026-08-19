@@ -64,6 +64,9 @@ describe('HomePageHeader', () => {
     const header = screen.getByRole('banner');
     expect(header).toHaveClass('bg-surface-lowest');
     expect(header).toHaveClass('border-outline-low');
+    expect(header).toHaveClass('sticky');
+    expect(header).toHaveClass('top-0');
+    expect(header).toHaveClass('z-50');
     expect(header).not.toHaveClass('bg-sys-primary-default');
     expect(header).not.toHaveClass('border-transparent');
     expect(screen.getByText('채소집 님')).toBeVisible();
