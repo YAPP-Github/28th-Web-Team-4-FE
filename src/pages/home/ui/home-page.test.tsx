@@ -34,14 +34,8 @@ describe('HomePage', () => {
     expect(
       screen.getByRole('heading', { name: '내 서비스에 딱 맞는 광고 채널 찾기' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('질문 몇 가지로 광고 채널 선택의 기준을 세워요')).toBeInTheDocument();
-    expect(
-      screen.getByText('추천 결과는 실행 판단에 필요한 지표까지 포함해요'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('필요한 순간에 맞춰 추천, 비교, 시뮬레이션을 따로 살펴봐요'),
-    ).toBeInTheDocument();
-    expect(screen.getAllByRole('button', { name: '추천 시작' })).toHaveLength(2);
+    expect(screen.getByRole('button', { name: '추천 시작' })).toBeInTheDocument();
+    expect(screen.getByText('자주 묻는 질문')).toBeInTheDocument();
     expect(screen.getByText('© 2026 CHAESOZIP. ALL RIGHTS RESERVED')).toBeInTheDocument();
     expect(screen.getByText('개인정보 처리방침')).toBeInTheDocument();
   });

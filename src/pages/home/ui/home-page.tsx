@@ -1,10 +1,9 @@
 import { GoogleLinkSuccessToast } from './google-link-success-toast';
 import { Footer } from './footer';
-import { HomeChannelPreview } from './home-channel-preview';
-import { HomeFeatureSummary } from './home-feature-summary';
+import { HomeFaq } from './home-faq';
 import { HomeFinalCta } from './home-final-cta';
 import { HomeHero } from './home-hero';
-import { HomeProductFlow } from './home-product-flow';
+import { HomeServiceFinder } from './home-service-finder';
 
 export function HomePage() {
   return (
@@ -12,9 +11,8 @@ export function HomePage() {
       <GoogleLinkSuccessToast />
       <main className="flex flex-col">
         <HomeHero />
-        <HomeProductFlow />
-        <HomeChannelPreview />
-        <HomeFeatureSummary />
+        <HomeServiceFinder />
+        <HomeFaq />
         <HomeFinalCta />
       </main>
       <Footer />

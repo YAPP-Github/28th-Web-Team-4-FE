@@ -117,11 +117,10 @@ export function HomeFinalCta(): JSX.Element {
                   ? { opacity: item.opacity, scale: 1 }
                   : { opacity: 0, scale: 0.05 }
               }
-              whileInView={{
+              animate={{
                 opacity: item.opacity,
                 scale: 1,
               }}
-              viewport={{ once: false, amount: 0.15 }}
               transition={{
                 type: 'spring',
                 stiffness: 120,
