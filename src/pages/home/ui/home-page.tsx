@@ -1,3 +1,8 @@
+import {
+  brandStructuredData,
+  stringifyStructuredData,
+} from '@/shared/lib/metadata/brand-structured-data';
+
 import { GoogleLinkSuccessToast } from './google-link-success-toast';
 import { Footer } from './footer';
 import { HomeChannelPreview } from './home-channel-preview';
@@ -9,6 +14,10 @@ import { HomeProductFlow } from './home-product-flow';
 export function HomePage() {
   return (
     <div className="bg-surface-lowest flex flex-1 flex-col font-sans">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: stringifyStructuredData(brandStructuredData) }}
+      />
       <GoogleLinkSuccessToast />
       <main className="flex flex-col">
         <HomeHero />
