@@ -172,11 +172,11 @@ export function HomeFolderFeatures(): JSX.Element {
           className="px-016 sm:px-032 absolute inset-0 flex flex-col items-center justify-center pb-[40px] lg:px-120"
         >
           {/* 상단 섹션 타이틀 헤더 */}
-          <div className="mb-[32px] flex w-full max-w-[1200px] -translate-y-[12px] flex-col items-start gap-[8px] sm:mb-[44px] sm:gap-[12px] lg:mb-[54px]">
-            <span className="font-pre text-sys-primary-default text-[14px] font-semibold tracking-normal">
+          <div className="mb-[32px] flex w-full max-w-[1200px] -translate-y-[12px] flex-col items-start gap-[4px] sm:mb-[44px] sm:gap-[6px] lg:mb-[54px]">
+            <span className="text-sys-primary-default typo-subtitle-xxl sm:typo-heading-md lg:typo-heading-lg">
               Feature
             </span>
-            <h2 className="font-pre text-[24px] leading-[1.25] font-bold tracking-tight break-keep text-[var(--color-primitive-gray-900,#1D1D20)] sm:text-[32px] lg:text-[36px]">
+            <h2 className="font-pre text-[22px] leading-[1.25] font-bold tracking-tight break-keep text-[var(--color-primitive-gray-900,#1D1D20)] sm:text-[30px] lg:text-[36px]">
               광고 집행에 필요한 모든 과정, 채소집 하나로 끝내세요
             </h2>
           </div>
@@ -205,14 +205,14 @@ export function HomeFolderFeatures(): JSX.Element {
                 sizes="(max-width: 1200px) 100vw, 1200px"
               />
 
-              <div className="absolute top-[6.5%] left-[5%] z-10 flex max-w-[340px] flex-col items-start">
-                <span className="font-pre text-[16px] leading-[24px] font-semibold text-[var(--color-primitive-gray-400,#A2A2A8)]">
+              <div className="absolute top-[6.5%] left-[5%] z-10 flex max-w-[36%] flex-col items-start sm:max-w-[340px]">
+                <span className="font-pre text-text-low text-[clamp(11px,1.2vw,16px)] leading-[1.3] font-semibold">
                   {FEATURE_FOLDERS[0].category}
                 </span>
-                <h3 className="font-pre mt-[10px] text-[24px] leading-[1.28] font-bold tracking-[-0.02em] break-keep whitespace-pre-line text-[var(--color-primitive-gray-900,#2E2E33)] sm:text-[30px] lg:text-[36px]">
+                <h3 className="text-text-highest typo-heading-lg sm:typo-heading-xxl lg:typo-display-sm mt-[clamp(4px,0.8vw,10px)] break-keep whitespace-pre-line">
                   {FEATURE_FOLDERS[0].title}
                 </h3>
-                <div className="mt-[20px]">
+                <div className="mt-[clamp(6px,1.5vw,20px)] origin-top-left scale-[0.6] min-[420px]:scale-[0.72] sm:scale-[0.82] md:scale-[0.9] lg:scale-100">
                   <Button
                     frame="button"
                     tone="stroke"
@@ -249,14 +249,14 @@ export function HomeFolderFeatures(): JSX.Element {
                 sizes="(max-width: 1200px) 100vw, 1200px"
               />
 
-              <div className="absolute top-[6.5%] left-[5%] z-10 flex max-w-[340px] flex-col items-start">
-                <span className="font-pre text-[16px] leading-[24px] font-semibold text-[var(--color-primitive-gray-400,#A2A2A8)]">
+              <div className="absolute top-[6.5%] left-[5%] z-10 flex max-w-[36%] flex-col items-start sm:max-w-[340px]">
+                <span className="font-pre text-text-low text-[clamp(11px,1.2vw,16px)] leading-[1.3] font-semibold">
                   {FEATURE_FOLDERS[1].category}
                 </span>
-                <h3 className="font-pre mt-[10px] text-[24px] leading-[1.28] font-bold tracking-[-0.02em] break-keep whitespace-pre-line text-[var(--color-primitive-gray-900,#2E2E33)] sm:text-[30px] lg:text-[36px]">
+                <h3 className="text-text-highest typo-heading-lg sm:typo-heading-xxl lg:typo-display-sm mt-[clamp(4px,0.8vw,10px)] break-keep whitespace-pre-line">
                   {FEATURE_FOLDERS[1].title}
                 </h3>
-                <div className="mt-[20px]">
+                <div className="mt-[clamp(6px,1.5vw,20px)] origin-top-left scale-[0.6] min-[420px]:scale-[0.72] sm:scale-[0.82] md:scale-[0.9] lg:scale-100">
                   <Button
                     frame="button"
                     tone="stroke"
@@ -292,14 +292,14 @@ export function HomeFolderFeatures(): JSX.Element {
                 sizes="(max-width: 1200px) 100vw, 1200px"
               />
 
-              <div className="absolute top-[6.5%] left-[5%] z-10 flex max-w-[340px] flex-col items-start">
-                <span className="font-pre text-[16px] leading-[24px] font-semibold text-[var(--color-primitive-gray-400,#A2A2A8)]">
+              <div className="absolute top-[6.5%] left-[5%] z-10 flex max-w-[36%] flex-col items-start sm:max-w-[340px]">
+                <span className="font-pre text-text-low text-[clamp(11px,1.2vw,16px)] leading-[1.3] font-semibold">
                   {FEATURE_FOLDERS[2].category}
                 </span>
-                <h3 className="font-pre mt-[10px] text-[24px] leading-[1.28] font-bold tracking-[-0.02em] break-keep whitespace-pre-line text-[var(--color-primitive-gray-900,#2E2E33)] sm:text-[30px] lg:text-[36px]">
+                <h3 className="text-text-highest typo-heading-lg sm:typo-heading-xxl lg:typo-display-sm mt-[clamp(4px,0.8vw,10px)] break-keep whitespace-pre-line">
                   {FEATURE_FOLDERS[2].title}
                 </h3>
-                <div className="mt-[20px]">
+                <div className="mt-[clamp(6px,1.5vw,20px)] origin-top-left scale-[0.6] min-[420px]:scale-[0.72] sm:scale-[0.82] md:scale-[0.9] lg:scale-100">
                   <Button
                     frame="button"
                     tone="stroke"
