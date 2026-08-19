@@ -4,7 +4,11 @@
 
 import { entries } from '@/shared/lib/object';
 
-import type { OnboardingOptionByValue } from './common-onboarding-options';
+import type {
+  OnboardingOption,
+  OnboardingOptionByValue,
+  ServiceTypeId,
+} from './common-onboarding-options';
 
 /** 광고할 주요 연령대. */
 export type AgeRangeId =
@@ -92,6 +96,21 @@ export const AD_GOAL_OPTION_BY_VALUE = {
 } as const satisfies OnboardingOptionByValue<AdGoalId>;
 
 export const AD_GOAL_OPTION_LIST = entries(AD_GOAL_OPTION_BY_VALUE).map(([, option]) => option);
+
+const DEFAULT_AD_GOAL_OPTION_LIST = AD_GOAL_OPTION_LIST.filter(
+  (option) => option.value !== 'APP_INSTALL' && option.value !== 'IN_APP_ACTION',
+);
+
+const APP_SERVICE_TYPE_ID_SET = new Set<ServiceTypeId>(['MOBILE_APP', 'APP_AND_WEB']);
+
+/** 서비스 형태에서 선택할 수 있는 광고 목표를 Figma 순서대로 반환한다. */
+export function getAvailableAdGoalOptionList(
+  serviceType: ServiceTypeId | undefined,
+): readonly OnboardingOption<AdGoalId>[] {
+  return serviceType && APP_SERVICE_TYPE_ID_SET.has(serviceType)
+    ? AD_GOAL_OPTION_LIST
+    : DEFAULT_AD_GOAL_OPTION_LIST;
+}
 
 export const AD_EXPERIENCE_OPTION_BY_VALUE = {
   FIRST_TIME: { value: 'FIRST_TIME', label: '광고 운영은 처음이에요' },
