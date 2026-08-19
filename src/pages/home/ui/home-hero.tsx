@@ -25,7 +25,7 @@ import {
 } from '@/pages/home/model/home-hero-content';
 import { HomeHeroServicePreview } from './home-hero-service-preview';
 
-// home_splash_orange.json / home_splash_white.json 의 "Position By Word In" 기준값.
+// 기존 모션 레퍼런스의 "Position By Word In" 기준값.
 // Y 오프셋(-94px)은 그대로, AE의 range-selector 가속/감속(88 / -33) 조합이 만드는
 // 오버슈트-팝 느낌은 back-ease 커브([0.34, 1.56, 0.64, 1])로 근사했다.
 // 문자 단위 "Decode In By Random Character" 스크램블 효과는 1차 범위에서 제외.
@@ -35,7 +35,7 @@ const WORD_STAGGER_START_SECONDS = 0.125;
 const WORD_COUNT = HERO_TAGLINE_WORDS.length;
 
 // 태그라인 팝인이 끝나는 시점(대략) 이후 잠깐 멈췄다가 오렌지->화이트로 색이 넘어간다.
-// 스크롤과 무관한 온로드 1회 재생 시퀀스 — Lottie의 orange 클립 -> white 클립 전환에 대응.
+// 스크롤과 무관한 온로드 1회 재생 시퀀스이며, 색상 전환은 Motion으로 재현한다.
 const WORD_ENTER_DONE_SECONDS =
   WORD_STAGGER_START_SECONDS +
   (WORD_COUNT - 1) * WORD_STAGGER_SECONDS +
