@@ -2,6 +2,7 @@
 
 import type { JSX } from 'react';
 
+import { useAuthSession } from '@/features/auth/session';
 import { useHeroHeaderToneStore } from '@/shared/lib/hero-header-tone';
 import { cn } from '@/shared/ui/cn';
 
@@ -12,6 +13,16 @@ import { SessionPageHeader } from './session-page-header';
 // 그대로 재사용하면서, 히어로 스크롤 진행률에 맞춰 배경/전경색만 얹는다.
 // 다른 라우트는 여전히 SessionPageHeader를 직접 사용하므로 영향이 없다.
 export function HomePageHeader(): JSX.Element {
+  const { isAuthenticated } = useAuthSession();
+
+  if (isAuthenticated) {
+    return <SessionPageHeader className="sticky top-0 z-50" />;
+  }
+
+  return <PublicHomePageHeader />;
+}
+
+function PublicHomePageHeader(): JSX.Element {
   const progress = useHeroHeaderToneStore((state) => state.progress);
   const theme = useHeroHeaderToneStore((state) => state.theme);
 

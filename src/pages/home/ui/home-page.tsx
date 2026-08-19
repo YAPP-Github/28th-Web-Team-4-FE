@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 
+import { useAuthSession } from '@/features/auth/session';
+
 import { GoogleLinkSuccessToast } from './google-link-success-toast';
 import { Footer } from './footer';
 import { HomeChannelBanner } from './home-channel-banner';
@@ -10,8 +12,9 @@ import { HomeFinalCta } from './home-final-cta';
 import { HomeFolderFeatures } from './home-folder-features';
 import { HomeHero } from './home-hero';
 import { HomeQuestion } from './home-question';
+import { HomeServiceFinder } from './home-service-finder';
 
-export function HomePage() {
+function PublicHomeContent() {
   // 뒤로가기(BFCache 등)로 진입하거나 새로고침/재진입 시 스크롤 위치가 애매하게 남아
   // 인트로와 스크롤 리빌 영역이 겹치지 않도록 스크롤을 맨 처음(0, 0)으로 초기화한다.
   useEffect(() => {
@@ -42,15 +45,35 @@ export function HomePage() {
   }, []);
 
   return (
+    <>
+      <HomeHero />
+      <HomeQuestion />
+      <HomeChannelBanner />
+      <HomeFolderFeatures />
+      <HomeFaq />
+      <HomeFinalCta />
+    </>
+  );
+}
+
+function AuthenticatedHomeContent() {
+  return (
+    <>
+      <HomeServiceFinder />
+      <HomeFaq />
+      <HomeFinalCta />
+    </>
+  );
+}
+
+export function HomePage() {
+  const { isAuthenticated } = useAuthSession();
+
+  return (
     <div className="bg-surface-lowest flex flex-1 flex-col font-sans">
       <GoogleLinkSuccessToast />
       <main className="flex flex-col">
-        <HomeHero />
-        <HomeQuestion />
-        <HomeChannelBanner />
-        <HomeFolderFeatures />
-        <HomeFaq />
-        <HomeFinalCta />
+        {isAuthenticated ? <AuthenticatedHomeContent /> : <PublicHomeContent />}
       </main>
       <Footer />
     </div>
