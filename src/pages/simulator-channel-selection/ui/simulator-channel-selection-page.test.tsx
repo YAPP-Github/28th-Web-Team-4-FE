@@ -16,12 +16,14 @@ vi.mock('@/features/channel-selection', () => ({
     title,
     submitLabel,
     onComplete,
+    variant = 'default',
   }: {
     title: string;
     submitLabel: string;
     onComplete: (channelIds: readonly string[]) => void;
+    variant?: 'default' | 'comparison';
   }) => (
-    <div>
+    <div data-variant={variant}>
       <h1>{title}</h1>
       <button type="button" onClick={() => onComplete(['channel-a', 'channel-b', 'channel-c'])}>
         {submitLabel}
@@ -42,6 +44,7 @@ describe('SimulatorChannelSelectionPage', () => {
       screen.getByRole('heading', { name: '시뮬레이션할 채널을 선택해 주세요' }),
     ).toBeVisible();
     expect(screen.getByRole('button', { name: '시뮬레이션 실행하기' })).toBeVisible();
+    expect(screen.getByRole('heading').parentElement).toHaveAttribute('data-variant', 'default');
   });
 
   it('선택한 채널 ID를 반복 search param으로 시뮬레이터에 전달한다', async () => {

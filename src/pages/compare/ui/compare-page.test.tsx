@@ -278,6 +278,15 @@ function getCompareButton() {
   return screen.getByRole('button', { name: /선택한 채널 비교하기/ });
 }
 
+function getCategoryTrigger(selectedCount?: number) {
+  return screen.getByRole('button', {
+    name:
+      selectedCount === undefined
+        ? /^카테고리, \d+개 선택됨$/
+        : `카테고리, ${selectedCount}개 선택됨`,
+  });
+}
+
 describe('ComparePage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -349,9 +358,15 @@ describe('ComparePage', () => {
     renderComparePage();
 
     expect(screen.getByRole('heading', { name: '비교할 채널을 선택해 주세요' })).toBeVisible();
-    expect(screen.getByText('최대 3개까지 선택할 수 있어요')).toBeVisible();
-    expect(screen.getByRole('combobox', { name: '채널 카테고리' })).toHaveTextContent('전체');
-    expect(screen.getByLabelText('채널 검색')).toHaveAttribute('placeholder', '검색');
+    expect(screen.queryByText('최대 3개까지 선택할 수 있어요')).not.toBeInTheDocument();
+    expect(getCategoryTrigger(0)).toHaveTextContent('0개');
+    expect(getCategoryTrigger(0)).toHaveClass('h-036', 'w-[126px]');
+    expect(screen.getByRole('button', { name: '선택한 채널, 0개 선택됨' })).toHaveClass(
+      'h-036',
+      'w-[126px]',
+    );
+    expect(getCategoryTrigger(0).parentElement).toHaveClass('gap-018');
+    expect(screen.getByLabelText('채널 검색')).toHaveAttribute('placeholder', '채널 검색');
     expect(screen.getAllByTestId('channel-card-skeleton')).toHaveLength(12);
 
     responseGate.resolve(undefined);
@@ -366,6 +381,80 @@ describe('ComparePage', () => {
     expect(requestedUrl?.searchParams.get('page')).toBe('0');
     expect(requestedUrl?.searchParams.get('size')).toBe('12');
     expect(requestedUrl?.searchParams.has('sort')).toBe(false);
+  });
+
+  it('두 팝업을 왼쪽 위 기준으로 열고 Escape와 외부 클릭으로 닫는다', async () => {
+    const user = userEvent.setup();
+
+    renderComparePage();
+    expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
+
+    await user.click(getCategoryTrigger(0));
+
+    const categoryPopover = await screen.findByTestId('category-popover');
+    expect(categoryPopover).toHaveClass(
+      'origin-top-left',
+      'w-[290px]',
+      'shadow-drop-shadow-03',
+      'data-starting-style:scale-95',
+      'motion-reduce:data-starting-style:scale-100',
+    );
+    expect(categoryPopover.parentElement).toHaveAttribute('data-align', 'start');
+    expect(categoryPopover.parentElement).toHaveAttribute('data-side', 'bottom');
+    expect(categoryPopover.parentElement).toHaveAttribute('data-side-offset', '28');
+    expect(screen.getByRole('button', { name: '카테고리 선택 초기화' })).toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: '선택한 채널, 0개 선택됨' }));
+
+    expect(screen.queryByTestId('category-popover')).not.toBeInTheDocument();
+    const selectedChannelsPopover = await screen.findByTestId('selected-channels-popover');
+    expect(selectedChannelsPopover).toHaveClass('origin-top-left', 'h-[130px]');
+    expect(screen.getByText('아직 선택한 채널이 없어요.')).toBeVisible();
+    expect(screen.getByText('채널 카드를 눌러 비교할 채널을 골라 보세요.')).toBeVisible();
+    expect(screen.getByRole('button', { name: '초기화' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '편집' })).toBeDisabled();
+
+    await user.keyboard('{Escape}');
+    await waitFor(() =>
+      expect(screen.queryByTestId('selected-channels-popover')).not.toBeInTheDocument(),
+    );
+
+    await user.click(getCategoryTrigger(0));
+    expect(await screen.findByTestId('category-popover')).toBeVisible();
+    await user.click(screen.getByRole('heading', { name: '비교할 채널을 선택해 주세요' }));
+    await waitFor(() => expect(screen.queryByTestId('category-popover')).not.toBeInTheDocument());
+  });
+
+  it('카테고리를 즉시 반영하고 팝업을 유지하며 초기화 시 검색어는 보존한다', async () => {
+    const requests: URL[] = [];
+
+    server.use(
+      http.get(/\/api\/v1\/channels$/, ({ request }) => {
+        const url = new URL(request.url);
+        requests.push(url);
+        return defaultChannelResponse(url);
+      }),
+    );
+
+    const user = userEvent.setup();
+    renderComparePage('?q=네이버&page=2');
+
+    await user.click(getCategoryTrigger(0));
+    await user.click(await screen.findByRole('checkbox', { name: /교육 선택/ }));
+
+    await waitFor(() => expect(getCategoryTrigger(1)).toBeVisible());
+    expect(screen.getByTestId('category-popover')).toBeVisible();
+    expect(screen.getByRole('checkbox', { name: /교육 선택/ })).toBeChecked();
+    expect(requests.at(-1)?.searchParams.getAll('primaryCategory')).toEqual(['EDUCATION']);
+    expect(requests.at(-1)?.searchParams.get('page')).toBe('0');
+
+    await user.click(screen.getByRole('button', { name: '카테고리 선택 초기화' }));
+
+    await waitFor(() => expect(getCategoryTrigger(0)).toBeVisible());
+    expect(screen.getByLabelText('채널 검색')).toHaveValue('네이버');
+    expect(requests.at(-1)?.searchParams.has('primaryCategory')).toBe(false);
+    expect(requests.at(-1)?.searchParams.get('name')).toBe('네이버');
+    expect(requests.at(-1)?.searchParams.get('page')).toBe('0');
   });
 
   it('검색 요청을 debounce하고 응답 전에는 이전 결과를 유지한다', async () => {
@@ -527,20 +616,20 @@ describe('ComparePage', () => {
       'page',
     );
 
-    const categoryDropdown = screen.getByRole('combobox', { name: '채널 카테고리' });
+    const categoryDropdown = getCategoryTrigger(0);
     await user.click(categoryDropdown);
-    await user.click(await screen.findByRole('option', { name: /교육/ }));
-    await user.click(await screen.findByRole('option', { name: /쇼핑·커머스/ }));
+    await user.click(await screen.findByRole('checkbox', { name: /교육 선택/ }));
+    await user.click(await screen.findByRole('checkbox', { name: /쇼핑·커머스 선택/ }));
 
     await waitFor(() => {
-      expect(categoryDropdown).toHaveTextContent('교육 외 1개');
+      expect(getCategoryTrigger(2)).toHaveTextContent('2개');
       expect(filteredRequests.at(-1)?.searchParams.getAll('primaryCategory')).toEqual([
         'EDUCATION',
         'SHOPPING_COMMERCE',
       ]);
     });
-    expect(screen.getByRole('checkbox', { name: '교육 선택' })).toBeChecked();
-    expect(screen.getByRole('checkbox', { name: '쇼핑·커머스 선택' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /교육 선택/ })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /쇼핑·커머스 선택/ })).toBeChecked();
     expect(screen.getByRole('button', { name: '페이지 1' })).toHaveAttribute(
       'aria-current',
       'page',
@@ -596,11 +685,11 @@ describe('ComparePage', () => {
     renderComparePage();
     expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
 
-    const categoryDropdown = screen.getByRole('combobox', { name: '채널 카테고리' });
+    const categoryDropdown = getCategoryTrigger(0);
     await user.click(categoryDropdown);
-    await user.click(await screen.findByRole('option', { name: /기타/ }));
+    await user.click(await screen.findByRole('checkbox', { name: /기타 선택/ }));
 
-    expect(categoryDropdown).toHaveTextContent('기타');
+    expect(getCategoryTrigger(1)).toHaveTextContent('1개');
     expect(await screen.findByText('카카오 채널 메시지')).toBeVisible();
     expect(screen.queryByText('네이버 검색 광고')).not.toBeInTheDocument();
     expect(filteredRequest?.searchParams.getAll('primaryCategory')).toEqual(['OTHERS']);
@@ -620,7 +709,7 @@ describe('ComparePage', () => {
     renderComparePage('?category=INVALID_CATEGORY,EDUCATION');
 
     expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
-    expect(screen.getByRole('combobox', { name: '채널 카테고리' })).toHaveTextContent('교육');
+    expect(getCategoryTrigger(1)).toHaveTextContent('1개');
     expect(requestedUrl?.searchParams.getAll('primaryCategory')).toEqual(['EDUCATION']);
   });
 

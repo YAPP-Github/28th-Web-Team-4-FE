@@ -20,6 +20,7 @@ export function CompareChannelSelection({ onComplete }: CompareChannelSelectionP
       title="비교할 채널을 선택해 주세요"
       submitLabel="선택한 채널 비교하기"
       onComplete={onComplete}
+      variant="comparison"
       limitToast={COMPARE_SELECTION_LIMIT_TOAST}
       onViewDetail={(channel) => {
         openChannelDetailModal({
