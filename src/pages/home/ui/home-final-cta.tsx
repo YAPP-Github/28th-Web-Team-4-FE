@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 
+import { Button } from '@/shared/ui/button';
+
 // 피그마 노드 4281:35289 1:1 정밀 스펙 (사용자 커스텀 배치 100% 유지)
 const FOLDER_3D_ITEMS = [
   {
@@ -193,18 +195,23 @@ export function HomeFinalCta(): JSX.Element {
             </p>
           </div>
 
-          {/* CTA 버튼: 바로 채널 추천받기 (호버 인터랙션) */}
+          {/* CTA 버튼: 바로 채널 추천받기 (공통 Button 컴포넌트 사용 + 스트록 및 그림자 제거) */}
           <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
-            <Link
-              href={RECOMMEND_ONBOARDING_HREF}
-              className="font-pre inline-flex h-[52px] items-center justify-center gap-[8px] rounded-[12px] bg-white px-[24px] py-[14px] text-[16px] font-semibold text-[var(--color-primitive-gray-800,#3F3F45)] shadow-sm transition-all hover:bg-gray-50"
+            <Button
+              frame="button"
+              tone="stroke"
+              nativeButton={false}
+              render={<Link href={RECOMMEND_ONBOARDING_HREF} />}
+              className="h-[52px] rounded-[12px] border-none bg-white px-[24px] text-[16px] font-semibold text-[var(--color-primitive-gray-800,#3F3F45)] shadow-none hover:not-data-disabled:bg-gray-50"
+              rightIcon={
+                <ArrowRight
+                  aria-hidden
+                  className="size-[16px] text-[var(--color-primitive-gray-800,#3F3F45)]"
+                />
+              }
             >
-              <span>바로 채널 추천받기</span>
-              <ArrowRight
-                aria-hidden
-                className="size-[16px] text-[var(--color-primitive-gray-800,#3F3F45)]"
-              />
-            </Link>
+              바로 채널 추천받기
+            </Button>
           </motion.div>
         </motion.div>
       </div>
