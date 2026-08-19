@@ -287,6 +287,15 @@ function getCategoryTrigger(selectedCount?: number) {
   });
 }
 
+function getSelectedChannelsTrigger(selectedCount?: number) {
+  return screen.getByRole('button', {
+    name:
+      selectedCount === undefined
+        ? /^선택한 채널, \d+개 선택됨$/
+        : `선택한 채널, ${selectedCount}개 선택됨`,
+  });
+}
+
 describe('ComparePage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -361,10 +370,7 @@ describe('ComparePage', () => {
     expect(screen.queryByText('최대 3개까지 선택할 수 있어요')).not.toBeInTheDocument();
     expect(getCategoryTrigger(0)).toHaveTextContent('0개');
     expect(getCategoryTrigger(0)).toHaveClass('h-036', 'w-[126px]');
-    expect(screen.getByRole('button', { name: '선택한 채널, 0개 선택됨' })).toHaveClass(
-      'h-036',
-      'w-[126px]',
-    );
+    expect(getSelectedChannelsTrigger(0)).toHaveClass('h-036', 'w-[126px]');
     expect(getCategoryTrigger(0).parentElement).toHaveClass('gap-018');
     expect(screen.getByLabelText('채널 검색')).toHaveAttribute('placeholder', '채널 검색');
     expect(screen.getAllByTestId('channel-card-skeleton')).toHaveLength(12);
@@ -404,7 +410,7 @@ describe('ComparePage', () => {
     expect(categoryPopover.parentElement).toHaveAttribute('data-side-offset', '28');
     expect(screen.getByRole('button', { name: '카테고리 선택 초기화' })).toBeDisabled();
 
-    await user.click(screen.getByRole('button', { name: '선택한 채널, 0개 선택됨' }));
+    await user.click(getSelectedChannelsTrigger(0));
 
     expect(screen.queryByTestId('category-popover')).not.toBeInTheDocument();
     const selectedChannelsPopover = await screen.findByTestId('selected-channels-popover');
@@ -423,6 +429,146 @@ describe('ComparePage', () => {
     expect(await screen.findByTestId('category-popover')).toBeVisible();
     await user.click(screen.getByRole('heading', { name: '비교할 채널을 선택해 주세요' }));
     await waitFor(() => expect(screen.queryByTestId('category-popover')).not.toBeInTheDocument());
+  });
+
+  it('선택한 채널을 순서대로 보여주고 편집·제거를 카드와 동기화한다', async () => {
+    const user = userEvent.setup();
+    renderComparePage();
+    expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
+
+    await user.click(getChannelCheckbox('카카오 키워드 광고'));
+    await user.click(getChannelCheckbox('네이버 검색 광고'));
+    await user.click(getChannelCheckbox('메타 피드 광고'));
+
+    expect(getSelectedChannelsTrigger(3)).toHaveTextContent('3개');
+    expect(getCompareButton()).toHaveTextContent('선택한 채널 비교하기 (3/3)');
+
+    await user.click(getSelectedChannelsTrigger(3));
+    const popover = await screen.findByTestId('selected-channels-popover');
+    expect(popover).toHaveClass('origin-top-left');
+    expect(popover).not.toHaveClass('h-[130px]');
+
+    const selectedItems = within(popover).getAllByRole('listitem');
+    expect(selectedItems.map((item) => within(item).getByText(/광고$/).textContent)).toEqual([
+      '카카오 키워드 광고',
+      '네이버 검색 광고',
+      '메타 피드 광고',
+    ]);
+    expect(within(popover).getByRole('button', { name: '초기화' })).toBeEnabled();
+    expect(within(popover).getByRole('button', { name: '편집' })).toBeEnabled();
+
+    await user.keyboard('{Escape}');
+    await waitFor(() =>
+      expect(screen.queryByTestId('selected-channels-popover')).not.toBeInTheDocument(),
+    );
+
+    await user.click(screen.getByRole('button', { name: '페이지 2' }));
+    expect(await screen.findByText('네이버 검색 광고 2')).toBeVisible();
+    expect(getSelectedChannelsTrigger(3)).toBeVisible();
+
+    await user.click(getSelectedChannelsTrigger(3));
+    const pagedPopover = await screen.findByTestId('selected-channels-popover');
+    expect(within(pagedPopover).getByText('카카오 키워드 광고')).toBeVisible();
+    expect(within(pagedPopover).getByText('네이버 검색 광고')).toBeVisible();
+    expect(within(pagedPopover).getByText('메타 피드 광고')).toBeVisible();
+    expect(within(pagedPopover).queryByText('네이버 검색 광고 2')).not.toBeInTheDocument();
+
+    await user.click(within(pagedPopover).getByRole('button', { name: '편집' }));
+    expect(within(pagedPopover).getByRole('button', { name: '완료' })).toBeVisible();
+    expect(within(pagedPopover).queryByRole('button', { name: '편집' })).not.toBeInTheDocument();
+
+    await user.click(
+      within(pagedPopover).getByRole('button', { name: '카카오 키워드 광고 선택 해제' }),
+    );
+    expect(getSelectedChannelsTrigger(2)).toBeVisible();
+    expect(getCompareButton()).toHaveTextContent('선택한 채널 비교하기 (2/3)');
+    expect(within(pagedPopover).queryByText('카카오 키워드 광고')).not.toBeInTheDocument();
+    expect(screen.getByTestId('selected-channels-popover')).toBeVisible();
+
+    await user.click(within(pagedPopover).getByRole('button', { name: '완료' }));
+    expect(within(pagedPopover).getByRole('button', { name: '편집' })).toBeVisible();
+    expect(
+      within(pagedPopover).queryByRole('button', { name: '카카오 키워드 광고 선택 해제' }),
+    ).not.toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByRole('button', { name: '페이지 1' }));
+    expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
+    expect(getChannelCheckbox('카카오 키워드 광고')).not.toBeChecked();
+    expect(getChannelCheckbox('네이버 검색 광고')).toBeChecked();
+    expect(getChannelCheckbox('메타 피드 광고')).toBeChecked();
+  });
+
+  it('선택한 채널 팝업을 다시 열어도 완료를 누르기 전에는 편집 모드를 유지하고 초기화는 검색을 유지한다', async () => {
+    const user = userEvent.setup();
+    renderComparePage('?q=네이버');
+    expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
+
+    await user.click(getChannelCheckbox('네이버 검색 광고'));
+    await user.click(getChannelCheckbox('네이버 쇼핑 광고'));
+    await user.click(getSelectedChannelsTrigger(2));
+
+    const popover = await screen.findByTestId('selected-channels-popover');
+    await user.click(within(popover).getByRole('button', { name: '편집' }));
+    expect(within(popover).getByRole('button', { name: '완료' })).toBeVisible();
+
+    await user.keyboard('{Escape}');
+    await user.click(getSelectedChannelsTrigger(2));
+
+    const reopenedPopover = await screen.findByTestId('selected-channels-popover');
+    expect(within(reopenedPopover).getByRole('button', { name: '완료' })).toBeVisible();
+    expect(within(reopenedPopover).queryByRole('button', { name: '편집' })).not.toBeInTheDocument();
+    expect(
+      within(reopenedPopover).getByRole('button', { name: '네이버 검색 광고 선택 해제' }),
+    ).toBeVisible();
+
+    await user.click(within(reopenedPopover).getByRole('button', { name: '초기화' }));
+    expect(getSelectedChannelsTrigger(0)).toBeVisible();
+    expect(getCompareButton()).toHaveTextContent('선택한 채널 비교하기 (0/3)');
+    expect(getChannelCheckbox('네이버 검색 광고')).not.toBeChecked();
+    expect(screen.getByText('아직 선택한 채널이 없어요.')).toBeVisible();
+    expect(screen.getByRole('button', { name: '초기화' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '완료' })).toBeEnabled();
+    expect(screen.queryByRole('button', { name: '편집' })).not.toBeInTheDocument();
+    expect(screen.getByLabelText('채널 검색')).toHaveValue('네이버');
+    expect(getCategoryTrigger(0)).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: '완료' }));
+    expect(screen.getByRole('button', { name: '편집' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: '완료' })).not.toBeInTheDocument();
+  });
+
+  it('마지막 선택 채널을 제거해도 완료를 누르기 전에는 편집 모드를 유지한다', async () => {
+    const user = userEvent.setup();
+    renderComparePage();
+    expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
+
+    await user.click(getChannelCheckbox('네이버 검색 광고'));
+    await user.click(getChannelCheckbox('카카오 키워드 광고'));
+    await user.click(getChannelCheckbox('메타 피드 광고'));
+    await user.click(getChannelCheckbox('유튜브 영상 광고'));
+    expect(showWarningToastMock).toHaveBeenCalledWith('채널 비교는 최대 3개까지만 선택 가능해요.', {
+      id: 'compare-selection-limit',
+    });
+    expect(getSelectedChannelsTrigger(3)).toBeVisible();
+
+    await user.click(getSelectedChannelsTrigger(3));
+    const popover = await screen.findByTestId('selected-channels-popover');
+    await user.click(within(popover).getByRole('button', { name: '편집' }));
+    await user.click(within(popover).getByRole('button', { name: '네이버 검색 광고 선택 해제' }));
+    await user.click(within(popover).getByRole('button', { name: '카카오 키워드 광고 선택 해제' }));
+    await user.click(within(popover).getByRole('button', { name: '메타 피드 광고 선택 해제' }));
+
+    expect(getSelectedChannelsTrigger(0)).toBeVisible();
+    expect(screen.getByText('아직 선택한 채널이 없어요.')).toBeVisible();
+    expect(screen.getByRole('button', { name: '완료' })).toBeEnabled();
+    expect(screen.queryByRole('button', { name: '편집' })).not.toBeInTheDocument();
+    expect(getCompareButton()).toHaveTextContent('선택한 채널 비교하기 (0/3)');
+    expect(getChannelCheckbox('네이버 검색 광고')).not.toBeChecked();
+
+    await user.click(screen.getByRole('button', { name: '완료' }));
+    expect(screen.getByRole('button', { name: '편집' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: '완료' })).not.toBeInTheDocument();
   });
 
   it('카테고리를 즉시 반영하고 팝업을 유지하며 초기화 시 검색어는 보존한다', async () => {

@@ -3,17 +3,20 @@
 import Image from 'next/image';
 import { useState, type JSX, type ReactNode } from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { ChevronDown, Search } from 'lucide-react';
+import { ChevronDown, Minus, Search } from 'lucide-react';
 import { Input as BaseInput } from '@base-ui/react/input';
 
 import {
   CHANNEL_CATEGORY_OPTION_LIST,
   type ChannelCategory,
+  type ChannelListItem,
 } from '@/features/channel-selection/model/channel-page';
 import { Checkbox } from '@/shared/ui/checkbox';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
+
+import { ChannelLogo } from './channel-logo';
 
 type OpenPopover = 'category' | 'selectedChannels' | null;
 
@@ -32,14 +35,36 @@ const FILTER_TRIGGER_CLASSES = cn(
   'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sys-primary-default',
 );
 
+const POPOVER_ACTION_BUTTON_CLASSES = cn(
+  'text-text-low focus-visible:outline-sys-primary-default cursor-pointer rounded-[var(--radius-xs)] outline-none',
+  'focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-default',
+);
+
 type ComparisonChannelSelectionSubHeaderProps = {
   category: readonly ChannelCategory[];
   onCategoryChange: (category: ChannelCategory[]) => void;
+  onClearSelection: () => void;
   onQueryChange: (query: string) => void;
+  onRemoveChannel: (channelId: string) => void;
   query: string;
-  selectedCount: number;
+  selectedChannels: readonly ChannelListItem[];
   title: string;
 };
+
+function PopoverActionButton({
+  children,
+  className,
+  type = 'button',
+  ...props
+}: JSX.IntrinsicElements['button']): JSX.Element {
+  return (
+    <button type={type} className={cn(POPOVER_ACTION_BUTTON_CLASSES, className)} {...props}>
+      <Text variant="body-xl" className="text-text-low">
+        {children}
+      </Text>
+    </button>
+  );
+}
 
 function FilterTrigger({
   accessibleName,
@@ -148,21 +173,21 @@ function CategoryPopover({
       <PopupPositioner>
         <Popover.Popup data-testid="category-popover" className={cn(POPUP_CLASSES, 'py-012')}>
           <Box className="px-018 py-006 h-044 flex items-center justify-between">
-            <Popover.Title className="typo-subtitle-lg text-text-highest m-0">
-              선택한 카테고리{' '}
-              <span className={category.length > 0 ? 'text-text-primary' : 'text-text-low'}>
-                {category.length}
-              </span>
+            <Popover.Title className="m-0">
+              <Text variant="subtitle-lg" className="text-text-highest">
+                선택한 카테고리{' '}
+                <span className={category.length > 0 ? 'text-text-primary' : 'text-text-low'}>
+                  {category.length}
+                </span>
+              </Text>
             </Popover.Title>
-            <button
-              type="button"
+            <PopoverActionButton
               aria-label="카테고리 선택 초기화"
               disabled={category.length === 0}
               onClick={() => onCategoryChange([])}
-              className="typo-body-xl text-text-low focus-visible:outline-sys-primary-default cursor-pointer rounded-[var(--radius-xs)] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-default"
             >
               초기화
-            </button>
+            </PopoverActionButton>
           </Box>
           <Box className="relative">
             <Box as="ul" className="max-h-[340px] scroll-pb-[45px] overflow-y-auto">
@@ -204,13 +229,19 @@ function CategoryPopover({
 
 function SelectedChannelsPopover({
   isOpen,
+  onClearSelection,
   onOpenChange,
-  selectedCount,
+  onRemoveChannel,
+  selectedChannels,
 }: {
   isOpen: boolean;
+  onClearSelection: () => void;
   onOpenChange: (open: boolean) => void;
-  selectedCount: number;
+  onRemoveChannel: (channelId: string) => void;
+  selectedChannels: readonly ChannelListItem[];
 }): JSX.Element {
+  const [isEditing, setIsEditing] = useState(false);
+  const selectedCount = selectedChannels.length;
   const isEmpty = selectedCount === 0;
 
   return (
@@ -229,35 +260,58 @@ function SelectedChannelsPopover({
           className={cn(POPUP_CLASSES, 'py-012', isEmpty && 'h-[130px]')}
         >
           <Box className="px-018 py-006 h-046 flex items-center justify-between">
-            <Popover.Title className="typo-subtitle-lg text-text-highest m-0">
-              선택한 채널{' '}
-              <span className={isEmpty ? 'text-text-low' : 'text-text-primary'}>
-                {selectedCount}
-              </span>
+            <Popover.Title className="m-0">
+              <Text variant="subtitle-lg" className="text-text-highest">
+                선택한 채널{' '}
+                <span className={isEmpty ? 'text-text-low' : 'text-text-primary'}>
+                  {selectedCount}
+                </span>
+              </Text>
             </Popover.Title>
             <Box className="gap-016 flex items-center">
-              <button
-                type="button"
-                disabled
-                className="typo-body-xl text-text-low cursor-default rounded-[var(--radius-xs)]"
-              >
+              <PopoverActionButton disabled={isEmpty} onClick={onClearSelection}>
                 초기화
-              </button>
-              <button
-                type="button"
-                disabled
-                className="typo-body-xl text-text-low cursor-default rounded-[var(--radius-xs)]"
-              >
-                편집
-              </button>
+              </PopoverActionButton>
+              {isEditing ? (
+                <PopoverActionButton onClick={() => setIsEditing(false)}>완료</PopoverActionButton>
+              ) : (
+                <PopoverActionButton disabled={isEmpty} onClick={() => setIsEditing(true)}>
+                  편집
+                </PopoverActionButton>
+              )}
             </Box>
           </Box>
           {isEmpty ? (
-            <Popover.Description className="typo-subtitle-xxs text-text-low px-018 py-006 m-0 flex h-[60px] flex-col justify-center">
-              <span>아직 선택한 채널이 없어요.</span>
-              <span>채널 카드를 눌러 비교할 채널을 골라 보세요.</span>
+            <Popover.Description className="px-018 py-006 m-0 flex h-[60px] flex-col justify-center">
+              <Text variant="subtitle-xxs" className="text-text-low">
+                아직 선택한 채널이 없어요.
+              </Text>
+              <Text variant="subtitle-xxs" className="text-text-low">
+                채널 카드를 눌러 비교할 채널을 골라 보세요.
+              </Text>
             </Popover.Description>
-          ) : null}
+          ) : (
+            <Box as="ul">
+              {selectedChannels.map((channel) => (
+                <Box as="li" key={channel.id} className="gap-010 px-018 h-044 flex items-center">
+                  {isEditing ? (
+                    <button
+                      type="button"
+                      aria-label={`${channel.name} 선택 해제`}
+                      onClick={() => onRemoveChannel(channel.id)}
+                      className="bg-sys-error-default size-020 focus-visible:outline-sys-primary-default flex shrink-0 items-center justify-center rounded-[var(--radius-max)] text-white outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+                    >
+                      <Minus aria-hidden className="size-012" strokeWidth={2.5} />
+                    </button>
+                  ) : null}
+                  <ChannelLogo channel={channel} variant="selected" />
+                  <Text variant="subtitle-xxs" className="text-text-high min-w-0 truncate">
+                    {channel.name}
+                  </Text>
+                </Box>
+              ))}
+            </Box>
+          )}
         </Popover.Popup>
       </PopupPositioner>
     </Popover.Root>
@@ -267,9 +321,11 @@ function SelectedChannelsPopover({
 export function ComparisonChannelSelectionSubHeader({
   category,
   onCategoryChange,
+  onClearSelection,
   onQueryChange,
+  onRemoveChannel,
   query,
-  selectedCount,
+  selectedChannels,
   title,
 }: ComparisonChannelSelectionSubHeaderProps): JSX.Element {
   const [openPopover, setOpenPopover] = useState<OpenPopover>(null);
@@ -290,8 +346,10 @@ export function ComparisonChannelSelectionSubHeader({
           <Box aria-hidden className="border-outline-low h-[34px] border-l" />
           <SelectedChannelsPopover
             isOpen={openPopover === 'selectedChannels'}
+            onClearSelection={onClearSelection}
             onOpenChange={(open) => setOpenPopover(open ? 'selectedChannels' : null)}
-            selectedCount={selectedCount}
+            onRemoveChannel={onRemoveChannel}
+            selectedChannels={selectedChannels}
           />
           <Box aria-hidden className="border-outline-low h-[34px] border-l" />
           <Box
