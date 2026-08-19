@@ -200,7 +200,7 @@ describe('MyPage', () => {
     expect(await screen.findByRole('button', { name: '내 정보 수정' })).toBeVisible();
     expect(screen.getByRole('button', { name: '채널 추천받기' })).toHaveAttribute(
       'href',
-      '/recommend/onboarding/new',
+      '/recommend',
     );
     expect(await screen.findByRole('button', { name: '로그아웃' })).toBeVisible();
     expect(await screen.findByRole('button', { name: '탈퇴하기' })).toBeVisible();
@@ -426,7 +426,7 @@ describe('MyPage', () => {
     expect(resetDialog).toHaveTextContent('입력했던 광고 조건이 모두 지워지고');
     expect(within(resetDialog).getByRole('button', { name: '다시 설정하기' })).toHaveAttribute(
       'href',
-      '/recommend/onboarding/new',
+      '/recommend',
     );
 
     await user.click(within(resetDialog).getByRole('button', { name: '취소' }));

@@ -1,5 +1,7 @@
 import { SimulatorSavedResultPage } from '@/pages/simulator';
 
+export { nonIndexableMetadata as metadata } from '@/app/config/search-metadata';
+
 type SavedSimulatorResultRouteProps = {
   params: Promise<{
     id: string;

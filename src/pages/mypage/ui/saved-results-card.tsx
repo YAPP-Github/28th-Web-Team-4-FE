@@ -28,7 +28,7 @@ const SAVED_RESULT_EMPTY_STATES = {
   recommendation: {
     description: '아직 저장된 추천 결과가 없어요',
     actionLabel: '채널 추천받기',
-    href: '/recommend/onboarding/new',
+    href: '/recommend',
   },
   comparison: {
     description: '아직 저장된 비교 결과가 없어요',
