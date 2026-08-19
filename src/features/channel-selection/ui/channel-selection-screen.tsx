@@ -314,20 +314,16 @@ export function ChannelSelectionScreen({
               onClick={handleComplete}
               className="h-[44px] w-full max-w-[320px]"
             >
-              <span className="inline-flex items-center">
-                {submitLabel} (
-                <span className="inline-flex translate-y-px">
-                  <NumberFlow
-                    value={channelSelection.selectedCount}
-                    trend={0}
-                    animated={!shouldReduceMotion}
-                    transformTiming={{ duration: 80, easing: 'ease-out' }}
-                    spinTiming={{ duration: 80, easing: 'ease-out' }}
-                    opacityTiming={{ duration: 50, easing: 'ease-out' }}
-                  />
-                </span>
-                /{CHANNEL_SELECTION_LIMIT})
-              </span>
+              {submitLabel} (
+              <NumberFlow
+                value={channelSelection.selectedCount}
+                trend={0}
+                animated={!shouldReduceMotion}
+                transformTiming={{ duration: 80, easing: 'ease-out' }}
+                spinTiming={{ duration: 80, easing: 'ease-out' }}
+                opacityTiming={{ duration: 50, easing: 'ease-out' }}
+              />
+              /{CHANNEL_SELECTION_LIMIT})
             </Button>
           </Box>
         </Box>

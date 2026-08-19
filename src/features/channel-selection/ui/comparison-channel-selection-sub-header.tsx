@@ -14,6 +14,8 @@ import {
 import { Checkbox } from '@/shared/ui/checkbox';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 import { ChannelLogo } from './channel-logo';
@@ -84,7 +86,7 @@ function FilterTrigger({
 }): JSX.Element {
   return (
     <Popover.Trigger className={FILTER_TRIGGER_CLASSES} aria-label={accessibleName}>
-      <Box className="gap-008 flex min-w-0 items-center">
+      <HStack className="gap-008 min-w-0">
         <Image
           aria-hidden
           src={iconSrc}
@@ -93,7 +95,7 @@ function FilterTrigger({
           height={22}
           className="size-022 shrink-0"
         />
-        <Box className="flex min-w-0 items-center">
+        <HStack className="min-w-0">
           <Text variant="subtitle-xxl" className="truncate">
             {label}
           </Text>
@@ -103,8 +105,8 @@ function FilterTrigger({
           >
             {count}개
           </Text>
-        </Box>
-      </Box>
+        </HStack>
+      </HStack>
       <ChevronDown
         aria-hidden
         className={cn('size-022 shrink-0 transition-transform', isOpen && 'rotate-180')}
@@ -173,7 +175,7 @@ function CategoryPopover({
       />
       <PopupPositioner>
         <Popover.Popup data-testid="category-popover" className={cn(POPUP_CLASSES, 'py-012')}>
-          <Box className="px-018 py-006 h-044 flex items-center justify-between">
+          <HStack className="px-018 py-006 h-044 justify-between">
             <Popover.Title className="m-0">
               <Text variant="subtitle-lg" className="text-text-highest">
                 선택한 카테고리{' '}
@@ -189,7 +191,7 @@ function CategoryPopover({
             >
               초기화
             </PopoverActionButton>
-          </Box>
+          </HStack>
           <Box className="relative">
             <Box as="ul" className="max-h-[340px] scroll-pb-[45px] overflow-y-auto">
               {CHANNEL_CATEGORY_OPTION_LIST.map((option) => {
@@ -260,7 +262,7 @@ function SelectedChannelsPopover({
           data-testid="selected-channels-popover"
           className={cn(POPUP_CLASSES, 'py-012', isEmpty && 'h-[130px]')}
         >
-          <Box className="px-018 py-006 h-046 flex items-center justify-between">
+          <HStack className="px-018 py-006 h-046 justify-between">
             <Popover.Title className="m-0">
               <Text variant="subtitle-lg" className="text-text-highest">
                 선택한 채널{' '}
@@ -269,7 +271,7 @@ function SelectedChannelsPopover({
                 </span>
               </Text>
             </Popover.Title>
-            <Box className="gap-016 flex items-center">
+            <HStack className="gap-016">
               <PopoverActionButton disabled={isEmpty} onClick={onClearSelection}>
                 초기화
               </PopoverActionButton>
@@ -280,21 +282,23 @@ function SelectedChannelsPopover({
                   편집
                 </PopoverActionButton>
               )}
-            </Box>
-          </Box>
+            </HStack>
+          </HStack>
           {isEmpty ? (
-            <Popover.Description className="px-018 py-006 m-0 flex h-[60px] flex-col justify-center">
-              <Text variant="subtitle-xxs" className="text-text-low">
-                아직 선택한 채널이 없어요.
-              </Text>
-              <Text variant="subtitle-xxs" className="text-text-low">
-                채널 카드를 눌러 비교할 채널을 골라 보세요.
-              </Text>
+            <Popover.Description className="px-018 py-006 m-0 h-[60px]">
+              <Stack className="h-full justify-center">
+                <Text variant="subtitle-xxs" className="text-text-low">
+                  아직 선택한 채널이 없어요.
+                </Text>
+                <Text variant="subtitle-xxs" className="text-text-low">
+                  채널 카드를 눌러 비교할 채널을 골라 보세요.
+                </Text>
+              </Stack>
             </Popover.Description>
           ) : (
-            <Box as="ul">
+            <Box as="ul" className="pt-012">
               {selectedChannels.map((channel) => (
-                <Box as="li" key={channel.id} className="gap-010 px-018 h-044 flex items-center">
+                <HStack as="li" key={channel.id} className="gap-010 px-018 py-008">
                   {isEditing ? (
                     <button
                       type="button"
@@ -309,7 +313,7 @@ function SelectedChannelsPopover({
                   <Text variant="subtitle-xxs" className="text-text-high min-w-0 truncate">
                     {channel.name}
                   </Text>
-                </Box>
+                </HStack>
               ))}
             </Box>
           )}
@@ -332,13 +336,13 @@ export function ComparisonChannelSelectionSubHeader({
   const [openPopover, setOpenPopover] = useState<OpenPopover>(null);
 
   return (
-    <Box className="border-outline-low bg-surface-lowest min-h-072 px-016 py-016 sm:px-032 flex w-full shrink-0 justify-center border-y lg:px-120 lg:py-0">
-      <Box className="gap-016 lg:h-072 flex w-full max-w-[1200px] flex-col lg:flex-row lg:items-center lg:justify-between">
+    <HStack className="border-outline-low bg-surface-lowest min-h-072 px-016 py-016 sm:px-032 w-full shrink-0 justify-center border-y lg:px-120 lg:py-0">
+      <Stack className="gap-016 lg:h-072 w-full max-w-[1200px] lg:flex-row lg:items-center lg:justify-between">
         <Text as="h1" variant="heading-lg" className="text-text-highest shrink-0">
           {title}
         </Text>
-        <Box className="gap-016 sm:gap-018 flex w-full min-w-0 flex-col sm:flex-row sm:items-center lg:w-auto">
-          <Box className="gap-018 flex w-full min-w-0 items-center sm:w-auto sm:shrink-0">
+        <Stack className="gap-016 sm:gap-018 w-full min-w-0 sm:flex-row sm:items-center lg:w-auto">
+          <HStack className="gap-018 w-full min-w-0 sm:w-auto sm:shrink-0">
             <CategoryPopover
               category={category}
               isOpen={openPopover === 'category'}
@@ -353,14 +357,14 @@ export function ComparisonChannelSelectionSubHeader({
               onRemoveChannel={onRemoveChannel}
               selectedChannels={selectedChannels}
             />
-          </Box>
+          </HStack>
           <Box
             aria-hidden
             className="border-outline-low hidden h-[34px] shrink-0 border-l sm:block"
           />
-          <Box
+          <HStack
             className={cn(
-              'bg-surface-lower flex h-036 w-full min-w-0 items-center gap-006 rounded-[var(--radius-s)] p-008',
+              'bg-surface-lower h-036 w-full min-w-0 gap-006 rounded-[var(--radius-s)] p-008',
               'sm:flex-1 lg:w-[282px] lg:flex-none',
               'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-sys-primary-default',
             )}
@@ -373,9 +377,9 @@ export function ComparisonChannelSelectionSubHeader({
               placeholder="채널 검색"
               className="typo-subtitle-xxs text-text-highest placeholder:text-text-low min-w-0 flex-1 bg-transparent outline-none"
             />
-          </Box>
-        </Box>
-      </Box>
-    </Box>
+          </HStack>
+        </Stack>
+      </Stack>
+    </HStack>
   );
 }
