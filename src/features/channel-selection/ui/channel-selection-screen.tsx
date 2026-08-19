@@ -41,6 +41,7 @@ export type ChannelSelectionScreenProps = {
   title: string;
   submitLabel: string;
   onComplete: (channelIds: readonly string[]) => void;
+  selectionLimit?: number;
   limitToast?: {
     id: string;
     message: string;
@@ -117,12 +118,14 @@ function ChannelSearchInput({
 function ChannelSelectionSubHeader({
   title,
   category,
+  selectionLimit,
   onCategoryChange,
   query,
   onQueryChange,
 }: {
   title: string;
   category: readonly string[];
+  selectionLimit: number;
   onCategoryChange: (category: string[]) => void;
   query: string;
   onQueryChange: (query: string) => void;
@@ -135,7 +138,7 @@ function ChannelSelectionSubHeader({
             {title}
           </Text>
           <Text as="p" variant="subtitle-xxs" className="text-text-low">
-            최대 3개까지 선택할 수 있어요
+            최대 {selectionLimit}개까지 선택할 수 있어요
           </Text>
         </Box>
         <Box className="gap-016 flex w-full flex-col sm:w-auto sm:flex-row sm:items-center">
@@ -203,14 +206,17 @@ export function ChannelSelectionScreen({
   title,
   submitLabel,
   onComplete,
-  limitToast = DEFAULT_LIMIT_TOAST,
+  selectionLimit = CHANNEL_SELECTION_LIMIT,
+  limitToast,
   onViewDetail,
 }: ChannelSelectionScreenProps): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
   const queryState = useChannelSelectionQueryState();
   const channelSelection = useChannelSelection({
-    limitToastId: limitToast.id,
-    limitToastMessage: limitToast.message,
+    limit: selectionLimit,
+    limitToastId: limitToast?.id ?? DEFAULT_LIMIT_TOAST.id,
+    limitToastMessage:
+      limitToast?.message ?? `채널은 최대 ${selectionLimit}개까지 선택할 수 있어요.`,
   });
 
   const normalizedQuery = queryState.q.trim();
@@ -249,6 +255,7 @@ export function ChannelSelectionScreen({
       <ChannelSelectionSubHeader
         title={title}
         category={categories}
+        selectionLimit={selectionLimit}
         onCategoryChange={queryState.setCategories}
         query={queryState.q}
         onQueryChange={queryState.setSearchQuery}
@@ -308,7 +315,7 @@ export function ChannelSelectionScreen({
                     opacityTiming={{ duration: 50, easing: 'ease-out' }}
                   />
                 </span>
-                /{CHANNEL_SELECTION_LIMIT})
+                /{selectionLimit})
               </span>
             </Button>
           </Box>
