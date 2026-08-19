@@ -24,9 +24,18 @@ import type {
   GetLatestSimulationData,
   GetLatestSimulationErrors,
   GetLatestSimulationResponses,
+  GetMyChannelComparisonsData,
+  GetMyChannelComparisonsErrors,
+  GetMyChannelComparisonsResponses,
+  GetMyOnboardingTagData,
+  GetMyOnboardingTagErrors,
+  GetMyOnboardingTagResponses,
   GetMyProfileData,
   GetMyProfileErrors,
   GetMyProfileResponses,
+  GetMyRecommendationsData,
+  GetMyRecommendationsErrors,
+  GetMyRecommendationsResponses,
   GetMySimulationsData,
   GetMySimulationsErrors,
   GetMySimulationsResponses,
@@ -36,6 +45,9 @@ import type {
   GetSampleByIdData,
   GetSampleByIdErrors,
   GetSampleByIdResponses,
+  GetSavedChannelComparisonData,
+  GetSavedChannelComparisonErrors,
+  GetSavedChannelComparisonResponses,
   GetSimulationData,
   GetSimulationErrors,
   GetSimulationResponses,
@@ -60,6 +72,9 @@ import type {
   RefreshData,
   RefreshErrors,
   RefreshResponses,
+  SaveChannelComparisonData,
+  SaveChannelComparisonErrors,
+  SaveChannelComparisonResponses,
   SaveRecommendationData,
   SaveRecommendationErrors,
   SaveRecommendationResponses,
@@ -78,6 +93,9 @@ import type {
   SubmitOnboardingData,
   SubmitOnboardingErrors,
   SubmitOnboardingResponses,
+  UpdateMyOnboardingTagData,
+  UpdateMyOnboardingTagErrors,
+  UpdateMyOnboardingTagResponses,
   UpdateMyProfileData,
   UpdateMyProfileErrors,
   UpdateMyProfileResponses,
@@ -108,9 +126,51 @@ export type Options<
 };
 
 /**
+ * 내 최신 집행 온보딩 태그 조회
+ *
+ * 로그인한 유저의 가장 최근 활성 온보딩 태그 정보를 조회한다. 온보딩 기록이 없는 경우 hasOnboarding = false
+ */
+export const getMyOnboardingTag = <ThrowOnError extends boolean = false>(
+  options?: Options<GetMyOnboardingTagData, ThrowOnError>,
+): RequestResult<GetMyOnboardingTagResponses, GetMyOnboardingTagErrors, ThrowOnError> =>
+  (options?.client ?? client).get<
+    GetMyOnboardingTagResponses,
+    GetMyOnboardingTagErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/onboarding/me/tags',
+    ...options,
+  });
+
+/**
+ * 내 최신 집행 온보딩 태그 수정
+ *
+ * 로그인한 유저의 최신 집행 온보딩 태그 정보를 수정한다. 태그가 변경되면 기존 온보딩을 비활성화하고 신규 온보딩을 생성하며, 동일한 태그면 기존 온보딩을 유지한다.
+ */
+export const updateMyOnboardingTag = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateMyOnboardingTagData, ThrowOnError>,
+): RequestResult<UpdateMyOnboardingTagResponses, UpdateMyOnboardingTagErrors, ThrowOnError> =>
+  (options.client ?? client).put<
+    UpdateMyOnboardingTagResponses,
+    UpdateMyOnboardingTagErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/onboarding/me/tags',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
  * 내가 저장한 시뮬레이션 목록
  *
- * 로그인한 사용자가 저장한 시뮬레이션을 최신순으로 반환한다. 목록은 요약만 담으며 매체별 항목은 상세 조회에서 받는다. 정렬은 최신순 고정이고 page/size 를 생략하면 0 페이지 5건을 반환한다. 저장된 결과가 없으면 빈 목록으로 200 을 반환한다.
+ * 로그인한 사용자가 저장한 시뮬레이션을 최신순으로 반환한다. 목록은 어떤 조합을 저장했는지 알아볼 정도의 요약만 담으며, 예산·추정치와 매체별 항목은 상세 조회에서 받는다. 매체명은 예산을 배분한 매체만 저장 순서대로 담는다.
+ *
+ * 정렬은 최신순 고정이고 page/size 를 생략하면 0 페이지 5건을 반환한다. 저장된 결과가 없으면 빈 목록으로 200 을 반환한다.
  */
 export const getMySimulations = <ThrowOnError extends boolean = false>(
   options?: Options<GetMySimulationsData, ThrowOnError>,
@@ -213,7 +273,7 @@ export const getRecommendations = <ThrowOnError extends boolean = false>(
 /**
  * 채널 추천 결과 저장
  *
- * 추천을 다시 계산해 그 시점 값을 스냅샷으로 저장한다. 채널 1개가 1행이고, 요청한 온보딩이 저장된 추천 1건을 가리키는 키가 된다.
+ * 추천을 다시 계산해 그 시점 값을 스냅샷으로 저장한다. 채널 1개가 1행이고, 그 행들은 저장 시점에 발급되는 추천 id 하나로 묶인다. 상세 조회·목록에는 이 id 를 쓴다.
  *
  * 이후 채널의 단가·상품이 바뀌어도 저장된 추천은 변하지 않는다. 마이페이지는 이 저장분을 그대로 읽는다.
  *
@@ -274,6 +334,58 @@ export const presignOnboardingPerformanceFiles = <ThrowOnError extends boolean =
     ThrowOnError
   >({
     url: '/api/v1/onboarding/ad-history/presigned-urls',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+/**
+ * 채널 비교 조회
+ *
+ * 채널을 2~3개까지 비교한다.
+ * [비로그인]
+ * 매체명, CPC/CPM, 태그, 장점, 최소광고비를 요청순 반환.
+ * 오디언스·광고형태·타기팅·적합도·예상 노출·클릭은 고정 MOCK 값
+ *
+ * [로그인]
+ * 온보딩O: 매체명, 채널 상세, 적합도, 예상 노출·클릭, CPC/CPM, 채널 태그, 장점을 적합도순 반환
+ * 온보딩X: 매체명, 채널 상세, 기본 예산(100만원/1개월) 기준 예상 노출·클릭, CPC/CPM, 채널 태그, 장점을 요청순 반환
+ *
+ * 예산이 부족하면 예상 노출·클릭은 null.
+ * 회원이 만든 온보딩은 해당 회원만 사용할 수 있다.
+ */
+export const getChannelComparison = <ThrowOnError extends boolean = false>(
+  options: Options<GetChannelComparisonData, ThrowOnError>,
+): RequestResult<GetChannelComparisonResponses, GetChannelComparisonErrors, ThrowOnError> =>
+  (options.client ?? client).get<
+    GetChannelComparisonResponses,
+    GetChannelComparisonErrors,
+    ThrowOnError
+  >({ url: '/api/v1/channel-comparisons', ...options });
+
+/**
+ * 채널 비교 결과 저장
+ *
+ * 요청할 때마다 스냅샷 형태로 새로 저장 된다.
+ * 이후 채널 단가/상품이 바뀌어도 저장된 값은 그대로 유지된다.
+ *
+ * 온보딩 O: 적합도순 정렬로 저장, 본인 온보딩만 사용 가능
+ * 온보딩 X: 요청 순서 그대로 저장, serviceName 필수
+ *
+ * 로그인한 사용자만 저장할 수 있다.
+ */
+export const saveChannelComparison = <ThrowOnError extends boolean = false>(
+  options: Options<SaveChannelComparisonData, ThrowOnError>,
+): RequestResult<SaveChannelComparisonResponses, SaveChannelComparisonErrors, ThrowOnError> =>
+  (options.client ?? client).post<
+    SaveChannelComparisonResponses,
+    SaveChannelComparisonErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/channel-comparisons',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -547,6 +659,28 @@ export const getSampleById = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * 내가 저장한 채널 추천 목록
+ *
+ * 로그인한 사용자가 저장한 추천 결과를 최신순으로 반환한다. 목록에는 요약만 담고, 매체별 추정값·추천 근거는 상세 조회에서 받는다.
+ *
+ * 매체명은 저장 당시 이름을 추천 순위 순으로 준다.
+ *
+ * page/size 생략시 0 페이지 5건을 반환하며, 저장된 결과가 없으면 빈 목록으로 200 응답.
+ */
+export const getMyRecommendations = <ThrowOnError extends boolean = false>(
+  options?: Options<GetMyRecommendationsData, ThrowOnError>,
+): RequestResult<GetMyRecommendationsResponses, GetMyRecommendationsErrors, ThrowOnError> =>
+  (options?.client ?? client).get<
+    GetMyRecommendationsResponses,
+    GetMyRecommendationsErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/recommendations/my',
+    ...options,
+  });
+
+/**
  * 채널 목록 조회
  *
  * 채널을 조회한다. page/size 를 모두 생략하면 페이지네이션 없이 전체 채널을 반환한다. page 또는 size 중 하나라도 지정하면 페이지 조회로 동작한다(생략된 값은 page=0, size=12). size 는 최대 100. name 지정 시 채널명으로 필터링. primaryCategory 지정 시 그 대표 업종의 채널만 반환한다. 여러 번 넘기거나(primaryCategory=A&primaryCategory=B) 쉼표로 이어(primaryCategory=A,B) 여러 업종을 고를 수 있고, 그중 하나에 해당하면 남는다. 정렬은 name, createdAt 만 지원한다(형식: sort=name,desc / 기본값 name,asc)
@@ -565,6 +699,8 @@ export const getChannels = <ThrowOnError extends boolean = false>(
  * 채널 단건을 상세 조회한다. 채널 정보와 함께 광고 상품 목록, 오디언스 규모 지표, 집행 사례를 반환한다. 상품이 없는 채널은 products 를 빈 배열로 반환한다.
  *
  * 추천 목록에서 들어온 경우 그 추천의 onboardingId 를 함께 넘기면, 추천 근거가 된 온보딩 선택지(광고 목표·업종·예산)를 recommendationBasis 로 반환한다.
+ *
+ * 매체 키워드(tags)는 채널 고유의 키워드라 맞춤 여부와 무관하게 누구에게나 같은 값을 최대 2개까지 준다.
  */
 export const getChannel = <ThrowOnError extends boolean = false>(
   options: Options<GetChannelData, ThrowOnError>,
@@ -576,15 +712,47 @@ export const getChannel = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * 채널 비교 조회
+ * 저장된 채널 비교 상세
  *
- * 채널을 1~3개까지 비교한다. onboardingId 가 있으면 온보딩 조건으로 적합도, 태그(최대 2개), 예상 노출·클릭 수를 계산한다. onboardingId 가 없으면 기본 태그 전체를 반환하고 적합도와 예상 노출·클릭 수는 null이다. 예산이 부족하면 예상 노출·클릭 수는 null이며, 등록된 CPC·CPM 단가를 반환한다. 회원이 만든 온보딩은 해당 회원만 사용할 수 있다.
+ * 저장된 채널 비교 하나를 저장 시점 스냅샷 그대로 반환한다.
+ *
+ * 본인이 저장한 것만 조회할 수 있고,
+ * 그외의 채널 비교 id는 일관적으로 404(CMP-001) 응답을 반환한다.
  */
-export const getChannelComparison = <ThrowOnError extends boolean = false>(
-  options: Options<GetChannelComparisonData, ThrowOnError>,
-): RequestResult<GetChannelComparisonResponses, GetChannelComparisonErrors, ThrowOnError> =>
+export const getSavedChannelComparison = <ThrowOnError extends boolean = false>(
+  options: Options<GetSavedChannelComparisonData, ThrowOnError>,
+): RequestResult<
+  GetSavedChannelComparisonResponses,
+  GetSavedChannelComparisonErrors,
+  ThrowOnError
+> =>
   (options.client ?? client).get<
-    GetChannelComparisonResponses,
-    GetChannelComparisonErrors,
+    GetSavedChannelComparisonResponses,
+    GetSavedChannelComparisonErrors,
     ThrowOnError
-  >({ url: '/api/v1/channel-comparisons', ...options });
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/channel-comparisons/{comparisonId}',
+    ...options,
+  });
+
+/**
+ * 내가 저장한 채널 비교 목록
+ *
+ * 로그인한 사용자가 저장한 채널 비교 결과를 최신순으로 반환한다.
+ *
+ * page/size 생략시 0 페이지 5건을 반환하며,
+ * 저장된 결과가 없으면 빈 목록으로 200 응답.
+ */
+export const getMyChannelComparisons = <ThrowOnError extends boolean = false>(
+  options?: Options<GetMyChannelComparisonsData, ThrowOnError>,
+): RequestResult<GetMyChannelComparisonsResponses, GetMyChannelComparisonsErrors, ThrowOnError> =>
+  (options?.client ?? client).get<
+    GetMyChannelComparisonsResponses,
+    GetMyChannelComparisonsErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/channel-comparisons/my',
+    ...options,
+  });

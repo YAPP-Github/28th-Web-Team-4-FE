@@ -4,7 +4,11 @@ import type { JSX } from 'react';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 
-import type { SavedRecommendation } from '@/pages/mypage/model/my-page-content';
+import type {
+  SavedChannelComparison,
+  SavedRecommendation,
+  SavedSimulation,
+} from '@/pages/mypage/model/my-page-content';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
@@ -13,11 +17,27 @@ import { SavedResultsTabs } from './saved-results-tabs';
 type SavedResultsCardProps = {
   isLoggedIn: boolean;
   recommendations?: readonly SavedRecommendation[];
+  comparisons?: readonly SavedChannelComparison[];
+  simulations?: readonly SavedSimulation[];
+  isComparisonsLoading?: boolean;
+  isComparisonsError?: boolean;
+  isSimulationsLoading?: boolean;
+  isSimulationsError?: boolean;
+  recommendationsLoading?: boolean;
+  recommendationsError?: boolean;
 };
 
 export function SavedResultsCard({
   isLoggedIn,
   recommendations = [],
+  comparisons = [],
+  simulations = [],
+  isComparisonsLoading = false,
+  isComparisonsError = false,
+  isSimulationsLoading = false,
+  isSimulationsError = false,
+  recommendationsLoading = false,
+  recommendationsError = false,
 }: SavedResultsCardProps): JSX.Element {
   const hasRecommendations = isLoggedIn && recommendations.length > 0;
 
@@ -50,6 +70,14 @@ export function SavedResultsCard({
         <SavedResultsTabs
           isLoggedIn={isLoggedIn}
           recommendations={recommendations}
+          comparisons={comparisons}
+          simulations={simulations}
+          recommendationsLoading={recommendationsLoading}
+          recommendationsError={recommendationsError}
+          comparisonsLoading={isComparisonsLoading}
+          comparisonsError={isComparisonsError}
+          simulationsLoading={isSimulationsLoading}
+          simulationsError={isSimulationsError}
           previewLimit={3}
         />
       </Box>

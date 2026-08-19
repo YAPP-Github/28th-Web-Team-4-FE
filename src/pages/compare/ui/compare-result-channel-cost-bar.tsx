@@ -6,9 +6,8 @@
 'use client';
 
 import type { JSX } from 'react';
-import { Bar, BarChart, LabelList, YAxis } from 'recharts';
+import { Bar, BarChart, LabelList, type LabelProps, YAxis } from 'recharts';
 
-import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Tooltip } from '@/shared/ui/tooltip';
 
@@ -16,6 +15,7 @@ const COST_FORMATTER = new Intl.NumberFormat('ko-KR');
 const COST_CHART_HEIGHT = 86;
 const COST_CHART_MARGIN_TOP = 24;
 const COST_CHART_PLOT_HEIGHT = COST_CHART_HEIGHT - COST_CHART_MARGIN_TOP;
+const COST_VALUE_LABEL_OFFSET = 8;
 const COST_VALUE_LABEL_GAP = 4;
 const COST_VALUE_LABEL_RENDERED_HEIGHT = 18;
 const COST_VALUE_LABEL_CENTER_OFFSET = COST_VALUE_LABEL_GAP + COST_VALUE_LABEL_RENDERED_HEIGHT / 2;
@@ -38,6 +38,44 @@ type RecommendationCalloutProps = {
   /** 차트 상단을 기준으로 한 숫자 중심의 y 좌표. */
   anchorTop: number;
 };
+
+type CostValueLabelProps = Pick<LabelProps, 'width' | 'x' | 'y'> & {
+  available: boolean;
+  label: string;
+  recommended: boolean;
+};
+
+function getCostValueLabelClassName(available: boolean, recommended: boolean): string {
+  if (!available) {
+    return 'typo-body-xs fill-text-low';
+  }
+
+  return recommended ? 'typo-subtitle-lg fill-text-primary' : 'typo-subtitle-md fill-text-low';
+}
+
+/** Recharts가 전달한 막대 좌표를 기준으로 비용 라벨을 한 줄로 표시한다. */
+function CostValueLabel({
+  available,
+  label,
+  recommended,
+  width = 0,
+  x = 0,
+  y = 0,
+}: CostValueLabelProps): JSX.Element {
+  const labelX = Number(x) + Number(width) / 2;
+  const labelY = Number(y) - COST_VALUE_LABEL_OFFSET;
+
+  return (
+    <text
+      x={labelX}
+      y={labelY}
+      textAnchor="middle"
+      className={getCostValueLabelClassName(available, recommended)}
+    >
+      {label}
+    </text>
+  );
+}
 
 /** 공용 Tooltip을 항상 보이는 추천 안내로 배치한다. */
 function RecommendationCallout({ children, anchorTop }: RecommendationCalloutProps): JSX.Element {
@@ -66,7 +104,7 @@ function RecommendationCallout({ children, anchorTop }: RecommendationCalloutPro
 
 /**
  * 비용을 막대 높이와 한국어 숫자 형식으로 표시한다.
- * Recharts의 기본 막대 애니메이션은 유지한다.
+ * 값이 없으면 Recharts의 최소 막대 높이로 32×2px 기준선을 표시한다.
  */
 export function CompareResultChannelCostBar({
   value,
@@ -74,13 +112,18 @@ export function CompareResultChannelCostBar({
   recommended,
   recommendation,
 }: CompareResultChannelCostBarProps): JSX.Element {
-  const label = value === null ? '-' : COST_FORMATTER.format(value);
-  const barHeight = value === null ? 0 : (value / maximumValue) * COST_CHART_PLOT_HEIGHT;
+  const available = value !== null;
+  const label = available ? COST_FORMATTER.format(value) : '확인 불가';
+  const barHeight = available ? (value / maximumValue) * COST_CHART_PLOT_HEIGHT : 0;
   // Tooltip이 카드가 아닌 현재 막대의 숫자 중심을 따라가도록 y 좌표를 맞춘다.
   const recommendationAnchorTop = COST_CHART_HEIGHT - barHeight - COST_VALUE_LABEL_CENTER_OFFSET;
 
   return (
-    <Box className="relative h-[86px] w-[94px]">
+    <Box
+      className="relative h-[86px] w-[94px]"
+      data-availability={available ? 'available' : 'unavailable'}
+      data-recommended={recommended ? 'true' : 'false'}
+    >
       <Box aria-hidden="true">
         <BarChart
           width={94}
@@ -93,17 +136,14 @@ export function CompareResultChannelCostBar({
             dataKey="value"
             fill={recommended ? 'var(--color-text-primary)' : 'var(--color-surface-default)'}
             radius={4}
-            barSize={33}
-            minPointSize={value === null ? 2 : 0}
+            barSize={32}
+            minPointSize={available ? 0 : 2}
           >
             <LabelList
               dataKey="label"
-              position="top"
-              offset={8}
-              className={cn(
-                'typo-subtitle-lg',
-                recommended ? 'fill-text-primary' : 'fill-text-low',
-              )}
+              content={
+                <CostValueLabel available={available} label={label} recommended={recommended} />
+              }
             />
           </Bar>
         </BarChart>

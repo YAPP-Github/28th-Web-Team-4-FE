@@ -4,26 +4,41 @@ import type { JSX } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 
-import type { SavedRecommendation } from '@/pages/mypage/model/my-page-content';
+import type { SavedRecommendation, SavedResult } from '@/pages/mypage/model/my-page-content';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
 import { Tabs } from '@/shared/ui/tabs';
 import { Text } from '@/shared/ui/text';
 
+import { SavedResultSkeletonList } from './my-page-skeleton';
+
 type SavedResultPanelKind = 'recommendation' | 'comparison' | 'simulation';
 
 type SavedResultPanelProps = {
   isLoggedIn: boolean;
   kind: SavedResultPanelKind;
-  recommendations: readonly SavedRecommendation[];
+  recommendations?: readonly SavedRecommendation[];
+  results?: readonly SavedResult[];
   previewLimit?: number;
+  linkRecommendations?: boolean;
+  isLoading?: boolean;
+  isError?: boolean;
 };
 
 type SavedResultsTabsProps = {
   isLoggedIn: boolean;
   recommendations?: readonly SavedRecommendation[];
+  comparisons?: readonly SavedResult[];
+  simulations?: readonly SavedResult[];
   previewLimit?: number;
+  linkRecommendations?: boolean;
+  recommendationsLoading?: boolean;
+  recommendationsError?: boolean;
+  comparisonsLoading?: boolean;
+  comparisonsError?: boolean;
+  simulationsLoading?: boolean;
+  simulationsError?: boolean;
 };
 
 const SAVED_RESULT_EMPTY_STATES = {
@@ -46,14 +61,13 @@ const SAVED_RESULT_EMPTY_STATES = {
 
 function SavedRecommendationCard({
   recommendation,
+  linkToDetail,
 }: {
   recommendation: SavedRecommendation;
+  linkToDetail: boolean;
 }): JSX.Element {
-  return (
-    <Link
-      href={`/recommend/${recommendation.onboardingId}`}
-      className="bg-surface-lowest border-outline-low focus-visible:outline-sys-primary-default px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
-    >
+  const content = (
+    <Box className="bg-surface-lowest border-outline-low px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border">
       <Box className="gap-010 flex min-w-0 flex-1 flex-col items-start">
         <Box className="gap-002 flex w-full flex-col">
           <Text as="h3" variant="subtitle-md" className="text-text-high">
@@ -76,15 +90,85 @@ function SavedRecommendationCard({
         className="text-icon-low size-020 shrink-0"
         strokeWidth={1.5}
       />
+    </Box>
+  );
+
+  if (!linkToDetail) {
+    return content;
+  }
+
+  return (
+    <Link
+      href={`/recommend/${recommendation.id}`}
+      className="focus-visible:outline-sys-primary-default block w-full rounded-[var(--radius-s)] outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+    >
+      {content}
     </Link>
+  );
+}
+
+function SavedResultCard({
+  result,
+  kind,
+}: {
+  result: SavedResult;
+  kind: 'comparison' | 'simulation';
+}): JSX.Element {
+  const content = (
+    <>
+      <Box className="gap-010 flex min-w-0 flex-1 flex-col items-start">
+        <Box className="gap-002 flex w-full flex-col">
+          <Text as="h3" variant="subtitle-md" className="text-text-high">
+            {result.title}
+          </Text>
+          <Text as="p" variant="body-sm" className="text-text-low">
+            {kind === 'comparison' ? '마지막 비교' : '마지막 시뮬레이션'} : {result.savedAt}
+          </Text>
+        </Box>
+        <Box className="gap-006 flex max-w-full items-center overflow-hidden">
+          {result.channelNames.map((channelName) => (
+            <Badge key={channelName} frame="badge" tone="deep-gray">
+              {channelName}
+            </Badge>
+          ))}
+        </Box>
+      </Box>
+      <ChevronRight
+        aria-hidden="true"
+        className="text-icon-low size-020 shrink-0"
+        strokeWidth={1.5}
+      />
+    </>
+  );
+
+  if (kind === 'simulation') {
+    return (
+      <Link
+        href={`/simulator/saved/${result.id}`}
+        aria-label={`${result.title} 저장된 시뮬레이션 결과`}
+        className="bg-surface-lowest border-outline-low focus-visible:outline-sys-primary-default px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <Box className="bg-surface-lowest border-outline-low px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border">
+      {content}
+    </Box>
   );
 }
 
 function SavedResultPanel({
   isLoggedIn,
   kind,
-  recommendations,
+  recommendations = [],
+  results = [],
   previewLimit,
+  linkRecommendations = false,
+  isLoading = false,
+  isError = false,
 }: SavedResultPanelProps): JSX.Element {
   const emptyState = SAVED_RESULT_EMPTY_STATES[kind];
 
@@ -100,6 +184,23 @@ function SavedResultPanel({
     );
   }
 
+  if (isLoading) {
+    return <SavedResultSkeletonList testId={`${kind}-results-skeleton`} announceLoading />;
+  }
+
+  if (isError) {
+    return (
+      <Text
+        as="p"
+        variant="body-xl"
+        role="alert"
+        className="text-text-low flex h-[96px] w-full items-center justify-center text-center"
+      >
+        저장된 결과를 불러오지 못했어요
+      </Text>
+    );
+  }
+
   if (kind === 'recommendation' && recommendations.length > 0) {
     const visibleRecommendations =
       previewLimit === undefined ? recommendations : recommendations.slice(0, previewLimit);
@@ -108,9 +209,22 @@ function SavedResultPanel({
       <Box className="gap-010 mt-018 flex w-full flex-col">
         {visibleRecommendations.map((recommendation) => (
           <SavedRecommendationCard
-            key={recommendation.onboardingId}
+            key={recommendation.id}
             recommendation={recommendation}
+            linkToDetail={linkRecommendations}
           />
+        ))}
+      </Box>
+    );
+  }
+
+  if (kind !== 'recommendation' && results.length > 0) {
+    const visibleResults = previewLimit === undefined ? results : results.slice(0, previewLimit);
+
+    return (
+      <Box className="gap-010 mt-018 flex w-full flex-col">
+        {visibleResults.map((result) => (
+          <SavedResultCard key={result.id} result={result} kind={kind} />
         ))}
       </Box>
     );
@@ -165,7 +279,16 @@ export function SavedResultsTabList(): JSX.Element {
 export function SavedResultsTabs({
   isLoggedIn,
   recommendations = [],
+  comparisons = [],
+  simulations = [],
   previewLimit,
+  linkRecommendations = false,
+  recommendationsLoading = false,
+  recommendationsError = false,
+  comparisonsLoading = false,
+  comparisonsError = false,
+  simulationsLoading = false,
+  simulationsError = false,
 }: SavedResultsTabsProps): JSX.Element {
   return (
     <Tabs.Root defaultValue="recommendation" className="w-full">
@@ -176,13 +299,30 @@ export function SavedResultsTabs({
           kind="recommendation"
           recommendations={recommendations}
           previewLimit={previewLimit}
+          linkRecommendations={linkRecommendations}
+          isLoading={recommendationsLoading}
+          isError={recommendationsError}
         />
       </Tabs.Panel>
       <Tabs.Panel value="comparison">
-        <SavedResultPanel isLoggedIn={isLoggedIn} kind="comparison" recommendations={[]} />
+        <SavedResultPanel
+          isLoggedIn={isLoggedIn}
+          kind="comparison"
+          results={comparisons}
+          previewLimit={previewLimit}
+          isLoading={comparisonsLoading}
+          isError={comparisonsError}
+        />
       </Tabs.Panel>
       <Tabs.Panel value="simulation">
-        <SavedResultPanel isLoggedIn={isLoggedIn} kind="simulation" recommendations={[]} />
+        <SavedResultPanel
+          isLoggedIn={isLoggedIn}
+          kind="simulation"
+          results={simulations}
+          previewLimit={previewLimit}
+          isLoading={simulationsLoading}
+          isError={simulationsError}
+        />
       </Tabs.Panel>
     </Tabs.Root>
   );

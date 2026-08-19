@@ -1,8 +1,9 @@
-import { Suspense, type ReactNode } from 'react';
+import { Suspense, type ComponentProps, type ReactNode } from 'react';
 import { OverlayProvider } from 'overlay-kit';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
+import type * as MotionReact from 'motion/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -38,6 +39,74 @@ vi.mock('@/shared/ui/toast', () => ({
   showWarningToast: showWarningToastMock,
 }));
 
+vi.mock('motion/react', async (importOriginal) => {
+  const original = await importOriginal<typeof MotionReact>();
+
+  return {
+    ...original,
+    AnimatePresence: ({ children }: { children: ReactNode }) => <>{children}</>,
+    motion: {
+      div: ({
+        animate: _animate,
+        children,
+        custom: _custom,
+        exit: _exit,
+        initial: _initial,
+        transition: _transition,
+        variants: _variants,
+        ...props
+      }: ComponentProps<'div'> & {
+        animate?: unknown;
+        custom?: unknown;
+        exit?: unknown;
+        initial?: unknown;
+        transition?: unknown;
+        variants?: unknown;
+      }) => <div {...props}>{children}</div>,
+      li: ({
+        animate: _animate,
+        children,
+        custom: _custom,
+        initial: _initial,
+        variants: _variants,
+        ...props
+      }: ComponentProps<'li'> & {
+        animate?: unknown;
+        custom?: unknown;
+        initial?: unknown;
+        variants?: unknown;
+      }) => <li {...props}>{children}</li>,
+      span: ({
+        animate: _animate,
+        children,
+        exit: _exit,
+        initial: _initial,
+        transition: _transition,
+        ...props
+      }: ComponentProps<'span'> & {
+        animate?: unknown;
+        exit?: unknown;
+        initial?: unknown;
+        transition?: unknown;
+      }) => <span {...props}>{children}</span>,
+      ul: ({
+        animate: _animate,
+        children,
+        custom: _custom,
+        initial: _initial,
+        variants: _variants,
+        ...props
+      }: ComponentProps<'ul'> & {
+        animate?: unknown;
+        custom?: unknown;
+        initial?: unknown;
+        variants?: unknown;
+      }) => <ul {...props}>{children}</ul>,
+    },
+    useReducedMotion: () => false,
+  };
+});
+
 const initialStore = useRecommendOnboardingStore.getState();
 const RECOMMENDATION_ONBOARDING_ID = 'onboarding-87';
 const apiRecommendation = {
@@ -52,6 +121,7 @@ const apiRecommendation = {
   estImpressions: { min: 12000, max: 15000 },
   estClicks: { min: 300, max: 450 },
   isExecutable: true,
+  shortfallWon: null,
 } as const satisfies RecommendationItemResponse;
 
 const recommendationChannel = {
@@ -59,6 +129,7 @@ const recommendationChannel = {
   name: apiRecommendation.channelName,
   description: apiRecommendation.recommendationReason,
   cpcPrice: '클릭 1회당 320원~',
+  isLowestCpc: false,
   matchRate: apiRecommendation.matchRate,
   thumbnailSrc: '/recommend-assets/naver-search-ad.png',
   metrics: [
@@ -164,6 +235,7 @@ function createChannelDetailResponse(
     audienceMetrics: [],
     references: [],
     recommendationBasis: null,
+    tags: [],
     ...overrides,
   };
 }
@@ -188,7 +260,10 @@ function renderRecommendResultWithRecommendations(
 
   return renderWithProviders(
     <Suspense fallback={<div>loading</div>}>
-      <RecommendResultWithRecommendations onboardingId={RECOMMENDATION_ONBOARDING_ID} />
+      <RecommendResultWithRecommendations
+        isGuest={false}
+        onboardingId={RECOMMENDATION_ONBOARDING_ID}
+      />
     </Suspense>,
   );
 }
@@ -358,17 +433,33 @@ describe('RecommendResultPage', () => {
   it('blurs the top two cards and provides login links for guests', () => {
     renderRecommendResultPage({ isGuest: true });
 
-    expect(screen.getAllByRole('link', { name: '로그인하기' })).toHaveLength(2);
-    expect(screen.getAllByRole('link', { name: '로그인하기' })[0]).toHaveAttribute(
-      'href',
-      '/login',
-    );
-    expect(screen.getByRole('article', { name: '네이버 검색 광고' })).toHaveTextContent(
-      '전체 결과를 볼 수 있어요',
+    const loginLinks = screen.getAllByRole('link', { name: '로그인하기' });
+    const lockedArticle = screen.getByRole('article', { name: '네이버 검색 광고' });
+    const blurredContent = lockedArticle.querySelector('.blur-\\[4px\\]');
+
+    expect(loginLinks).toHaveLength(2);
+    expect(loginLinks[0]).toHaveAttribute('href', '/login');
+    expect(lockedArticle).toHaveAttribute('data-locked', 'true');
+    expect(lockedArticle).not.toHaveClass('motion-safe:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)]');
+    expect(lockedArticle).toHaveTextContent('전체 결과를 볼 수 있어요');
+    expect(blurredContent).not.toBeInTheDocument();
+    expect(lockedArticle.querySelector('[aria-hidden="true"][inert]')).toBeInTheDocument();
+    expect(within(lockedArticle).getByTestId('recommend-channel-lock-surface')).toHaveClass(
+      'bg-sys-blur',
+      'backdrop-blur-[6px]',
+      'blur-[2px]',
+      'inset-y-[-8px]',
+      'inset-x-[-9px]',
     );
     expect(
-      screen.getByRole('article', { name: '네이버 검색 광고' }).querySelector('.blur-\\[4px\\]'),
-    ).toBeInTheDocument();
+      within(lockedArticle).queryByRole('button', {
+        name: '네이버 검색 광고 상세 정보 열기',
+      }),
+    ).not.toBeInTheDocument();
+    expect(within(lockedArticle).getByRole('link', { name: '로그인하기' })).toHaveClass(
+      'typo-body-md',
+    );
+    expect(within(lockedArticle).getByText(/로그인하면/)).toHaveClass('typo-subtitle-xxs');
     expect(
       screen.getByRole('button', { name: '카카오 검색 광고 상세 정보 열기' }),
     ).toBeInTheDocument();
@@ -405,7 +496,10 @@ describe('RecommendResultPage', () => {
     await user.click(saveButton);
 
     await waitFor(() => {
-      expect(requestBody).toEqual({ onboardingId: RECOMMENDATION_ONBOARDING_ID });
+      expect(requestBody).toEqual({
+        onboardingId: RECOMMENDATION_ONBOARDING_ID,
+        serviceName: '채소집',
+      });
     });
     expect(screen.getByRole('button', { name: '저장 중' })).toBeDisabled();
 

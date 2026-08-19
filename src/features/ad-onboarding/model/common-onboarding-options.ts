@@ -1,4 +1,5 @@
 import { CATEGORY_LABELS } from '@/shared/lib/recommendation-labels';
+import { entries } from '@/shared/lib/object';
 
 /**
  * 추천 온보딩 공통 질문에서 사용하는 선택지 value와 표시 데이터를 정의한다.
@@ -13,6 +14,10 @@ export type OnboardingOption<TValue extends string> = {
   value: TValue;
   label: string;
   description?: string;
+};
+
+export type OnboardingOptionByValue<TValue extends string> = {
+  readonly [Value in TValue]: OnboardingOption<Value>;
 };
 
 /** 광고할 서비스의 업종. */
@@ -55,37 +60,53 @@ export type BudgetRange = {
   maxAmount: BudgetAmount;
 };
 
-export const CATEGORY_OPTION_LIST = [
-  { value: 'GAME', label: CATEGORY_LABELS.GAME },
-  { value: 'ENTERTAINMENT', label: CATEGORY_LABELS.ENTERTAINMENT },
-  { value: 'EDUCATION', label: CATEGORY_LABELS.EDUCATION },
-  { value: 'SOCIAL_COMMUNITY', label: CATEGORY_LABELS.SOCIAL_COMMUNITY },
-  { value: 'LIFESTYLE', label: CATEGORY_LABELS.LIFESTYLE },
-  { value: 'HEALTH_FITNESS', label: CATEGORY_LABELS.HEALTH_FITNESS },
-  { value: 'FOOD_BEVERAGE', label: CATEGORY_LABELS.FOOD_BEVERAGE },
-  { value: 'SHOPPING_COMMERCE', label: CATEGORY_LABELS.SHOPPING_COMMERCE },
-  { value: 'FINANCE_FINTECH', label: CATEGORY_LABELS.FINANCE_FINTECH },
-  { value: 'BUSINESS_B2B', label: CATEGORY_LABELS.BUSINESS_B2B },
-  { value: 'MEDICAL_HEALTHCARE', label: CATEGORY_LABELS.MEDICAL_HEALTHCARE },
-  { value: 'TRAVEL_ACCOMMODATION', label: CATEGORY_LABELS.TRAVEL_ACCOMMODATION },
-  { value: 'MUSIC_MEDIA', label: CATEGORY_LABELS.MUSIC_MEDIA },
-  { value: 'PRODUCTIVITY_UTILITY', label: CATEGORY_LABELS.PRODUCTIVITY_UTILITY },
-  { value: 'SPORTS', label: CATEGORY_LABELS.SPORTS },
-  { value: 'NEWS_INFORMATION', label: CATEGORY_LABELS.NEWS_INFORMATION },
-  { value: 'OTHER', label: CATEGORY_LABELS.OTHER },
-] as const satisfies readonly OnboardingOption<CategoryId>[];
+export const CATEGORY_OPTION_BY_VALUE = {
+  GAME: { value: 'GAME', label: CATEGORY_LABELS.GAME },
+  ENTERTAINMENT: { value: 'ENTERTAINMENT', label: CATEGORY_LABELS.ENTERTAINMENT },
+  EDUCATION: { value: 'EDUCATION', label: CATEGORY_LABELS.EDUCATION },
+  SOCIAL_COMMUNITY: { value: 'SOCIAL_COMMUNITY', label: CATEGORY_LABELS.SOCIAL_COMMUNITY },
+  LIFESTYLE: { value: 'LIFESTYLE', label: CATEGORY_LABELS.LIFESTYLE },
+  HEALTH_FITNESS: { value: 'HEALTH_FITNESS', label: CATEGORY_LABELS.HEALTH_FITNESS },
+  FOOD_BEVERAGE: { value: 'FOOD_BEVERAGE', label: CATEGORY_LABELS.FOOD_BEVERAGE },
+  SHOPPING_COMMERCE: { value: 'SHOPPING_COMMERCE', label: CATEGORY_LABELS.SHOPPING_COMMERCE },
+  FINANCE_FINTECH: { value: 'FINANCE_FINTECH', label: CATEGORY_LABELS.FINANCE_FINTECH },
+  BUSINESS_B2B: { value: 'BUSINESS_B2B', label: CATEGORY_LABELS.BUSINESS_B2B },
+  MEDICAL_HEALTHCARE: { value: 'MEDICAL_HEALTHCARE', label: CATEGORY_LABELS.MEDICAL_HEALTHCARE },
+  TRAVEL_ACCOMMODATION: {
+    value: 'TRAVEL_ACCOMMODATION',
+    label: CATEGORY_LABELS.TRAVEL_ACCOMMODATION,
+  },
+  MUSIC_MEDIA: { value: 'MUSIC_MEDIA', label: CATEGORY_LABELS.MUSIC_MEDIA },
+  PRODUCTIVITY_UTILITY: {
+    value: 'PRODUCTIVITY_UTILITY',
+    label: CATEGORY_LABELS.PRODUCTIVITY_UTILITY,
+  },
+  SPORTS: { value: 'SPORTS', label: CATEGORY_LABELS.SPORTS },
+  NEWS_INFORMATION: { value: 'NEWS_INFORMATION', label: CATEGORY_LABELS.NEWS_INFORMATION },
+  OTHER: { value: 'OTHER', label: CATEGORY_LABELS.OTHER },
+} as const satisfies OnboardingOptionByValue<CategoryId>;
 
-export const SERVICE_TYPE_OPTION_LIST = [
-  { value: 'MOBILE_APP', label: '모바일 앱', description: 'iOS / Android' },
-  { value: 'WEB_SERVICE', label: '웹 서비스', description: 'PC·모바일 브라우저' },
-  { value: 'APP_AND_WEB', label: '앱 + 웹 모두' },
-  { value: 'OTHER', label: '기타' },
-] as const satisfies readonly OnboardingOption<ServiceTypeId>[];
+export const CATEGORY_OPTION_LIST = entries(CATEGORY_OPTION_BY_VALUE).map(([, option]) => option);
 
-export const CAMPAIGN_PERIOD_OPTION_LIST = [
-  { value: 'UNDER_1_WEEK', label: '1주 이하' },
-  { value: 'TWO_TO_THREE_WEEKS', label: '2~3주 (8~21일)' },
-  { value: 'ONE_MONTH', label: '1개월 (22~31일)' },
-  { value: 'TWO_TO_THREE_MONTHS', label: '2~3개월' },
-  { value: 'OVER_THREE_MONTHS', label: '3개월 이상' },
-] as const satisfies readonly OnboardingOption<CampaignPeriodId>[];
+export const SERVICE_TYPE_OPTION_BY_VALUE = {
+  MOBILE_APP: { value: 'MOBILE_APP', label: '모바일 앱', description: 'iOS / Android' },
+  WEB_SERVICE: { value: 'WEB_SERVICE', label: '웹 서비스', description: 'PC·모바일 브라우저' },
+  APP_AND_WEB: { value: 'APP_AND_WEB', label: '앱 + 웹 모두' },
+  OTHER: { value: 'OTHER', label: '기타' },
+} as const satisfies OnboardingOptionByValue<ServiceTypeId>;
+
+export const SERVICE_TYPE_OPTION_LIST = entries(SERVICE_TYPE_OPTION_BY_VALUE).map(
+  ([, option]) => option,
+);
+
+export const CAMPAIGN_PERIOD_OPTION_BY_VALUE = {
+  UNDER_1_WEEK: { value: 'UNDER_1_WEEK', label: '1주 이하' },
+  TWO_TO_THREE_WEEKS: { value: 'TWO_TO_THREE_WEEKS', label: '2~3주 (8~21일)' },
+  ONE_MONTH: { value: 'ONE_MONTH', label: '1개월 (22~31일)' },
+  TWO_TO_THREE_MONTHS: { value: 'TWO_TO_THREE_MONTHS', label: '2~3개월' },
+  OVER_THREE_MONTHS: { value: 'OVER_THREE_MONTHS', label: '3개월 이상' },
+} as const satisfies OnboardingOptionByValue<CampaignPeriodId>;
+
+export const CAMPAIGN_PERIOD_OPTION_LIST = entries(CAMPAIGN_PERIOD_OPTION_BY_VALUE).map(
+  ([, option]) => option,
+);

@@ -1,11 +1,14 @@
-import type { JSX } from 'react';
-import { Download, Info } from 'lucide-react';
+import type { JSX, ReactNode } from 'react';
+import { Info } from 'lucide-react';
 
-import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
-export function CompareResultSubHeader(): JSX.Element {
+type CompareResultSubHeaderProps = {
+  action: ReactNode;
+};
+
+export function CompareResultSubHeader({ action }: CompareResultSubHeaderProps): JSX.Element {
   return (
     <Box className="bg-surface-lowest border-outline-low min-h-072 px-016 py-016 sm:px-032 w-full border-y lg:px-120 lg:py-0">
       <Box className="gap-016 lg:min-h-072 flex w-full max-w-[1200px] flex-col lg:mx-auto lg:flex-row lg:items-center lg:justify-between">
@@ -19,14 +22,7 @@ export function CompareResultSubHeader(): JSX.Element {
           </Text>
           <Info aria-hidden="true" className="text-icon-default size-018 shrink-0" />
         </Box>
-        <Button
-          frame="button"
-          tone="stroke"
-          className="border-outline-low h-044 px-020 py-010 w-full lg:w-auto"
-          leftIcon={<Download aria-hidden="true" className="text-icon-high size-016" />}
-        >
-          결과 저장하기
-        </Button>
+        {action}
       </Box>
     </Box>
   );

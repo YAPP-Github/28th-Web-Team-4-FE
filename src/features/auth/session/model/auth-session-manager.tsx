@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
 import { logoutAuthSession, refreshAuthSession } from '@/features/auth/session/api/auth-session';
+import { userQueryKey } from '@/shared/lib/query-keys';
 
 import { authSessionQueryKey, authSessionQueryOptions } from './auth-session-query';
 
@@ -33,6 +34,7 @@ export function AuthSessionManager(): JSX.Element | null {
       }
 
       queryClient.setQueryData(authSessionQueryKey, { authenticated: false });
+      queryClient.removeQueries({ queryKey: userQueryKey });
       router.replace('/login');
       router.refresh();
     },

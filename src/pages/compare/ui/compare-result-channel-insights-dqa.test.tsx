@@ -9,6 +9,56 @@ import { MOCK_COMPARE_RESULT_CHANNELS } from '@/pages/compare/model/compare-resu
 
 import { CompareResultChannelInsightsDqa } from './compare-result-channel-insights-dqa';
 
+type LevaControl = {
+  value: string | boolean;
+  options?: readonly string[] | Record<string, string>;
+  label: string;
+  onChange?: (value: never, path: string, context: { initial: boolean }) => void;
+};
+
+const { levaPanelState } = vi.hoisted(() => ({
+  levaPanelState: {
+    controls: {} as Record<string, LevaControl>,
+  },
+}));
+
+vi.mock('leva', () => ({
+  useCreateStore: () => ({}),
+  useControls: (controls: Record<string, LevaControl>) => {
+    levaPanelState.controls = controls;
+  },
+  LevaPanel: ({ titleBar }: { titleBar: { title: string } }) => {
+    const variantControl = levaPanelState.controls.variant;
+    const variantOptions = Array.isArray(variantControl.options)
+      ? variantControl.options.map((option) => ({ label: option, value: option }))
+      : Object.entries(variantControl.options ?? {}).map(([label, value]) => ({ label, value }));
+
+    return (
+      <section aria-label={titleBar.title}>
+        <p>{titleBar.title}</p>
+        <label>
+          {variantControl.label}
+          <select
+            aria-label={variantControl.label}
+            value={String(variantControl.value)}
+            onChange={(event) => {
+              variantControl.onChange?.(event.target.value as never, 'variant', {
+                initial: false,
+              });
+            }}
+          >
+            {variantOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </section>
+    );
+  },
+}));
+
 function renderDqaInsights(
   searchParams: string,
   onUrlUpdate: (event: Parameters<OnUrlUpdateFunction>[0]) => void = () => {},
@@ -33,14 +83,16 @@ describe('CompareResultChannelInsightsDqa', () => {
 
     expect(firstChannel).toHaveAttribute(
       'aria-labelledby',
-      'compare-result-channel-naver-stacked-insight-title',
+      'compare-result-channel-naver-split-insight-title',
     );
     expect(within(region).getByRole('article', { name: '카카오 키워드 광고' })).toBeVisible();
     expect(screen.queryByText('채널 인사이트 DQA')).not.toBeInTheDocument();
   });
 
   it('DQA 모드에서는 URL의 카드 안과 펼침 상태를 적용한다', async () => {
-    renderDqaInsights('?dqa=channel-insight&insightVariant=split&insightOpen=false');
+    renderDqaInsights(
+      '?dqa=channel-insight&insightVariant=split&insightOpen=false&insightCollapse=first',
+    );
 
     const region = await screen.findByRole('region', { name: '채널별 인사이트' });
     const firstChannel = within(region).getByRole('article', { name: '네이버 검색 광고' });
@@ -70,8 +122,8 @@ describe('CompareResultChannelInsightsDqa', () => {
     expect(onUrlUpdate.mock.lastCall?.[0].searchParams.get('insightVariant')).toBe('action');
   });
 
-  it('DQA 쿼리로 접었을 때 제목만 남길 수 있다', async () => {
-    renderDqaInsights('?dqa=channel-insight&insightOpen=false&insightCollapse=title');
+  it('DQA의 기본 접힘 상태에서 제목만 남긴다', async () => {
+    renderDqaInsights('?dqa=channel-insight&insightOpen=false');
 
     const region = await screen.findByRole('region', { name: '채널별 인사이트' });
 

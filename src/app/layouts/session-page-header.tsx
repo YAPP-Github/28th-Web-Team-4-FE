@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 
 import { useAuthSession, useLogout } from '@/features/auth/session';
 import { PageHeader } from '@/features/navigation/page-header';
-
-const PREVIEW_USER_NAME = 'YAPP';
+import { useMyProfile } from '@/pages/mypage/api/use-my-profile';
 
 export function SessionPageHeader(): JSX.Element {
   const { isAuthenticated } = useAuthSession();
+  const profileQuery = useMyProfile({ enabled: isAuthenticated });
   const router = useRouter();
   const { logout, isPending, errorMessage } = useLogout();
 
@@ -25,7 +25,7 @@ export function SessionPageHeader(): JSX.Element {
   return isAuthenticated ? (
     <PageHeader
       isLogin
-      userName={PREVIEW_USER_NAME}
+      userName={profileQuery.data?.nickname}
       onLogout={handleLogout}
       isLogoutPending={isPending}
       logoutError={errorMessage}

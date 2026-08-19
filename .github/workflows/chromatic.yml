@@ -1,53 +1,9 @@
 name: 'Chromatic'
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/chromatic.yml'
-      - '.github/actions/pnpm-setup-node/**'
-      - '.storybook/**'
-      - 'src/stories/**'
-      - 'src/**/*.stories.*'
-      - 'src/**/*.mdx'
-      - 'src/shared/ui/**'
-      - 'src/shared/fonts/**'
-      - 'src/app/styles/**'
-      - 'src/styles/tokens/**'
-      - 'design-tokens/**'
-      - 'public/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'mise.toml'
-      - 'tsconfig.json'
-      - 'next.config.ts'
-      - 'postcss.config.mjs'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/chromatic.yml'
-      - '.github/actions/pnpm-setup-node/**'
-      - '.storybook/**'
-      - 'src/stories/**'
-      - 'src/**/*.stories.*'
-      - 'src/**/*.mdx'
-      - 'src/shared/ui/**'
-      - 'src/shared/fonts/**'
-      - 'src/app/styles/**'
-      - 'src/styles/tokens/**'
-      - 'design-tokens/**'
-      - 'public/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'mise.toml'
-      - 'tsconfig.json'
-      - 'next.config.ts'
-      - 'postcss.config.mjs'
   workflow_dispatch:
 
-# 같은 브랜치에 연속 push 시 이전 빌드를 취소해 스냅샷 쿼터 절약
+# 같은 ref에서 연속 수동 실행 시 이전 빌드를 취소해 스냅샷 쿼터 절약
 concurrency:
   group: chromatic-${{ github.ref }}
   cancel-in-progress: true

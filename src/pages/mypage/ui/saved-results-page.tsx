@@ -62,7 +62,11 @@ export function SavedResultsPage({
               >
                 저장된 결과
               </Text>
-              <SavedResultsTabs isLoggedIn={isLoggedIn} recommendations={pageRecommendations} />
+              <SavedResultsTabs
+                isLoggedIn={isLoggedIn}
+                recommendations={pageRecommendations}
+                linkRecommendations
+              />
             </Box>
             <SavedResultsPagination
               currentPage={safeCurrentPage}

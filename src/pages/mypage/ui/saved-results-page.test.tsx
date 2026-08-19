@@ -5,25 +5,25 @@ import { SavedResultsPage } from './saved-results-page';
 
 const recommendations = [
   {
-    onboardingId: 'onboarding-1',
+    id: 'onboarding-1',
     title: '채소집',
     lastRecommendedAt: '2026.06.12',
     channelNames: ['네이버 검색광고', '메타 광고', '카카오모먼트'],
   },
   {
-    onboardingId: 'onboarding-2',
+    id: 'onboarding-2',
     title: '사이드 프로젝트 B',
     lastRecommendedAt: '2026년 5월 23일',
     channelNames: ['유튜브', '인스타그램', '카카오모먼트'],
   },
   {
-    onboardingId: 'onboarding-3',
+    id: 'onboarding-3',
     title: '사이드 프로젝트 C',
     lastRecommendedAt: '2026년 5월 22일',
     channelNames: ['유튜브', '인스타그램', '카카오모먼트'],
   },
   {
-    onboardingId: 'onboarding-4',
+    id: 'onboarding-4',
     title: '네 번째 프로젝트',
     lastRecommendedAt: '2026년 5월 21일',
     channelNames: ['유튜브'],
@@ -40,7 +40,7 @@ describe('SavedResultsPage', () => {
     for (const recommendation of recommendations) {
       expect(screen.getByRole('link', { name: new RegExp(recommendation.title) })).toHaveAttribute(
         'href',
-        `/recommend/${recommendation.onboardingId}`,
+        `/recommend/${recommendation.id}`,
       );
     }
   });

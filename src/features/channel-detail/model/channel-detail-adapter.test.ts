@@ -26,6 +26,7 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
     executionType: 'SELF',
     adFormats: ['피드', '스토리'],
     targetingMethods: ['관심사'],
+    tags: [],
     products: [
       {
         id: 'product-feed',
@@ -38,6 +39,7 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
         expectedClicks: 1_800,
         expectedPeriod: '1주',
         pricing: [],
+        isExecutable: true,
       },
       {
         id: 'product-story',
@@ -50,6 +52,7 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
         expectedClicks: 700,
         expectedPeriod: null,
         pricing: [],
+        isExecutable: false,
       },
     ],
     audienceMetrics: [
@@ -81,7 +84,9 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
 
 describe('toChannelDetailViewModel', () => {
   it('상세 응답의 설명, 상품, 오디언스 지표와 집행 사례를 표시 모델로 변환한다', () => {
-    const result = toChannelDetailViewModel(createChannelDetail());
+    const result = toChannelDetailViewModel(
+      createChannelDetail({ tags: [' KPI 최적 ', '입문자 추천', ' '] }),
+    );
 
     expect(result).toMatchObject({
       id: 'channel-meta',
@@ -89,6 +94,7 @@ describe('toChannelDetailViewModel', () => {
       logoUrl: 'https://cdn.example.com/meta.png',
       tagline: '퍼포먼스와 브랜딩을 모두 커버하는 채널',
       summary: {
+        keywords: ['KPI 최적', '입문자 추천'],
         paragraphs: ['정교한 관심사 타기팅을 제공해요.'],
         recommendationReason: {
           category: '쇼핑·커머스',
@@ -102,8 +108,10 @@ describe('toChannelDetailViewModel', () => {
       audience: {
         primaryAgeBand: '20~40대',
         primaryGender: '여성',
-        userScale: '16만 명',
-        dailyActiveUsers: '약 1.2만 명',
+        metrics: [
+          { label: 'MAU', value: '16만 명' },
+          { label: 'DAU', value: '약 1.2만 명' },
+        ],
         traits: '구매 의도가 높은 사용자',
       },
       similarCases: ['브랜드 캠페인 A', '전환 캠페인 B'],
@@ -115,6 +123,7 @@ describe('toChannelDetailViewModel', () => {
         budgetRange: '20만 원~50만 원',
         expectedImpressions: '150,000회 / 1주',
         expectedClicks: '1,800회',
+        isExecutable: true,
       },
       {
         id: 'product-story',
@@ -122,6 +131,7 @@ describe('toChannelDetailViewModel', () => {
         budgetRange: '30만 원 이상',
         expectedImpressions: '-',
         expectedClicks: '700회',
+        isExecutable: false,
       },
     ]);
   });
@@ -149,16 +159,19 @@ describe('toChannelDetailViewModel', () => {
             expectedClicks: null,
             expectedPeriod: null,
             pricing: [],
+            isExecutable: null,
           },
         ],
         audienceMetrics: [],
         recommendationBasis: null,
+        tags: [],
       }),
     );
 
     expect(result.logoUrl).toBe('');
     expect(result.tagline).toBe('');
     expect(result.summary.paragraphs).toEqual([]);
+    expect(result.summary.keywords).toEqual([]);
     expect(result.summary.recommendationReason).toBeNull();
     expect(result.products).toEqual([
       {
@@ -167,13 +180,13 @@ describe('toChannelDetailViewModel', () => {
         budgetRange: '-',
         expectedImpressions: '-',
         expectedClicks: '-',
+        isExecutable: null,
       },
     ]);
     expect(result.audience).toEqual({
       primaryAgeBand: '-',
       primaryGender: '전체',
-      userScale: '-',
-      dailyActiveUsers: '-',
+      metrics: [],
       traits: '-',
     });
   });
@@ -191,6 +204,7 @@ describe('toChannelDetailViewModel', () => {
       expectedClicks: null,
       expectedPeriod: null,
       pricing: [],
+      isExecutable: null,
     } satisfies ChannelDetailApiModel['products'][number];
 
     const result = toChannelDetailViewModel(createChannelDetail({ products: [nullProduct] }));
@@ -202,48 +216,131 @@ describe('toChannelDetailViewModel', () => {
         budgetRange: '-',
         expectedImpressions: '-',
         expectedClicks: '-',
+        isExecutable: null,
       },
     ]);
   });
 
-  it('MAU와 DAU의 valueText를 고정 지표에 표시한다', () => {
+  it('상품 집행 가능 여부를 true, false, null 그대로 보존한다', () => {
     const result = toChannelDetailViewModel(
       createChannelDetail({
-        audienceMetrics: [
+        products: [
           {
-            metricName: 'MAU',
-            valueNumeric: 160_000,
-            valueText: '16만 명',
-            unit: null,
-            period: null,
+            id: 'product-executable',
+            productName: '집행 가능 상품',
+            inventoryType: null,
+            supportedObjectives: [],
+            minBudgetWon: null,
+            maxBudgetWon: null,
+            expectedImpressions: null,
+            expectedClicks: null,
+            expectedPeriod: null,
+            pricing: [],
+            isExecutable: true,
           },
           {
-            metricName: 'DAU',
-            valueNumeric: 12_000,
-            valueText: '1.2만 명',
-            unit: null,
-            period: null,
+            id: 'product-unavailable',
+            productName: '집행 불가 상품',
+            inventoryType: null,
+            supportedObjectives: [],
+            minBudgetWon: null,
+            maxBudgetWon: null,
+            expectedImpressions: null,
+            expectedClicks: null,
+            expectedPeriod: null,
+            pricing: [],
+            isExecutable: false,
+          },
+          {
+            id: 'product-unknown',
+            productName: '판정 불가 상품',
+            inventoryType: null,
+            supportedObjectives: [],
+            minBudgetWon: null,
+            maxBudgetWon: null,
+            expectedImpressions: null,
+            expectedClicks: null,
+            expectedPeriod: null,
+            pricing: [],
+            isExecutable: null,
           },
         ],
       }),
     );
 
-    expect(result.audience.userScale).toBe('16만 명');
-    expect(result.audience.dailyActiveUsers).toBe('1.2만 명');
+    expect(result.products.map((product) => product.isExecutable)).toEqual([true, false, null]);
   });
 
-  it('MAU와 DAU의 valueText가 없으면 -로 표시한다', () => {
+  it('tags를 trim하고 빈 문자열을 제거해 핵심 요약 keyword로 변환한다', () => {
+    const result = toChannelDetailViewModel(
+      createChannelDetail({
+        tags: [' KPI 최적 ', '', '  ', '입문자 추천'],
+      }),
+    );
+
+    expect(result.summary.keywords).toEqual(['KPI 최적', '입문자 추천']);
+  });
+
+  it('tags가 비어 있으면 핵심 요약 keyword도 빈 배열로 변환한다', () => {
+    const result = toChannelDetailViewModel(createChannelDetail({ tags: [] }));
+
+    expect(result.summary.keywords).toEqual([]);
+  });
+
+  it('오디언스 지표를 이름으로 필터링하지 않고 응답 순서대로 변환한다', () => {
     const result = toChannelDetailViewModel(
       createChannelDetail({
         audienceMetrics: [
-          { metricName: 'MAU', valueNumeric: 160_000, valueText: null, unit: null, period: null },
-          { metricName: 'DAU', valueNumeric: 12_000, valueText: null, unit: null, period: null },
+          {
+            metricName: ' 주간 순사용자 ',
+            valueNumeric: 80_000,
+            valueText: ' 8만 명 ',
+            unit: null,
+            period: null,
+          },
+          {
+            metricName: '가입자 수',
+            valueNumeric: 240_000,
+            valueText: '24만 명',
+            unit: null,
+            period: null,
+          },
         ],
       }),
     );
 
-    expect(result.audience.userScale).toBe('-');
-    expect(result.audience.dailyActiveUsers).toBe('-');
+    expect(result.audience.metrics).toEqual([
+      { label: '주간 순사용자', value: '8만 명' },
+      { label: '가입자 수', value: '24만 명' },
+    ]);
+  });
+
+  it('오디언스 지표의 valueText가 null 또는 공백이면 -로 표시한다', () => {
+    const result = toChannelDetailViewModel(
+      createChannelDetail({
+        audienceMetrics: [
+          {
+            metricName: '월간 사용자',
+            valueNumeric: 160_000,
+            valueText: null,
+            unit: '명',
+            period: null,
+          },
+          {
+            metricName: '주간 사용자',
+            valueNumeric: 80_000,
+            valueText: '   ',
+            unit: '명',
+            period: null,
+          },
+        ],
+      }),
+    );
+
+    expect(result.audience.metrics).toEqual([
+      { label: '월간 사용자', value: '-' },
+      { label: '주간 사용자', value: '-' },
+    ]);
   });
 
   it('대표 연령대 텍스트를 그대로 표시한다', () => {
@@ -267,6 +364,7 @@ describe('toChannelDetailViewModel', () => {
     );
 
     expect(result.tagline).toBe('검색 의도가 높은 고객에게 도달하기 좋아요');
+    expect(result.summary.keywords).toEqual([]);
     expect(result.summary.paragraphs).toEqual(['검색 광고에 적합한 채널이에요.']);
     expect(result.summary.recommendationReason).toEqual({
       category: '게임',

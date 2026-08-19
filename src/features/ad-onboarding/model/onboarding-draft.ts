@@ -6,7 +6,7 @@ import type { BudgetInputRange } from './budget-range-input';
 import type { CommonOnboardingAnswer, RecommendOnboardingAnswer } from './onboarding-answer';
 import type {
   AdExperienceType,
-  PerformanceChannelId,
+  ManualPerformanceChannel,
   PerformanceMode,
   UploadedPerformanceFile,
 } from './recommend-onboarding-options';
@@ -46,7 +46,7 @@ export type RecommendOnboardingDraft = CommonOnboardingDraft &
     adExperienceType?: AdExperienceType;
     performanceMode: PerformanceMode;
     performanceFileList: UploadedPerformanceFile[];
-    performanceChannel?: PerformanceChannelId;
+    performanceManualChannelList: ManualPerformanceChannel[];
   };
 
 /** 공통 5단계를 빈 값으로 시작하는 새 Draft를 만든다. */
@@ -71,5 +71,6 @@ export function createRecommendOnboardingDraft(): RecommendOnboardingDraft {
     ageRangeList: [],
     performanceMode: 'UPLOAD',
     performanceFileList: [],
+    performanceManualChannelList: [],
   };
 }
