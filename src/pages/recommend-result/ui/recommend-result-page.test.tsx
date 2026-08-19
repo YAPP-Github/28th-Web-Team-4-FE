@@ -39,6 +39,10 @@ vi.mock('@/shared/ui/toast', () => ({
   showWarningToast: showWarningToastMock,
 }));
 
+vi.mock('./recommend-result-tutorial-gate', () => ({
+  RecommendResultTutorialGate: () => <div data-testid="recommend-result-tutorial-gate" />,
+}));
+
 vi.mock('motion/react', async (importOriginal) => {
   const original = await importOriginal<typeof MotionReact>();
 
@@ -255,13 +259,14 @@ function mockChannelDetail(onRequest?: (url: URL) => void) {
 
 function renderRecommendResultWithRecommendations(
   recommendations?: readonly RecommendationItemResponse[],
+  { isGuest = false }: { isGuest?: boolean } = {},
 ) {
   mockRecommendations(recommendations);
 
   return renderWithProviders(
     <Suspense fallback={<div>loading</div>}>
       <RecommendResultWithRecommendations
-        isGuest={false}
+        isGuest={isGuest}
         onboardingId={RECOMMENDATION_ONBOARDING_ID}
       />
     </Suspense>,
@@ -283,6 +288,21 @@ describe('RecommendResultPage', () => {
     renderRecommendResultPage();
 
     expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (0/3)' })).toBeDisabled();
+  });
+
+  it.each([
+    { label: '로그인 사용자', isGuest: false },
+    { label: '게스트', isGuest: true },
+  ])('$label의 추천 결과 화면에 튜토리얼 게이트를 연결한다', async ({ isGuest }) => {
+    renderRecommendResultWithRecommendations(undefined, { isGuest });
+
+    expect(await screen.findByTestId('recommend-result-tutorial-gate')).toBeInTheDocument();
+  });
+
+  it('공통 결과 화면만 렌더링할 때는 튜토리얼을 노출하지 않는다', () => {
+    renderRecommendResultPage();
+
+    expect(screen.queryByTestId('recommend-result-tutorial-gate')).not.toBeInTheDocument();
   });
 
   it('toggles selection and enables the CTA after three channels are selected', async () => {
