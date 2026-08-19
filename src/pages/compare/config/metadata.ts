@@ -1,6 +1,7 @@
 import { createPageMetadata } from '@/shared/lib/metadata/create-page-metadata';
 
 export const metadata = createPageMetadata({
+  path: '/compare',
   title: '전체 채널 비교 | 채소ZIP',
   description: '주요 광고 채널의 핵심 특징을 한눈에 비교하고 가장 필요한 채널을 골라보세요.',
   openGraphTitle: '광고 채널, 한눈에 비교해 보세요',

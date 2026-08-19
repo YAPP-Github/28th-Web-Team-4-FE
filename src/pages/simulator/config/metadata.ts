@@ -1,6 +1,7 @@
 import { createPageMetadata } from '@/shared/lib/metadata/create-page-metadata';
 
 export const metadata = createPageMetadata({
+  path: '/simulator',
   title: '예산시뮬레이터 | 채소ZIP',
   description: '예산만 입력하면 채널별 예상 성과를 미리 계산해 드려요.',
   openGraphTitle: '이 예산으로 광고하면 성과가 얼마나 나올까?',
