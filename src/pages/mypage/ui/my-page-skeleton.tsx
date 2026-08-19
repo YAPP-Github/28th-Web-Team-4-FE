@@ -14,14 +14,17 @@ import { MyPageSubHeader } from './my-page-sub-header';
 function SkeletonCardFrame({
   children,
   labelledBy,
+  testId,
 }: {
   children: ReactNode;
   labelledBy: string;
+  testId?: string;
 }): JSX.Element {
   return (
     <Box
       as="section"
       aria-labelledby={labelledBy}
+      data-testid={testId}
       className="bg-surface-lowest gap-018 px-030 py-024 flex w-full flex-col rounded-[var(--radius-l)]"
     >
       {children}
@@ -85,9 +88,12 @@ function ProfileFieldSkeleton(): JSX.Element {
   );
 }
 
-function ConditionSkeletonCard(): JSX.Element {
+export function MyAdsConditionSkeletonCard(): JSX.Element {
   return (
-    <SkeletonCardFrame labelledBy="my-ads-condition-skeleton-title">
+    <SkeletonCardFrame
+      labelledBy="my-ads-condition-skeleton-title"
+      testId="my-ads-condition-skeleton"
+    >
       <Box className="gap-002 h-048 flex w-full flex-col">
         <Text
           as="h2"
@@ -116,7 +122,7 @@ function ConditionSkeletonCard(): JSX.Element {
   );
 }
 
-function SavedRecommendationSkeleton(): JSX.Element {
+export function SavedResultSkeletonCard(): JSX.Element {
   return (
     <Box className="bg-surface-lowest border-outline-low px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border">
       <Box className="gap-010 flex min-w-0 flex-1 flex-col items-start">
@@ -134,6 +140,28 @@ function SavedRecommendationSkeleton(): JSX.Element {
           ))}
         </Box>
       </Box>
+    </Box>
+  );
+}
+
+export function SavedResultSkeletonList({
+  testId = 'saved-results-skeleton-list',
+  announceLoading = false,
+}: {
+  testId?: string;
+  announceLoading?: boolean;
+}): JSX.Element {
+  return (
+    <Box
+      {...(announceLoading
+        ? { role: 'status', 'aria-label': '저장된 결과를 불러오고 있어요' }
+        : {})}
+      data-testid={testId}
+      className="gap-010 mt-018 flex w-full flex-col"
+    >
+      {Array.from({ length: 3 }, (_, index) => (
+        <SavedResultSkeletonCard key={index} />
+      ))}
     </Box>
   );
 }
@@ -173,11 +201,7 @@ function SavedResultsSkeletonCard(): JSX.Element {
             <Tabs.Indicator />
           </Tabs.List>
           <Tabs.Panel value="recommendation">
-            <Box className="gap-010 mt-018 flex w-full flex-col">
-              {Array.from({ length: 3 }, (_, index) => (
-                <SavedRecommendationSkeleton key={index} />
-              ))}
-            </Box>
+            <SavedResultSkeletonList />
           </Tabs.Panel>
         </Tabs.Root>
       </Box>
@@ -218,7 +242,7 @@ export function MyPageSkeleton(): JSX.Element {
       >
         <Box className="gap-016 py-024 flex w-full max-w-[792px] flex-1 flex-col">
           <ProfileSkeletonCard />
-          <ConditionSkeletonCard />
+          <MyAdsConditionSkeletonCard />
           <SavedResultsSkeletonCard />
           <AccountActionsSkeleton />
         </Box>

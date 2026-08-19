@@ -39,7 +39,7 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
         expectedClicks: 1_800,
         expectedPeriod: '1주',
         pricing: [],
-        isExecutable: null,
+        isExecutable: true,
       },
       {
         id: 'product-story',
@@ -52,7 +52,7 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
         expectedClicks: 700,
         expectedPeriod: null,
         pricing: [],
-        isExecutable: null,
+        isExecutable: false,
       },
     ],
     audienceMetrics: [
@@ -123,6 +123,7 @@ describe('toChannelDetailViewModel', () => {
         budgetRange: '20만 원~50만 원',
         expectedImpressions: '150,000회 / 1주',
         expectedClicks: '1,800회',
+        isExecutable: true,
       },
       {
         id: 'product-story',
@@ -130,6 +131,7 @@ describe('toChannelDetailViewModel', () => {
         budgetRange: '30만 원 이상',
         expectedImpressions: '-',
         expectedClicks: '700회',
+        isExecutable: false,
       },
     ]);
   });
@@ -178,6 +180,7 @@ describe('toChannelDetailViewModel', () => {
         budgetRange: '-',
         expectedImpressions: '-',
         expectedClicks: '-',
+        isExecutable: null,
       },
     ]);
     expect(result.audience).toEqual({
@@ -213,8 +216,59 @@ describe('toChannelDetailViewModel', () => {
         budgetRange: '-',
         expectedImpressions: '-',
         expectedClicks: '-',
+        isExecutable: null,
       },
     ]);
+  });
+
+  it('상품 집행 가능 여부를 true, false, null 그대로 보존한다', () => {
+    const result = toChannelDetailViewModel(
+      createChannelDetail({
+        products: [
+          {
+            id: 'product-executable',
+            productName: '집행 가능 상품',
+            inventoryType: null,
+            supportedObjectives: [],
+            minBudgetWon: null,
+            maxBudgetWon: null,
+            expectedImpressions: null,
+            expectedClicks: null,
+            expectedPeriod: null,
+            pricing: [],
+            isExecutable: true,
+          },
+          {
+            id: 'product-unavailable',
+            productName: '집행 불가 상품',
+            inventoryType: null,
+            supportedObjectives: [],
+            minBudgetWon: null,
+            maxBudgetWon: null,
+            expectedImpressions: null,
+            expectedClicks: null,
+            expectedPeriod: null,
+            pricing: [],
+            isExecutable: false,
+          },
+          {
+            id: 'product-unknown',
+            productName: '판정 불가 상품',
+            inventoryType: null,
+            supportedObjectives: [],
+            minBudgetWon: null,
+            maxBudgetWon: null,
+            expectedImpressions: null,
+            expectedClicks: null,
+            expectedPeriod: null,
+            pricing: [],
+            isExecutable: null,
+          },
+        ],
+      }),
+    );
+
+    expect(result.products.map((product) => product.isExecutable)).toEqual([true, false, null]);
   });
 
   it('tags를 trim하고 빈 문자열을 제거해 핵심 요약 keyword로 변환한다', () => {

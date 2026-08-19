@@ -11,6 +11,8 @@ import { Box } from '@/shared/ui/layout/box';
 import { Tabs } from '@/shared/ui/tabs';
 import { Text } from '@/shared/ui/text';
 
+import { SavedResultSkeletonList } from './my-page-skeleton';
+
 type SavedResultPanelKind = 'recommendation' | 'comparison' | 'simulation';
 
 type SavedResultPanelProps = {
@@ -46,10 +48,7 @@ function SavedRecommendationCard({
   recommendation: SavedRecommendation;
 }): JSX.Element {
   return (
-    <Link
-      href={`/recommend/${recommendation.onboardingId}`}
-      className="bg-surface-lowest border-outline-low focus-visible:outline-sys-primary-default px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
-    >
+    <Box className="bg-surface-lowest border-outline-low px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border">
       <Box className="gap-010 flex min-w-0 flex-1 flex-col items-start">
         <Box className="gap-002 flex w-full flex-col">
           <Text as="h3" variant="subtitle-md" className="text-text-high">
@@ -72,7 +71,7 @@ function SavedRecommendationCard({
         className="text-icon-low size-020 shrink-0"
         strokeWidth={1.5}
       />
-    </Link>
+    </Box>
   );
 }
 
@@ -83,8 +82,8 @@ function SavedResultCard({
   result: SavedResult;
   kind: 'comparison' | 'simulation';
 }): JSX.Element {
-  return (
-    <Box className="bg-surface-lowest border-outline-low px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border">
+  const content = (
+    <>
       <Box className="gap-010 flex min-w-0 flex-1 flex-col items-start">
         <Box className="gap-002 flex w-full flex-col">
           <Text as="h3" variant="subtitle-md" className="text-text-high">
@@ -107,6 +106,24 @@ function SavedResultCard({
         className="text-icon-low size-020 shrink-0"
         strokeWidth={1.5}
       />
+    </>
+  );
+
+  if (kind === 'simulation') {
+    return (
+      <Link
+        href={`/simulator/saved/${result.id}`}
+        aria-label={`${result.title} 저장된 시뮬레이션 결과`}
+        className="bg-surface-lowest border-outline-low focus-visible:outline-sys-primary-default px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <Box className="bg-surface-lowest border-outline-low px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border">
+      {content}
     </Box>
   );
 }
@@ -134,16 +151,7 @@ function SavedResultPanel({
   }
 
   if (isLoading) {
-    return (
-      <Text
-        as="p"
-        variant="body-xl"
-        role="status"
-        className="text-text-low flex h-[96px] w-full items-center justify-center text-center"
-      >
-        저장된 결과를 불러오는 중이에요
-      </Text>
-    );
+    return <SavedResultSkeletonList testId={`${kind}-results-skeleton`} announceLoading />;
   }
 
   if (isError) {
@@ -163,10 +171,7 @@ function SavedResultPanel({
     return (
       <Box className="gap-010 mt-018 flex w-full flex-col">
         {recommendations.slice(0, 3).map((recommendation) => (
-          <SavedRecommendationCard
-            key={recommendation.onboardingId}
-            recommendation={recommendation}
-          />
+          <SavedRecommendationCard key={recommendation.id} recommendation={recommendation} />
         ))}
       </Box>
     );
