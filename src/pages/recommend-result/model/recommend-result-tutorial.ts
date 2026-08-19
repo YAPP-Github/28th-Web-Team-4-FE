@@ -16,7 +16,7 @@ export function shouldShowRecommendResultTutorial(storage: ReadableStorage): boo
   }
 }
 
-export function markRecommendResultTutorialPresented(storage: WritableStorage): void {
+export function markRecommendResultTutorialCompleted(storage: WritableStorage): void {
   try {
     storage.setItem(
       RECOMMEND_RESULT_TUTORIAL_STORAGE_KEY,

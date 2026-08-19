@@ -73,7 +73,7 @@ const meta = {
   args: {
     open: true,
     onOpenChange: fn(),
-    onPresented: fn(),
+    onCompleted: fn(),
   },
   render: (args) => <TutorialModalStory {...args} />,
 } satisfies Meta<typeof RecommendResultTutorialModal>;

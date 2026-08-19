@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -84,16 +84,20 @@ describe('RecommendResultTutorialModal', () => {
   it('presents three non-looping tutorial steps and closes from the final CTA', async () => {
     const user = userEvent.setup();
     const onOpenChange = vi.fn<(open: boolean) => void>();
-    const onPresented = vi.fn<() => void>();
+    const onCompleted = vi.fn<() => void>();
 
     render(
-      <RecommendResultTutorialModal open onOpenChange={onOpenChange} onPresented={onPresented} />,
+      <RecommendResultTutorialModal open onOpenChange={onOpenChange} onCompleted={onCompleted} />,
     );
 
     const firstDialog = await screen.findByRole('dialog', {
       name: '비교하고 싶은 채널을 선택해 보세요',
     });
-    expect(onPresented).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(firstDialog).toHaveFocus());
+    expect(
+      within(firstDialog).getByRole('button', { name: '다음 튜토리얼 보기' }),
+    ).not.toHaveFocus();
+    expect(onCompleted).not.toHaveBeenCalled();
     expect(
       within(firstDialog).queryByRole('button', { name: '이전 튜토리얼 보기' }),
     ).not.toBeInTheDocument();
@@ -107,6 +111,7 @@ describe('RecommendResultTutorialModal', () => {
     expect(within(imageViewport).queryByText('비교하고 싶은 채널을 선택해 보세요')).toBeNull();
 
     await user.click(within(firstDialog).getByRole('button', { name: '다음 튜토리얼 보기' }));
+    expect(onCompleted).not.toHaveBeenCalled();
 
     const secondDialog = screen.getByRole('dialog', {
       name: '추천된 결과를 마이페이지에 저장해요',
@@ -121,6 +126,7 @@ describe('RecommendResultTutorialModal', () => {
     expect(within(secondDialog).getByRole('button', { name: '다음 튜토리얼 보기' })).toBeVisible();
 
     await user.click(within(secondDialog).getByRole('button', { name: '다음 튜토리얼 보기' }));
+    expect(onCompleted).not.toHaveBeenCalled();
 
     const finalDialog = screen.getByRole('dialog', {
       name: '선택한 채널들을 한눈에 비교해 보세요',
@@ -130,6 +136,7 @@ describe('RecommendResultTutorialModal', () => {
     ).not.toBeInTheDocument();
 
     await user.click(within(finalDialog).getByRole('button', { name: '계속하기' }));
+    expect(onCompleted).toHaveBeenCalledTimes(1);
     expect(onOpenChange).toHaveBeenCalledWith(
       false,
       expect.objectContaining({ reason: 'close-press' }),
@@ -141,7 +148,7 @@ describe('RecommendResultTutorialModal', () => {
       <RecommendResultTutorialModal
         open
         onOpenChange={vi.fn<(open: boolean) => void>()}
-        onPresented={vi.fn<() => void>()}
+        onCompleted={vi.fn<() => void>()}
       />,
     );
 

@@ -14,11 +14,11 @@ vi.mock('./recommend-result-tutorial-modal', () => ({
   RecommendResultTutorialModal: ({
     open,
     onOpenChange,
-    onPresented,
+    onCompleted,
   }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onPresented: () => void;
+    onCompleted: () => void;
   }) => {
     if (!open) {
       return <div data-testid="closed-tutorial" />;
@@ -26,8 +26,8 @@ vi.mock('./recommend-result-tutorial-modal', () => ({
 
     return (
       <div role="dialog" aria-label="추천 결과 튜토리얼">
-        <button type="button" onClick={onPresented}>
-          제시 완료
+        <button type="button" onClick={onCompleted}>
+          튜토리얼 완료
         </button>
         <button type="button" onClick={() => onOpenChange(false)}>
           닫기
@@ -64,7 +64,7 @@ describe('RecommendResultTutorialGate', () => {
     });
   });
 
-  it('stores the current version only after the modal is presented', async () => {
+  it('stores the current version only after the tutorial is completed', async () => {
     const user = userEvent.setup();
 
     render(<RecommendResultTutorialGate />);
@@ -72,7 +72,7 @@ describe('RecommendResultTutorialGate', () => {
     expect(await screen.findByRole('dialog', { name: '추천 결과 튜토리얼' })).toBeVisible();
     expect(window.localStorage.getItem(RECOMMEND_RESULT_TUTORIAL_STORAGE_KEY)).toBeNull();
 
-    await user.click(screen.getByRole('button', { name: '제시 완료' }));
+    await user.click(screen.getByRole('button', { name: '튜토리얼 완료' }));
 
     expect(window.localStorage.getItem(RECOMMEND_RESULT_TUTORIAL_STORAGE_KEY)).toBe(
       CURRENT_RECOMMEND_RESULT_TUTORIAL_VERSION,
@@ -88,5 +88,6 @@ describe('RecommendResultTutorialGate', () => {
 
     expect(screen.queryByRole('dialog', { name: '추천 결과 튜토리얼' })).not.toBeInTheDocument();
     expect(screen.getByTestId('closed-tutorial')).toBeInTheDocument();
+    expect(window.localStorage.getItem(RECOMMEND_RESULT_TUTORIAL_STORAGE_KEY)).toBeNull();
   });
 });

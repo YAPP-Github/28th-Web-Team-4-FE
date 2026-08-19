@@ -25,7 +25,7 @@ type RecommendResultTutorialSlide = {
 export type RecommendResultTutorialModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onPresented: () => void;
+  onCompleted: () => void;
 };
 
 const TUTORIAL_SLIDES: readonly RecommendResultTutorialSlide[] = [
@@ -149,10 +149,11 @@ function TutorialPagination({ currentSlide }: { currentSlide: number }): JSX.Ele
 export function RecommendResultTutorialModal({
   open,
   onOpenChange,
-  onPresented,
+  onCompleted,
 }: RecommendResultTutorialModalProps): JSX.Element {
   const carouselId = useId();
   const shouldReduceMotion = usePrefersReducedMotion();
+  const popupRef = useRef<HTMLDivElement>(null);
   const [contentMeasureRef, contentBounds] = useMeasure({ offsetSize: true });
   const hasMeasuredContentHeightRef = useRef(false);
   const { currentSlide, emblaRef, goPrevious, goNext } = useRecommendResultTutorialCarousel({
@@ -160,12 +161,6 @@ export function RecommendResultTutorialModal({
   });
   const activeTutorial = TUTORIAL_SLIDES[currentSlide];
   const contentHeight = contentBounds.height > 0 ? contentBounds.height : 'auto';
-
-  useEffect(() => {
-    if (open) {
-      onPresented();
-    }
-  }, [onPresented, open]);
 
   useEffect(() => {
     if (contentBounds.height > 0) {
@@ -180,7 +175,11 @@ export function RecommendResultTutorialModal({
     <Modal.Root open={open} onOpenChange={onOpenChange}>
       <Modal.Portal>
         <Modal.Backdrop className="backdrop-blur-[2px]" />
-        <Modal.Popup className="w-[438px] max-w-[calc(100vw-32px)] overflow-visible p-0">
+        <Modal.Popup
+          ref={popupRef}
+          initialFocus={popupRef}
+          className="w-[438px] max-w-[calc(100vw-32px)] overflow-visible p-0"
+        >
           <Modal.Title className="sr-only">{activeTutorial.title}</Modal.Title>
           <Modal.Description className="sr-only">
             {activeTutorial.description.join(' ')}
@@ -253,6 +252,7 @@ export function RecommendResultTutorialModal({
                       frame="cta"
                       tone="secondary"
                       size="m"
+                      onClick={onCompleted}
                       className="h-12 w-full"
                     >
                       계속하기

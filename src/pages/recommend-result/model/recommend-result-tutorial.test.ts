@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import {
   CURRENT_RECOMMEND_RESULT_TUTORIAL_VERSION,
-  markRecommendResultTutorialPresented,
+  markRecommendResultTutorialCompleted,
   RECOMMEND_RESULT_TUTORIAL_STORAGE_KEY,
   shouldShowRecommendResultTutorial,
 } from './recommend-result-tutorial';
@@ -45,7 +45,7 @@ describe('recommend result tutorial storage', () => {
       setItem: vi.fn<(key: string, value: string) => void>(),
     };
 
-    markRecommendResultTutorialPresented(storage);
+    markRecommendResultTutorialCompleted(storage);
 
     expect(storage.setItem).toHaveBeenCalledWith(
       RECOMMEND_RESULT_TUTORIAL_STORAGE_KEY,
@@ -60,6 +60,6 @@ describe('recommend result tutorial storage', () => {
       }),
     };
 
-    expect(() => markRecommendResultTutorialPresented(storage)).not.toThrow();
+    expect(() => markRecommendResultTutorialCompleted(storage)).not.toThrow();
   });
 });

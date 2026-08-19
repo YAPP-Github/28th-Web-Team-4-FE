@@ -4,7 +4,7 @@ import { useEffect, useState, type JSX } from 'react';
 import dynamic from 'next/dynamic';
 
 import {
-  markRecommendResultTutorialPresented,
+  markRecommendResultTutorialCompleted,
   shouldShowRecommendResultTutorial,
 } from '@/pages/recommend-result/model/recommend-result-tutorial';
 
@@ -35,8 +35,8 @@ export function RecommendResultTutorialGate(): JSX.Element | null {
     setState((current) => ({ ...current, open }));
   };
 
-  const handlePresented = (): void => {
-    markRecommendResultTutorialPresented(window.localStorage);
+  const handleCompleted = (): void => {
+    markRecommendResultTutorialCompleted(window.localStorage);
   };
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export function RecommendResultTutorialGate(): JSX.Element | null {
     <RecommendResultTutorialModal
       open={state.open}
       onOpenChange={handleOpenChange}
-      onPresented={handlePresented}
+      onCompleted={handleCompleted}
     />
   );
 }
