@@ -1,13 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, within } from 'storybook/test';
 
-import { BrandSymbol } from '@/shared/ui/symbol';
+import { BrandSymbol, SYMBOL_TYPES } from '@/shared/ui/symbol';
 
 const meta = {
   title: 'components/Symbol',
   component: BrandSymbol,
   tags: ['autodocs'],
   argTypes: {
+    type: {
+      control: 'select',
+      options: SYMBOL_TYPES,
+    },
     alt: { control: 'text' },
     className: { control: 'text' },
   },
@@ -40,4 +44,22 @@ export const Decorative: Story = {
 
     await expect(canvas.queryByRole('img')).not.toBeInTheDocument();
   },
+};
+
+export const AllTypes: Story = {
+  argTypes: {
+    type: { control: false },
+    alt: { control: false },
+    className: { control: false },
+  },
+  render: () => (
+    <div className="flex items-center gap-4">
+      {SYMBOL_TYPES.map((type) => (
+        <div key={type} className="flex flex-col items-center gap-2">
+          <span className="typo-caption-sm text-text-lowest">{type}</span>
+          <BrandSymbol type={type} />
+        </div>
+      ))}
+    </div>
+  ),
 };
