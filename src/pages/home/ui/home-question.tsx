@@ -198,13 +198,20 @@ function HomeQuestionAnimated(): JSX.Element {
   const [currentLogoIndex, setCurrentLogoIndex] = useState<number>(0);
   const setTheme = useHeroHeaderToneStore((state) => state.setTheme);
 
-  const { scrollYProgress } = useScroll({
+  // 화면에 고정된 스토리 진행률은 sticky가 유지되는 구간에 맞춘다.
+  const { scrollYProgress: phaseScrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end end'],
+  });
+
+  // 헤더 테마는 다음 섹션이 헤더까지 올라오는 시점까지 별도로 유지한다.
+  const { scrollYProgress: headerScrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end start'],
   });
 
-  // 스크롤 위치에 따라 단계 및 헤더 테마 전환 (영역을 완전히 벗어날 때까지 색상 유지!)
-  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
+  // sticky 화면에 표시되는 단계 전환
+  useMotionValueEvent(phaseScrollYProgress, 'change', (latest) => {
     // 1) 닿자마자 상하 도어가 즉각 스르륵 개방!
     if (latest > 0.005) {
       setIsDoorOpen(true);
@@ -224,8 +231,10 @@ function HomeQuestionAnimated(): JSX.Element {
     } else {
       setActiveStep(3); // 오렌지 타이틀
     }
+  });
 
-    // 3) 헤더 테마: 다음 페이지가 헤더 하단에 닿을 때(0.975)까지 색상 유지
+  // 헤더 테마는 영역을 완전히 벗어날 때까지 색상 유지
+  useMotionValueEvent(headerScrollYProgress, 'change', (latest) => {
     if (latest <= 0.005) {
       setTheme('white');
     } else if (latest >= 0.975) {
