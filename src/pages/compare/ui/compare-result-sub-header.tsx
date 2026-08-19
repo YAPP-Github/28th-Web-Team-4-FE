@@ -6,9 +6,13 @@ import { Text } from '@/shared/ui/text';
 
 type CompareResultSubHeaderProps = {
   action: ReactNode;
+  title?: string;
 };
 
-export function CompareResultSubHeader({ action }: CompareResultSubHeaderProps): JSX.Element {
+export function CompareResultSubHeader({
+  action,
+  title = '선택한 채널별 특징과 성과를 비교한 결과예요',
+}: CompareResultSubHeaderProps): JSX.Element {
   return (
     <Box className="bg-surface-lowest border-outline-low min-h-072 px-016 py-016 sm:px-032 w-full border-y lg:px-120 lg:py-0">
       <Box className="gap-016 lg:min-h-072 flex w-full max-w-[1200px] flex-col lg:mx-auto lg:flex-row lg:items-center lg:justify-between">
@@ -18,7 +22,7 @@ export function CompareResultSubHeader({ action }: CompareResultSubHeaderProps):
             variant="heading-lg"
             className="text-text-highest min-w-0 [overflow-wrap:anywhere] break-keep"
           >
-            선택한 채널별 특징과 성과를 비교한 결과예요
+            {title}
           </Text>
           <Info aria-hidden="true" className="text-icon-default size-018 shrink-0" />
         </Box>

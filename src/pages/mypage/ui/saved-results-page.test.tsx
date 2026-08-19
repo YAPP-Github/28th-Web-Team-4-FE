@@ -40,7 +40,7 @@ describe('SavedResultsPage', () => {
     for (const recommendation of recommendations) {
       expect(screen.getByRole('link', { name: new RegExp(recommendation.title) })).toHaveAttribute(
         'href',
-        `/recommend/${recommendation.id}`,
+        `/recommend/saved/${recommendation.id}`,
       );
     }
   });

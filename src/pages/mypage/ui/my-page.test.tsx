@@ -305,6 +305,10 @@ describe('MyPage', () => {
     expect(screen.getByRole('heading', { name: '채소집' })).toBeVisible();
     expect(screen.getByText('마지막 비교 : 2026년 8월 18일')).toBeVisible();
     expect(screen.getByText('네이버 검색광고')).toBeVisible();
+    expect(screen.getByRole('link', { name: '채소집 저장된 채널 비교 결과' })).toHaveAttribute(
+      'href',
+      '/compare/saved/comparison-1',
+    );
 
     await user.click(screen.getByRole('tab', { name: '예산 시뮬레이션' }));
 
@@ -362,7 +366,10 @@ describe('MyPage', () => {
       '/mypage/saved-results',
     );
     expect(screen.getByRole('heading', { name: '채소집' })).toBeVisible();
-    expect(screen.queryByRole('link', { name: /채소집/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '채소집 저장된 추천 결과' })).toHaveAttribute(
+      'href',
+      '/recommend/saved/recommendation-1',
+    );
     expect(screen.getByText('사이드 프로젝트 B')).toBeVisible();
     expect(screen.getByText('사이드 프로젝트 C')).toBeVisible();
     expect(screen.queryByText('네 번째 프로젝트')).not.toBeInTheDocument();

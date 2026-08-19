@@ -139,4 +139,13 @@ describe('mapChannelComparisonItemsToChannels', () => {
 
     expect(channels.map(({ id }) => id)).toEqual(['channel-c', 'channel-a', 'channel-b']);
   });
+
+  it('저장된 결과가 제공한 미리보기 로고를 우선 사용한다', () => {
+    const [channel] = mapChannelComparisonItemsToChannels([
+      createComparisonItem({ previewImageUrl: 'https://cdn.example.com/naver.png' }),
+    ]);
+
+    expect(channel.logoSrc).toBe('https://cdn.example.com/naver.png');
+    expect(channel.cropIcon).toBe(false);
+  });
 });

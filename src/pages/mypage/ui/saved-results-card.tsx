@@ -79,6 +79,7 @@ export function SavedResultsCard({
           simulationsLoading={isSimulationsLoading}
           simulationsError={isSimulationsError}
           previewLimit={3}
+          linkRecommendations
         />
       </Box>
     </Box>

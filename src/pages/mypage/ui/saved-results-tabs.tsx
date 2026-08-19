@@ -99,7 +99,8 @@ function SavedRecommendationCard({
 
   return (
     <Link
-      href={`/recommend/${recommendation.id}`}
+      href={`/recommend/saved/${recommendation.id}`}
+      aria-label={`${recommendation.title} 저장된 추천 결과`}
       className="focus-visible:outline-sys-primary-default block w-full rounded-[var(--radius-s)] outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
     >
       {content}
@@ -154,9 +155,13 @@ function SavedResultCard({
   }
 
   return (
-    <Box className="bg-surface-lowest border-outline-low px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border">
+    <Link
+      href={`/compare/saved/${result.id}`}
+      aria-label={`${result.title} 저장된 채널 비교 결과`}
+      className="bg-surface-lowest border-outline-low focus-visible:outline-sys-primary-default px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+    >
       {content}
-    </Box>
+    </Link>
   );
 }
 
