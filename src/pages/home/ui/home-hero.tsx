@@ -131,7 +131,7 @@ function HeroRevealCta(): JSX.Element {
       tone="secondary"
       size="m"
       nativeButton={false}
-      render={<Link href="/login" />}
+      render={<Link href="/recommend" />}
       rightIcon={<ArrowRight aria-hidden className="size-016" />}
     >
       {HERO_REVEAL_CTA_LABEL}
