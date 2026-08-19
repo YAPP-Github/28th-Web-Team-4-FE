@@ -153,7 +153,7 @@ type ChannelSelectionContentProps = {
   isInitialLoading: boolean;
   onResetFilters: () => void;
   onRetry: () => void;
-  onToggle: (channelId: string) => void;
+  onToggle: (channel: ChannelListItem) => void;
   onViewDetail?: (channel: ChannelListItem) => void;
   selectedIds: readonly string[];
 };
