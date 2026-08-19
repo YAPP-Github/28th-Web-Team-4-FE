@@ -20,7 +20,7 @@ export const HOME_FEATURES = [
   {
     title: '맞춤 채널 추천',
     description: '몇 가지 질문만으로 지금 서비스에 먼저 실험해 볼 채널을 찾아요.',
-    href: '/recommend/onboarding/new',
+    href: '/recommend',
     cta: '추천 시작',
   },
   {

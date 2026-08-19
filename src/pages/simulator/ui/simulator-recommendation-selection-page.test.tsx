@@ -103,7 +103,7 @@ describe('SimulatorRecommendationSelectionPage', () => {
     expect(screen.getByText('맞춤 추천을 받아 결과를 저장해 보세요.')).toBeVisible();
     expect(screen.getByRole('button', { name: '채널 추천받기' })).toHaveAttribute(
       'href',
-      '/recommend/onboarding/new',
+      '/recommend',
     );
     expect(screen.queryByRole('navigation', { name: '페이지네이션' })).not.toBeInTheDocument();
   });

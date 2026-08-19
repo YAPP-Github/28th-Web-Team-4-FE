@@ -9,7 +9,7 @@ export const PAGE_HEADER_NAVIGATION_ITEMS: readonly PageHeaderNavigationItem[] =
   {
     label: '맞춤 채널 추천',
     segment: 'recommend',
-    href: '/recommend/onboarding/new',
+    href: '/recommend',
     desktopClassName: 'px-012',
   },
   {
