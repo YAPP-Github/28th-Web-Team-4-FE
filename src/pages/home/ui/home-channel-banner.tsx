@@ -166,7 +166,7 @@ export function HomeChannelBanner(): JSX.Element {
             >
               <Image
                 src={logo.src}
-                alt={logo.alt}
+                alt=""
                 fill
                 className="object-contain"
                 sizes="(max-width: 768px) 160px, 300px"
@@ -185,7 +185,7 @@ export function HomeChannelBanner(): JSX.Element {
             >
               <Image
                 src={logo.src}
-                alt={logo.alt}
+                alt=""
                 fill
                 className="object-contain"
                 sizes="(max-width: 768px) 160px, 300px"
