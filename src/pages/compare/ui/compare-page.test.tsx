@@ -108,6 +108,18 @@ function comparisonResponse(items: readonly ChannelComparisonItemResponse[]) {
   return HttpResponse.json({ success: true, data: { items }, error: null, code: null });
 }
 
+function recommendationsResponse(channelIds: readonly string[]) {
+  return HttpResponse.json({
+    success: true,
+    data: channelIds.map((channelId) => ({
+      channelId,
+      channelName: COMPARISON_CHANNEL_NAMES[channelId] ?? `${channelId} 채널`,
+    })),
+    error: null,
+    code: null,
+  });
+}
+
 function createPageChannels(page: number): ChannelListItemResponse[] {
   if (page < 0 || page >= TOTAL_PAGE_COUNT) {
     return [];
@@ -251,6 +263,7 @@ describe('ComparePage', () => {
 
         return comparisonResponse(channelIds.map((channelId) => createComparisonItem(channelId)));
       }),
+      http.get(/\/api\/v1\/recommendations$/, () => recommendationsResponse([])),
     );
   });
 
@@ -877,6 +890,143 @@ describe('ComparePage', () => {
       ['channel-naver', 'channel-kakao', 'channel-meta'],
       ['channel-naver', 'channel-kakao'],
     ]);
+  });
+
+  it('2개 결과에서 채널을 검색·추가하면 URL과 비교 결과를 3개로 교체한다', async () => {
+    const user = userEvent.setup();
+    const nextResponseGate = createDeferred<void>();
+    const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
+    const requestedChannelIds: string[][] = [];
+
+    server.use(
+      http.get(/\/api\/v1\/recommendations$/, () => recommendationsResponse(['channel-meta'])),
+      http.get(/\/api\/v1\/channel-comparisons$/, async ({ request }) => {
+        const channelIds = new URL(request.url).searchParams.getAll('channelIds');
+        requestedChannelIds.push(channelIds);
+
+        if (channelIds.length === 3) {
+          await nextResponseGate.promise;
+        }
+
+        return comparisonResponse(channelIds.map((channelId) => createComparisonItem(channelId)));
+      }),
+    );
+
+    renderCompareResultPage(
+      '?channels=channel-naver,channel-kakao&onboardingId=onboarding-87',
+      onUrlUpdate,
+    );
+
+    await user.click(await screen.findByLabelText('비교할 채널 추가'));
+    const searchInput = await screen.findByRole('combobox', { name: '추가할 채널 검색' });
+
+    await user.type(searchInput, '네이버 검색 광고');
+    const [selectedOption] = await screen.findAllByRole('option', {
+      name: /네이버 검색 광고/,
+    });
+
+    expect(selectedOption).toHaveAttribute('aria-disabled', 'true');
+
+    const activeSearchInput = screen.getByRole('combobox', { name: '추가할 채널 검색' });
+    await user.clear(activeSearchInput);
+    await user.type(activeSearchInput, '메타');
+
+    const [metaOption] = await screen.findAllByRole('option', { name: /메타 피드 광고/ });
+
+    if (!metaOption) {
+      throw new Error('메타 피드 광고 검색 옵션을 찾지 못했습니다.');
+    }
+
+    expect(within(metaOption).getByText('추천')).toBeVisible();
+    await user.click(metaOption);
+
+    await waitFor(() => {
+      const event = onUrlUpdate.mock.lastCall?.[0];
+      expect(event?.searchParams.get('channels')).toBe('channel-naver,channel-kakao,channel-meta');
+      expect(event?.searchParams.get('onboardingId')).toBe('onboarding-87');
+      expect(event?.options.history).toBe('replace');
+    });
+    expect(screen.getByRole('main')).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '변경된 채널의 비교 결과를 불러오는 중이에요',
+    );
+    expect(screen.getByRole('heading', { level: 2, name: '네이버 검색 광고' })).toBeVisible();
+    expect(screen.queryByLabelText('비교할 채널 추가')).not.toBeInTheDocument();
+
+    nextResponseGate.resolve();
+
+    expect(await screen.findByRole('heading', { level: 2, name: '메타 피드 광고' })).toBeVisible();
+    expect(
+      within(screen.getByRole('region', { name: '채널별 예상 노출 · 클릭 수' })).getByText(
+        '메타 피드 광고',
+      ),
+    ).toBeVisible();
+    expect(
+      within(screen.getByRole('region', { name: '채널별 상세 정보' })).getByText('메타 피드 광고'),
+    ).toBeVisible();
+    expect(
+      within(screen.getByRole('region', { name: '채널별 CPC와 CPM' })).getAllByText(
+        '메타 피드 광고',
+      ),
+    ).toHaveLength(2);
+    expect(
+      within(screen.getByRole('region', { name: '채널별 인사이트' })).getByText(/메타 피드 광고/),
+    ).toBeVisible();
+    expect(screen.getAllByRole('button', { name: /비교에서 제거/ })).toHaveLength(3);
+    expect(requestedChannelIds).toEqual([
+      ['channel-naver', 'channel-kakao'],
+      ['channel-naver', 'channel-kakao', 'channel-meta'],
+    ]);
+  });
+
+  it('요청 채널은 2개지만 응답 결과가 2개가 아니면 추가 picker를 표시하지 않는다', async () => {
+    server.use(
+      http.get(/\/api\/v1\/channel-comparisons$/, () =>
+        comparisonResponse([createComparisonItem('channel-naver')]),
+      ),
+    );
+
+    renderCompareResultPage('?channels=channel-naver,channel-kakao');
+
+    expect(
+      await screen.findByRole('heading', { level: 2, name: '네이버 검색 광고' }),
+    ).toBeVisible();
+    expect(screen.queryByLabelText('비교할 채널 추가')).not.toBeInTheDocument();
+  });
+
+  it('채널 추가 후 비교 재조회가 실패하면 기존 비교 오류 화면을 표시한다', async () => {
+    const user = userEvent.setup();
+
+    server.use(
+      http.get(/\/api\/v1\/channel-comparisons$/, ({ request }) => {
+        const channelIds = new URL(request.url).searchParams.getAll('channelIds');
+
+        if (channelIds.length === 3) {
+          return HttpResponse.json({ success: false }, { status: 500 });
+        }
+
+        return comparisonResponse(channelIds.map((channelId) => createComparisonItem(channelId)));
+      }),
+    );
+
+    renderCompareResultPage('?channels=channel-naver,channel-kakao');
+
+    await user.click(await screen.findByLabelText('비교할 채널 추가'));
+    await user.type(
+      await screen.findByRole('combobox', { name: '추가할 채널 검색' }),
+      '메타 피드 광고',
+    );
+    const [metaOption] = await screen.findAllByRole('option', { name: /메타 피드 광고/ });
+
+    if (!metaOption) {
+      throw new Error('메타 피드 광고 검색 옵션을 찾지 못했습니다.');
+    }
+
+    await user.click(metaOption);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('비교 결과를 불러오지 못했어요');
+    expect(screen.getByRole('button', { name: '다시 시도' })).toBeVisible();
+    expect(screen.getByRole('button', { name: '채널 다시 선택' })).toBeVisible();
   });
 
   it('최초 비교 결과를 조회하는 동안 전체 로딩 화면을 보여준다', async () => {

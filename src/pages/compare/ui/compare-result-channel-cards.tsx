@@ -1,5 +1,5 @@
-import type { JSX } from 'react';
-import { Plus, X } from 'lucide-react';
+import type { JSX, ReactNode } from 'react';
+import { X } from 'lucide-react';
 
 import { Badge } from '@/shared/ui/badge';
 import { Box } from '@/shared/ui/layout/box';
@@ -10,6 +10,7 @@ import type { CompareResultChannelSummary } from '@/pages/compare/model/compare-
 import { CompareResultChannelLogo } from './compare-result-channel-logo';
 
 type CompareResultChannelCardsProps = {
+  addChannelSlot: ReactNode;
   channels: readonly CompareResultChannelSummary[];
   removeDisabled: boolean;
   onRemoveChannel: (channelId: string) => void;
@@ -76,18 +77,8 @@ function CompareResultChannelCard({
   );
 }
 
-function AddChannelCard(): JSX.Element {
-  return (
-    <Box className="bg-surface-background-default border-outline-default flex h-[112px] w-full shrink-0 flex-col items-center justify-center rounded-[var(--radius-m)] border border-dashed lg:w-[256px]">
-      <Plus aria-hidden="true" className="text-icon-default size-016" />
-      <Text variant="body-xl" className="text-text-low mt-004">
-        채널 추가하기
-      </Text>
-    </Box>
-  );
-}
-
 export function CompareResultChannelCards({
+  addChannelSlot,
   channels,
   removeDisabled,
   onRemoveChannel,
@@ -107,11 +98,11 @@ export function CompareResultChannelCards({
           />
         </Box>
       ))}
-      {channels.length === 2 ? (
+      {addChannelSlot === null ? null : (
         <Box as="li" className="w-full lg:w-auto">
-          <AddChannelCard />
+          {addChannelSlot}
         </Box>
-      ) : null}
+      )}
     </Box>
   );
 }

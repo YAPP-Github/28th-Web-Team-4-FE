@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import type { CompareResultChannelSummary } from '@/pages/compare/model/compare-result-channel';
@@ -30,9 +31,11 @@ const removeChannelMock = vi.fn<(channelId: string) => void>();
 function renderChannelCards(
   channels: readonly CompareResultChannelSummary[] = MOCK_CHANNELS,
   removeDisabled = false,
+  addChannelSlot: ReactNode = null,
 ) {
   return render(
     <CompareResultChannelCards
+      addChannelSlot={addChannelSlot}
       channels={channels}
       removeDisabled={removeDisabled}
       onRemoveChannel={removeChannelMock}
@@ -74,8 +77,12 @@ describe('CompareResultChannelCards', () => {
     }
   });
 
-  it('채널이 2개면 제거 버튼 없이 채널 추가 카드를 표시한다', () => {
-    renderChannelCards(MOCK_CHANNELS.slice(0, 2));
+  it('채널 추가 slot을 제공하면 제거 버튼 없이 표시한다', () => {
+    renderChannelCards(
+      MOCK_CHANNELS.slice(0, 2),
+      false,
+      <button type="button">채널 추가하기</button>,
+    );
 
     expect(screen.getByText('채널 추가하기')).toBeVisible();
     expect(screen.queryByRole('button', { name: /비교에서 제거/ })).not.toBeInTheDocument();

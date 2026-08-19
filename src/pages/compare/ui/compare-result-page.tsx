@@ -13,6 +13,7 @@ import { CompareResultChannelCards } from './compare-result-channel-cards';
 import { CompareResultChannelCost } from './compare-result-channel-cost';
 import { CompareResultChannelDetailsTable } from './compare-result-channel-details';
 import { CompareResultChannelInsightsDqa } from './compare-result-channel-insights-dqa';
+import { CompareResultChannelPickerContainer } from './compare-result-channel-picker-container';
 import { CompareResultChannelPerformance } from './compare-result-channel-performance';
 import { CompareResultErrorState, CompareResultLoadingState } from './compare-result-query-states';
 import { CompareResultSubHeader } from './compare-result-sub-header';
@@ -60,6 +61,10 @@ function CompareResultWithQuery({
     void setChannelIds(channelIds.filter((id) => id !== channelId));
   };
 
+  const addChannel = (channelId: string) => {
+    void setChannelIds([...channelIds, channelId]);
+  };
+
   if (comparisonQuery.isPending) {
     return <CompareResultLoadingState />;
   }
@@ -87,6 +92,17 @@ function CompareResultWithQuery({
             </span>
           ) : null}
           <CompareResultChannelCards
+            addChannelSlot={
+              !comparisonQuery.isPlaceholderData &&
+              channelIds.length === 2 &&
+              comparisonQuery.data.length === 2 ? (
+                <CompareResultChannelPickerContainer
+                  channelIds={channelIds}
+                  onboardingId={onboardingId}
+                  onSelectChannel={addChannel}
+                />
+              ) : null
+            }
             channels={comparisonQuery.data}
             removeDisabled={comparisonQuery.isPlaceholderData}
             onRemoveChannel={removeChannel}
