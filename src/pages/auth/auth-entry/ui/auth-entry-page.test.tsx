@@ -101,7 +101,16 @@ describe('AuthEntryPage', () => {
     expect(screen.getByRole('textbox', { name: '이메일' })).toHaveAttribute('type', 'email');
     expect(screen.getByRole('button', { name: '이메일로 시작하기' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Google로 시작하기' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '비밀번호를 잊으셨나요?' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '서비스로 돌아가기' })).toBeInTheDocument();
+  });
+
+  it('returns to the service when the back button is clicked', async () => {
+    const user = userEvent.setup();
+    renderAuthEntryPage();
+
+    await user.click(screen.getByRole('button', { name: '서비스로 돌아가기' }));
+
+    expect(pushMock).toHaveBeenCalledWith('/');
   });
 
   it('initializes Google authentication from Script onReady', () => {
