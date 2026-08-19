@@ -1,28 +1,16 @@
 'use client';
 
-import { useState, type JSX, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
 import { ArrowUp } from 'lucide-react';
 
 import { useMyProfile } from '@/pages/mypage/api/use-my-profile';
+import { useHomeServiceNameForm } from '@/pages/home/model/use-home-service-name-form';
 import { HomeHeroServicePreview } from './home-hero-service-preview';
 
 export function HomeServiceFinder(): JSX.Element {
-  const router = useRouter();
   const { data: profile } = useMyProfile();
-  const [serviceName, setServiceName] = useState('');
+  const { canSubmit, handleSubmit, serviceName, setServiceName } = useHomeServiceNameForm();
 
   const userName = profile?.name ?? '채소집';
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    const trimmed = serviceName.trim();
-    if (trimmed) {
-      router.push(`/recommend/onboarding/new?serviceName=${encodeURIComponent(trimmed)}`);
-    } else {
-      router.push('/recommend/onboarding/new');
-    }
-  };
 
   return (
     <section
@@ -93,8 +81,9 @@ export function HomeServiceFinder(): JSX.Element {
             />
             <button
               type="submit"
+              disabled={!canSubmit}
               aria-label="추천 시작하기"
-              className="bg-sys-primary-default hover:bg-sys-primary-high focus-visible:outline-sys-primary-default flex size-[36px] shrink-0 cursor-pointer items-center justify-center rounded-full text-white shadow-sm transition-all outline-none active:scale-95"
+              className="bg-sys-primary-default hover:bg-sys-primary-high focus-visible:outline-sys-primary-default flex size-[36px] shrink-0 cursor-pointer items-center justify-center rounded-full text-white shadow-sm transition-all outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ArrowUp aria-hidden className="size-[20px] stroke-[2.5]" />
             </button>

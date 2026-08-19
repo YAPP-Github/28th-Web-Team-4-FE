@@ -31,10 +31,10 @@ describe('HomePage', () => {
   it('renders the marketing landing content', () => {
     renderHomePage();
 
+    expect(screen.getByText('FIND YOUR FIT')).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { name: '내 서비스에 딱 맞는 광고 채널 찾기' }),
+      screen.getByPlaceholderText('광고하고 싶은 서비스의 이름을 입력해 보세요'),
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '추천 시작' })).toBeInTheDocument();
     expect(screen.getByText('자주 묻는 질문')).toBeInTheDocument();
     expect(screen.getByText('© 2026 CHAESOZIP. ALL RIGHTS RESERVED')).toBeInTheDocument();
     expect(screen.getByText('개인정보 처리방침')).toBeInTheDocument();
