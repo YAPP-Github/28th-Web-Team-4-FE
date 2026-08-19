@@ -21,7 +21,7 @@ import { ChannelLogo } from './channel-logo';
 type OpenPopover = 'category' | 'selectedChannels' | null;
 
 const POPUP_CLASSES = cn(
-  'origin-top-left bg-surface-lowest shadow-drop-shadow-03 w-[290px] max-w-[calc(100vw-32px)] rounded-[var(--radius-m)] outline-none',
+  'origin-top-left bg-surface-lowest shadow-drop-shadow-03 w-[min(290px,calc(100vw-32px))] rounded-[var(--radius-m)] outline-none',
   'scale-100 opacity-100 transition-[transform,opacity] duration-200 ease-out',
   'data-starting-style:scale-95 data-starting-style:opacity-0',
   'data-ending-style:scale-95 data-ending-style:opacity-0',
@@ -30,7 +30,8 @@ const POPUP_CLASSES = cn(
 );
 
 const FILTER_TRIGGER_CLASSES = cn(
-  'group flex h-036 w-[126px] shrink-0 cursor-pointer items-center justify-between rounded-[var(--radius-s)] px-018',
+  'group flex h-036 w-full min-w-0 flex-1 cursor-pointer items-center justify-between rounded-[var(--radius-s)] px-018',
+  'sm:w-[126px] sm:flex-none sm:shrink-0',
   'text-text-medium hover:bg-surface-low outline-none transition-colors',
   'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sys-primary-default',
 );
@@ -331,30 +332,36 @@ export function ComparisonChannelSelectionSubHeader({
   const [openPopover, setOpenPopover] = useState<OpenPopover>(null);
 
   return (
-    <Box className="border-outline-low bg-surface-lowest min-h-072 px-016 sm:px-032 flex w-full justify-center border-y lg:px-120">
+    <Box className="border-outline-low bg-surface-lowest min-h-072 px-016 py-016 sm:px-032 flex w-full shrink-0 justify-center border-y lg:px-120 lg:py-0">
       <Box className="gap-016 lg:h-072 flex w-full max-w-[1200px] flex-col lg:flex-row lg:items-center lg:justify-between">
         <Text as="h1" variant="heading-lg" className="text-text-highest shrink-0">
           {title}
         </Text>
-        <Box className="gap-018 flex min-w-0 items-center">
-          <CategoryPopover
-            category={category}
-            isOpen={openPopover === 'category'}
-            onCategoryChange={onCategoryChange}
-            onOpenChange={(open) => setOpenPopover(open ? 'category' : null)}
+        <Box className="gap-016 sm:gap-018 flex w-full min-w-0 flex-col sm:flex-row sm:items-center lg:w-auto">
+          <Box className="gap-018 flex w-full min-w-0 items-center sm:w-auto sm:shrink-0">
+            <CategoryPopover
+              category={category}
+              isOpen={openPopover === 'category'}
+              onCategoryChange={onCategoryChange}
+              onOpenChange={(open) => setOpenPopover(open ? 'category' : null)}
+            />
+            <Box aria-hidden className="border-outline-low h-[34px] border-l" />
+            <SelectedChannelsPopover
+              isOpen={openPopover === 'selectedChannels'}
+              onClearSelection={onClearSelection}
+              onOpenChange={(open) => setOpenPopover(open ? 'selectedChannels' : null)}
+              onRemoveChannel={onRemoveChannel}
+              selectedChannels={selectedChannels}
+            />
+          </Box>
+          <Box
+            aria-hidden
+            className="border-outline-low hidden h-[34px] shrink-0 border-l sm:block"
           />
-          <Box aria-hidden className="border-outline-low h-[34px] border-l" />
-          <SelectedChannelsPopover
-            isOpen={openPopover === 'selectedChannels'}
-            onClearSelection={onClearSelection}
-            onOpenChange={(open) => setOpenPopover(open ? 'selectedChannels' : null)}
-            onRemoveChannel={onRemoveChannel}
-            selectedChannels={selectedChannels}
-          />
-          <Box aria-hidden className="border-outline-low h-[34px] border-l" />
           <Box
             className={cn(
-              'bg-surface-lower flex h-036 w-[282px] min-w-0 items-center gap-006 rounded-[var(--radius-s)] p-008',
+              'bg-surface-lower flex h-036 w-full min-w-0 items-center gap-006 rounded-[var(--radius-s)] p-008',
+              'sm:flex-1 lg:w-[282px] lg:flex-none',
               'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-sys-primary-default',
             )}
           >

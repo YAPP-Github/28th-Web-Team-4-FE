@@ -369,10 +369,24 @@ describe('ComparePage', () => {
     expect(screen.getByRole('heading', { name: '비교할 채널을 선택해 주세요' })).toBeVisible();
     expect(screen.queryByText('최대 3개까지 선택할 수 있어요')).not.toBeInTheDocument();
     expect(getCategoryTrigger(0)).toHaveTextContent('0개');
-    expect(getCategoryTrigger(0)).toHaveClass('h-036', 'w-[126px]');
-    expect(getSelectedChannelsTrigger(0)).toHaveClass('h-036', 'w-[126px]');
+    expect(getCategoryTrigger(0)).toHaveClass('h-036', 'w-full', 'flex-1', 'sm:w-[126px]');
+    expect(getSelectedChannelsTrigger(0)).toHaveClass('h-036', 'w-full', 'flex-1', 'sm:w-[126px]');
     expect(getCategoryTrigger(0).parentElement).toHaveClass('gap-018');
     expect(screen.getByLabelText('채널 검색')).toHaveAttribute('placeholder', '채널 검색');
+    expect(screen.getByLabelText('채널 검색').parentElement).toHaveClass(
+      'w-full',
+      'sm:flex-1',
+      'lg:w-[282px]',
+      'lg:flex-none',
+    );
+    expect(screen.getByLabelText('채널 검색').parentElement?.parentElement).toHaveClass(
+      'flex-col',
+      'sm:flex-row',
+      'lg:w-auto',
+    );
+    expect(
+      screen.getByRole('heading', { name: '비교할 채널을 선택해 주세요' }).parentElement,
+    ).toHaveClass('flex-col', 'lg:flex-row');
     expect(screen.getAllByTestId('channel-card-skeleton')).toHaveLength(12);
 
     responseGate.resolve(undefined);
@@ -400,7 +414,7 @@ describe('ComparePage', () => {
     const categoryPopover = await screen.findByTestId('category-popover');
     expect(categoryPopover).toHaveClass(
       'origin-top-left',
-      'w-[290px]',
+      'w-[min(290px,calc(100vw-32px))]',
       'shadow-drop-shadow-03',
       'data-starting-style:scale-95',
       'motion-reduce:data-starting-style:scale-100',
