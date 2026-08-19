@@ -5,6 +5,10 @@ import { getQueryClient } from '@/app/providers/query-client';
 import { HomePageHeader } from '@/app/layouts/home-page-header';
 import { authSessionQueryKey } from '@/features/auth/session/model/auth-session-query';
 import { readAuthSession } from '@/shared/lib/auth/session-cookie';
+import {
+  brandStructuredData,
+  stringifyStructuredData,
+} from '@/shared/lib/metadata/brand-structured-data';
 
 // app/(with-header)/layout.tsx의 홈 전용 사본.
 // 세션 하이드레이션 로직은 동일하게 유지하고, 헤더만 스크롤 톤에 반응하는
@@ -28,6 +32,10 @@ export default async function HomeLayout({ children }: { children: ReactNode }) 
 
   return (
     <div className="flex min-h-dvh flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: stringifyStructuredData(brandStructuredData) }}
+      />
       <HydrationBoundary state={dehydrate(queryClient)}>
         <HomePageHeader />
       </HydrationBoundary>

@@ -1,5 +1,1 @@
-export const SITE_URL = 'https://chaeso-zip.com';
-
-export function createAbsoluteSiteUrl(pathname: string): string {
-  return new URL(pathname, SITE_URL).toString();
-}
+export { createAbsoluteSiteUrl, SITE_URL } from '@/shared/lib/metadata/site-url';
