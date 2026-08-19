@@ -1,6 +1,6 @@
 'use client';
 
-import { type JSX, useRef, useState } from 'react';
+import { useRef, useState, type JSX } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
@@ -12,6 +12,7 @@ import {
   AnimatePresence,
 } from 'motion/react';
 import { Button } from '@/shared/ui/button';
+import { useHeroHeaderToneStore } from '@/shared/lib/hero-header-tone';
 
 type FolderFeatureItem = {
   id: string;
@@ -115,18 +116,27 @@ export function HomeFolderFeatures(): JSX.Element {
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ['start start', 'end end'],
+    offset: ['start start', 'end start'],
   });
 
+  const setTheme = useHeroHeaderToneStore((state) => state.setTheme);
+
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    if (latest < 0.22) {
+    if (latest < 0.18) {
       setActiveStep(0); // 1번 폴더
-    } else if (latest < 0.46) {
+    } else if (latest < 0.38) {
       setActiveStep(1); // 2번 폴더
-    } else if (latest < 0.7) {
+    } else if (latest < 0.58) {
       setActiveStep(2); // 3번 폴더 (3단 스택 완성)
     } else {
       setActiveStep(3); // 4단계: The Process로 씬 전환
+    }
+
+    // The Process가 끝나고 다음 페이지(FAQ)가 헤더 하단에 딱 걸치는 순간(0.975)에 흰색으로 전환
+    if (latest >= 0.58 && latest < 0.975) {
+      setTheme('process-dark');
+    } else {
+      setTheme('white');
     }
   });
 
@@ -155,7 +165,7 @@ export function HomeFolderFeatures(): JSX.Element {
         animate={{
           backgroundColor: isProcessScene ? '#1D1D20' : '#F4F4F5',
         }}
-        transition={{ duration: 0.5, ease: 'easeInOut' }}
+        transition={{ duration: 0.25, ease: 'easeInOut' }}
         className="px-016 sm:px-032 sticky top-0 flex h-screen w-full flex-col items-center justify-center overflow-hidden"
       >
         {/* ========================================================= */}

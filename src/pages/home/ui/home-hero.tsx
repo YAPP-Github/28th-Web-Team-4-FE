@@ -40,9 +40,9 @@ const WORD_ENTER_DONE_SECONDS =
   WORD_STAGGER_START_SECONDS +
   (WORD_COUNT - 1) * WORD_STAGGER_SECONDS +
   WORD_ENTER_TRANSITION.duration;
-const INTRO_COLOR_HOLD_SECONDS = 0.5;
+const INTRO_COLOR_HOLD_SECONDS = 0.25;
 const INTRO_COLOR_DELAY_SECONDS = WORD_ENTER_DONE_SECONDS + INTRO_COLOR_HOLD_SECONDS;
-const INTRO_COLOR_DURATION_SECONDS = 0.9;
+const INTRO_COLOR_DURATION_SECONDS = 0.45;
 
 const headlineContainerVariants = {
   hidden: {},
@@ -294,10 +294,14 @@ function HomeHeroScrollScrub(): JSX.Element {
   });
 
   return (
-    <section ref={sectionRef} aria-label="채소ZIP 소개" className="relative h-[160vh] w-full">
+    <section
+      ref={sectionRef}
+      aria-label="채소ZIP 소개"
+      className="lg:-mt-072 relative -mt-14 h-[160vh] w-full"
+    >
       <motion.div
         style={{ backgroundColor: background }}
-        className="sticky top-0 flex min-h-screen w-full flex-col items-center justify-start overflow-visible"
+        className="lg:pt-072 sticky top-0 flex min-h-screen w-full flex-col items-center justify-start overflow-visible pt-14"
       >
         {/* Figma 은은한 배경 그리드 그래픽 (리빌 시 페이드인) */}
         <HeroBackgroundGrid opacity={isRevealed ? 1 : 0} />

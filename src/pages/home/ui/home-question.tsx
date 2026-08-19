@@ -9,6 +9,7 @@ import {
   useReducedMotion,
   AnimatePresence,
 } from 'motion/react';
+import { useHeroHeaderToneStore } from '@/shared/lib/hero-header-tone';
 
 // 피그마 노드 3766:111785 -> 3766:111806 ("고민 스크롤 스토리")
 const WORRY_ITEMS = [
@@ -158,15 +159,16 @@ function HomeQuestionAnimated(): JSX.Element {
   const [activeStep, setActiveStep] = useState<number>(-1); // -1: 첫질문, 0: 고민1, 1: 고민2, 2: 고민3, 3: 오렌지타이틀
   const [zipTypedCount, setZipTypedCount] = useState<number>(0);
   const [currentLogoIndex, setCurrentLogoIndex] = useState<number>(0);
+  const setTheme = useHeroHeaderToneStore((state) => state.setTheme);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ['start start', 'end end'],
+    offset: ['start start', 'end start'],
   });
 
-  // 스크롤 위치에 따라 자동 문 열림 및 단계별 전환
+  // 스크롤 위치에 따라 단계 및 헤더 테마 전환 (영역을 완전히 벗어날 때까지 색상 유지!)
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    // 1) 해당 섹션에 닿자마자(0.005 이상) 흰색 문이 지체 없이 즉시 자동으로 스르륵 완전 개방!
+    // 1) 흰색 문 열림
     if (latest > 0.005) {
       setIsDoorOpen(true);
     } else {
@@ -174,16 +176,30 @@ function HomeQuestionAnimated(): JSX.Element {
     }
 
     // 2) 각 질문 및 타이틀 단계 전환
-    if (latest < 0.22) {
+    if (latest < 0.18) {
       setActiveStep(-1); // 첫 질문 단계
-    } else if (latest < 0.38) {
+    } else if (latest < 0.32) {
       setActiveStep(0); // 고민 1
-    } else if (latest < 0.54) {
+    } else if (latest < 0.46) {
       setActiveStep(1); // 고민 2
-    } else if (latest < 0.7) {
+    } else if (latest < 0.6) {
       setActiveStep(2); // 고민 3
     } else {
       setActiveStep(3); // 오렌지 타이틀
+    }
+
+    // 3) 헤더 테마: 다음 페이지가 헤더 하단에 딱 걸치는 순간(0.975)까지 색상 유지
+    if (latest <= 0.005) {
+      setTheme('white');
+    } else if (latest >= 0.975) {
+      // 다음 페이지(매체 배너) 상단이 헤더 하단에 딱 닿았을 때 화이트로 전환
+      setTheme('white');
+    } else if (latest >= 0.6) {
+      // 오렌지 타이틀 구간: 섹션 끝까지 주황색 유지
+      setTheme('orange');
+    } else {
+      // 고민 질문 및 고민 리스트 구간: 검정색 다크 헤더 유지
+      setTheme('dark');
     }
   });
 
