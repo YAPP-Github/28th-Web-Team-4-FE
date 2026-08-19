@@ -7,6 +7,7 @@ export const CHANNEL_DETAIL_FIXTURE: ChannelDetail = {
   logoUrl: 'https://cdn.chaeso.zip/channels/meta-logo.png',
   tagline: '퍼포먼스와 브랜딩을 모두 커버하는 국내 최다 사용 채널',
   summary: {
+    keywords: ['KPI 최적', '입문자 추천'],
     paragraphs: [
       '메타 광고는 Facebook과 Instagram을 통해 정교한 관심사 기반 타기팅을 제공해요.',
       '특히, 구매 전환 목적의 쇼핑 업종에서 높은 효율을 보여요.',
@@ -50,8 +51,10 @@ export const CHANNEL_DETAIL_FIXTURE: ChannelDetail = {
   audience: {
     primaryAgeBand: '20~40대',
     primaryGender: '남성',
-    userScale: '16만 명',
-    dailyActiveUsers: '1.2만 명',
+    metrics: [
+      { label: '사용자 규모', value: '16만 명' },
+      { label: '하루 활성 사용자', value: '1.2만 명' },
+    ],
     traits: '뉴스를 읽고 리워드를 적립하는 적극적 유저',
   },
   similarCases: [
