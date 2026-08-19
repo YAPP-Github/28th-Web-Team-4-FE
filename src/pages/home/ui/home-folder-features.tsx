@@ -30,7 +30,7 @@ const FEATURE_FOLDERS: FolderFeatureItem[] = [
     category: 'Recommendation',
     title: '내게 맞는 광고 채널을\n추천받아요',
     buttonLabel: '채널 추천받기',
-    buttonHref: '/recommend/onboarding/new',
+    buttonHref: '/recommend',
     imageSrc: '/home-assets/feature-folders/folder-recommend.png',
     imageAlt: '채소집 채널 추천 기능 소개',
   },

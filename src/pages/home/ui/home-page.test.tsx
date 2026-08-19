@@ -51,7 +51,14 @@ describe('HomePage', () => {
       'href',
       '/recommend',
     );
-    expect(screen.getByText('바로 채널 추천받기')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '바로 채널 추천받기' })).toHaveAttribute(
+      'href',
+      '/recommend',
+    );
+    expect(screen.getByRole('button', { name: '채널 추천받기' })).toHaveAttribute(
+      'href',
+      '/recommend',
+    );
     expect(screen.getByText('© 2026 CHAESOZIP. ALL RIGHTS RESERVED')).toBeInTheDocument();
     expect(screen.getByText('개인정보 처리방침')).toBeInTheDocument();
   });

@@ -84,7 +84,7 @@ const FOLDER_3D_ITEMS = [
   },
 ] as const;
 
-const RECOMMEND_ONBOARDING_HREF = '/recommend/onboarding/new';
+const RECOMMEND_HREF = '/recommend';
 
 export function HomeFinalCta(): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
@@ -201,7 +201,7 @@ export function HomeFinalCta(): JSX.Element {
               frame="button"
               tone="stroke"
               nativeButton={false}
-              render={<Link href={RECOMMEND_ONBOARDING_HREF} />}
+              render={<Link href={RECOMMEND_HREF} />}
               className="h-[52px] rounded-[12px] border-none bg-white px-[24px] text-[16px] font-semibold text-[var(--color-primitive-gray-800,#3F3F45)] shadow-none hover:not-data-disabled:bg-gray-50"
               rightIcon={
                 <ArrowRight
