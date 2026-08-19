@@ -4,7 +4,9 @@ import type {
   ProductResponse,
 } from '@/shared/api/generated';
 
-import type { ChannelDetail, ChannelProductRow } from './channel-detail';
+import { createRecommendationReason } from '@/features/channel-detail/lib/create-recommendation-reason';
+
+import type { ChannelAudienceMetric, ChannelDetail, ChannelProductRow } from './channel-detail';
 
 const EMPTY_VALUE = '-';
 
@@ -14,12 +16,16 @@ type ChannelDetailResponseForAdapter = Omit<ChannelDetailApiModel, 'audienceTrai
   audienceTraits?: string | null;
 };
 
-const USER_SCALE_METRIC_NAME = 'MAU';
-const DAILY_ACTIVE_USER_METRIC_NAME = 'DAU';
-
 function getNonEmptyText(value?: string | null): string | undefined {
   const trimmedValue = value?.trim();
   return trimmedValue && trimmedValue.length > 0 ? trimmedValue : undefined;
+}
+
+function getNonEmptyTextList(values: readonly string[]): string[] {
+  return values.flatMap((value) => {
+    const text = getNonEmptyText(value);
+    return text ? [text] : [];
+  });
 }
 
 function formatNumber(value: number): string {
@@ -89,6 +95,7 @@ function toProductRow(product: ProductResponse): ChannelProductRow {
     ),
     expectedImpressions: formatExpectedImpressions(product),
     expectedClicks: formatExpectedClicks(product),
+    isExecutable: product.isExecutable,
   };
 }
 
@@ -103,35 +110,33 @@ function formatPrimaryGender(gender: PrimaryGender): string {
   }
 }
 
-function findAudienceMetricText(
-  metrics: readonly AudienceMetricResponse[],
-  metricName: string,
-): string {
-  const metric = metrics.find((candidate) => candidate.metricName.trim() === metricName);
-  return getNonEmptyText(metric?.valueText) ?? EMPTY_VALUE;
+function toAudienceMetric(metric: AudienceMetricResponse): ChannelAudienceMetric {
+  return {
+    label: getNonEmptyText(metric.metricName) ?? EMPTY_VALUE,
+    value: getNonEmptyText(metric.valueText) ?? EMPTY_VALUE,
+  };
 }
 
 export function toChannelDetailViewModel(channel: ChannelDetailResponseForAdapter): ChannelDetail {
+  const tagline = getNonEmptyText(channel.tagline) ?? '';
   const description = getNonEmptyText(channel.description);
 
   return {
     id: channel.id,
     name: channel.name,
     logoUrl: channel.logoUrl?.trim() ?? '',
-    tagline: description ?? '',
+    tagline: tagline ?? '',
     summary: {
+      keywords: getNonEmptyTextList(channel.tags),
       paragraphs: description ? [description] : [],
+      recommendationReason: createRecommendationReason(channel.recommendationBasis),
     },
     products: channel.products.map(toProductRow),
     productsNote: '일부 채널은 해당 지표를 공개하지 않아요.',
     audience: {
       primaryAgeBand: getNonEmptyText(channel.primaryAgeBand) ?? EMPTY_VALUE,
       primaryGender: formatPrimaryGender(channel.primaryGender),
-      userScale: findAudienceMetricText(channel.audienceMetrics, USER_SCALE_METRIC_NAME),
-      dailyActiveUsers: findAudienceMetricText(
-        channel.audienceMetrics,
-        DAILY_ACTIVE_USER_METRIC_NAME,
-      ),
+      metrics: channel.audienceMetrics.map(toAudienceMetric),
       traits: getNonEmptyText(channel.audienceTraits) ?? EMPTY_VALUE,
     },
     similarCases: channel.references,

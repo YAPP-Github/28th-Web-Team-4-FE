@@ -39,3 +39,12 @@ export async function logoutAuthSession(signal?: AbortSignal): Promise<void> {
 
   await ensureResponseOk(response);
 }
+
+export async function withdrawAuthAccount(): Promise<void> {
+  const response = await fetch('/api/auth/withdraw', {
+    method: 'POST',
+    credentials: 'same-origin',
+  });
+
+  await ensureResponseOk(response);
+}

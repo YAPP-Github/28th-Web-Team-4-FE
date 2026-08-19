@@ -2,7 +2,9 @@
  * 추천 온보딩에만 필요한 연령대, 광고 목표, 광고 경험 선택지 데이터를 정의한다.
  */
 
-import type { OnboardingOption } from './common-onboarding-options';
+import { entries } from '@/shared/lib/object';
+
+import type { OnboardingOptionByValue } from './common-onboarding-options';
 
 /** 광고할 주요 연령대. */
 export type AgeRangeId =
@@ -29,13 +31,29 @@ export type AdExperienceType = 'FIRST_TIME' | 'EXPERIENCED';
 /** 광고 집행 경험이 있을 때 성과 정보를 입력하는 방식. */
 export type PerformanceMode = 'UPLOAD' | 'MANUAL';
 
-/** 광고 집행 경험 직접 입력에서 선택할 광고 채널. */
-export type PerformanceChannelId =
-  | 'GOOGLE_SEARCH_ADS'
-  | 'NAVER_SA'
-  | 'META_ADS'
-  | 'YOUTUBE_VIDEO_ADS'
-  | 'KAKAO_BIZBOARD';
+/** 광고 집행 경험 직접 입력에서 채널별로 입력하는 성과 항목. */
+export type ManualPerformanceChannel = {
+  channelId?: string;
+  channelNameRaw: string;
+  budgetWon?: number;
+  periodDays?: number;
+  impressions?: number;
+  clicks?: number;
+  conversions?: number;
+};
+
+export const MAX_MANUAL_PERFORMANCE_CHANNEL_COUNT = 3;
+
+export const MANUAL_PERFORMANCE_METRIC_KEY_LIST = [
+  'budgetWon',
+  'periodDays',
+  'impressions',
+  'clicks',
+  'conversions',
+] as const satisfies readonly (keyof Pick<
+  ManualPerformanceChannel,
+  'budgetWon' | 'periodDays' | 'impressions' | 'clicks' | 'conversions'
+>)[];
 
 /** 파일 파싱 전 UI와 presigned 업로드에 사용하는 파일 메타데이터. */
 export type UploadedPerformanceFile = {
@@ -52,39 +70,43 @@ export type UploadedPerformanceFile = {
  */
 export const UNKNOWN_AGE_RANGE_ID = 'UNKNOWN';
 
-export const AGE_RANGE_OPTION_LIST = [
-  { value: 'TEENS', label: '10대' },
-  { value: 'TWENTIES', label: '20대' },
-  { value: 'THIRTIES', label: '30대' },
-  { value: 'FORTIES', label: '40대' },
-  { value: 'FIFTIES_AND_OVER', label: '50대 이상' },
-  { value: 'UNKNOWN', label: '잘 모르겠어요' },
-] as const satisfies readonly OnboardingOption<AgeRangeId>[];
+export const AGE_RANGE_OPTION_BY_VALUE = {
+  TEENS: { value: 'TEENS', label: '10대' },
+  TWENTIES: { value: 'TWENTIES', label: '20대' },
+  THIRTIES: { value: 'THIRTIES', label: '30대' },
+  FORTIES: { value: 'FORTIES', label: '40대' },
+  FIFTIES_AND_OVER: { value: 'FIFTIES_AND_OVER', label: '50대 이상' },
+  UNKNOWN: { value: 'UNKNOWN', label: '잘 모르겠어요' },
+} as const satisfies OnboardingOptionByValue<AgeRangeId>;
 
-export const AD_GOAL_OPTION_LIST = [
-  { value: 'BRAND_AWARENESS', label: '브랜드 인지·노출 확대' },
-  { value: 'VIDEO_VIRAL', label: '영상 조회·바이럴 확산' },
-  { value: 'TRAFFIC', label: '클릭·트래픽 유입' },
-  { value: 'LEAD_GENERATION', label: '회원가입·리드 수집' },
-  { value: 'PURCHASE_CONVERSION', label: '구매·결제 전환' },
-  { value: 'APP_INSTALL', label: '앱 설치' },
-  { value: 'IN_APP_ACTION', label: '인앱 구매·행동' },
-] as const satisfies readonly OnboardingOption<AdGoalId>[];
+export const AGE_RANGE_OPTION_LIST = entries(AGE_RANGE_OPTION_BY_VALUE).map(([, option]) => option);
 
-export const AD_EXPERIENCE_OPTION_LIST = [
-  { value: 'FIRST_TIME', label: '광고 운영은 처음이에요' },
-  { value: 'EXPERIENCED', label: '광고를 운영해 봤어요' },
-] as const satisfies readonly OnboardingOption<AdExperienceType>[];
+export const AD_GOAL_OPTION_BY_VALUE = {
+  BRAND_AWARENESS: { value: 'BRAND_AWARENESS', label: '브랜드 인지·노출 확대' },
+  VIDEO_VIRAL: { value: 'VIDEO_VIRAL', label: '영상 조회·바이럴 확산' },
+  TRAFFIC: { value: 'TRAFFIC', label: '클릭·트래픽 유입' },
+  LEAD_GENERATION: { value: 'LEAD_GENERATION', label: '회원가입·리드 수집' },
+  PURCHASE_CONVERSION: { value: 'PURCHASE_CONVERSION', label: '구매·결제 전환' },
+  APP_INSTALL: { value: 'APP_INSTALL', label: '앱 설치' },
+  IN_APP_ACTION: { value: 'IN_APP_ACTION', label: '인앱 구매·행동' },
+} as const satisfies OnboardingOptionByValue<AdGoalId>;
 
-export const PERFORMANCE_MODE_OPTION_LIST = [
-  { value: 'UPLOAD', label: '파일 업로드' },
-  { value: 'MANUAL', label: '직접 입력' },
-] as const satisfies readonly OnboardingOption<PerformanceMode>[];
+export const AD_GOAL_OPTION_LIST = entries(AD_GOAL_OPTION_BY_VALUE).map(([, option]) => option);
 
-export const PERFORMANCE_CHANNEL_OPTION_LIST = [
-  { value: 'GOOGLE_SEARCH_ADS', label: '구글 검색 광고' },
-  { value: 'NAVER_SA', label: '네이버 SA' },
-  { value: 'META_ADS', label: '메타 광고' },
-  { value: 'YOUTUBE_VIDEO_ADS', label: '유튜브 비디오 광고' },
-  { value: 'KAKAO_BIZBOARD', label: '카카오 비즈보드' },
-] as const satisfies readonly OnboardingOption<PerformanceChannelId>[];
+export const AD_EXPERIENCE_OPTION_BY_VALUE = {
+  FIRST_TIME: { value: 'FIRST_TIME', label: '광고 운영은 처음이에요' },
+  EXPERIENCED: { value: 'EXPERIENCED', label: '광고를 운영해 봤어요' },
+} as const satisfies OnboardingOptionByValue<AdExperienceType>;
+
+export const AD_EXPERIENCE_OPTION_LIST = entries(AD_EXPERIENCE_OPTION_BY_VALUE).map(
+  ([, option]) => option,
+);
+
+export const PERFORMANCE_MODE_OPTION_BY_VALUE = {
+  UPLOAD: { value: 'UPLOAD', label: '파일 업로드' },
+  MANUAL: { value: 'MANUAL', label: '직접 입력' },
+} as const satisfies OnboardingOptionByValue<PerformanceMode>;
+
+export const PERFORMANCE_MODE_OPTION_LIST = entries(PERFORMANCE_MODE_OPTION_BY_VALUE).map(
+  ([, option]) => option,
+);

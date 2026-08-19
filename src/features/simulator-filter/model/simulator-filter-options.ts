@@ -1,3 +1,5 @@
+import type { PricingResponse } from '@/shared/api/generated';
+
 export const FILTER_PERIOD_OPTIONS = [
   { value: 'one-week', label: '1주 이하', days: 7 },
   { value: 'two-to-three-weeks', label: '2~3주', days: 21 },
@@ -8,9 +10,16 @@ export const FILTER_PERIOD_OPTIONS = [
 
 export type SimulatorFilterPeriodValue = (typeof FILTER_PERIOD_OPTIONS)[number]['value'];
 
+export type SimulatorChannelCost = {
+  pricingModel: PricingResponse['pricingModel'];
+  value: number;
+  valueMax: number | null;
+};
+
 export type SimulatorFilterChannel = {
   id: string;
   name: string;
+  cost?: SimulatorChannelCost | null;
 };
 
 export type SimulatorFilterState = {

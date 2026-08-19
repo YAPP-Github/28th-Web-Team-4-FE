@@ -12,7 +12,12 @@ import type { SimulationResponse } from '@/shared/api/generated';
 import { useSimulatorFilterChannels } from '@/features/simulator-filter/api/use-simulator-filter-channels';
 import { createChannelResults } from '@/pages/simulator/model/simulator-channel';
 
-import { ChannelPerformanceContent } from './simulator-channel-performance';
+import {
+  ChannelPerformanceContent,
+  type SimulatorResultsView,
+} from './simulator-channel-performance';
+import { SimulatorChannelTable } from './simulator-channel-table';
+import { SimulatorChannelResultsSkeleton } from './simulator-channel-results-skeleton';
 
 function SimulatorDummyIcon(): JSX.Element {
   return (
@@ -71,7 +76,13 @@ function LoggedInEmptyState(): JSX.Element {
           }
           actions={
             <>
-              <Button frame="button" tone="stroke" className="h-12 flex-1">
+              <Button
+                frame="button"
+                tone="stroke"
+                className="h-12 flex-1"
+                nativeButton={false}
+                render={<Link href="/simulator/recommendations" />}
+              >
                 추천 결과 불러오기
               </Button>
               <Button
@@ -96,10 +107,12 @@ export function AuthenticatedChannelResults({
   isChannelSelectionComplete,
   selectedChannelIds = [],
   simulationResult = null,
+  view = 'graph',
 }: {
   isChannelSelectionComplete: boolean;
   selectedChannelIds?: readonly string[];
   simulationResult?: SimulationResponse | null;
+  view?: SimulatorResultsView;
 }): JSX.Element {
   const { channels, isError, isPending } = useSimulatorFilterChannels(selectedChannelIds);
 
@@ -108,11 +121,7 @@ export function AuthenticatedChannelResults({
   }
 
   if (isPending) {
-    return (
-      <Text role="status" variant="body-lg" className="text-text-low">
-        선택한 채널 정보를 불러오는 중이에요
-      </Text>
-    );
+    return <SimulatorChannelResultsSkeleton />;
   }
 
   if (isError || channels.length !== selectedChannelIds.length) {
@@ -123,5 +132,11 @@ export function AuthenticatedChannelResults({
     );
   }
 
-  return <ChannelPerformanceContent channels={createChannelResults(channels, simulationResult)} />;
+  const channelResults = createChannelResults(channels, simulationResult);
+
+  return view === 'table' ? (
+    <SimulatorChannelTable channels={channelResults} />
+  ) : (
+    <ChannelPerformanceContent channels={channelResults} />
+  );
 }

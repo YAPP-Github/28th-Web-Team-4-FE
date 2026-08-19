@@ -7,6 +7,8 @@ import {
 } from '@/features/channel-detail/model/channel-detail-fixture';
 import { openResolvedChannelDetailModal } from '@/features/channel-detail/model/open-resolved-channel-detail-modal';
 import { ChannelDetailContent } from '@/features/channel-detail/ui/channel-detail-content';
+import { ChannelDetailContentSkeleton } from '@/features/channel-detail/ui/channel-detail-content-skeleton';
+import { ChannelDetailModalHeader } from '@/features/channel-detail/ui/channel-detail-modal-header';
 import { Button } from '@/shared/ui/button';
 
 import { ChannelDetailModal } from './channel-detail-modal';
@@ -36,8 +38,29 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    channel: CHANNEL_HEADER,
-    children: <ChannelDetailContent channel={CHANNEL_DETAIL_FIXTURE} />,
+    children: (
+      <>
+        <ChannelDetailModalHeader channel={CHANNEL_HEADER} />
+        <ChannelDetailContent channel={CHANNEL_DETAIL_FIXTURE} />
+      </>
+    ),
+    open: true,
+    onOpenChange: () => undefined,
+  },
+  play: async () => {
+    const body = within(document.body);
+    await expect(body.getByRole('heading', { name: '이런 이유로 추천해요' })).toBeVisible();
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    children: (
+      <>
+        <ChannelDetailModalHeader channel={CHANNEL_HEADER} />
+        <ChannelDetailContentSkeleton />
+      </>
+    ),
     open: true,
     onOpenChange: () => undefined,
   },
@@ -45,8 +68,12 @@ export const Default: Story = {
 
 export const EmptyProducts: Story = {
   args: {
-    channel: CHANNEL_HEADER,
-    children: <ChannelDetailContent channel={CHANNEL_DETAIL_EMPTY_PRODUCTS_FIXTURE} />,
+    children: (
+      <>
+        <ChannelDetailModalHeader channel={CHANNEL_HEADER} />
+        <ChannelDetailContent channel={CHANNEL_DETAIL_EMPTY_PRODUCTS_FIXTURE} />
+      </>
+    ),
     open: true,
     onOpenChange: () => undefined,
   },
@@ -63,7 +90,6 @@ export const EmptyProducts: Story = {
 
 export const OpenWithOverlayKit: Story = {
   args: {
-    channel: CHANNEL_HEADER,
     children: <ChannelDetailContent channel={CHANNEL_DETAIL_FIXTURE} />,
     open: false,
     onOpenChange: () => undefined,

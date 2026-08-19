@@ -1,19 +1,36 @@
 'use client';
 
-import type { JSX } from 'react';
+import { useEffect, type JSX } from 'react';
 import { Menu } from '@base-ui/react/menu';
 
 import { Avatar } from '@/shared/ui/avatar';
 import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
+import { showWarningToast } from '@/shared/ui/toast';
+
+const LOGOUT_ERROR_TOAST_ID = 'logout-error';
 
 export type PageHeaderAccountMenuProps = {
   userName?: string;
+  onLogout?: () => void;
+  isLogoutPending?: boolean;
+  logoutError?: string;
 };
 
-export function PageHeaderAccountMenu({ userName }: PageHeaderAccountMenuProps): JSX.Element {
+export function PageHeaderAccountMenu({
+  userName,
+  onLogout,
+  isLogoutPending = false,
+  logoutError,
+}: PageHeaderAccountMenuProps): JSX.Element {
   const avatarAlt = userName ? `${userName} 프로필` : '내 프로필';
+
+  useEffect(() => {
+    if (logoutError) {
+      showWarningToast(logoutError, { id: LOGOUT_ERROR_TOAST_ID });
+    }
+  }, [logoutError]);
 
   return (
     <Box className="gap-018 flex shrink-0 items-center">
@@ -34,12 +51,15 @@ export function PageHeaderAccountMenu({ userName }: PageHeaderAccountMenuProps):
           <Menu.Positioner className="z-50 outline-none" side="bottom" align="end" sideOffset={10}>
             <Menu.Popup className="border-outline-default bg-surface-lowest w-[92px] overflow-hidden rounded-[var(--radius-s)] border outline-none">
               <Menu.Item
-                closeOnClick
+                closeOnClick={false}
                 nativeButton
+                disabled={isLogoutPending}
+                onClick={onLogout}
                 render={
                   <Button
                     frame="button"
                     tone="stroke"
+                    disabled={isLogoutPending}
                     className="data-highlighted:bg-surface-low px-016 h-[42px] w-full rounded-none border-0"
                   >
                     로그아웃
