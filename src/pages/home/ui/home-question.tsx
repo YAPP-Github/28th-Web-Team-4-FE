@@ -168,7 +168,7 @@ function HomeQuestionAnimated(): JSX.Element {
 
   // 스크롤 위치에 따라 단계 및 헤더 테마 전환 (영역을 완전히 벗어날 때까지 색상 유지!)
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    // 1) 흰색 문 열림
+    // 1) 닿자마자 상하 도어가 즉각 스르륵 개방!
     if (latest > 0.005) {
       setIsDoorOpen(true);
     } else {
@@ -188,17 +188,14 @@ function HomeQuestionAnimated(): JSX.Element {
       setActiveStep(3); // 오렌지 타이틀
     }
 
-    // 3) 헤더 테마: 다음 페이지가 헤더 하단에 딱 걸치는 순간(0.975)까지 색상 유지
+    // 3) 헤더 테마: 다음 페이지가 헤더 하단에 닿을 때(0.975)까지 색상 유지
     if (latest <= 0.005) {
       setTheme('white');
     } else if (latest >= 0.975) {
-      // 다음 페이지(매체 배너) 상단이 헤더 하단에 딱 닿았을 때 화이트로 전환
       setTheme('white');
     } else if (latest >= 0.6) {
-      // 오렌지 타이틀 구간: 섹션 끝까지 주황색 유지
       setTheme('orange');
     } else {
-      // 고민 질문 및 고민 리스트 구간: 검정색 다크 헤더 유지
       setTheme('dark');
     }
   });
