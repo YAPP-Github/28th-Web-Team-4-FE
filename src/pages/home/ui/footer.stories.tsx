@@ -30,7 +30,9 @@ export const Basic: Story = {
     const canvas = within(canvasElement);
 
     await expect(canvas.getByRole('contentinfo')).toBeVisible();
-    await expect(canvas.getByText('내게 맞는 광고 채널을 한눈에! 채소집')).toBeVisible();
-    await expect(canvas.getByText('문의 : channelsogae.zip@gmail.com')).toBeVisible();
+    await expect(canvas.getByText('© 2026 CHAESOZIP. ALL RIGHTS RESERVED')).toBeVisible();
+    await expect(canvas.getByText('개인정보 처리방침')).toBeVisible();
+    await expect(canvas.getByRole('img', { name: '이메일' })).toBeVisible();
+    await expect(canvas.getByRole('img', { name: '네이버 블로그' })).toBeVisible();
   },
 };
