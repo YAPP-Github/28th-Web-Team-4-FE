@@ -44,10 +44,10 @@ export function HomePageHeader(): JSX.Element {
       } ${
         isDarkText
           ? '[&_nav_a]:text-text-low [&_nav_a:hover]:text-text-highest'
-          : '[&_.text-text-primary]:!text-white [&_nav_a]:!text-white [&_nav_a:hover]:!text-white/80 [&_svg]:!text-white'
+          : '[&_.text-text-primary]:!text-white [&_nav_a]:!text-white [&_nav_a:hover]:!text-white/80 [&_span]:!text-white [&_svg]:!text-white'
       } ${
         isOrangeBackground
-          ? '[&_a[href="/login"]]:!text-sys-primary-default [&_.text-text-primary]:!text-white [&_a[href="/login"]]:!bg-white [&_a[href="/login"]:hover]:!bg-white/90 [&_nav_a]:!text-white [&_svg]:!text-white'
+          ? '[&_a[href="/login"]]:!text-sys-primary-default [&_.text-text-primary]:!text-white [&_a[href="/login"]]:!bg-white [&_a[href="/login"]:hover]:!bg-white/90 [&_nav_a]:!text-white [&_span]:!text-white [&_svg]:!text-white'
           : ''
       }`}
       style={{ backgroundColor: background }}

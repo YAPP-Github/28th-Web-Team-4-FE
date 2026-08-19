@@ -241,6 +241,7 @@ export function HomeFolderFeatures(): JSX.Element {
               animate={{
                 y: shouldReduceMotion ? '0%' : card2Y,
                 scale: shouldReduceMotion ? 1 : card2Scale,
+                opacity: activeStep >= 1 ? 1 : 0,
               }}
               transition={SPRING_TRANSITION}
               style={{
@@ -284,6 +285,7 @@ export function HomeFolderFeatures(): JSX.Element {
             <motion.div
               animate={{
                 y: shouldReduceMotion ? '0%' : card3Y,
+                opacity: activeStep >= 2 ? 1 : 0,
               }}
               transition={SPRING_TRANSITION}
               style={{
@@ -338,17 +340,19 @@ export function HomeFolderFeatures(): JSX.Element {
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="px-016 sm:px-032 absolute inset-0 flex flex-col items-center justify-center lg:px-120"
         >
-          <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-[56px] sm:gap-[72px] lg:gap-[110px]">
-            {/* 상단 헤더 */}
-            <div className="flex flex-col items-center gap-[6px] text-center">
-              <span className="text-surface-higher typo-heading-xl">The Process</span>
-              <h2 className="font-pre text-[26px] leading-[1.28] font-bold tracking-[-1px] break-keep text-white sm:text-[32px] sm:leading-[52px] lg:text-[36px]">
+          <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-[24px] sm:gap-[48px] lg:gap-[80px]">
+            {/* 상단 헤더 (The Process & 서브타이틀) */}
+            <div className="flex flex-col items-center gap-[4px] text-center sm:gap-[6px]">
+              <span className="text-surface-higher typo-subtitle-xxl sm:typo-heading-xl font-semibold">
+                The Process
+              </span>
+              <h2 className="font-pre text-[20px] leading-[1.3] font-bold tracking-tight break-keep text-white sm:text-[30px] sm:leading-[44px] lg:text-[36px] lg:leading-[52px]">
                 이 모든 기능을 채소집 안에서 한 번에!
               </h2>
             </div>
 
-            {/* 4단계 카드 그리드 */}
-            <div className="grid w-full grid-cols-1 gap-[16px] sm:grid-cols-2 lg:grid-cols-4 lg:gap-[20px]">
+            {/* 4단계 카드 그리드 (모바일 2x2 반응형 배치) */}
+            <div className="grid w-full grid-cols-2 gap-[10px] sm:grid-cols-2 sm:gap-[16px] lg:grid-cols-4 lg:gap-[20px]">
               {PROCESS_STEPS.map((item, index) => {
                 const isHovered = hoveredProcessIndex === index;
 
@@ -357,7 +361,7 @@ export function HomeFolderFeatures(): JSX.Element {
                     key={item.step}
                     onMouseEnter={() => setHoveredProcessIndex(index)}
                     onMouseLeave={() => setHoveredProcessIndex(null)}
-                    className={`relative flex h-[286px] w-full cursor-pointer flex-col justify-between rounded-[16px] px-[30px] py-[24px] transition-all duration-300 select-none ${
+                    className={`relative flex h-[148px] w-full cursor-pointer flex-col justify-between rounded-[14px] p-[14px] transition-all duration-300 select-none sm:h-[220px] sm:rounded-[16px] sm:p-[20px] lg:h-[286px] lg:px-[30px] lg:py-[24px] ${
                       isHovered
                         ? 'bg-white shadow-[0_20px_40px_rgba(0,0,0,0.24)]'
                         : 'bg-[var(--color-primitive-gray-800,#3F3F45)]'
@@ -366,7 +370,7 @@ export function HomeFolderFeatures(): JSX.Element {
                     {/* 1) 호버 상태: 상단 타이틀 + 하단 3줄 상세 설명 */}
                     {isHovered ? (
                       <div className="flex h-full flex-col justify-between">
-                        <h3 className="font-pre text-[20px] leading-[32px] font-bold tracking-[-0.5px] break-keep whitespace-pre-line text-[var(--color-primitive-gray-900,#2E2E33)] sm:text-[22px]">
+                        <h3 className="font-pre text-[14px] leading-[1.3] font-bold tracking-tight break-keep whitespace-pre-line text-[var(--color-primitive-gray-900,#2E2E33)] sm:text-[18px] sm:leading-[26px] lg:text-[20px] lg:leading-[32px]">
                           {item.title}
                         </h3>
                         <AnimatePresence>
@@ -375,16 +379,16 @@ export function HomeFolderFeatures(): JSX.Element {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.2 }}
-                            className="font-pre text-[15px] leading-[24px] font-medium tracking-[-0.5px] break-keep whitespace-pre-line text-[var(--color-primitive-gray-600,#6E6E76)] sm:text-[16px]"
+                            className="font-pre text-[11px] leading-[1.3] font-medium tracking-tight break-keep whitespace-pre-line text-[var(--color-primitive-gray-600,#6E6E76)] sm:text-[14px] sm:leading-[20px] lg:text-[15px] lg:leading-[24px]"
                           >
                             {item.description}
                           </motion.p>
                         </AnimatePresence>
                       </div>
                     ) : (
-                      /* 2) 기본(Non-hover) 상태: 상단 아이콘 + 하단 텍스트 묶음 (타이틀 + Step 레이블, gap: 6px) */
+                      /* 2) 기본(Non-hover) 상태: 상단 아이콘 + 하단 텍스트 묶음 */
                       <>
-                        <div className="relative size-[40px] shrink-0">
+                        <div className="relative size-[28px] shrink-0 sm:size-[36px] lg:size-[40px]">
                           <Image
                             src={item.iconSrc}
                             alt={item.iconAlt}
@@ -393,11 +397,13 @@ export function HomeFolderFeatures(): JSX.Element {
                           />
                         </div>
 
-                        <div className="flex flex-col gap-[6px]">
-                          <h3 className="font-pre text-[20px] leading-[32px] font-bold tracking-[-0.5px] break-keep whitespace-pre-line text-white sm:text-[22px]">
+                        <div className="flex flex-col gap-[2px] sm:gap-[6px]">
+                          <h3 className="font-pre text-[13.5px] leading-[1.3] font-bold tracking-tight break-keep whitespace-pre-line text-white sm:text-[18px] sm:leading-[26px] lg:text-[20px] lg:leading-[32px]">
                             {item.title}
                           </h3>
-                          <span className="text-text-low typo-subtitle-xxl">{item.stepLabel}</span>
+                          <span className="text-text-low lg:typo-subtitle-xxl text-[11px] font-medium sm:text-[13px]">
+                            {item.stepLabel}
+                          </span>
                         </div>
                       </>
                     )}

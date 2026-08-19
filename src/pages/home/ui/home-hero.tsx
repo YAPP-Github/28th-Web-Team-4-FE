@@ -158,7 +158,7 @@ function HeroRevealTitle(): JSX.Element {
     <h1 className="text-text-highest flex flex-col items-center text-center font-bold tracking-[-1px]">
       <span className="flex flex-wrap items-center justify-center text-[28px] leading-[1.3] sm:text-[40px] lg:text-[48px] lg:leading-[70px]">
         <span>내게 맞는 광고 채널을 </span>
-        <span className="relative ml-[7px] inline-flex -rotate-[4.78deg] items-center justify-center border-[1.5px] border-[#41BCF6] px-[10px] py-[1.5px] sm:px-[12px] sm:py-[2px] lg:px-[14.4px] lg:py-[2px]">
+        <span className="relative -top-[3px] ml-[7px] inline-flex -rotate-[4.78deg] items-center justify-center border-[1.5px] border-[#41BCF6] px-[10px] py-[1.5px] sm:-top-[5px] sm:px-[12px] sm:py-[2px] lg:-top-[7px] lg:px-[14.4px] lg:py-[2px]">
           {/* 네 모서리 꼭짓점 데코 포인트 (피그마 13.33px 사각형, 2.06px border, 중앙 정렬) */}
           <span className="bg-surface-lowest absolute top-0 left-0 size-[8px] -translate-x-1/2 -translate-y-1/2 rounded-[1.5px] border-[1.5px] border-[#41BCF6] sm:size-[11px] lg:size-[13.3px] lg:rounded-[2px] lg:border-[2px]" />
           <span className="bg-surface-lowest absolute top-0 right-0 size-[8px] translate-x-1/2 -translate-y-1/2 rounded-[1.5px] border-[1.5px] border-[#41BCF6] sm:size-[11px] lg:size-[13.3px] lg:rounded-[2px] lg:border-[2px]" />
