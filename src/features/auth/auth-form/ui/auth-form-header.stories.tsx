@@ -11,7 +11,7 @@ const meta = {
   component: AuthFormHeader,
   tags: ['autodocs'],
   args: {
-    graphic: <BrandSymbol className="h-[29px] w-6" alt="" />,
+    graphic: <BrandSymbol type="symbol-login" alt="" />,
     title: '이메일로 시작하기',
     titleId: 'auth-form-header-story-title',
   },

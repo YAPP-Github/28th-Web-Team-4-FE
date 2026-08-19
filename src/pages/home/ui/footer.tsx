@@ -5,11 +5,11 @@ import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
+import { Logo } from '@/shared/ui/logo';
 import { Text } from '@/shared/ui/text';
 
 export type FooterProps = Omit<ComponentProps<'footer'>, 'children'>;
 
-const FOOTER_LOGO_SRC = '/home-assets/footer-logo.svg';
 const FOOTER_NAVIGATION_ITEMS = ['이용 약관', '개인정보 처리방침', '요금제'] as const;
 const FOOTER_NAVIGATION_SEPARATOR = '|';
 const FOOTER_ICON_ITEMS = [
@@ -50,17 +50,7 @@ function FooterNavigationSeparator(): JSX.Element {
 }
 
 function FooterLogo(): JSX.Element {
-  return (
-    <Box as="span" className="flex h-[36px] w-[136px] shrink-0 items-center pl-[2px]">
-      <Image
-        src={FOOTER_LOGO_SRC}
-        alt="chaesozip"
-        width={130}
-        height={26}
-        className="h-[26px] w-[130px] shrink-0"
-      />
-    </Box>
-  );
+  return <Logo type="m" alt="chaesozip" className="h-[36px] w-[136px]" />;
 }
 
 function intersperseFooterNavigationItems(items: readonly JSX.Element[]): JSX.Element[] {

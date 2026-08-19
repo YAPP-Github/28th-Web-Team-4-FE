@@ -28,7 +28,7 @@ export function AuthForm({
     >
       <VStack className="gap-036 w-full max-w-[440px]">
         <AuthFormHeader
-          graphic={<BrandSymbol className="h-[29px] w-6" alt="" />}
+          graphic={<BrandSymbol type="symbol-login" alt="" />}
           title={title}
           titleId={titleId}
         />

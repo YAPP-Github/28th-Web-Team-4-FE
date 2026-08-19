@@ -4,7 +4,7 @@ import { cva } from 'class-variance-authority';
 import { keys } from '@/shared/lib/object';
 import { cn } from '@/shared/ui/cn';
 
-import { LogoMark } from './logo-mark';
+import { LogoMark, type LogoMarkType } from './logo-mark';
 
 const TYPE_MAP = {
   s: 's',
@@ -12,7 +12,7 @@ const TYPE_MAP = {
   l: 'l',
 } as const;
 
-export type LogoType = keyof typeof TYPE_MAP;
+export type LogoType = LogoMarkType;
 
 export const LOGO_TYPES = keys(TYPE_MAP);
 
@@ -42,12 +42,12 @@ const logoVariants = cva(
   },
 );
 
-/** 프레임 대비 그래픽 폭 비율 (Figma: s 103.91/110, m 126/136, l 308/440) */
+/** 프레임 대비 그래픽 폭 비율 (Figma: s 104/110, m 130/136) */
 const markVariants = cva('h-auto max-w-none', {
   variants: {
     type: {
-      s: 'w-[calc(103.91/110*100%)]',
-      m: 'w-[calc(126/136*100%)]',
+      s: 'w-[calc(104/110*100%)]',
+      m: 'w-[calc(130/136*100%)]',
       l: 'w-[calc(308/440*100%)]',
     },
   },
@@ -64,7 +64,7 @@ export const Logo = ({ type = 'm', className, alt = DEFAULT_ALT }: LogoProps): J
       className={cn(logoVariants({ type }), className)}
       {...(isDecorative ? { 'aria-hidden': true } : { role: 'img', 'aria-label': alt })}
     >
-      <LogoMark className={markVariants({ type })} />
+      <LogoMark type={type} className={markVariants({ type })} />
     </span>
   );
 };
