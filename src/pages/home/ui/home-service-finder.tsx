@@ -17,10 +17,10 @@ export function HomeServiceFinder(): JSX.Element {
       aria-label="맞춤 채널 찾기"
       className="bg-surface-lowest relative flex w-full flex-col items-center justify-start overflow-hidden pt-[60px] pb-[100px] sm:pt-[80px] sm:pb-[120px] lg:pt-[100px] lg:pb-[140px]"
     >
-      {/* 80px 은은한 배경 그리드 */}
+      {/* 피그마 3766:116121 1:1 80px 배경 그리드 (피그마 원본 색상 #F4F4F6) */}
       <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
         <div
-          className="size-full opacity-60"
+          className="size-full"
           style={{
             backgroundImage: `
               linear-gradient(to right, #F4F4F6 1px, transparent 1px),
@@ -30,10 +30,11 @@ export function HomeServiceFinder(): JSX.Element {
             backgroundPosition: 'center top',
           }}
         />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,white_90%)]" />
-        <div className="absolute inset-x-0 top-0 h-[100px] bg-gradient-to-b from-white to-transparent" />
-        <div className="absolute inset-y-0 left-0 w-[140px] bg-gradient-to-r from-white to-transparent" />
-        <div className="absolute inset-y-0 right-0 w-[140px] bg-gradient-to-l from-white to-transparent" />
+        {/* 상단 124px / 좌우 240px / 하단 180px 화이트 페이드아웃 그라데이션 */}
+        <div className="absolute inset-x-0 top-0 h-[124px] bg-gradient-to-b from-white to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-[180px] bg-gradient-to-t from-white via-white/80 to-transparent" />
+        <div className="absolute inset-y-0 left-0 w-[240px] bg-gradient-to-r from-white via-white/70 to-transparent" />
+        <div className="absolute inset-y-0 right-0 w-[240px] bg-gradient-to-l from-white via-white/70 to-transparent" />
       </div>
 
       <div className="px-016 sm:px-032 relative z-10 mx-auto flex w-full max-w-[1200px] flex-col items-center gap-[36px] sm:gap-[44px] lg:gap-[52px] lg:px-120">
