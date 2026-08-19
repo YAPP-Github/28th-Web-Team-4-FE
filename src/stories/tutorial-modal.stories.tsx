@@ -1,8 +1,13 @@
-'use client';
+import { useState, type JSX } from 'react';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { fn } from 'storybook/test';
 
-import type { JSX } from 'react';
-
-import { Modal, TutorialModal, type TutorialSlide } from '@/shared/ui/modal';
+import {
+  Modal,
+  TutorialModal,
+  type TutorialModalProps,
+  type TutorialSlide,
+} from '@/shared/ui/modal';
 
 const TUTORIAL_SLIDES: readonly [TutorialSlide, ...TutorialSlide[]] = [
   {
@@ -34,25 +39,30 @@ const TUTORIAL_SLIDES: readonly [TutorialSlide, ...TutorialSlide[]] = [
   },
 ];
 
-export type RecommendResultTutorialModalProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCompleted: () => void;
-};
+function TutorialModalStory(props: TutorialModalProps): JSX.Element {
+  const [open, setOpen] = useState(true);
 
-export function RecommendResultTutorialModal({
-  open,
-  onOpenChange,
-  onCompleted,
-}: RecommendResultTutorialModalProps): JSX.Element {
   return (
-    <Modal.Root open={open} onOpenChange={onOpenChange}>
-      <TutorialModal
-        slides={TUTORIAL_SLIDES}
-        completeLabel="계속하기"
-        liveRegionLabel="추천 결과 튜토리얼"
-        onCompleted={onCompleted}
-      />
+    <Modal.Root open={open} onOpenChange={setOpen}>
+      <TutorialModal {...props} />
     </Modal.Root>
   );
 }
+
+const meta = {
+  title: 'components/Modal/Tutorial',
+  component: TutorialModal,
+  tags: ['autodocs'],
+  args: {
+    slides: TUTORIAL_SLIDES,
+    completeLabel: '계속하기',
+    liveRegionLabel: '추천 결과 튜토리얼',
+    onCompleted: fn(),
+  },
+  render: (args) => <TutorialModalStory {...args} />,
+} satisfies Meta<typeof TutorialModal>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {};

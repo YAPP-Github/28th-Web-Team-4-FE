@@ -3,20 +3,20 @@
 import { useEffect, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 
-type UseRecommendResultTutorialCarouselOptions = {
+type UseTutorialCarouselOptions = {
   shouldReduceMotion: boolean;
 };
 
-type UseRecommendResultTutorialCarouselResult = {
+type UseTutorialCarouselResult = {
   currentSlide: number;
   emblaRef: ReturnType<typeof useEmblaCarousel>[0];
   goPrevious: () => void;
   goNext: () => void;
 };
 
-export function useRecommendResultTutorialCarousel({
+export function useTutorialCarousel({
   shouldReduceMotion,
-}: UseRecommendResultTutorialCarouselOptions): UseRecommendResultTutorialCarouselResult {
+}: UseTutorialCarouselOptions): UseTutorialCarouselResult {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
