@@ -134,6 +134,39 @@ describe('PageHeader', () => {
     expect(inactiveLink).toHaveClass('text-text-low');
   });
 
+  it('uses a white foreground and a brand-text white CTA for the brand appearance', () => {
+    render(<PageHeader appearance="brand" />);
+
+    const logo = screen.getByRole('link', { name: 'chaesozip' }).querySelector('[aria-hidden]');
+    const navigationLink = screen.getByRole('link', { name: '맞춤 채널 추천' });
+    const loginButton = screen.getByRole('button', { name: '시작하기' });
+    const menuButton = screen.getByRole('button', { name: '메뉴 열기' });
+    const menuIcon = menuButton.querySelector('svg');
+
+    expect(logo).toHaveClass('text-white');
+    expect(navigationLink).toHaveClass('text-white', 'hover:text-white/80');
+    expect(loginButton).toHaveClass('bg-white', 'text-sys-primary-default');
+    expect(menuButton.parentElement).toHaveClass('text-white');
+    expect(menuIcon).not.toHaveClass('text-icon-higher');
+  });
+
+  it('keeps the primary CTA while using a white foreground for the inverse appearance', () => {
+    render(<PageHeader appearance="inverse" />);
+
+    const navigationLink = screen.getByRole('link', { name: '맞춤 채널 추천' });
+    const loginButton = screen.getByRole('button', { name: '시작하기' });
+
+    expect(navigationLink).toHaveClass('text-white');
+    expect(loginButton).toHaveClass('bg-btn-primary', 'text-text-lowest');
+    expect(loginButton).not.toHaveClass('bg-white', 'text-text-highest');
+  });
+
+  it('uses a white account name for authenticated brand headers', () => {
+    render(<PageHeader isLogin userName="YAPP" appearance="brand" />);
+
+    expect(screen.getByText('YAPP 님')).toHaveClass('text-white');
+  });
+
   it('renders a logout-only account menu for a logged-in user', async () => {
     const user = userEvent.setup();
     render(<PageHeader isLogin userName="YAPP" />);
