@@ -26,7 +26,7 @@ describe('HomeCtaGroup', () => {
 
     const assignedUrl = new URL(pushMock.mock.calls[0]?.[0] ?? '', 'http://localhost');
 
-    expect(assignedUrl.pathname).toBe('/recommend/onboarding/new');
+    expect(assignedUrl.pathname).toBe('/recommend');
     expect(assignedUrl.searchParams.get('serviceName')).toBe('채소집');
   });
 

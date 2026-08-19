@@ -2970,6 +2970,45 @@ export type GetSampleByIdResponses = {
 
 export type GetSampleByIdResponse = GetSampleByIdResponses[keyof GetSampleByIdResponses];
 
+export type GetRecommendationData = {
+  body?: never;
+  path: {
+    /**
+     * 저장할 때 발급된 추천 id
+     */
+    recommendationId: string;
+  };
+  query?: never;
+  url: '/api/v1/recommendations/{recommendationId}';
+};
+
+export type GetRecommendationErrors = {
+  /**
+   * 인증 필요(C-004)
+   */
+  401: ApiResponse;
+  /**
+   * 존재하지 않거나 다른 사용자의 추천(REC-001)
+   */
+  404: ApiResponse;
+  /**
+   * 서버 내부 오류
+   */
+  500: ApiResponse;
+};
+
+export type GetRecommendationError = GetRecommendationErrors[keyof GetRecommendationErrors];
+
+export type GetRecommendationResponses = {
+  /**
+   * 조회 성공. 저장할 때 맞는 채널이 없었으면 빈 배열
+   */
+  200: ApiResponseListRecommendationItemResponse;
+};
+
+export type GetRecommendationResponse =
+  GetRecommendationResponses[keyof GetRecommendationResponses];
+
 export type GetMyRecommendationsData = {
   body?: never;
   path?: never;

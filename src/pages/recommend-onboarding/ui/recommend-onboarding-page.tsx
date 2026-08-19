@@ -18,6 +18,7 @@ import { getApiErrorMessage } from '@/shared/api/api-error';
 import { Bubble } from '@/shared/ui/bubble';
 import { Box } from '@/shared/ui/layout/box';
 import { Stack } from '@/shared/ui/layout/stack';
+import { Text } from '@/shared/ui/text';
 import { showWarningToast } from '@/shared/ui/toast';
 
 import { RecommendOnboardingSubHeader } from './recommend-onboarding-sub-header';
@@ -85,8 +86,10 @@ export function RecommendOnboardingPage({
       >
         <Box className="mx-auto w-full max-w-[1200px] lg:grid lg:grid-cols-[204px_minmax(0,792px)_1fr]">
           <Stack className="gap-024 w-full lg:col-start-2">
-            <Bubble className="max-w-[282px] whitespace-pre-line">
-              {'안녕하세요!\n딱 맞는 광고 채널을 추천해 드릴게요.'}
+            <Bubble className="max-w-[282px]">
+              <Text as="h1" variant="subtitle-xl" className="whitespace-pre-line">
+                {'안녕하세요!\n딱 맞는 광고 채널을 추천해 드릴게요.'}
+              </Text>
             </Bubble>
 
             <RecommendOnboardingFlow

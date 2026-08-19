@@ -98,7 +98,7 @@ describe('PageHeader', () => {
     expect(screen.getByRole('navigation', { name: '주요 메뉴' })).toBeVisible();
     expect(screen.getByRole('link', { name: '맞춤 채널 추천' })).toHaveAttribute(
       'href',
-      '/recommend/onboarding/new',
+      '/recommend',
     );
     expect(screen.getByRole('link', { name: '맞춤 채널 추천' })).toHaveClass(
       'hover:text-text-highest',
@@ -228,7 +228,7 @@ describe('PageHeader', () => {
     });
     expect(within(mobileNavigation).getByRole('link', { name: '맞춤 채널 추천' })).toHaveAttribute(
       'href',
-      '/recommend/onboarding/new',
+      '/recommend',
     );
     await waitFor(() => {
       expect(within(dialog).getByText(/로그인하고 나에게 맞는 광고 채널을/)).toBeVisible();

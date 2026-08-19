@@ -201,7 +201,7 @@ function RecommendationSelectionEmptyState(): JSX.Element {
             tone="secondary"
             size="m"
             nativeButton={false}
-            render={<Link href="/recommend/onboarding/new" />}
+            render={<Link href="/recommend" />}
             leftIcon={<Image src="/simulator-assets/plus.svg" alt="" width={16} height={16} />}
           >
             채널 추천받기

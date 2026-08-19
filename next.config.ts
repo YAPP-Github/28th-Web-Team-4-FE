@@ -17,6 +17,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  redirects() {
+    return [
+      {
+        source: '/recommend/onboarding/new',
+        destination: '/recommend',
+        permanent: true,
+      },
+    ];
+  },
   rewrites() {
     return [
       {
