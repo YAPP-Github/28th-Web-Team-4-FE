@@ -13,6 +13,7 @@ type CompareResultChannelCardsProps = {
   channels: readonly CompareResultChannelSummary[];
   removeDisabled: boolean;
   onRemoveChannel: (channelId: string) => void;
+  readOnly?: boolean;
 };
 
 function CompareResultChannelCard({
@@ -91,8 +92,9 @@ export function CompareResultChannelCards({
   channels,
   removeDisabled,
   onRemoveChannel,
+  readOnly = false,
 }: CompareResultChannelCardsProps): JSX.Element {
-  const removable = channels.length === 3;
+  const removable = !readOnly && channels.length === 3;
 
   return (
     <Box as="ul" className="gap-012 flex w-full flex-col lg:flex-row">
@@ -107,7 +109,7 @@ export function CompareResultChannelCards({
           />
         </Box>
       ))}
-      {channels.length === 2 ? (
+      {!readOnly && channels.length === 2 ? (
         <Box as="li" className="w-full lg:w-auto">
           <AddChannelCard />
         </Box>
