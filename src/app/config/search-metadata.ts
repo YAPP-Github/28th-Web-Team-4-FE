@@ -34,3 +34,13 @@ export function createSearchEngineVerification({
     ...(Object.keys(other).length > 0 ? { other } : {}),
   };
 }
+
+export const nonIndexableMetadata: Metadata = {
+  alternates: {
+    canonical: null,
+  },
+  robots: {
+    index: false,
+    follow: false,
+  },
+};

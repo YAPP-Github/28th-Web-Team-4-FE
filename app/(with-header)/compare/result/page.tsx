@@ -1,1 +1,2 @@
-export { CompareResultPage as default, metadata } from '@/pages/compare';
+export { nonIndexableMetadata as metadata } from '@/app/config/search-metadata';
+export { CompareResultPage as default } from '@/pages/compare';
