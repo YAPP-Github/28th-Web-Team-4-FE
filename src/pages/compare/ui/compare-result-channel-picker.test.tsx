@@ -36,6 +36,8 @@ function PickerHarness({
   options = OPTIONS,
 }: Partial<HarnessProps>): JSX.Element {
   const [open, setOpen] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const filteredOptions = options.filter((option) => option.name.includes(searchKeyword));
 
   return (
     <div>
@@ -43,11 +45,19 @@ function PickerHarness({
         disabled={disabled}
         isError={isError}
         isPending={isPending}
-        onOpenChange={setOpen}
+        onOpenChange={(nextOpen) => {
+          setOpen(nextOpen);
+
+          if (!nextOpen) {
+            setSearchKeyword('');
+          }
+        }}
         onRetry={retryMock}
+        onSearchKeywordChange={setSearchKeyword}
         onSelect={selectMock}
         open={open}
-        options={options}
+        options={filteredOptions}
+        searchKeyword={searchKeyword}
       />
       <button type="button">외부 버튼</button>
     </div>
@@ -55,7 +65,9 @@ function PickerHarness({
 }
 
 function renderOpenPicker(
-  props: Partial<Pick<CompareResultChannelPickerProps, 'isError' | 'isPending' | 'options'>> = {},
+  props: Partial<
+    Pick<CompareResultChannelPickerProps, 'isError' | 'isPending' | 'options' | 'searchKeyword'>
+  > = {},
 ) {
   return render(
     <CompareResultChannelPicker
@@ -63,9 +75,11 @@ function renderOpenPicker(
       isPending={props.isPending ?? false}
       onOpenChange={vi.fn<(open: boolean) => void>()}
       onRetry={retryMock}
+      onSearchKeywordChange={vi.fn<(searchKeyword: string) => void>()}
       onSelect={selectMock}
       open
       options={props.options ?? OPTIONS}
+      searchKeyword={props.searchKeyword ?? ''}
     />,
   );
 }
@@ -186,7 +200,34 @@ describe('CompareResultChannelPicker', () => {
     renderOpenPicker({ isPending: true, options: [] });
 
     expect(screen.getByRole('status')).toHaveTextContent('채널을 불러오고 있어요');
+    expect(screen.getAllByTestId('channel-picker-skeleton')).toHaveLength(5);
     expect(screen.getByLabelText('추가할 채널 선택')).toHaveAttribute('aria-busy', 'true');
+  });
+
+  it('조회 상태가 바뀌어도 목록을 mount한 채 검색창 포커스를 유지한다', async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<PickerHarness options={[]} />);
+
+    await user.click(screen.getByLabelText('비교할 채널 추가'));
+    const searchInput = await screen.findByRole('combobox', { name: '추가할 채널 검색' });
+
+    rerender(<PickerHarness isPending options={[]} />);
+
+    expect(screen.getByRole('listbox', { hidden: true })).toHaveClass('hidden');
+    expect(screen.getByRole('combobox', { name: '추가할 채널 검색' })).toBe(searchInput);
+    expect(searchInput).toHaveFocus();
+
+    rerender(<PickerHarness isError options={[]} />);
+
+    expect(screen.getByRole('listbox', { hidden: true })).toHaveClass('hidden');
+    expect(screen.getByRole('combobox', { name: '추가할 채널 검색' })).toBe(searchInput);
+    expect(searchInput).toHaveFocus();
+
+    rerender(<PickerHarness options={OPTIONS} />);
+
+    expect(screen.getByRole('listbox')).toBeVisible();
+    expect(screen.getByRole('combobox', { name: '추가할 채널 검색' })).toBe(searchInput);
+    expect(searchInput).toHaveFocus();
   });
 
   it('검색 결과가 없으면 빈 상태를 표시한다', async () => {
@@ -199,10 +240,10 @@ describe('CompareResultChannelPicker', () => {
     expect(screen.getByRole('status')).toHaveTextContent('검색 결과가 없어요');
   });
 
-  it('추가 가능한 채널이 없으면 별도 빈 상태를 표시한다', () => {
+  it('검색 전에는 빈 상태를 표시하지 않는다', () => {
     renderOpenPicker({ options: [] });
 
-    expect(screen.getByRole('status')).toHaveTextContent('추가할 수 있는 채널이 없어요');
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 
   it('오류 상태에서 재시도를 요청한다', async () => {
