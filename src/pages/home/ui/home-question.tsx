@@ -195,7 +195,6 @@ function HomeQuestionAnimated(): JSX.Element {
   const sectionRef = useRef<HTMLElement>(null);
   const [isDoorOpen, setIsDoorOpen] = useState(false);
   const [activeStep, setActiveStep] = useState<number>(-1); // -1: 첫질문, 0: 고민1, 1: 고민2, 2: 고민3, 3: 오렌지타이틀
-  const [zipTypedCount, setZipTypedCount] = useState<number>(0);
   const [currentLogoIndex, setCurrentLogoIndex] = useState<number>(0);
   const setTheme = useHeroHeaderToneStore((state) => state.setTheme);
 
@@ -251,30 +250,6 @@ function HomeQuestionAnimated(): JSX.Element {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isOrangeActive]);
-
-  // 오렌지 상태 진입 시: "채널소개모음" 팝인 후 ".zip"만 순차 타이핑
-  useEffect(() => {
-    if (!isOrangeActive) {
-      setZipTypedCount(0);
-      return;
-    }
-
-    // 0.65초 뒤 .zip이 한 글자씩 톡 톡 톡 타이핑됨
-    const startTimer = setTimeout(() => {
-      let count = 0;
-      const interval = setInterval(() => {
-        count += 1;
-        setZipTypedCount(count);
-        if (count >= ZIP_CHARS.length) {
-          clearInterval(interval);
-        }
-      }, 90);
-
-      return () => clearInterval(interval);
-    }, 650);
-
-    return () => clearTimeout(startTimer);
   }, [isOrangeActive]);
 
   // 1. Phase 1: 첫 질문 모션 상태값
@@ -483,7 +458,19 @@ function HomeQuestionAnimated(): JSX.Element {
             <div className="font-pre inline-flex items-center justify-center text-center text-[24px] leading-[1.15] font-bold tracking-tight whitespace-nowrap text-white sm:text-[64px] lg:text-[100px]">
               <span>채널소개모음</span>
               <span className="font-bold text-white">
-                {ZIP_CHARS.slice(0, zipTypedCount).join('')}
+                {ZIP_CHARS.map((char, index) => (
+                  <motion.span
+                    key={`${char}-${index}`}
+                    initial={false}
+                    animate={{ opacity: isOrangeActive ? 1 : 0 }}
+                    transition={{
+                      duration: 0.01,
+                      delay: isOrangeActive ? 0.65 + index * 0.09 : 0,
+                    }}
+                  >
+                    {char}
+                  </motion.span>
+                ))}
               </span>
             </div>
           </motion.div>
