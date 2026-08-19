@@ -4,6 +4,7 @@ export type ChannelProductRow = {
   budgetRange: string;
   expectedImpressions: string;
   expectedClicks: string;
+  isExecutable: boolean | null;
 };
 
 export type ChannelAudienceMetric = {

@@ -28,6 +28,7 @@ export const CHANNEL_DETAIL_FIXTURE: ChannelDetail = {
       budgetRange: '20~50만 원',
       expectedImpressions: '5~15만 회',
       expectedClicks: '600회',
+      isExecutable: true,
     },
     {
       id: 'product-story',
@@ -35,6 +36,7 @@ export const CHANNEL_DETAIL_FIXTURE: ChannelDetail = {
       budgetRange: '30~100만 원',
       expectedImpressions: '10~30만 회',
       expectedClicks: '-',
+      isExecutable: null,
     },
     {
       id: 'product-retargeting',
@@ -42,6 +44,7 @@ export const CHANNEL_DETAIL_FIXTURE: ChannelDetail = {
       budgetRange: '50만 원 이상',
       expectedImpressions: '맞춤 설정',
       expectedClicks: '-',
+      isExecutable: false,
     },
   ],
   productsNote: '일부 채널은 해당 지표를 공개하지 않아요.',
