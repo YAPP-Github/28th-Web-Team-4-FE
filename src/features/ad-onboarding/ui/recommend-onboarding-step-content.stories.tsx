@@ -28,6 +28,21 @@ const EMPTY_BUDGET_DRAFT = {
   },
 } satisfies RecommendOnboardingDraft;
 
+const WEB_SERVICE_DRAFT = {
+  ...createRecommendOnboardingDraft(),
+  serviceType: 'WEB_SERVICE',
+} satisfies RecommendOnboardingDraft;
+
+const MOBILE_APP_DRAFT = {
+  ...createRecommendOnboardingDraft(),
+  serviceType: 'MOBILE_APP',
+} satisfies RecommendOnboardingDraft;
+
+const APP_AND_WEB_DRAFT = {
+  ...createRecommendOnboardingDraft(),
+  serviceType: 'APP_AND_WEB',
+} satisfies RecommendOnboardingDraft;
+
 const meta = {
   title: 'Features/AdOnboarding/RecommendOnboardingStepContent',
   component: RecommendOnboardingStepContent,
@@ -150,12 +165,16 @@ export const AdGoal: Story = {
   args: {
     stepId: 'ad-goal',
   },
+  parameters: {
+    [ONBOARDING_DRAFT_PARAMETER_KEY]: WEB_SERVICE_DRAFT,
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const option = canvas.getByRole('radio', { name: '구매·결제 전환' });
 
-    await expect(canvas.getByRole('radio', { name: '앱 설치' })).toBeVisible();
-    await expect(canvas.getByRole('radio', { name: '인앱 구매·행동' })).toBeVisible();
+    await expect(canvas.getAllByRole('radio')).toHaveLength(5);
+    await expect(canvas.queryByRole('radio', { name: '앱 설치' })).not.toBeInTheDocument();
+    await expect(canvas.queryByRole('radio', { name: '인앱 구매·행동' })).not.toBeInTheDocument();
     await expect(
       canvas.queryByRole('heading', { name: '더 많은 사람에게 알리기' }),
     ).not.toBeInTheDocument();
@@ -165,6 +184,38 @@ export const AdGoal: Story = {
     await userEvent.click(canvas.getByText('구매·결제 전환'));
     await expect(option).toBeChecked();
     await expect(canvas.getByRole('button', { name: '다음' })).toBeEnabled();
+  },
+};
+
+export const MobileAppAdGoal: Story = {
+  args: {
+    stepId: 'ad-goal',
+  },
+  parameters: {
+    [ONBOARDING_DRAFT_PARAMETER_KEY]: MOBILE_APP_DRAFT,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getAllByRole('radio')).toHaveLength(7);
+    await expect(canvas.getByRole('radio', { name: '앱 설치' })).toBeVisible();
+    await expect(canvas.getByRole('radio', { name: '인앱 구매·행동' })).toBeVisible();
+  },
+};
+
+export const AppAndWebAdGoal: Story = {
+  args: {
+    stepId: 'ad-goal',
+  },
+  parameters: {
+    [ONBOARDING_DRAFT_PARAMETER_KEY]: APP_AND_WEB_DRAFT,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getAllByRole('radio')).toHaveLength(7);
+    await expect(canvas.getByRole('radio', { name: '앱 설치' })).toBeVisible();
+    await expect(canvas.getByRole('radio', { name: '인앱 구매·행동' })).toBeVisible();
   },
 };
 

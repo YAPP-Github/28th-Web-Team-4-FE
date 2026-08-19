@@ -3,9 +3,9 @@
 /** 추천 광고 목표 step의 평탄화된 단일 선택 카드 목록을 렌더링한다. */
 
 import type { JSX } from 'react';
-import { useController, useFormContext } from 'react-hook-form';
+import { useController, useFormContext, useWatch } from 'react-hook-form';
 
-import { AD_GOAL_OPTION_LIST } from '@/features/ad-onboarding/model/recommend-onboarding-options';
+import { getAvailableAdGoalOptionList } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import type { RecommendOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
 import { SelectCard } from '@/features/ad-onboarding/ui/select-card';
 import { RadioGroup } from '@/shared/ui/radio-group';
@@ -17,6 +17,8 @@ export type AdGoalQuestionProps = Record<string, never>;
 export function AdGoalQuestion(_props: AdGoalQuestionProps): JSX.Element {
   const { control } = useFormContext<RecommendOnboardingDraft>();
   const { field } = useController({ control, name: 'adGoal' });
+  const serviceType = useWatch({ control, name: 'serviceType' });
+  const availableOptionList = getAvailableAdGoalOptionList(serviceType);
 
   return (
     <RadioGroup
@@ -25,7 +27,7 @@ export function AdGoalQuestion(_props: AdGoalQuestionProps): JSX.Element {
       value={field.value ?? ''}
       onValueChange={field.onChange}
     >
-      {AD_GOAL_OPTION_LIST.map((option) => (
+      {availableOptionList.map((option) => (
         <SelectCard key={option.value} control="radio" value={option.value} label={option.label} />
       ))}
     </RadioGroup>
