@@ -3,7 +3,9 @@
 import type { JSX } from 'react';
 
 import { useHeroHeaderToneStore } from '@/shared/lib/hero-header-tone';
+import { cn } from '@/shared/ui/cn';
 
+import { resolveHomeHeaderVisualState } from './resolve-home-header-visual-state';
 import { SessionPageHeader } from './session-page-header';
 
 // 홈 라우트(app/(home))에서만 쓰는 헤더. SessionPageHeader를 복제하지 않고
@@ -13,44 +15,21 @@ export function HomePageHeader(): JSX.Element {
   const progress = useHeroHeaderToneStore((state) => state.progress);
   const theme = useHeroHeaderToneStore((state) => state.theme);
 
-  const isIntro = progress < 1;
-  const isIntroOrange = isIntro && progress < 0.5;
-
-  let background = '#FFFFFF';
-  let isDarkText = true;
-
-  if (theme === 'dark') {
-    background = '#262626';
-    isDarkText = false;
-  } else if (theme === 'process-dark') {
-    background = '#1D1D20';
-    isDarkText = false;
-  } else if (theme === 'orange') {
-    background = '#FF6817';
-    isDarkText = false;
-  } else if (isIntro) {
-    background = 'transparent';
-    isDarkText = !isIntroOrange;
-  }
-
-  const isOrangeBackground = theme === 'orange' || isIntroOrange;
+  const { appearance, backgroundClassName, shouldTransition } = resolveHomeHeaderVisualState(
+    progress,
+    theme,
+  );
 
   return (
     <SessionPageHeader
-      className={`sticky top-0 z-50 border-transparent ${
-        isIntro
-          ? 'transition-none'
-          : 'transition-[background-color,color] duration-[250ms] ease-in-out'
-      } ${
-        isDarkText
-          ? '[&_nav_a]:text-text-low [&_nav_a:hover]:text-text-highest'
-          : '[&_.text-text-primary]:!text-white [&_nav_a]:!text-white [&_nav_a:hover]:!text-white/80 [&_span]:!text-white [&_svg]:!text-white'
-      } ${
-        isOrangeBackground
-          ? '[&_a[href="/login"]]:!text-sys-primary-default [&_.text-text-primary]:!text-white [&_a[href="/login"]]:!bg-white [&_a[href="/login"]:hover]:!bg-white/90 [&_nav_a]:!text-white [&_span]:!text-white [&_svg]:!text-white'
-          : ''
-      }`}
-      style={{ backgroundColor: background }}
+      className={cn(
+        'sticky top-0 z-50 border-transparent',
+        shouldTransition
+          ? 'motion-safe:transition-[background-color,color] motion-safe:duration-[250ms] motion-safe:ease-in-out motion-reduce:transition-none'
+          : 'transition-none',
+        backgroundClassName,
+      )}
+      appearance={appearance}
     />
   );
 }

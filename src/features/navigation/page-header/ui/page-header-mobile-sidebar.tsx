@@ -64,7 +64,7 @@ function MenuMorphIcon({ open }: MenuMorphIconProps): JSX.Element {
       data-menu-icon={open ? 'close' : 'menu'}
       viewBox="0 0 20 20"
       fill="none"
-      className="text-icon-higher size-020 shrink-0"
+      className="size-020 shrink-0"
     >
       <g
         className={cn(
