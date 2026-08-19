@@ -30,7 +30,7 @@ const FEATURE_FOLDERS: FolderFeatureItem[] = [
     title: '내게 맞는 광고 채널을\n추천받아요',
     buttonLabel: '채널 추천받기',
     buttonHref: '/recommend/onboarding/new',
-    imageSrc: '/home-assets/feature-folders/folder-recommend-v3.png',
+    imageSrc: '/home-assets/feature-folders/folder-recommend.png',
     imageAlt: '채소집 채널 추천 기능 소개',
   },
   {
@@ -39,7 +39,7 @@ const FEATURE_FOLDERS: FolderFeatureItem[] = [
     title: '여러 광고 채널을\n한눈에 비교해요',
     buttonLabel: '채널 비교하기',
     buttonHref: '/compare',
-    imageSrc: '/home-assets/feature-folders/folder-compare-v3.png',
+    imageSrc: '/home-assets/feature-folders/folder-compare.png',
     imageAlt: '채소집 채널 비교 기능 소개',
   },
   {
@@ -48,7 +48,7 @@ const FEATURE_FOLDERS: FolderFeatureItem[] = [
     title: '예산에 따른 광고 성과를\n미리 시뮬레이션해요',
     buttonLabel: '예산 시뮬레이션 하기',
     buttonHref: '/simulator',
-    imageSrc: '/home-assets/feature-folders/folder-simulator-v3.png',
+    imageSrc: '/home-assets/feature-folders/folder-simulator.png',
     imageAlt: '채소집 예산 시뮬레이션 기능 소개',
   },
 ];
@@ -177,7 +177,7 @@ export function HomeFolderFeatures(): JSX.Element {
               Feature
             </span>
             <h2 className="font-pre text-[22px] leading-[1.25] font-bold tracking-tight break-keep text-[var(--color-primitive-gray-900,#1D1D20)] sm:text-[30px] lg:text-[36px]">
-              광고 집행에 필요한 모든 과정, 채소집 하나로 끝내세요
+              광고 고민을 덜어주는 채소집의 핵심 기능을 만나보세요
             </h2>
           </div>
 
