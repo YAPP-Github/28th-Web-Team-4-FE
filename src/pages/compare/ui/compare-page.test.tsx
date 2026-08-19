@@ -319,6 +319,21 @@ describe('ComparePage', () => {
     expect(scrollContainer).not.toHaveClass('pb-[38px]');
   });
 
+  it('모바일 footer는 콘텐츠 높이를 따르고 데스크톱에서는 102px을 유지한다', async () => {
+    renderComparePage();
+
+    expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
+
+    const compareButton = getCompareButton();
+    const footerContent = compareButton.parentElement?.parentElement;
+    const footer = footerContent?.parentElement;
+
+    expect(footer).not.toHaveClass('h-[102px]');
+    expect(footer).toHaveClass('md:h-[102px]');
+    expect(footerContent).toHaveClass('gap-016', 'py-020', 'md:py-000');
+    expect(compareButton).toHaveClass('h-[44px]');
+  });
+
   it('첫 요청 동안 12개 스켈레톤을 보여주고 API 첫 페이지를 조회한다', async () => {
     const responseGate = createDeferred<void>();
     let requestedUrl: URL | undefined;

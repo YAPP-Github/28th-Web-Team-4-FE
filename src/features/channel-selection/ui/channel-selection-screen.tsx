@@ -275,7 +275,7 @@ export function ChannelSelectionScreen({
           />
         </Box>
       </Box>
-      <Box className="border-outline-low bg-surface-lowest px-016 sm:px-032 flex h-[102px] w-full shrink-0 justify-center border-t lg:px-120">
+      <Box className="border-outline-low bg-surface-lowest px-016 sm:px-032 flex w-full shrink-0 justify-center border-t md:h-[102px] lg:px-120">
         <Box className="gap-016 py-020 md:py-000 grid w-full max-w-[1200px] grid-cols-1 items-center md:grid-cols-[1fr_auto_1fr]">
           <Box className="hidden md:block" />
           <Box className="flex justify-center">
