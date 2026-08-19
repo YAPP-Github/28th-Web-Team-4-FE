@@ -48,7 +48,11 @@ function SavedRecommendationCard({
   recommendation: SavedRecommendation;
 }): JSX.Element {
   return (
-    <Box className="bg-surface-lowest border-outline-low px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border">
+    <Link
+      href={`/recommend/saved/${recommendation.id}`}
+      aria-label={`${recommendation.title} 저장된 추천 결과`}
+      className="bg-surface-lowest border-outline-low focus-visible:outline-sys-primary-default px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+    >
       <Box className="gap-010 flex min-w-0 flex-1 flex-col items-start">
         <Box className="gap-002 flex w-full flex-col">
           <Text as="h3" variant="subtitle-md" className="text-text-high">
@@ -71,7 +75,7 @@ function SavedRecommendationCard({
         className="text-icon-low size-020 shrink-0"
         strokeWidth={1.5}
       />
-    </Box>
+    </Link>
   );
 }
 
@@ -122,9 +126,13 @@ function SavedResultCard({
   }
 
   return (
-    <Box className="bg-surface-lowest border-outline-low px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border">
+    <Link
+      href={`/compare/saved/${result.id}`}
+      aria-label={`${result.title} 저장된 채널 비교 결과`}
+      className="bg-surface-lowest border-outline-low focus-visible:outline-sys-primary-default px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+    >
       {content}
-    </Box>
+    </Link>
   );
 }
 
