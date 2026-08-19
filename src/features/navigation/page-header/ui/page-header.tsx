@@ -7,6 +7,7 @@ import { HStack } from '@/shared/ui/layout/h-stack';
 import { Logo } from '@/shared/ui/logo';
 
 import { HeaderLoginButton } from './header-login-button';
+import type { PageHeaderAppearance } from './page-header-appearance';
 import { PageHeaderAccountMenu } from './page-header-account-menu';
 import { PageHeaderMobileSidebar } from './page-header-mobile-sidebar';
 import { PageHeaderNavLink } from './page-header-nav-link';
@@ -14,6 +15,7 @@ import { PAGE_HEADER_NAVIGATION_ITEMS } from './page-header-navigation-items';
 
 type PageHeaderBaseProps = Omit<ComponentProps<'header'>, 'children'> & {
   innerClassName?: string;
+  appearance?: PageHeaderAppearance;
 };
 
 type PageHeaderLoginProps = {
@@ -38,6 +40,7 @@ export function PageHeader(props: PageHeaderProps): JSX.Element {
   const {
     className,
     innerClassName,
+    appearance = 'default',
     isLogin = false,
     userName,
     onLogout,
@@ -66,11 +69,21 @@ export function PageHeader(props: PageHeaderProps): JSX.Element {
           aria-label="chaesozip"
           className="focus-visible:outline-sys-primary-default shrink-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
         >
-          <Logo type="s" alt="" className="lg:hidden" />
-          <Logo type="m" alt="" className="hidden lg:inline-flex" />
+          <Logo
+            type="s"
+            alt=""
+            className={cn('lg:hidden', appearance !== 'default' && 'text-white')}
+          />
+          <Logo
+            type="m"
+            alt=""
+            className={cn('hidden lg:inline-flex', appearance !== 'default' && 'text-white')}
+          />
         </Link>
 
-        <Box className="lg:hidden">
+        <Box
+          className={cn('lg:hidden', appearance === 'default' ? 'text-icon-higher' : 'text-white')}
+        >
           <PageHeaderMobileSidebar isLogin={isLogin} userName={userName} />
         </Box>
 
@@ -83,6 +96,7 @@ export function PageHeader(props: PageHeaderProps): JSX.Element {
                   segment={item.segment}
                   href={item.href}
                   className={item.desktopClassName}
+                  appearance={appearance}
                 >
                   {item.label}
                 </PageHeaderNavLink>
@@ -96,10 +110,11 @@ export function PageHeader(props: PageHeaderProps): JSX.Element {
               onLogout={onLogout}
               isLogoutPending={isLogoutPending}
               logoutError={logoutError}
+              appearance={appearance}
             />
           ) : (
             <Box className="shrink-0">
-              <HeaderLoginButton />
+              <HeaderLoginButton appearance={appearance} />
             </Box>
           )}
         </Box>

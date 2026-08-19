@@ -357,7 +357,10 @@ describe('MyPage', () => {
     expect(screen.getByText('#쇼핑·커머스')).toBeVisible();
     expect(screen.getByText('#웹 서비스')).toBeVisible();
     expect(screen.getByRole('button', { name: '수정하기' })).toBeVisible();
-    expect(screen.getByRole('link', { name: /더보기/ })).toHaveAttribute('href', '/mypage');
+    expect(screen.getByRole('link', { name: /더보기/ })).toHaveAttribute(
+      'href',
+      '/mypage/saved-results',
+    );
     expect(screen.getByRole('heading', { name: '채소집' })).toBeVisible();
     expect(screen.queryByRole('link', { name: /채소집/ })).not.toBeInTheDocument();
     expect(screen.getByText('사이드 프로젝트 B')).toBeVisible();

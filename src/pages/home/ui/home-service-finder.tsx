@@ -1,5 +1,6 @@
 'use client';
 
+import { type JSX, useId } from 'react';
 import { ArrowUp } from 'lucide-react';
 
 import { useMyProfile } from '@/pages/mypage/api/use-my-profile';
@@ -7,10 +8,11 @@ import { useHomeServiceNameForm } from '@/pages/home/model/use-home-service-name
 import { HomeHeroServicePreview } from './home-hero-service-preview';
 
 export function HomeServiceFinder(): JSX.Element {
+  const serviceNameInputId = useId();
   const { data: profile } = useMyProfile();
   const { canSubmit, handleSubmit, serviceName, setServiceName } = useHomeServiceNameForm();
 
-  const userName = profile?.name ?? '채소집';
+  const userName = profile?.nickname ?? '채소집';
 
   return (
     <section
@@ -73,7 +75,12 @@ export function HomeServiceFinder(): JSX.Element {
           `}</style>
 
           <div className="bg-surface-lowest relative z-10 flex size-full items-center justify-between rounded-full pr-[10px] pl-[22px] sm:pr-[12px] sm:pl-[26px]">
+            <label htmlFor={serviceNameInputId} className="sr-only">
+              서비스 이름
+            </label>
             <input
+              id={serviceNameInputId}
+              name="serviceName"
               type="text"
               value={serviceName}
               onChange={(e) => setServiceName(e.target.value)}

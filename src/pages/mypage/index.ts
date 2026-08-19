@@ -1,4 +1,5 @@
 export { MyPage } from './ui/my-page';
+export { SavedResultsPage } from './ui/saved-results-page';
 export { MyPageWithSavedResults } from './ui/my-page-with-saved-results';
 export { MyPageWithRecommendations } from './ui/my-page-with-recommendations';
 export type { MyPageProps } from './ui/my-page';
