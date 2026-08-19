@@ -6,6 +6,8 @@
   /* next/font가 주입한 값을 토큰 `--font-pre`에 연결 (typography.css의 문자열 값 override) */
   --font-pre: var(--font-pretendard), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-pre);
+  /* 홈 히어로 헤드라인 전용. 사이트 기본 폰트는 여전히 --font-sans(Pretendard) */
+  --font-wanted: var(--font-wanted-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
     monospace;
@@ -62,6 +64,24 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-33.333%);
+  }
+}
+
+@keyframes marquee-right {
+  from {
+    transform: translateX(-33.333%);
+  }
+  to {
+    transform: translateX(0);
   }
 }
 

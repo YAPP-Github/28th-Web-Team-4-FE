@@ -9,6 +9,8 @@ import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 import { showWarningToast } from '@/shared/ui/toast';
 
+import type { PageHeaderAppearance } from './page-header-appearance';
+
 const LOGOUT_ERROR_TOAST_ID = 'logout-error';
 
 export type PageHeaderAccountMenuProps = {
@@ -16,6 +18,7 @@ export type PageHeaderAccountMenuProps = {
   onLogout?: () => void;
   isLogoutPending?: boolean;
   logoutError?: string;
+  appearance?: PageHeaderAppearance;
 };
 
 export function PageHeaderAccountMenu({
@@ -23,6 +26,7 @@ export function PageHeaderAccountMenu({
   onLogout,
   isLogoutPending = false,
   logoutError,
+  appearance = 'default',
 }: PageHeaderAccountMenuProps): JSX.Element {
   const avatarAlt = userName ? `${userName} 프로필` : '내 프로필';
 
@@ -35,7 +39,10 @@ export function PageHeaderAccountMenu({
   return (
     <Box className="gap-018 flex shrink-0 items-center">
       {userName ? (
-        <Text variant="subtitle-xs" className="text-text-medium">
+        <Text
+          variant="subtitle-xs"
+          className={appearance === 'default' ? 'text-text-medium' : 'text-white'}
+        >
           {userName} 님
         </Text>
       ) : null}
