@@ -9,14 +9,14 @@ const INDEXABLE_ROUTES = [
   { pathname: '/compare', changeFrequency: 'monthly', priority: 0.8 },
 ] as const;
 
-export function createSitemap(configuredSiteUrl?: string): MetadataRoute.Sitemap {
+export function createSitemap(): MetadataRoute.Sitemap {
   return INDEXABLE_ROUTES.map(({ pathname, changeFrequency, priority }) => ({
-    url: createAbsoluteSiteUrl(pathname, configuredSiteUrl),
+    url: createAbsoluteSiteUrl(pathname),
     changeFrequency,
     priority,
   }));
 }
 
 export function sitemap(): MetadataRoute.Sitemap {
-  return createSitemap(process.env.NEXT_PUBLIC_SITE_URL);
+  return createSitemap();
 }

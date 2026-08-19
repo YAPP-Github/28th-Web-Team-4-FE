@@ -2,7 +2,7 @@ import { createSitemap } from './sitemap';
 
 describe('sitemap', () => {
   it('검색에 공개할 정규 페이지 URL만 반환한다', () => {
-    expect(createSitemap('https://chaeso-zip.com')).toEqual([
+    expect(createSitemap()).toEqual([
       {
         url: 'https://chaeso-zip.com/',
         changeFrequency: 'weekly',
