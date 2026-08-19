@@ -874,10 +874,10 @@ describe('ComparePage', () => {
     expect(screen.getByRole('status')).toHaveTextContent(
       '변경된 채널의 비교 결과를 불러오는 중이에요',
     );
-    expect(screen.getByRole('heading', { level: 2, name: '메타 피드 광고' })).toBeVisible();
-    for (const button of screen.getAllByRole('button', { name: /비교에서 제거/ })) {
-      expect(button).toBeDisabled();
-    }
+    expect(
+      screen.queryByRole('heading', { level: 2, name: '메타 피드 광고' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /비교에서 제거/ })).not.toBeInTheDocument();
 
     nextResponseGate.resolve();
 

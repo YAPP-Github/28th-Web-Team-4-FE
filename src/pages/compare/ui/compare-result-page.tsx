@@ -78,6 +78,8 @@ function CompareResultWithQuery({
     );
   }
 
+  const displayedChannels = comparisonQuery.data.filter(({ id }) => channelIds.includes(id));
+
   return (
     <>
       <CompareResultSubHeader isGuest={authSession?.authenticated === false} />
@@ -95,7 +97,7 @@ function CompareResultWithQuery({
             addChannelSlot={
               !comparisonQuery.isPlaceholderData &&
               channelIds.length === 2 &&
-              comparisonQuery.data.length === 2 ? (
+              displayedChannels.length === 2 ? (
                 <CompareResultChannelPickerContainer
                   channelIds={channelIds}
                   onboardingId={onboardingId}
@@ -103,14 +105,14 @@ function CompareResultWithQuery({
                 />
               ) : null
             }
-            channels={comparisonQuery.data}
+            channels={displayedChannels}
             removeDisabled={comparisonQuery.isPlaceholderData}
             onRemoveChannel={removeChannel}
           />
-          <CompareResultChannelPerformance channels={comparisonQuery.data} />
-          <CompareResultChannelDetailsTable channels={comparisonQuery.data} />
-          <CompareResultChannelCost channels={comparisonQuery.data} />
-          <CompareResultChannelInsightsDqa channels={comparisonQuery.data} />
+          <CompareResultChannelPerformance channels={displayedChannels} />
+          <CompareResultChannelDetailsTable channels={displayedChannels} />
+          <CompareResultChannelCost channels={displayedChannels} />
+          <CompareResultChannelInsightsDqa channels={displayedChannels} />
         </Box>
       </main>
     </>
