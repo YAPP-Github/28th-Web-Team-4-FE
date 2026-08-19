@@ -5,11 +5,18 @@ import { useRouter } from 'next/navigation';
 
 import { ChannelSelectionScreen } from '@/features/channel-selection';
 
-function createSimulatorResultHref(channelIds: readonly string[]): string {
+function createSimulatorResultHref(
+  channelIds: readonly string[],
+  preserveFilterOpen = false,
+): string {
   const searchParams = new URLSearchParams();
 
   for (const channelId of channelIds) {
     searchParams.append('channelIds', channelId);
+  }
+
+  if (preserveFilterOpen) {
+    searchParams.set('filterOpen', 'true');
   }
 
   return `/simulator?${searchParams.toString()}`;
@@ -28,7 +35,7 @@ export function SimulatorChannelSelectionPage({
   const handleComplete = (channelIds: readonly string[]): void => {
     const nextChannelIds = [...new Set([...existingChannelIds, ...channelIds])];
 
-    router.push(createSimulatorResultHref(nextChannelIds));
+    router.push(createSimulatorResultHref(nextChannelIds, isAddingChannel));
   };
 
   return (

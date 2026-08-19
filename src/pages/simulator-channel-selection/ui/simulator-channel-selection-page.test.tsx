@@ -71,7 +71,7 @@ describe('SimulatorChannelSelectionPage', () => {
     await user.click(screen.getByRole('button', { name: '채널 추가하기' }));
 
     expect(pushMock).toHaveBeenCalledWith(
-      '/simulator?channelIds=channel-a&channelIds=channel-b&channelIds=channel-d',
+      '/simulator?channelIds=channel-a&channelIds=channel-b&channelIds=channel-d&filterOpen=true',
     );
   });
 });

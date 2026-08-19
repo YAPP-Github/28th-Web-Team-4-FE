@@ -3,6 +3,8 @@
 import { useState, type JSX } from 'react';
 import { Check, X } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
+import Image from 'next/image';
+import Link from 'next/link';
 
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/shared/ui/cn';
@@ -171,7 +173,7 @@ function FilterChannelBudgetCard({
   maxAllowedBudget,
   totalBudget,
   onBudgetChange,
-  onReset,
+  onRemove,
 }: {
   channelId: string;
   channelName: string;
@@ -179,7 +181,7 @@ function FilterChannelBudgetCard({
   maxAllowedBudget: number;
   totalBudget: number;
   onBudgetChange: (channelId: string, value: number) => void;
-  onReset: (channelId: string) => void;
+  onRemove?: (channelId: string) => void;
 }): JSX.Element {
   const isDisabled = maxAllowedBudget === 0 && budget === 0;
   const budgetText = formatSimulatorBudget(budget);
@@ -209,8 +211,8 @@ function FilterChannelBudgetCard({
           <Box
             as="button"
             type="button"
-            aria-label={`${channelName} 예산 초기화`}
-            onClick={() => onReset(channelId)}
+            aria-label={`${channelName} 채널 삭제`}
+            onClick={() => onRemove?.(channelId)}
             className="text-icon-default focus-visible:outline-sys-primary-default size-012 flex cursor-pointer items-center justify-center rounded-[var(--radius-xxs)] outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             <X aria-hidden className="size-012" strokeWidth={1.5} />
@@ -239,7 +241,7 @@ function FilterChannelContent({
   isPending,
   totalBudget,
   onBudgetChange,
-  onReset,
+  onRemove,
 }: {
   channels: readonly SimulatorFilterChannel[];
   channelBudgets: Record<string, number>;
@@ -248,7 +250,7 @@ function FilterChannelContent({
   isPending: boolean;
   totalBudget: number;
   onBudgetChange: (channelId: string, value: number) => void;
-  onReset: (channelId: string) => void;
+  onRemove?: (channelId: string) => void;
 }): JSX.Element {
   if (isPending) {
     return (
@@ -277,7 +279,7 @@ function FilterChannelContent({
           maxAllowedBudget={getChannelMaxBudget(channel.id)}
           totalBudget={totalBudget}
           onBudgetChange={onBudgetChange}
-          onReset={onReset}
+          onRemove={onRemove}
         />
       ))}
     </>
@@ -285,6 +287,7 @@ function FilterChannelContent({
 }
 
 function FilterChannelSection({
+  selectedChannelIds,
   channels,
   channelBudgets,
   getChannelMaxBudget,
@@ -292,8 +295,9 @@ function FilterChannelSection({
   isPending,
   totalBudget,
   onBudgetChange,
-  onReset,
+  onRemove,
 }: {
+  selectedChannelIds: readonly string[];
   channels: readonly SimulatorFilterChannel[];
   channelBudgets: Record<string, number>;
   getChannelMaxBudget: (channelId: string) => number;
@@ -301,7 +305,7 @@ function FilterChannelSection({
   isPending: boolean;
   totalBudget: number;
   onBudgetChange: (channelId: string, value: number) => void;
-  onReset: (channelId: string) => void;
+  onRemove?: (channelId: string) => void;
 }): JSX.Element {
   return (
     <Box
@@ -331,11 +335,32 @@ function FilterChannelSection({
           isPending={isPending}
           totalBudget={totalBudget}
           onBudgetChange={onBudgetChange}
-          onReset={onReset}
+          onRemove={onRemove}
         />
+        {selectedChannelIds.length < 3 ? (
+          <Link
+            href={createSimulatorChannelSelectionHref(selectedChannelIds)}
+            className="bg-surface-lowest border-outline-default hover:bg-surface-lower focus-visible:outline-sys-primary-default h-064 gap-008 flex w-full items-center justify-center rounded-[var(--radius-s)] border border-dashed transition-colors outline-none focus-visible:outline-2 focus-visible:outline-offset-2 motion-reduce:transition-none"
+          >
+            <Image src="/simulator-assets/plus.svg" alt="" width={16} height={16} />
+            <Text variant="body-xl" className="text-text-low">
+              채널 추가하기
+            </Text>
+          </Link>
+        ) : null}
       </Box>
     </Box>
   );
+}
+
+function createSimulatorChannelSelectionHref(channelIds: readonly string[]): string {
+  const searchParams = new URLSearchParams();
+
+  for (const channelId of channelIds) {
+    searchParams.append('channelIds', channelId);
+  }
+
+  return `/simulator/channels?${searchParams.toString()}`;
 }
 
 function FilterLoadRecommendationButton({
@@ -376,6 +401,7 @@ export type SimulatorFilterPanelProps = {
   onOpenChange: (open: boolean) => void;
   selectedChannelIds: readonly string[];
   onSimulationResult: (result: SimulationResponse) => void;
+  onChannelRemove?: (channelId: string) => void;
 };
 
 export function SimulatorFilterPanel({
@@ -383,6 +409,7 @@ export function SimulatorFilterPanel({
   onOpenChange,
   selectedChannelIds,
   onSimulationResult,
+  onChannelRemove,
 }: SimulatorFilterPanelProps): JSX.Element {
   const [applyError, setApplyError] = useState<string | null>(null);
   const simulationMutation = useMutation({
@@ -404,7 +431,6 @@ export function SimulatorFilterPanel({
     setChannelBudget,
     setPeriod,
     setTotalBudget,
-    resetChannelBudget,
     resetFilters,
     totalBudget,
     totalBudgetMin,
@@ -474,6 +500,7 @@ export function SimulatorFilterPanel({
               onPeriodChange={setPeriod}
             />
             <FilterChannelSection
+              selectedChannelIds={selectedChannelIds}
               channels={channels}
               channelBudgets={channelBudgets}
               getChannelMaxBudget={getChannelMaxBudget}
@@ -481,7 +508,7 @@ export function SimulatorFilterPanel({
               isPending={isPending}
               totalBudget={totalBudget}
               onBudgetChange={setChannelBudget}
-              onReset={resetChannelBudget}
+              onRemove={onChannelRemove}
             />
             <FilterLoadRecommendationButton
               isDirty={hasChanges}

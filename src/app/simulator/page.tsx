@@ -6,6 +6,7 @@ export { metadata } from '@/pages/simulator';
 type SimulatorRouteProps = {
   searchParams: Promise<{
     channelIds?: string | string[];
+    filterOpen?: string;
   }>;
 };
 
@@ -26,12 +27,14 @@ function getSelectedChannelIds(channelIds: string | string[] | undefined): strin
 export default async function SimulatorRoute({ searchParams }: SimulatorRouteProps) {
   const [isLogin, resolvedSearchParams] = await Promise.all([hasActiveAuthSession(), searchParams]);
   const selectedChannelIds = getSelectedChannelIds(resolvedSearchParams.channelIds);
+  const shouldOpenFilter = ['1', 'true'].includes(resolvedSearchParams.filterOpen ?? '');
 
   return (
     <SimulatorPage
       isLogin={isLogin}
-      isChannelSelectionComplete={isLogin && selectedChannelIds.length === 3}
+      isChannelSelectionComplete={isLogin && selectedChannelIds.length > 0}
       selectedChannelIds={selectedChannelIds}
+      initialFilterOpen={shouldOpenFilter}
     />
   );
 }
