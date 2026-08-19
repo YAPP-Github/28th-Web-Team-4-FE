@@ -6,11 +6,15 @@ export type ChannelProductRow = {
   expectedClicks: string;
 };
 
+export type ChannelAudienceMetric = {
+  label: string;
+  value: string;
+};
+
 export type ChannelAudience = {
   primaryAgeBand: string;
   primaryGender: string;
-  userScale: string;
-  dailyActiveUsers: string;
+  metrics: ChannelAudienceMetric[];
   traits: string;
 };
 

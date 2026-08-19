@@ -25,8 +25,7 @@ const BASE_CHANNEL: ChannelDetail = {
   audience: {
     primaryAgeBand: '-',
     primaryGender: '전체',
-    userScale: '-',
-    dailyActiveUsers: '-',
+    metrics: [],
     traits: '-',
   },
   similarCases: [],

@@ -56,6 +56,16 @@ describe('RecommendPage channel detail modal', () => {
       expect(screen.getByText('주요 연령대')).toBeVisible();
     });
     expect(screen.getByText('20~40대')).toBeVisible();
+    expect(screen.getByText('주요 성별')).toBeVisible();
+    expect(screen.getByText('남성')).toBeVisible();
+    expect(screen.getByText('사용자 규모')).toBeVisible();
+    expect(screen.getByText('16만 명')).toBeVisible();
+    expect(screen.getByText('하루 활성 사용자')).toBeVisible();
+    expect(screen.getByText('1.2만 명')).toBeVisible();
+    expect(screen.getByText('유저 특성')).toBeVisible();
+    expect(screen.getByText('뉴스를 읽고 리워드를 적립하는 적극적 유저')).toBeVisible();
+    expect(screen.queryByRole('img', { name: /주요|사용자|하루|유저/ })).not.toBeInTheDocument();
+    expect(document.querySelector('img[src*="gender-male.svg"]')).toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: '광고 예시' }));
     await waitFor(() => {
