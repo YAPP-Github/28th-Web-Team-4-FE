@@ -11,7 +11,9 @@ import {
 } from '@/features/ad-onboarding/model/onboarding-step';
 import type { RecommendOnboardingAnswer } from '@/features/ad-onboarding/model/onboarding-answer';
 import type { RecommendOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
+import type { ServiceTypeId } from '@/features/ad-onboarding/model/common-onboarding-options';
 import type {
+  AdGoalId,
   ManualPerformanceChannel,
   UploadedPerformanceFile,
 } from '@/features/ad-onboarding/model/recommend-onboarding-options';
@@ -37,6 +39,25 @@ export type RecommendOnboardingFlowProps = {
 };
 
 const LAST_RECOMMEND_ONBOARDING_STEP_INDEX = RECOMMEND_ONBOARDING_STEP_ID_LIST.length - 1;
+const SERVICE_TYPE_STEP_INDEX = RECOMMEND_ONBOARDING_STEP_ID_LIST.indexOf('service-type');
+const AD_GOAL_STEP_INDEX = RECOMMEND_ONBOARDING_STEP_ID_LIST.indexOf('ad-goal');
+
+type EditSession =
+  | {
+      kind: 'standard';
+      stepIndex: number;
+    }
+  | {
+      kind: 'service-type';
+      stepIndex: number;
+      serviceTypeBeforeEdit: ServiceTypeId | undefined;
+      initialAdGoal: AdGoalId | undefined;
+    }
+  | {
+      kind: 'ad-goal-reselection';
+      stepIndex: number;
+    }
+  | null;
 
 /**
  * 추천 온보딩 전체 폼 컨텍스트와 단계 이동/완료 흐름을 관리한다.
@@ -63,8 +84,9 @@ export function RecommendOnboardingFlow({
     scrollToActiveStep,
     scrollToLatestAnswer,
   } = useRecommendOnboardingScroll(scrollContainerRef);
-  const [editingStep, setEditingStep] = useState<number | null>(null);
+  const [editSession, setEditSession] = useState<EditSession>(null);
   const [furthestStep, setFurthestStep] = useState(currentStep);
+  const editingStep = editSession?.stepIndex ?? null;
   useScrollToInitialStep({ currentStep, scrollToActiveStep });
 
   return (
@@ -80,7 +102,16 @@ export function RecommendOnboardingFlow({
         furthestStep={furthestStep}
         onEditStep={(step) => {
           flushSync(() => {
-            setEditingStep(step);
+            setEditSession(
+              step === SERVICE_TYPE_STEP_INDEX
+                ? {
+                    kind: 'service-type',
+                    stepIndex: step,
+                    serviceTypeBeforeEdit: form.getValues('serviceType'),
+                    initialAdGoal: form.getValues('adGoal'),
+                  }
+                : { kind: 'standard', stepIndex: step },
+            );
             onStepChange(step);
           });
           scrollToActiveStep();
@@ -91,10 +122,27 @@ export function RecommendOnboardingFlow({
             return;
           }
 
-          if (editingStep !== null) {
+          if (
+            editSession?.kind === 'service-type' &&
+            editSession.serviceTypeBeforeEdit !== form.getValues('serviceType') &&
+            editSession.initialAdGoal !== undefined
+          ) {
+            flushSync(() => {
+              form.setValue('adGoal', undefined);
+              onStepChange(AD_GOAL_STEP_INDEX);
+              setEditSession({
+                kind: 'ad-goal-reselection',
+                stepIndex: AD_GOAL_STEP_INDEX,
+              });
+            });
+            scrollToActiveStep();
+            return;
+          }
+
+          if (editSession !== null) {
             flushSync(() => {
               onStepChange(Math.max(furthestStep, currentStep + 1));
-              setEditingStep(null);
+              setEditSession(null);
             });
             scrollToActiveStep();
             return;
