@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, type JSX } from 'react';
-import { Check, X } from 'lucide-react';
+import { Check, Plus, X } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
-import Image from 'next/image';
 import Link from 'next/link';
 
 import { Button } from '@/shared/ui/button';
@@ -340,9 +339,9 @@ function FilterChannelSection({
         {selectedChannelIds.length < 3 ? (
           <Link
             href={createSimulatorChannelSelectionHref(selectedChannelIds)}
-            className="bg-surface-lowest border-outline-default hover:bg-surface-lower focus-visible:outline-sys-primary-default h-064 gap-008 flex w-full items-center justify-center rounded-[var(--radius-s)] border border-dashed transition-colors outline-none focus-visible:outline-2 focus-visible:outline-offset-2 motion-reduce:transition-none"
+            className="bg-surface-lowest border-outline-default hover:bg-surface-lower focus-visible:outline-sys-primary-default gap-008 h-064 px-014 pt-012 pb-014 flex w-full items-center justify-center rounded-[var(--radius-s)] border border-dashed transition-colors outline-none focus-visible:outline-2 focus-visible:outline-offset-2 motion-reduce:transition-none"
           >
-            <Image src="/simulator-assets/plus.svg" alt="" width={16} height={16} />
+            <Plus aria-hidden className="text-icon-default size-016" strokeWidth={1.4} />
             <Text variant="body-xl" className="text-text-low">
               채널 추가하기
             </Text>
