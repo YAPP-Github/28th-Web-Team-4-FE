@@ -39,6 +39,9 @@ import type {
   GetMySimulationsData,
   GetMySimulationsErrors,
   GetMySimulationsResponses,
+  GetRecommendationData,
+  GetRecommendationErrors,
+  GetRecommendationResponses,
   GetRecommendationsData,
   GetRecommendationsErrors,
   GetRecommendationsResponses,
@@ -657,6 +660,24 @@ export const getSampleById = <ThrowOnError extends boolean = false>(
     url: '/api/v1/samples/{id}',
     ...options,
   });
+
+/**
+ * 저장된 채널 추천 상세
+ *
+ * 저장된 추천 1건을 매체별 항목까지 재계산 없이 그대로 반환한다.
+ *
+ * 적합도·추천 근거·단가·노출/클릭 추정·부족액은 모두 저장 시점 값이라, 이후 채널의 단가나 상품이 바뀌어도 달라지지 않는다. 매체명만 채널을 알아볼 수 있게 지금 이름으로 준다.
+ */
+export const getRecommendation = <ThrowOnError extends boolean = false>(
+  options: Options<GetRecommendationData, ThrowOnError>,
+): RequestResult<GetRecommendationResponses, GetRecommendationErrors, ThrowOnError> =>
+  (options.client ?? client).get<GetRecommendationResponses, GetRecommendationErrors, ThrowOnError>(
+    {
+      security: [{ scheme: 'bearer', type: 'http' }],
+      url: '/api/v1/recommendations/{recommendationId}',
+      ...options,
+    },
+  );
 
 /**
  * 내가 저장한 채널 추천 목록
