@@ -12,3 +12,16 @@ export const pretendard = localFont({
   variable: '--font-pretendard',
   fallback: ['ui-sans-serif', 'system-ui', 'sans-serif'],
 });
+
+/**
+ * Wanted Sans Variable — `--font-wanted-sans`.
+ * 사이트 기본 폰트는 여전히 Pretendard이며, 이 폰트는 홈 히어로 헤드라인처럼
+ * 명시적으로 지정한 요소에만 유틸리티 클래스(`font-wanted-sans`)로 적용한다.
+ */
+export const wantedSans = localFont({
+  src: './wanted-sans/WantedSansVariable.woff2',
+  display: 'swap',
+  weight: '400 900',
+  variable: '--font-wanted-sans',
+  fallback: ['ui-sans-serif', 'system-ui', 'sans-serif'],
+});
