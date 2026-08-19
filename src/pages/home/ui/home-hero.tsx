@@ -70,9 +70,9 @@ const GRADIENT_TEXT_CLASS =
 // 한 문장이 뷰포트 폭과 무관하게 항상 한 줄로 유지되도록 whitespace-nowrap을 쓰고, 폰트 크기는
 // Tailwind 구간별 고정값 대신 vw 기반 clamp()로 연속적으로 키운다 — 구간별 고정값은 lg
 // breakpoint(1024px)에서 좌우 padding이 64px→240px로 확 뛰는 지점과 안 맞아 그 근방에서
-// 줄바꿈 위험이 있었다. vw 비율(3.7vw)은 그 padding 점프 지점(1024px)에서도 한 줄에 들어가도록
-// 역산한 값이라 전 구간에서 안전하면서, 큰 화면에서는 이전 고정값보다 더 커진다.
-const TAGLINE_SIZE_CLASS = 'text-[clamp(24px,5.4vw,68px)]';
+// 줄바꿈 위험이 있었다. vw 비율(4.3vw)은 그 padding 점프 지점(1024px)에서도 한 줄에 들어가도록
+// 역산한 값이라 전 구간에서 안전하면서, 큰 화면에서는 충분한 크기를 유지한다.
+const TAGLINE_SIZE_CLASS = 'text-[clamp(16px,4.3vw,68px)] xl:text-[clamp(24px,5.4vw,68px)]';
 
 function HeroTagline({
   whiteOpacity,
@@ -82,14 +82,14 @@ function HeroTagline({
   gradientOpacity: MotionValue<number>;
 }): JSX.Element {
   return (
-    <div className="px-016 sm:px-032 relative flex items-center justify-center">
+    <div className="px-016 sm:px-032 relative flex w-full min-w-0 items-center justify-center">
       <motion.p
         aria-label={HERO_TAGLINE_WORDS.join(' ')}
         variants={headlineContainerVariants}
         initial="hidden"
         animate="visible"
         style={{ opacity: whiteOpacity }}
-        className={`font-wanted text-center leading-[1.15] font-bold whitespace-nowrap text-white ${TAGLINE_SIZE_CLASS}`}
+        className={`font-wanted max-w-full text-center leading-[1.15] font-bold whitespace-nowrap text-white ${TAGLINE_SIZE_CLASS}`}
       >
         {HERO_TAGLINE_WORDS.map((word, index) => (
           <motion.span
@@ -108,7 +108,7 @@ function HeroTagline({
         initial="hidden"
         animate="visible"
         style={{ opacity: gradientOpacity }}
-        className={`font-wanted absolute inset-0 flex items-center justify-center text-center leading-[1.15] font-bold whitespace-nowrap ${TAGLINE_SIZE_CLASS} ${GRADIENT_TEXT_CLASS}`}
+        className={`font-wanted absolute inset-0 flex max-w-full items-center justify-center text-center leading-[1.15] font-bold whitespace-nowrap ${TAGLINE_SIZE_CLASS} ${GRADIENT_TEXT_CLASS}`}
       >
         {HERO_TAGLINE_WORDS.map((word, index) => (
           <motion.span
@@ -144,7 +144,7 @@ function HeroRevealCta(): JSX.Element {
 // 직접 크기를 지정한다.
 function HeroRevealSubtext(): JSX.Element {
   return (
-    <p className="text-center text-[15px] leading-[1.4] font-medium tracking-[-0.5px] whitespace-nowrap text-[#52525A] sm:text-[20px] lg:text-[26px] lg:leading-[36px]">
+    <p className="w-full max-w-full text-center text-[15px] leading-[1.4] font-medium tracking-[-0.5px] text-pretty whitespace-normal text-[#52525A] sm:text-[20px] lg:text-[26px] lg:leading-[36px]">
       {HERO_SUBTEXT}
     </p>
   );
@@ -155,8 +155,8 @@ function HeroRevealSubtext(): JSX.Element {
 // 2줄: "광고 채널 고민, 여기서 끝내 보세요"
 function HeroRevealTitle(): JSX.Element {
   return (
-    <h1 className="text-text-highest flex flex-col items-center text-center font-bold tracking-[-1px]">
-      <span className="flex flex-wrap items-center justify-center text-[28px] leading-[1.3] sm:text-[40px] lg:text-[48px] lg:leading-[70px]">
+    <h1 className="text-text-highest flex w-full flex-col items-center text-center font-bold tracking-[-1px] text-pretty">
+      <span className="flex w-full flex-wrap items-center justify-center text-[28px] leading-[1.3] sm:text-[40px] lg:text-[48px] lg:leading-[70px]">
         <span>내게 맞는 광고 채널을 </span>
         <span className="relative -top-[3px] ml-[7px] inline-flex -rotate-[4.78deg] items-center justify-center border-[1.5px] border-[#41BCF6] px-[10px] py-[1.5px] sm:-top-[5px] sm:px-[12px] sm:py-[2px] lg:-top-[7px] lg:px-[14.4px] lg:py-[2px]">
           {/* 네 모서리 꼭짓점 데코 포인트 (피그마 13.33px 사각형, 2.06px border, 중앙 정렬) */}
@@ -169,7 +169,7 @@ function HeroRevealTitle(): JSX.Element {
           </span>
         </span>
       </span>
-      <span className="text-[28px] leading-[1.3] sm:text-[40px] lg:text-[48px] lg:leading-[70px]">
+      <span className="w-full text-[28px] leading-[1.3] whitespace-normal sm:text-[40px] lg:text-[48px] lg:leading-[70px]">
         광고 채널 고민, 여기서 끝내 보세요
       </span>
     </h1>
