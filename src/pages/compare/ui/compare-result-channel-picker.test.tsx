@@ -10,9 +10,15 @@ import {
 } from './compare-result-channel-picker';
 
 const OPTIONS = [
-  { id: 'channel-google', name: '구글 검색 광고', isRecommended: true },
-  { id: 'channel-kakao', name: '카카오 모먼트', isRecommended: false },
-  { id: 'channel-meta', name: '메타 광고', isRecommended: true },
+  { id: 'channel-google', isDisabled: false, isRecommended: true, name: '구글 검색 광고' },
+  { id: 'channel-kakao', isDisabled: false, isRecommended: false, name: '카카오 모먼트' },
+  { id: 'channel-meta', isDisabled: false, isRecommended: true, name: '메타 광고' },
+  {
+    id: 'channel-meta-search',
+    isDisabled: true,
+    isRecommended: false,
+    name: '메타 검색 광고',
+  },
 ] as const satisfies readonly ComparisonChannelOption[];
 
 const retryMock = vi.fn<() => void>();
@@ -82,6 +88,9 @@ describe('CompareResultChannelPicker', () => {
     expect(screen.getAllByText('추천')).toHaveLength(2);
     expect(screen.getByRole('option', { name: /구글 검색 광고/ })).toBeVisible();
     expect(screen.getByRole('option', { name: /카카오 모먼트/ })).toBeVisible();
+    screen
+      .getAllByRole('checkbox', { hidden: true })
+      .forEach((checkbox) => expect(checkbox).not.toBeChecked());
   });
 
   it('입력한 채널명으로 목록을 필터링한다', async () => {
@@ -121,6 +130,27 @@ describe('CompareResultChannelPicker', () => {
     await user.keyboard('{ArrowDown}{Enter}');
 
     expect(selectMock).toHaveBeenCalledWith(OPTIONS[1]);
+  });
+
+  it('현재 비교 중인 채널은 unchecked disabled 상태로 표시하고 선택하지 않는다', async () => {
+    const user = userEvent.setup();
+
+    render(<PickerHarness />);
+    await user.click(screen.getByLabelText('비교할 채널 추가'));
+    const searchInput = await screen.findByRole('combobox', { name: '추가할 채널 검색' });
+    await user.type(searchInput, '메타 검색');
+
+    const selectedChannel = screen.getByRole('option', { name: /메타 검색 광고/ });
+    const checkbox = selectedChannel.querySelector('[role="checkbox"]');
+    expect(selectedChannel).toHaveAttribute('aria-disabled', 'true');
+    expect(checkbox).toHaveAttribute('aria-hidden', 'true');
+    expect(checkbox).toHaveAttribute('aria-disabled', 'true');
+    expect(checkbox).not.toBeChecked();
+
+    await user.click(selectedChannel);
+    await user.keyboard('{ArrowDown}{Enter}');
+
+    expect(selectMock).not.toHaveBeenCalled();
   });
 
   it('Escape로 닫은 뒤 다시 열면 검색어가 초기화된다', async () => {

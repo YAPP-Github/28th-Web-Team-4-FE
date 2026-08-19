@@ -157,20 +157,22 @@ export function CompareResultChannelPicker({
                     <Combobox.Item
                       key={option.id}
                       value={option}
-                      render={({ className, ...itemProps }, state) => (
+                      disabled={option.isDisabled}
+                      render={({ className, ...itemProps }) => (
                         <Box
                           className={cn(
                             [
                               'flex min-h-[34px] w-full cursor-pointer items-center gap-010 px-016 py-006 outline-none select-none',
-                              'hover:bg-surface-low data-highlighted:bg-surface-low',
+                              'hover:not-data-disabled:bg-surface-low data-highlighted:bg-surface-low data-disabled:cursor-not-allowed',
                             ],
                             className,
                           )}
                           {...itemProps}
                         >
                           <Checkbox
-                            aria-label={`${option.name} 선택`}
-                            checked={state.selected}
+                            aria-hidden
+                            checked={false}
+                            disabled={option.isDisabled}
                             readOnly
                             renderMode="label-control"
                             size="s"
@@ -178,7 +180,10 @@ export function CompareResultChannelPicker({
                           />
                           <Text
                             variant="subtitle-xxs"
-                            className="text-text-high min-w-0 flex-1 truncate"
+                            className={cn(
+                              'min-w-0 flex-1 truncate',
+                              option.isDisabled ? 'text-text-low' : 'text-text-high',
+                            )}
                           >
                             {option.name}
                           </Text>
