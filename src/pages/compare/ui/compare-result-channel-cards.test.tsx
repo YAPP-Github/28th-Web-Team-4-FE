@@ -59,6 +59,12 @@ describe('CompareResultChannelCards', () => {
     expect(screen.getByText('적합도 82%')).toBeVisible();
     expect(screen.queryByText('채널 추가하기')).not.toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /비교에서 제거/ })).toHaveLength(3);
+    expect(
+      screen.getByRole('heading', { name: '네이버 검색 광고' }).closest('article'),
+    ).toHaveClass('cursor-pointer');
+    expect(screen.getByRole('button', { name: '네이버 검색 광고 비교에서 제거' })).toHaveClass(
+      'cursor-pointer',
+    );
   });
 
   it('채널 제거 버튼으로 선택한 채널 ID를 전달한다', () => {

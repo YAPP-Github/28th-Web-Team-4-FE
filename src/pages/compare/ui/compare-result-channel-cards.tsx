@@ -32,7 +32,7 @@ function CompareResultChannelCard({
   return (
     <Box
       as="article"
-      className="bg-surface-lowest px-016 pt-018 flex h-[112px] w-full shrink-0 items-start rounded-[var(--radius-m)] lg:w-[256px]"
+      className="bg-surface-lowest px-016 pt-018 flex h-[112px] w-full shrink-0 cursor-pointer items-start rounded-[var(--radius-m)] lg:w-[256px]"
     >
       <Box className="flex w-full items-start justify-between">
         <Box aria-hidden="true" className="size-016 shrink-0" />
@@ -64,7 +64,7 @@ function CompareResultChannelCard({
             type="button"
             aria-label={`${channel.name} 비교에서 제거`}
             disabled={removeDisabled}
-            className="text-icon-default size-016 focus-visible:outline-outline-high flex shrink-0 items-center justify-center rounded-[var(--radius-xxs)] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
+            className="text-icon-default size-016 focus-visible:outline-outline-high flex shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-xxs)] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
             onClick={onRemove}
           >
             <X aria-hidden="true" className="size-016" />
