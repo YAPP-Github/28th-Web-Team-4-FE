@@ -1,8 +1,9 @@
-import { Suspense, type ReactNode } from 'react';
+import { Suspense, type ComponentProps, type ReactNode } from 'react';
 import { OverlayProvider } from 'overlay-kit';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
+import type * as MotionReact from 'motion/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -37,6 +38,74 @@ vi.mock('@number-flow/react', () => ({
 vi.mock('@/shared/ui/toast', () => ({
   showWarningToast: showWarningToastMock,
 }));
+
+vi.mock('motion/react', async (importOriginal) => {
+  const original = await importOriginal<typeof MotionReact>();
+
+  return {
+    ...original,
+    AnimatePresence: ({ children }: { children: ReactNode }) => <>{children}</>,
+    motion: {
+      div: ({
+        animate: _animate,
+        children,
+        custom: _custom,
+        exit: _exit,
+        initial: _initial,
+        transition: _transition,
+        variants: _variants,
+        ...props
+      }: ComponentProps<'div'> & {
+        animate?: unknown;
+        custom?: unknown;
+        exit?: unknown;
+        initial?: unknown;
+        transition?: unknown;
+        variants?: unknown;
+      }) => <div {...props}>{children}</div>,
+      li: ({
+        animate: _animate,
+        children,
+        custom: _custom,
+        initial: _initial,
+        variants: _variants,
+        ...props
+      }: ComponentProps<'li'> & {
+        animate?: unknown;
+        custom?: unknown;
+        initial?: unknown;
+        variants?: unknown;
+      }) => <li {...props}>{children}</li>,
+      span: ({
+        animate: _animate,
+        children,
+        exit: _exit,
+        initial: _initial,
+        transition: _transition,
+        ...props
+      }: ComponentProps<'span'> & {
+        animate?: unknown;
+        exit?: unknown;
+        initial?: unknown;
+        transition?: unknown;
+      }) => <span {...props}>{children}</span>,
+      ul: ({
+        animate: _animate,
+        children,
+        custom: _custom,
+        initial: _initial,
+        variants: _variants,
+        ...props
+      }: ComponentProps<'ul'> & {
+        animate?: unknown;
+        custom?: unknown;
+        initial?: unknown;
+        variants?: unknown;
+      }) => <ul {...props}>{children}</ul>,
+    },
+    useReducedMotion: () => false,
+  };
+});
 
 const initialStore = useRecommendOnboardingStore.getState();
 const RECOMMENDATION_ONBOARDING_ID = 'onboarding-87';

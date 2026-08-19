@@ -1,3 +1,4 @@
+import type { ComponentProps, ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 
 import { SimulatorSubHeader } from './simulator-sub-header';
@@ -9,6 +10,26 @@ vi.mock('@/pages/simulator/api/use-save-simulation', () => ({
     mutate: vi.fn<() => void>(),
     reset: vi.fn<() => void>(),
   }),
+}));
+
+vi.mock('motion/react', () => ({
+  AnimatePresence: ({ children }: { children: ReactNode }) => <>{children}</>,
+  motion: {
+    span: ({
+      animate: _animate,
+      children,
+      exit: _exit,
+      initial: _initial,
+      transition: _transition,
+      ...props
+    }: ComponentProps<'span'> & {
+      animate?: unknown;
+      exit?: unknown;
+      initial?: unknown;
+      transition?: unknown;
+    }) => <span {...props}>{children}</span>,
+  },
+  useReducedMotion: () => false,
 }));
 
 describe('SimulatorSubHeader', () => {
