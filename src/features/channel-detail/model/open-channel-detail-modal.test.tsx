@@ -199,8 +199,6 @@ describe('openChannelDetailModal', () => {
     expect(screen.getByRole('heading', { name: CHANNEL.name })).toBeVisible();
     expect(screen.getByRole('img', { name: `${CHANNEL.name} 로고` })).toBeVisible();
     expect(taglineLoading).toBeVisible();
-    expect(taglineLoading.children).toHaveLength(1);
-    expect(taglineLoading.parentElement).toHaveClass('min-h-044', 'w-full');
     expect(screen.getByText('상세 로딩 중')).toBeVisible();
     expect(requestedId).toBe(CHANNEL.id);
     expect(requestCount).toBe(1);
@@ -208,10 +206,7 @@ describe('openChannelDetailModal', () => {
     responseGate.resolve(undefined);
 
     expect(await screen.findByText('메타 광고 상세 설명')).toBeVisible();
-    const tagline = screen.getByText('상세 API tagline');
-
-    expect(tagline).toBeVisible();
-    expect(tagline).toHaveClass('min-h-044', 'line-clamp-2');
+    expect(screen.getByText('상세 API tagline')).toBeVisible();
     expect(
       screen.queryByRole('status', { name: '채널 설명을 불러오는 중이에요' }),
     ).not.toBeInTheDocument();

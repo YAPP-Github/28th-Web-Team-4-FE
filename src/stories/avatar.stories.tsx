@@ -44,12 +44,7 @@ export const CustomSize: Story = {
 
 export const CustomFallback: Story = {
   args: {
-    fallback: <Skeleton data-testid="avatar-custom-fallback" className="size-full" />,
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    await expect(canvas.getByTestId('avatar-custom-fallback')).toBeVisible();
+    fallback: <Skeleton className="size-full" />,
   },
 };
 

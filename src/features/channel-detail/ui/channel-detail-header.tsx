@@ -25,7 +25,7 @@ export function ChannelDetailHeader({
       <Avatar
         src={channel.iconUrl?.trim()}
         alt={`${channel.name} 로고`}
-        fallback={<Skeleton data-testid="channel-detail-logo-skeleton" className="size-full" />}
+        fallback={<Skeleton className="size-full" />}
         className="border-outline-low size-040 rounded-[var(--radius-m)] border hover:ring-0"
       />
       <Stack className="gap-004 min-w-0 flex-1 items-start">
