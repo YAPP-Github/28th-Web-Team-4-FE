@@ -6,6 +6,7 @@ import type { ChannelDetailHeaderData } from '@/features/channel-detail/model/ch
 import { Avatar } from '@/shared/ui/avatar';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
+import { Skeleton } from '@/shared/ui/skeleton';
 import { Text } from '@/shared/ui/text';
 
 export type ChannelDetailHeaderProps = {
@@ -24,6 +25,7 @@ export function ChannelDetailHeader({
       <Avatar
         src={channel.iconUrl?.trim()}
         alt={`${channel.name} 로고`}
+        fallback={<Skeleton data-testid="channel-detail-logo-skeleton" className="size-full" />}
         className="border-outline-low size-040 rounded-[var(--radius-m)] border hover:ring-0"
       />
       <Stack className="gap-004 min-w-0 flex-1 items-start">

@@ -1,5 +1,5 @@
 import { Avatar as BaseAvatar } from '@base-ui/react/avatar';
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 import { cn } from '@/shared/ui/cn';
 
@@ -13,9 +13,16 @@ export type AvatarProps = {
   src?: string;
   /** 접근성 대체 텍스트. 기본 '프로필'. 빈 문자열이면 decorative */
   alt?: string;
+  /** 이미지 로딩·실패·미지정 상태에 표시할 UI */
+  fallback?: ReactNode;
 };
 
-export const Avatar = ({ className, src, alt = DEFAULT_ALT }: AvatarProps): JSX.Element => {
+export const Avatar = ({
+  className,
+  src,
+  alt = DEFAULT_ALT,
+  fallback,
+}: AvatarProps): JSX.Element => {
   const isDecorative = alt === '';
 
   return (
@@ -30,7 +37,7 @@ export const Avatar = ({ className, src, alt = DEFAULT_ALT }: AvatarProps): JSX.
       {src && <BaseAvatar.Image src={src} alt="" className="size-full object-cover" />}
       {/* TODO: AvatarPlaceholder는 브랜드 이미지로 교체 예정 */}
       <BaseAvatar.Fallback className="flex size-full items-center justify-center">
-        <AvatarPlaceholder className="size-full" />
+        {fallback ?? <AvatarPlaceholder className="size-full" />}
       </BaseAvatar.Fallback>
     </BaseAvatar.Root>
   );

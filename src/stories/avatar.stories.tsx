@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, within } from 'storybook/test';
 
 import { Avatar } from '@/shared/ui/avatar';
+import { Skeleton } from '@/shared/ui/skeleton';
 
 const meta = {
   title: 'components/Avatar',
@@ -38,6 +39,17 @@ export const Hover: Story = {
 export const CustomSize: Story = {
   args: {
     className: 'size-12',
+  },
+};
+
+export const CustomFallback: Story = {
+  args: {
+    fallback: <Skeleton data-testid="avatar-custom-fallback" className="size-full" />,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByTestId('avatar-custom-fallback')).toBeVisible();
   },
 };
 
