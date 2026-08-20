@@ -17,7 +17,21 @@ class ResizeObserverStub {
   disconnect(): void {}
 }
 
+class IntersectionObserverStub implements IntersectionObserver {
+  readonly root: Element | Document | null = null;
+  readonly rootMargin = '';
+  readonly thresholds: readonly number[] = [];
+
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
+}
+
 vi.stubGlobal('ResizeObserver', ResizeObserverStub);
+vi.stubGlobal('IntersectionObserver', IntersectionObserverStub);
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
