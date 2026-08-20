@@ -28,12 +28,16 @@ import { showWarningToast } from '@/shared/ui/toast';
 import { RecommendedChannelCarousel } from './recommended-channel-carousel';
 import { RecommendResultSaveAction } from './recommend-result-save-action';
 import { RecommendResultSubHeader } from './recommend-result-sub-header';
+import { RecommendResultTutorialGate } from './recommend-result-tutorial-gate';
 
 type RecommendResultPageProps = {
   channels?: readonly RecommendedChannel[];
   headerAction: ReactNode;
   isGuest?: boolean;
   onboardingId?: string;
+  serviceName?: string;
+  headerTitle?: string;
+  headerDescription?: string;
   onCompare: (channelIds: readonly string[]) => void;
 };
 
@@ -50,10 +54,16 @@ export function RecommendResultPage({
   headerAction,
   isGuest = false,
   onboardingId,
+  serviceName: serviceNameOverride,
+  headerTitle,
+  headerDescription,
   onCompare,
 }: RecommendResultPageProps): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
-  const serviceName = useRecommendOnboardingStore((state) => state.answer?.serviceName ?? '채소집');
+  const onboardingServiceName = useRecommendOnboardingStore(
+    (state) => state.answer?.serviceName ?? '채소집',
+  );
+  const serviceName = serviceNameOverride ?? onboardingServiceName;
   const [selectedChannelIds, setSelectedChannelIds] = useState<readonly string[]>([]);
 
   const handleToggleSelection = (channelId: string): void => {
@@ -83,7 +93,12 @@ export function RecommendResultPage({
 
   return (
     <main className="bg-surface-background-default flex flex-1 flex-col items-center">
-      <RecommendResultSubHeader serviceName={serviceName} action={headerAction} />
+      <RecommendResultSubHeader
+        serviceName={serviceName}
+        title={headerTitle}
+        description={headerDescription}
+        action={headerAction}
+      />
       <Box className="px-016 pb-040 sm:px-032 lg:px-064 flex w-full justify-center pt-[60px] xl:px-0">
         <Box className="gap-040 flex w-full max-w-[1200px] flex-col">
           <RecommendedChannelCarousel
@@ -131,14 +146,17 @@ export function RecommendResultWithRecommendations({
   };
 
   return (
-    <RecommendResultPage
-      channels={recommendationsQuery.data}
-      headerAction={
-        <RecommendResultSaveAction onboardingId={onboardingId} serviceName={serviceName} />
-      }
-      isGuest={isGuest}
-      onboardingId={onboardingId}
-      onCompare={handleCompare}
-    />
+    <>
+      <RecommendResultTutorialGate />
+      <RecommendResultPage
+        channels={recommendationsQuery.data}
+        headerAction={
+          <RecommendResultSaveAction onboardingId={onboardingId} serviceName={serviceName} />
+        }
+        isGuest={isGuest}
+        onboardingId={onboardingId}
+        onCompare={handleCompare}
+      />
+    </>
   );
 }

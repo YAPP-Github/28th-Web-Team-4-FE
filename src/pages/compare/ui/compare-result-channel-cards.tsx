@@ -10,10 +10,11 @@ import type { CompareResultChannelSummary } from '@/pages/compare/model/compare-
 import { CompareResultChannelLogo } from './compare-result-channel-logo';
 
 type CompareResultChannelCardsProps = {
-  addChannelSlot: ReactNode;
+  addChannelSlot?: ReactNode;
   channels: readonly CompareResultChannelSummary[];
   removeDisabled: boolean;
   onRemoveChannel: (channelId: string) => void;
+  readOnly?: boolean;
 };
 
 function CompareResultChannelCard({
@@ -78,12 +79,13 @@ function CompareResultChannelCard({
 }
 
 export function CompareResultChannelCards({
-  addChannelSlot,
+  addChannelSlot = null,
   channels,
   removeDisabled,
   onRemoveChannel,
+  readOnly = false,
 }: CompareResultChannelCardsProps): JSX.Element {
-  const removable = channels.length === 3;
+  const removable = !readOnly && channels.length === 3;
 
   return (
     <Box as="ul" className="gap-012 flex w-full flex-col lg:flex-row">
@@ -98,11 +100,11 @@ export function CompareResultChannelCards({
           />
         </Box>
       ))}
-      {addChannelSlot === null ? null : (
+      {!readOnly && addChannelSlot != null ? (
         <Box as="li" className="w-full lg:w-auto">
           {addChannelSlot}
         </Box>
-      )}
+      ) : null}
     </Box>
   );
 }

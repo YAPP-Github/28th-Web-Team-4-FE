@@ -29,6 +29,7 @@ import {
   ChannelSelectionErrorState,
   ChannelSelectionLoadingFallback,
 } from './channel-selection-states';
+import { ComparisonChannelSelectionSubHeader } from './comparison-channel-selection-sub-header';
 
 const SEARCH_DEBOUNCE_MS = 300;
 const EMPTY_CHANNELS: ChannelListItem[] = [];
@@ -41,6 +42,7 @@ export type ChannelSelectionScreenProps = {
   title: string;
   submitLabel: string;
   onComplete: (channelIds: readonly string[]) => void;
+  variant?: ChannelSelectionScreenVariant;
   limitToast?: {
     id: string;
     message: string;
@@ -48,6 +50,8 @@ export type ChannelSelectionScreenProps = {
   /** 전달되면 각 채널 카드에 "자세히 보기" 버튼을 노출하고, 클릭 시 해당 채널로 호출한다. */
   onViewDetail?: (channel: ChannelListItem) => void;
 };
+
+export type ChannelSelectionScreenVariant = 'default' | 'comparison';
 
 function getCategoryLabel(category: string): string {
   return CHANNEL_CATEGORY_OPTION_LIST.find((option) => option.value === category)?.label ?? '전체';
@@ -153,7 +157,7 @@ type ChannelSelectionContentProps = {
   isInitialLoading: boolean;
   onResetFilters: () => void;
   onRetry: () => void;
-  onToggle: (channelId: string) => void;
+  onToggle: (channel: ChannelListItem) => void;
   onViewDetail?: (channel: ChannelListItem) => void;
   selectedIds: readonly string[];
 };
@@ -203,6 +207,7 @@ export function ChannelSelectionScreen({
   title,
   submitLabel,
   onComplete,
+  variant = 'default',
   limitToast = DEFAULT_LIMIT_TOAST,
   onViewDetail,
 }: ChannelSelectionScreenProps): JSX.Element {
@@ -246,13 +251,26 @@ export function ChannelSelectionScreen({
 
   return (
     <Box className="flex min-h-0 flex-1 flex-col">
-      <ChannelSelectionSubHeader
-        title={title}
-        category={categories}
-        onCategoryChange={queryState.setCategories}
-        query={queryState.q}
-        onQueryChange={queryState.setSearchQuery}
-      />
+      {variant === 'comparison' ? (
+        <ComparisonChannelSelectionSubHeader
+          title={title}
+          category={categories}
+          onCategoryChange={queryState.setCategories}
+          query={queryState.q}
+          onQueryChange={queryState.setSearchQuery}
+          selectedChannels={channelSelection.selectedChannels}
+          onClearSelection={channelSelection.clearSelection}
+          onRemoveChannel={channelSelection.removeChannel}
+        />
+      ) : (
+        <ChannelSelectionSubHeader
+          title={title}
+          category={categories}
+          onCategoryChange={queryState.setCategories}
+          query={queryState.q}
+          onQueryChange={queryState.setSearchQuery}
+        />
+      )}
       <Box
         aria-busy={isFetching}
         className="px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto lg:px-120"
@@ -275,7 +293,7 @@ export function ChannelSelectionScreen({
           />
         </Box>
       </Box>
-      <Box className="border-outline-low bg-surface-lowest px-016 sm:px-032 flex h-[102px] w-full shrink-0 justify-center border-t lg:px-120">
+      <Box className="border-outline-low bg-surface-lowest px-016 sm:px-032 flex w-full shrink-0 justify-center border-t md:h-[102px] lg:px-120">
         <Box className="gap-016 py-020 md:py-000 grid w-full max-w-[1200px] grid-cols-1 items-center md:grid-cols-[1fr_auto_1fr]">
           <Box className="hidden md:block" />
           <Box className="flex justify-center">
@@ -296,20 +314,16 @@ export function ChannelSelectionScreen({
               onClick={handleComplete}
               className="h-[44px] w-full max-w-[320px]"
             >
-              <span className="inline-flex items-center">
-                {submitLabel} (
-                <span className="inline-flex translate-y-px">
-                  <NumberFlow
-                    value={channelSelection.selectedCount}
-                    trend={0}
-                    animated={!shouldReduceMotion}
-                    transformTiming={{ duration: 80, easing: 'ease-out' }}
-                    spinTiming={{ duration: 80, easing: 'ease-out' }}
-                    opacityTiming={{ duration: 50, easing: 'ease-out' }}
-                  />
-                </span>
-                /{CHANNEL_SELECTION_LIMIT})
-              </span>
+              {submitLabel} (
+              <NumberFlow
+                value={channelSelection.selectedCount}
+                trend={0}
+                animated={!shouldReduceMotion}
+                transformTiming={{ duration: 80, easing: 'ease-out' }}
+                spinTiming={{ duration: 80, easing: 'ease-out' }}
+                opacityTiming={{ duration: 50, easing: 'ease-out' }}
+              />
+              /{CHANNEL_SELECTION_LIMIT})
             </Button>
           </Box>
         </Box>

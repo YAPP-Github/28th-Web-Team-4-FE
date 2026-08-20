@@ -4,13 +4,18 @@ export type ChannelProductRow = {
   budgetRange: string;
   expectedImpressions: string;
   expectedClicks: string;
+  isExecutable: boolean | null;
+};
+
+export type ChannelAudienceMetric = {
+  label: string;
+  value: string;
 };
 
 export type ChannelAudience = {
   primaryAgeBand: string;
   primaryGender: string;
-  userScale: string;
-  dailyActiveUsers: string;
+  metrics: ChannelAudienceMetric[];
   traits: string;
 };
 
@@ -28,6 +33,7 @@ export type ChannelDetail = {
   logoUrl: string;
   tagline: string;
   summary: {
+    keywords: string[];
     paragraphs: string[];
     recommendationReason: ChannelRecommendationReason | null;
   };

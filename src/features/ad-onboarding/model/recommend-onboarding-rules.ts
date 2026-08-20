@@ -14,8 +14,9 @@ import {
   type RecommendOnboardingStepId,
 } from './onboarding-step';
 import {
-  AD_EXPERIENCE_OPTION_LIST,
-  AD_GOAL_OPTION_LIST,
+  AD_EXPERIENCE_OPTION_BY_VALUE,
+  AD_GOAL_OPTION_BY_VALUE,
+  AGE_RANGE_OPTION_BY_VALUE,
   AGE_RANGE_OPTION_LIST,
   MANUAL_PERFORMANCE_METRIC_KEY_LIST,
   UNKNOWN_AGE_RANGE_ID,
@@ -145,10 +146,10 @@ export function getRecommendOnboardingAnswerLabel(
       return getCommonOnboardingAnswerLabel(stepId, draft);
     case 'age-ranges':
       return sortAgeRangeList(draft.ageRangeList)
-        .map((ageRange) => getOnboardingOptionLabel(AGE_RANGE_OPTION_LIST, ageRange))
+        .map((ageRange) => getOnboardingOptionLabel(AGE_RANGE_OPTION_BY_VALUE, ageRange))
         .join(', ');
     case 'ad-goal':
-      return getOnboardingOptionLabel(AD_GOAL_OPTION_LIST, draft.adGoal);
+      return getOnboardingOptionLabel(AD_GOAL_OPTION_BY_VALUE, draft.adGoal);
     case 'ad-experience':
       return getAdExperienceAnswerLabel(draft);
   }
@@ -246,7 +247,7 @@ function getPerformanceInput(draft: RecommendOnboardingDraft): PerformanceInput 
  * @returns 광고 집행 경험 답변 표시 문자열
  */
 function getAdExperienceAnswerLabel(draft: RecommendOnboardingDraft): string {
-  const label = getOnboardingOptionLabel(AD_EXPERIENCE_OPTION_LIST, draft.adExperienceType);
+  const label = getOnboardingOptionLabel(AD_EXPERIENCE_OPTION_BY_VALUE, draft.adExperienceType);
 
   if (draft.adExperienceType !== 'EXPERIENCED') {
     return label;

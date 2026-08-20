@@ -42,7 +42,7 @@ export function MyAdsConditionResetModal(): JSX.Element {
             size="m"
             className="h-12 flex-1"
             nativeButton={false}
-            render={<Link href="/recommend/onboarding/new" />}
+            render={<Link href="/recommend" />}
           >
             다시 설정하기
           </Button>

@@ -1,64 +1,124 @@
 import type { ComponentProps, JSX } from 'react';
+import Image from 'next/image';
 
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
-import { Text } from '@/shared/ui/text';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Logo } from '@/shared/ui/logo';
+import { Text } from '@/shared/ui/text';
 
 export type FooterProps = Omit<ComponentProps<'footer'>, 'children'>;
 
-const FOOTER_NAVIGATION_ITEMS = ['이용 약관', '개인정보 처리 방침', '블로그', '요금제'] as const;
+const FOOTER_NAVIGATION_ITEMS = ['이용 약관', '개인정보 처리방침', '요금제'] as const;
+const FOOTER_NAVIGATION_SEPARATOR = '|';
+const FOOTER_ICON_ITEMS = [
+  {
+    label: '이메일',
+    src: '/home-assets/footer-mail.svg',
+    width: 20,
+    height: 17,
+    className: 'left-[0.917px] top-[2.75px] h-[16.5px] w-[20.167px]',
+  },
+  {
+    label: '네이버 블로그',
+    src: '/home-assets/footer-naver-blog.svg',
+    width: 20,
+    height: 18,
+    className: 'left-[1.157px] top-[2.585px] h-[18.29px] w-[19.69px]',
+  },
+] as const;
+
+function FooterNavigationItem({ label }: { label: string }): JSX.Element {
+  return (
+    <Box as="li" className="contents">
+      <Text as="span" variant="subtitle-md" className="text-text-medium">
+        {label}
+      </Text>
+    </Box>
+  );
+}
+
+function FooterNavigationSeparator(): JSX.Element {
+  return (
+    <Box as="li" role="presentation" aria-hidden className="contents">
+      <Text as="span" variant="subtitle-xxs" className="text-surface-high">
+        {FOOTER_NAVIGATION_SEPARATOR}
+      </Text>
+    </Box>
+  );
+}
+
+function FooterLogo(): JSX.Element {
+  return <Logo type="m" alt="chaesozip" className="h-[36px] w-[136px]" />;
+}
+
+function intersperseFooterNavigationItems(items: readonly JSX.Element[]): JSX.Element[] {
+  return items.reduce<JSX.Element[]>((result, item, index) => {
+    if (index === 0) {
+      return [item];
+    }
+
+    return [...result, <FooterNavigationSeparator key={`${item.key}-separator`} />, item];
+  }, []);
+}
 
 export function Footer({ className, ...rest }: FooterProps): JSX.Element {
   return (
     <HStack
       as="footer"
       className={cn(
-        'bg-surface-low px-016 sm:px-032 flex w-full items-start justify-center py-040 lg:px-120 lg:py-[50px]',
+        'bg-surface-low px-016 py-040 sm:px-032 flex w-full items-start justify-center lg:px-120 lg:py-052',
         className,
       )}
       {...rest}
     >
-      <Box className="gap-032 flex w-full max-w-[1200px] flex-col items-start justify-between lg:flex-row">
-        <Stack className="gap-008 w-full items-start lg:w-[450px] lg:shrink-0">
-          <Logo type="m" className="text-text-low" />
-          <Text as="p" variant="subtitle-md" className="text-text-low lg:whitespace-nowrap">
-            내게 맞는 광고 채널을 한눈에! 채소집
+      <Stack className="gap-026 w-full max-w-[1200px] min-w-0 items-start justify-center">
+        <Stack className="gap-002 w-full min-w-0 items-start">
+          <Box className="gap-024 flex w-full min-w-0 flex-col items-start justify-between lg:flex-row lg:items-center">
+            <Stack className="gap-030 w-full items-start lg:w-[450px] lg:shrink-0">
+              <FooterLogo />
+            </Stack>
+
+            <Box
+              as="ul"
+              aria-label="푸터 메뉴"
+              className="gap-x-022 gap-y-008 flex min-w-0 flex-wrap items-center whitespace-nowrap lg:justify-end"
+            >
+              {intersperseFooterNavigationItems(
+                FOOTER_NAVIGATION_ITEMS.map((item) => (
+                  <FooterNavigationItem key={item} label={item} />
+                )),
+              )}
+            </Box>
+          </Box>
+
+          <Text as="p" variant="body-lg" className="text-text-low whitespace-nowrap">
+            © 2026 CHAESOZIP. ALL RIGHTS RESERVED
           </Text>
         </Stack>
 
-        <Stack className="gap-022 min-w-0 flex-1 items-start">
-          <Box
-            as="ul"
-            aria-label="푸터 메뉴"
-            className="gap-x-052 gap-y-008 flex w-full flex-wrap items-center whitespace-nowrap"
-          >
-            {FOOTER_NAVIGATION_ITEMS.map((item, index) => (
-              <Box as="li" key={item} className="contents">
-                <Text as="span" variant="subtitle-md" className="text-text-low">
-                  {item}
-                </Text>
-                {index < FOOTER_NAVIGATION_ITEMS.length - 1 ? (
-                  <Text as="span" variant="subtitle-xxs" aria-hidden className="text-surface-high">
-                    |
-                  </Text>
-                ) : null}
+        <Box as="ul" aria-label="푸터 아이콘" className="gap-012 flex items-center">
+          {FOOTER_ICON_ITEMS.map((item) => (
+            <Box as="li" key={item.label}>
+              <Box
+                as="span"
+                className="bg-surface-default p-008 flex shrink-0 items-center rounded-[var(--radius-max)]"
+              >
+                <Box as="span" className="relative size-[22px] shrink-0 overflow-hidden">
+                  <Image
+                    src={item.src}
+                    alt={item.label}
+                    width={item.width}
+                    height={item.height}
+                    className={cn('absolute max-w-none shrink-0', item.className)}
+                  />
+                </Box>
               </Box>
-            ))}
-          </Box>
-
-          <Stack className="gap-008 w-full items-start">
-            <Text as="p" variant="subtitle-xxs" className="text-text-low">
-              문의 : channelsogae.zip@gmail.com
-            </Text>
-            <Text as="p" variant="subtitle-xxs" className="text-text-low">
-              2026 Team Chaesozip. All right reservation
-            </Text>
-          </Stack>
-        </Stack>
-      </Box>
+            </Box>
+          ))}
+        </Box>
+      </Stack>
     </HStack>
   );
 }

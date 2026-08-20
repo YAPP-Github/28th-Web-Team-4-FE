@@ -31,7 +31,7 @@ const {
   withdrawOptions,
 } = vi.hoisted(() => ({
   logoutMock: vi.fn<(options?: LogoutOptions) => void>(),
-  onboardingTagQueryMock: vi.fn<() => { data?: MyOnboardingTagResponse }>(),
+  onboardingTagQueryMock: vi.fn<() => { data?: MyOnboardingTagResponse; isPending?: boolean }>(),
   replaceMock: vi.fn<(href: string) => void>(),
   refreshMock: vi.fn<() => void>(),
   showToastMock: vi.fn<(options: ShowToastOptions) => void>(),
@@ -200,7 +200,7 @@ describe('MyPage', () => {
     expect(await screen.findByRole('button', { name: '내 정보 수정' })).toBeVisible();
     expect(screen.getByRole('button', { name: '채널 추천받기' })).toHaveAttribute(
       'href',
-      '/recommend/onboarding/new',
+      '/recommend',
     );
     expect(await screen.findByRole('button', { name: '로그아웃' })).toBeVisible();
     expect(await screen.findByRole('button', { name: '탈퇴하기' })).toBeVisible();
@@ -305,12 +305,19 @@ describe('MyPage', () => {
     expect(screen.getByRole('heading', { name: '채소집' })).toBeVisible();
     expect(screen.getByText('마지막 비교 : 2026년 8월 18일')).toBeVisible();
     expect(screen.getByText('네이버 검색광고')).toBeVisible();
+    expect(screen.getByRole('link', { name: '채소집 저장된 채널 비교 결과' })).toHaveAttribute(
+      'href',
+      '/compare/saved/comparison-1',
+    );
 
     await user.click(screen.getByRole('tab', { name: '예산 시뮬레이션' }));
 
     expect(screen.getByRole('heading', { name: '예산 시뮬레이션' })).toBeVisible();
     expect(screen.getByText('마지막 시뮬레이션 : 2026년 8월 17일')).toBeVisible();
     expect(screen.getByText('카카오모먼트')).toBeVisible();
+    expect(
+      screen.getByRole('link', { name: '예산 시뮬레이션 저장된 시뮬레이션 결과' }),
+    ).toHaveAttribute('href', '/simulator/saved/simulation-1');
   });
 
   it('renders the ad conditions and saved recommendations when onboarding exists', () => {
@@ -320,25 +327,25 @@ describe('MyPage', () => {
       },
       savedRecommendations: [
         {
-          onboardingId: 'onboarding-1',
+          id: 'recommendation-1',
           title: '채소집',
           lastRecommendedAt: '2026.06.12',
           channelNames: ['네이버 검색광고', '메타 광고', '카카오모먼트'],
         },
         {
-          onboardingId: 'onboarding-2',
+          id: 'recommendation-2',
           title: '사이드 프로젝트 B',
           lastRecommendedAt: '2026년 5월 23일',
           channelNames: ['유튜브', '인스타그램', '카카오모먼트'],
         },
         {
-          onboardingId: 'onboarding-3',
+          id: 'recommendation-3',
           title: '사이드 프로젝트 C',
           lastRecommendedAt: '2026년 5월 22일',
           channelNames: ['유튜브', '인스타그램', '카카오모먼트'],
         },
         {
-          onboardingId: 'onboarding-4',
+          id: 'recommendation-4',
           title: '네 번째 프로젝트',
           lastRecommendedAt: '2026년 5월 21일',
           channelNames: ['유튜브'],
@@ -354,10 +361,14 @@ describe('MyPage', () => {
     expect(screen.getByText('#쇼핑·커머스')).toBeVisible();
     expect(screen.getByText('#웹 서비스')).toBeVisible();
     expect(screen.getByRole('button', { name: '수정하기' })).toBeVisible();
-    expect(screen.getByRole('link', { name: /더보기/ })).toHaveAttribute('href', '/mypage');
-    expect(screen.getByRole('link', { name: /채소집/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /더보기/ })).toHaveAttribute(
       'href',
-      '/recommend/onboarding-1',
+      '/mypage/saved-results',
+    );
+    expect(screen.getByRole('heading', { name: '채소집' })).toBeVisible();
+    expect(screen.getByRole('link', { name: '채소집 저장된 추천 결과' })).toHaveAttribute(
+      'href',
+      '/recommend/saved/recommendation-1',
     );
     expect(screen.getByText('사이드 프로젝트 B')).toBeVisible();
     expect(screen.getByText('사이드 프로젝트 C')).toBeVisible();
@@ -425,7 +436,7 @@ describe('MyPage', () => {
     expect(resetDialog).toHaveTextContent('입력했던 광고 조건이 모두 지워지고');
     expect(within(resetDialog).getByRole('button', { name: '다시 설정하기' })).toHaveAttribute(
       'href',
-      '/recommend/onboarding/new',
+      '/recommend',
     );
 
     await user.click(within(resetDialog).getByRole('button', { name: '취소' }));
@@ -586,6 +597,25 @@ describe('MyPage', () => {
     expect(screen.getByRole('status', { name: '내 정보를 불러오고 있어요' })).toBeVisible();
     expect(screen.getByTestId('my-profile-skeleton')).toBeVisible();
     expect(screen.queryByText('YAPP')).not.toBeInTheDocument();
+  });
+
+  it('renders the ad condition skeleton while the onboarding tag request is pending', () => {
+    onboardingTagQueryMock.mockReturnValue({ data: undefined, isPending: true });
+
+    renderMyPage(true);
+
+    expect(screen.getByTestId('my-ads-condition-skeleton')).toBeVisible();
+    expect(screen.getByRole('heading', { name: '내 광고 조건' })).toBeVisible();
+    expect(screen.getByText('온보딩에서 입력한 조건이에요')).toBeVisible();
+    expect(screen.queryByText('#쇼핑·커머스')).not.toBeInTheDocument();
+  });
+
+  it('renders saved result skeletons while the recommendation request is pending', () => {
+    renderMyPage(true, { savedRecommendationsLoading: true });
+
+    expect(screen.getByTestId('recommendation-results-skeleton')).toBeVisible();
+    expect(screen.getByRole('status', { name: '저장된 결과를 불러오고 있어요' })).toBeVisible();
+    expect(screen.queryByText('저장된 결과를 불러오는 중이에요')).not.toBeInTheDocument();
   });
 
   it('refreshes the page when the profile request returns unauthorized', async () => {

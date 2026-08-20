@@ -15,8 +15,8 @@ export type MyAdsCondition = {
 };
 
 export type SavedRecommendation = {
-  /** 추천 결과 상세 페이지 경로에 사용하는 저장된 추천 식별자. */
-  onboardingId: string;
+  /** 저장된 추천 결과 식별자. */
+  id: string;
   /** 사용자가 온보딩에서 입력한 서비스명. */
   title: string;
   /** 마지막 추천 일시를 화면에 표시할 문자열. */
@@ -80,7 +80,7 @@ export function createSavedRecommendations(
   recommendations: readonly RecommendationSummaryResponse[],
 ): SavedRecommendation[] {
   return recommendations.map((recommendation) => ({
-    onboardingId: recommendation.id,
+    id: recommendation.id,
     title: recommendation.serviceName ?? '이름 없는 서비스',
     lastRecommendedAt: formatRecommendationDate(recommendation.createdAt),
     channelNames: recommendation.channelNames,

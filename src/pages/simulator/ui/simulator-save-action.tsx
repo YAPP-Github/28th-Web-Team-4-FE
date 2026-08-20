@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect, useState, type JSX } from 'react';
-import { Download } from 'lucide-react';
 import type { SaveSimulationRequest, SimulationResponse } from '@/shared/api/generated';
 
+import { ResultSaveButton, type ResultSaveButtonStatus } from '@/features/result-save-action';
 import { getApiErrorMessage } from '@/shared/api/api-error';
 import { useSaveSimulation } from '@/pages/simulator/api/use-save-simulation';
-import { Button } from '@/shared/ui/button';
 import { showToast, showWarningToast } from '@/shared/ui/toast';
 
 import { SimulatorSaveServiceNameModal } from './simulator-save-service-name-modal';
@@ -15,13 +14,7 @@ const SAVE_SIMULATION_ERROR_TOAST_ID = 'simulator-save-error';
 const SAVE_SIMULATION_ERROR_MESSAGE = '시뮬레이션 결과 저장 중 문제가 발생했습니다.';
 const SAVE_SIMULATION_SUCCESS_TOAST_ID = 'simulator-save-success';
 const SAVE_SIMULATION_SUCCESS_MESSAGE = '마이페이지에 결과를 저장했어요';
-const SAVE_SIMULATION_BUTTON_LABEL = {
-  idle: '결과 저장하기',
-  pending: '저장 중',
-  saved: '저장 완료',
-} as const;
-
-type SaveSimulationButtonStatus = keyof typeof SAVE_SIMULATION_BUTTON_LABEL;
+type SaveSimulationButtonStatus = ResultSaveButtonStatus;
 
 function createSimulationRequest(
   result: SimulationResponse,
@@ -116,16 +109,7 @@ export function SimulatorSaveAction({
 
   return (
     <>
-      <Button
-        frame="button"
-        tone="stroke"
-        className="border-outline-low h-044 px-020 py-010"
-        disabled={isDisabled}
-        leftIcon={<Download aria-hidden="true" className="text-icon-high size-016" />}
-        onClick={handleSave}
-      >
-        {SAVE_SIMULATION_BUTTON_LABEL[status]}
-      </Button>
+      <ResultSaveButton disabled={isDisabled} onClick={handleSave} status={status} />
       <SimulatorSaveServiceNameModal
         open={isServiceNameModalOpen}
         serviceName={serviceName}

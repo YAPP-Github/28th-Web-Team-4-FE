@@ -1,3 +1,4 @@
+export { metadata } from './config/metadata';
 export { RecommendOnboardingPage } from './ui/recommend-onboarding-page';
 export {
   getInitialRecommendOnboardingServiceName,

@@ -10,11 +10,15 @@ import { Text } from '@/shared/ui/text';
 export type RecommendResultSubHeaderProps = {
   action: ReactNode;
   serviceName: string;
+  title?: string;
+  description?: string;
 };
 
 export function RecommendResultSubHeader({
   action,
   serviceName,
+  title: titleOverride,
+  description = '입력하신 조건으로 분석했어요',
 }: RecommendResultSubHeaderProps): JSX.Element {
   const title = (
     <Box className="gap-006 flex max-w-full min-w-0 items-center">
@@ -23,7 +27,7 @@ export function RecommendResultSubHeader({
         variant="heading-lg"
         className="text-text-highest min-w-0 [overflow-wrap:anywhere] break-keep"
       >
-        {serviceName}에 딱 맞는 채널이에요
+        {titleOverride ?? `${serviceName}에 딱 맞는 채널이에요`}
       </Text>
       <BaseTooltip.Provider delay={150} timeout={400}>
         <BaseTooltip.Root>
@@ -70,7 +74,7 @@ export function RecommendResultSubHeader({
         <Box className="gap-006 lg:gap-052 flex w-full min-w-0 flex-col items-start lg:w-auto lg:flex-row lg:items-center">
           <Box className="max-w-full min-w-0">{title}</Box>
           <Text as="p" variant="subtitle-xxs" className="text-text-low m-0 whitespace-nowrap">
-            입력하신 조건으로 분석했어요
+            {description}
           </Text>
         </Box>
         {action}

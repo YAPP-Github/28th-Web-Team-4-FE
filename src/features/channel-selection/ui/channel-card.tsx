@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type JSX } from 'react';
+import type { JSX } from 'react';
 import Image from 'next/image';
 
 import {
@@ -14,10 +14,12 @@ import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
+import { ChannelLogo } from './channel-logo';
+
 type ChannelCardProps = {
   channel: ChannelListItem;
   checked: boolean;
-  onToggle: (channelId: string) => void;
+  onToggle: (channel: ChannelListItem) => void;
   /** 전달되면 카드에 "자세히 보기" 버튼을 노출하고, 클릭 시 채널을 넘겨 호출한다. */
   onViewDetail?: (channel: ChannelListItem) => void;
 };
@@ -29,30 +31,9 @@ function ChannelCardHeader({
   channel: ChannelListItem;
   checked: boolean;
 }): JSX.Element {
-  const logoUrl = channel.logoUrl?.trim() ?? '';
-  const [failedLogoUrl, setFailedLogoUrl] = useState<string | null>(null);
-  const shouldShowLogo = logoUrl.length > 0 && failedLogoUrl !== logoUrl;
-
   return (
     <Box as="header" className="flex w-full items-start justify-between">
-      <Box className="bg-surface-low flex size-[33px] items-center justify-center overflow-hidden rounded-[5.333px]">
-        {shouldShowLogo ? (
-          <Image
-            src={logoUrl}
-            alt=""
-            width={33}
-            height={33}
-            onError={() => {
-              setFailedLogoUrl(logoUrl);
-            }}
-            className="size-full object-cover"
-          />
-        ) : (
-          <Text aria-hidden variant="subtitle-xxs" className="text-text-medium">
-            {Array.from(channel.name.trim())[0] ?? '?'}
-          </Text>
-        )}
-      </Box>
+      <ChannelLogo channel={channel} />
       <Box
         aria-hidden
         className={cn(
@@ -129,7 +110,7 @@ export function ChannelCard({
         renderMode="label-control"
         checked={checked}
         onCheckedChange={() => {
-          onToggle(channel.id);
+          onToggle(channel);
         }}
         aria-label={checkboxLabel}
         value={channel.id}

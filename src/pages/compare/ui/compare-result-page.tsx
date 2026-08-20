@@ -16,6 +16,7 @@ import { CompareResultChannelInsightsDqa } from './compare-result-channel-insigh
 import { CompareResultChannelPickerContainer } from './compare-result-channel-picker-container';
 import { CompareResultChannelPerformance } from './compare-result-channel-performance';
 import { CompareResultErrorState, CompareResultLoadingState } from './compare-result-query-states';
+import { CompareResultSaveButton } from './compare-result-save-button';
 import { CompareResultSubHeader } from './compare-result-sub-header';
 
 function CompareResultPageContent(): JSX.Element | null {
@@ -82,7 +83,15 @@ function CompareResultWithQuery({
 
   return (
     <>
-      <CompareResultSubHeader isGuest={authSession?.authenticated === false} />
+      <CompareResultSubHeader
+        action={
+          <CompareResultSaveButton
+            channelIds={channelIds}
+            isGuest={authSession?.authenticated === false}
+            onboardingId={onboardingId}
+          />
+        }
+      />
       <main
         aria-busy={comparisonQuery.isPlaceholderData}
         className="bg-surface-low px-016 sm:px-032 flex min-h-0 flex-1 justify-center overflow-y-auto lg:px-120"

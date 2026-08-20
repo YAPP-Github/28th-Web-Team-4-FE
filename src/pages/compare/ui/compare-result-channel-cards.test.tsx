@@ -32,11 +32,13 @@ function renderChannelCards(
   channels: readonly CompareResultChannelSummary[] = MOCK_CHANNELS,
   removeDisabled = false,
   addChannelSlot: ReactNode = null,
+  readOnly = false,
 ) {
   return render(
     <CompareResultChannelCards
       addChannelSlot={addChannelSlot}
       channels={channels}
+      readOnly={readOnly}
       removeDisabled={removeDisabled}
       onRemoveChannel={removeChannelMock}
     />,
@@ -92,6 +94,13 @@ describe('CompareResultChannelCards', () => {
 
     expect(screen.getByText('채널 추가하기')).toBeVisible();
     expect(screen.queryByRole('button', { name: /비교에서 제거/ })).not.toBeInTheDocument();
+  });
+
+  it('읽기 전용이면 제거 버튼과 채널 추가 slot을 표시하지 않는다', () => {
+    renderChannelCards(MOCK_CHANNELS, false, <button type="button">채널 추가하기</button>, true);
+
+    expect(screen.queryByRole('button', { name: /비교에서 제거/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('채널 추가하기')).not.toBeInTheDocument();
   });
 
   it('임시 로고가 없는 채널은 채널명의 첫 글자를 표시한다', () => {

@@ -1,15 +1,26 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { authSessionQueryKey } from '@/features/auth/session/model/auth-session-query';
 
 import { HomePage } from './home-page';
 
+beforeAll(() => {
+  if (typeof window !== 'undefined') {
+    window.IntersectionObserver = class IntersectionObserver {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    } as unknown as typeof window.IntersectionObserver;
+  }
+});
+
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn<() => void>() }),
+  useRouter: () => ({ push: vi.fn<() => void>(), refresh: vi.fn<() => void>() }),
 }));
 
-function renderHomePage() {
+function renderHomePage(authenticated = false) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -18,7 +29,12 @@ function renderHomePage() {
     },
   });
 
-  queryClient.setQueryData(authSessionQueryKey, { authenticated: false });
+  queryClient.setQueryData(
+    authSessionQueryKey,
+    authenticated
+      ? { authenticated: true, accessTokenExpiresAt: Date.now() + 10_000 }
+      : { authenticated: false },
+  );
 
   return render(
     <QueryClientProvider client={queryClient}>
@@ -28,20 +44,41 @@ function renderHomePage() {
 }
 
 describe('HomePage', () => {
-  it('renders the marketing landing content', () => {
-    renderHomePage();
+  it('renders the public marketing landing content when not logged in', () => {
+    renderHomePage(false);
 
+    expect(screen.getByText('Find your channel, Fuel your growth')).toBeInTheDocument();
+    const heroHeading = screen.getByRole('heading', { level: 1 });
+    expect(heroHeading).toHaveTextContent('내게 맞는 광고 채널을 한눈에!');
+    expect(heroHeading).toHaveTextContent('광고 채널 고민, 여기서 끝내 보세요');
+    expect(screen.getByText('3초 만에 시작하기')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '3초 만에 시작하기' })).toHaveAttribute(
+      'href',
+      '/recommend',
+    );
+    expect(screen.getByRole('button', { name: '바로 채널 추천받기' })).toHaveAttribute(
+      'href',
+      '/recommend',
+    );
+    expect(screen.getByRole('button', { name: '채널 추천받기' })).toHaveAttribute(
+      'href',
+      '/recommend',
+    );
+    expect(screen.getByText('© 2026 CHAESOZIP. ALL RIGHTS RESERVED')).toBeInTheDocument();
+    expect(screen.getByText('개인정보 처리방침')).toBeInTheDocument();
+  });
+
+  it('renders the personalized service finder when logged in', () => {
+    renderHomePage(true);
+
+    expect(screen.getByText('FIND YOUR FIT')).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { name: '내 서비스에 딱 맞는 광고 채널 찾기' }),
+      screen.getByPlaceholderText('광고하고 싶은 서비스의 이름을 입력해 보세요'),
     ).toBeInTheDocument();
-    expect(screen.getByText('질문 몇 가지로 광고 채널 선택의 기준을 세워요')).toBeInTheDocument();
-    expect(
-      screen.getByText('추천 결과는 실행 판단에 필요한 지표까지 포함해요'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('필요한 순간에 맞춰 추천, 비교, 시뮬레이션을 따로 살펴봐요'),
-    ).toBeInTheDocument();
-    expect(screen.getAllByRole('button', { name: '추천 시작' })).toHaveLength(2);
-    expect(screen.getByText('내게 맞는 광고 채널을 한눈에! 채소집')).toBeInTheDocument();
+    expect(screen.getByText('자주 묻는 질문')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '바로 채널 추천받기' })).toHaveAttribute(
+      'href',
+      '/recommend',
+    );
   });
 });

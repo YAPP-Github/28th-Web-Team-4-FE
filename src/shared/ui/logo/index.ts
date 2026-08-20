@@ -1,2 +1,2 @@
 export { Logo, LOGO_TYPES, type LogoProps, type LogoType } from './logo';
-export { LogoMark, type LogoMarkProps } from './logo-mark';
+export { LogoMark, type LogoMarkProps, type LogoMarkType } from './logo-mark';

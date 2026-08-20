@@ -21,7 +21,7 @@ export function useHomeServiceNameForm() {
     }
 
     router.push(
-      serializeRecommendOnboardingHref('/recommend/onboarding/new', {
+      serializeRecommendOnboardingHref('/recommend', {
         serviceName: normalizedServiceName,
       }),
     );

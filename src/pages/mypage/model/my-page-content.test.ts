@@ -59,7 +59,7 @@ describe('createSavedRecommendations', () => {
       ]),
     ).toEqual([
       {
-        onboardingId: 'recommendation-1',
+        id: 'recommendation-1',
         title: '채소집',
         lastRecommendedAt: '2026.06.12',
         channelNames: ['네이버 검색광고', '메타 광고'],

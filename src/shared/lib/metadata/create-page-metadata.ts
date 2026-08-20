@@ -5,6 +5,7 @@ const OPEN_GRAPH_IMAGE_WIDTH = 1200;
 const OPEN_GRAPH_IMAGE_HEIGHT = 630;
 
 type CreatePageMetadataOptions = {
+  path: string;
   title: string;
   description: string;
   openGraphTitle: string;
@@ -14,6 +15,7 @@ type CreatePageMetadataOptions = {
 
 /** Creates static page metadata with matching Open Graph and Twitter/X cards. */
 export function createPageMetadata({
+  path,
   title,
   description,
   openGraphTitle,
@@ -23,9 +25,17 @@ export function createPageMetadata({
   return {
     title,
     description,
+    alternates: {
+      canonical: path,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
     openGraph: {
       title: openGraphTitle,
       description: openGraphDescription,
+      url: path,
       siteName: SITE_NAME,
       locale: 'ko_KR',
       type: 'website',
