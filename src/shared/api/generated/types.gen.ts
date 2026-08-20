@@ -1571,6 +1571,10 @@ export type ChannelDetailResponse = {
    */
   iconUrl: string | null;
   /**
+   * 채널 광고예시 이미지 URL 목록(없으면 빈 배열)
+   */
+  previewImageUrls: Array<string>;
+  /**
    * 채널 핵심 요약
    */
   description: string | null;
