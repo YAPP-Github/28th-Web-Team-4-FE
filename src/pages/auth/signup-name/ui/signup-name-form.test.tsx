@@ -80,6 +80,23 @@ describe('SignupNameForm', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('이름은 50자 이하로 입력해 주세요');
   });
 
+  it('revalidates the name while editing after submit validation', async () => {
+    const user = userEvent.setup();
+    setPasswordStepCompleted();
+    render(<SignupNameForm />);
+
+    const nameInput = screen.getByLabelText('이름');
+    await user.type(nameInput, '가'.repeat(51));
+    await user.click(screen.getByRole('button', { name: '다음' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('이름은 50자 이하로 입력해 주세요');
+
+    await user.clear(nameInput);
+    await user.type(nameInput, '채소러버');
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
   it('trims and stores a valid name before moving to the company step', async () => {
     const user = userEvent.setup();
     setPasswordStepCompleted();

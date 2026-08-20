@@ -102,6 +102,24 @@ describe('SignupPasswordForm', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('비밀번호가 일치하지 않아요.');
   });
 
+  it('revalidates the password confirmation while editing after submit validation', async () => {
+    const user = userEvent.setup();
+    setVerifiedEmail();
+    render(<SignupPasswordForm />);
+
+    await user.type(screen.getByLabelText('비밀번호'), 'Password1!');
+    const confirmationInput = screen.getByLabelText('비밀번호 확인');
+    await user.type(confirmationInput, 'Password2!');
+    await user.click(screen.getByRole('button', { name: '다음' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('비밀번호가 일치하지 않아요.');
+
+    await user.clear(confirmationInput);
+    await user.type(confirmationInput, 'Password1!');
+
+    expect(screen.queryByText('비밀번호가 일치하지 않아요.')).not.toBeInTheDocument();
+  });
+
   it('stores a valid password and moves to the next signup step', async () => {
     const user = userEvent.setup();
     setVerifiedEmail();
