@@ -2,7 +2,25 @@ import { describe, expect, it } from 'vitest';
 
 import type { RecommendationItemResponse } from '@/shared/api/generated/types.gen';
 
-import { mapRecommendationItemsToChannels, recommendedChannels } from './recommended-channels';
+import {
+  getRecommendedChannelMatchBadgeToneById,
+  mapRecommendationItemsToChannels,
+  recommendedChannels,
+  type RecommendedChannel,
+} from './recommended-channels';
+
+function createRecommendedChannel(id: string, matchRate: number): RecommendedChannel {
+  return {
+    id,
+    name: id,
+    description: '추천 이유',
+    cpcPrice: '클릭 1회당 320원~',
+    isLowestCpc: false,
+    matchRate,
+    thumbnailSrc: '/recommend-assets/naver-search-ad.png',
+    metrics: [],
+  };
+}
 
 describe('recommendedChannels', () => {
   it('provides eight unique recommendation fixtures', () => {
@@ -141,5 +159,73 @@ describe('recommendedChannels', () => {
         ],
       },
     ]);
+  });
+
+  it('assigns match badge tones by unique match rate rank', () => {
+    const toneById = getRecommendedChannelMatchBadgeToneById([
+      createRecommendedChannel('rank-1', 90),
+      createRecommendedChannel('rank-2', 88),
+      createRecommendedChannel('rank-3', 82),
+      createRecommendedChannel('rank-4', 70),
+      createRecommendedChannel('rank-5', 65),
+    ]);
+
+    expect(Object.fromEntries(toneById)).toEqual({
+      'rank-1': 'primary',
+      'rank-2': 'orange',
+      'rank-3': 'orange',
+      'rank-4': 'gray',
+      'rank-5': 'gray',
+    });
+  });
+
+  it('keeps tied match rates in the same match badge tone without consuming slots', () => {
+    const toneById = getRecommendedChannelMatchBadgeToneById([
+      createRecommendedChannel('top', 90),
+      createRecommendedChannel('second-first', 88),
+      createRecommendedChannel('second-second', 88),
+      createRecommendedChannel('second-third', 88),
+      createRecommendedChannel('third', 82),
+      createRecommendedChannel('fourth', 70),
+    ]);
+
+    expect(Object.fromEntries(toneById)).toEqual({
+      top: 'primary',
+      'second-first': 'orange',
+      'second-second': 'orange',
+      'second-third': 'orange',
+      third: 'orange',
+      fourth: 'gray',
+    });
+  });
+
+  it('assigns primary to every channel tied for the highest match rate', () => {
+    const toneById = getRecommendedChannelMatchBadgeToneById([
+      createRecommendedChannel('top-first', 90),
+      createRecommendedChannel('top-second', 90),
+      createRecommendedChannel('top-third', 90),
+      createRecommendedChannel('next', 82),
+    ]);
+
+    expect(Object.fromEntries(toneById)).toEqual({
+      'top-first': 'primary',
+      'top-second': 'primary',
+      'top-third': 'primary',
+      next: 'orange',
+    });
+  });
+
+  it('assigns primary to every channel when all match rates are tied', () => {
+    const toneById = getRecommendedChannelMatchBadgeToneById([
+      createRecommendedChannel('first', 80),
+      createRecommendedChannel('second', 80),
+      createRecommendedChannel('third', 80),
+    ]);
+
+    expect(Object.fromEntries(toneById)).toEqual({
+      first: 'primary',
+      second: 'primary',
+      third: 'primary',
+    });
   });
 });
