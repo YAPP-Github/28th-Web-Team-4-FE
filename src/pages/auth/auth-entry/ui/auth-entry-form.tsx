@@ -199,12 +199,6 @@ export function AuthEntryForm(): JSX.Element {
                 {googleErrorMessage}
               </p>
             ) : null}
-            <button
-              type="button"
-              className="typo-subtitle-xxs text-text-medium self-center underline underline-offset-2"
-            >
-              비밀번호를 잊으셨나요?
-            </button>
             <Button
               frame="cta"
               tone="login"
@@ -223,6 +217,13 @@ export function AuthEntryForm(): JSX.Element {
             >
               Google로 시작하기
             </Button>
+            <button
+              type="button"
+              className="typo-subtitle-xxs text-text-medium self-center underline underline-offset-2"
+              onClick={() => router.push('/')}
+            >
+              서비스로 돌아가기
+            </button>
           </div>
         }
         className="gap-12"
