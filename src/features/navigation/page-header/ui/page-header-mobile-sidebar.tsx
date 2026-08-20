@@ -26,7 +26,7 @@ const iconButtonClassName =
 const MOBILE_VIEWPORT_QUERY = '(max-width: 1023px)';
 const MOBILE_SIDEBAR_ID = 'page-header-mobile-sidebar';
 const MOBILE_SIDEBAR_TRIGGER_ID = 'page-header-mobile-sidebar-trigger';
-const SIDEBAR_EXIT_EASE = [0.37, 0, 0.63, 1] as const;
+const SIDEBAR_EXIT_EASE = [0.215, 0.61, 0.355, 1] as const;
 const menuIconTransitionClassName =
   'duration-[180ms] ease-[var(--ease-in-out-cubic,cubic-bezier(0.645,0.045,0.355,1))] motion-reduce:transition-none';
 
@@ -47,7 +47,7 @@ const sidebarExitVariants = {
     opacity: 0,
     transform: 'translateY(-100%) scale(1)',
     transition: {
-      duration: 0.25,
+      duration: 0.22,
       ease: SIDEBAR_EXIT_EASE,
     },
   },

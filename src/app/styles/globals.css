@@ -14,12 +14,14 @@
 }
 
 @utility animate-page-header-mobile-sidebar-enter {
-  animation: page-header-mobile-sidebar-enter 250ms cubic-bezier(0.03, 0.4, 0.1, 1) both;
+  animation:
+    page-header-mobile-sidebar-opacity-enter 150ms cubic-bezier(0.03, 0.4, 0.1, 1) both,
+    page-header-mobile-sidebar-transform-enter 250ms cubic-bezier(0.03, 0.4, 0.1, 1) both;
 }
 
 @utility animate-page-header-mobile-sidebar-item-enter {
   animation: page-header-mobile-sidebar-item-enter 750ms cubic-bezier(0.03, 0.4, 0.1, 1) both;
-  animation-delay: calc(333ms + var(--sidebar-item-index, 0) * 60ms);
+  animation-delay: calc(200ms + var(--sidebar-item-index, 0) * 60ms);
 }
 
 @utility animate-simulator-channel-selection-enter {
@@ -31,14 +33,22 @@
   animation-iteration-count: infinite;
 }
 
-@keyframes page-header-mobile-sidebar-enter {
+@keyframes page-header-mobile-sidebar-opacity-enter {
   from {
     opacity: 0;
-    transform: translateY(-100%) scale(0.98);
   }
 
   to {
     opacity: 1;
+  }
+}
+
+@keyframes page-header-mobile-sidebar-transform-enter {
+  from {
+    transform: translateY(-100%) scale(0.98);
+  }
+
+  to {
     transform: translateY(0%) scale(1);
   }
 }
