@@ -22,7 +22,7 @@ export function ChannelDetailHeader({
   return (
     <HStack className="gap-012 min-w-0 flex-1 items-center">
       <Avatar
-        src={channel.logoUrl?.trim()}
+        src={channel.iconUrl?.trim()}
         alt={`${channel.name} 로고`}
         className="border-outline-low size-040 rounded-[var(--radius-m)] border hover:ring-0"
       />

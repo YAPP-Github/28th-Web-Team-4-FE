@@ -26,7 +26,7 @@ function createChannel(id: string, name: string): ChannelListItemResponse {
   return {
     id,
     name,
-    logoUrl: null,
+    iconUrl: null,
     description: null,
     primaryCategory: 'OTHERS',
   };

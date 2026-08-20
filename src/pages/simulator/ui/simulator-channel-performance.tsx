@@ -1,6 +1,6 @@
 'use client';
 
-import type { JSX } from 'react';
+import { useState, type JSX } from 'react';
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 import Image from 'next/image';
 import { Info } from 'lucide-react';
@@ -22,7 +22,31 @@ const CHANNEL_ICON_SRC: Record<ChannelType, string> = {
   meta: '/simulator-assets/meta.svg',
 };
 
-function ChannelIcon({ type, name }: { type?: ChannelType; name: string }): JSX.Element {
+function ChannelIcon({
+  iconUrl,
+  type,
+  name,
+}: {
+  iconUrl?: string | null;
+  type?: ChannelType;
+  name: string;
+}): JSX.Element {
+  const normalizedIconUrl = iconUrl?.trim() ?? '';
+  const [failedIconUrl, setFailedIconUrl] = useState<string | null>(null);
+
+  if (normalizedIconUrl.length > 0 && failedIconUrl !== normalizedIconUrl) {
+    return (
+      <Image
+        src={normalizedIconUrl}
+        alt=""
+        width={36}
+        height={36}
+        className="size-036 shrink-0 rounded-[var(--radius-xs)] object-cover"
+        onError={() => setFailedIconUrl(normalizedIconUrl)}
+      />
+    );
+  }
+
   if (type) {
     return (
       <Image
@@ -216,7 +240,7 @@ function ChannelBasisInfo({
 function ChannelResultRow({ channel }: { channel: ChannelResult }): JSX.Element {
   return (
     <Box className="gap-014 flex w-full items-start">
-      <ChannelIcon type={channel.type} name={channel.name} />
+      <ChannelIcon iconUrl={channel.iconUrl} type={channel.type} name={channel.name} />
       <Box className="gap-006 flex min-w-0 flex-1 flex-col">
         <Box className="gap-006 flex min-w-0 items-center">
           <Text variant="subtitle-md" className="text-text-default truncate">

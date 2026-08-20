@@ -1,4 +1,4 @@
-import type { JSX } from 'react';
+import { useState, type JSX } from 'react';
 
 import { Check } from 'lucide-react';
 import Image, { type ImageProps } from 'next/image';
@@ -33,6 +33,11 @@ export function RecommendedChannelCard({
   onOpenDetail,
   onToggleSelection,
 }: RecommendedChannelCardProps): JSX.Element {
+  const [failedThumbnailSrc, setFailedThumbnailSrc] = useState<string | null>(null);
+  const thumbnailSrc =
+    failedThumbnailSrc === channel.thumbnailSrc && channel.thumbnailFallbackSrc
+      ? channel.thumbnailFallbackSrc
+      : channel.thumbnailSrc;
   const cpcPrice = (
     <Text
       as="span"
@@ -97,12 +102,17 @@ export function RecommendedChannelCard({
         >
           <Box className="pointer-events-none relative h-[124px] w-full overflow-hidden rounded-t-[var(--radius-l)]">
             <Image
-              src={channel.thumbnailSrc}
+              src={thumbnailSrc}
               alt=""
               fill
               sizes="282px"
               className="object-cover"
               loading={imageLoading}
+              onError={
+                thumbnailSrc === channel.thumbnailSrc && channel.thumbnailFallbackSrc
+                  ? () => setFailedThumbnailSrc(channel.thumbnailSrc)
+                  : undefined
+              }
             />
             <Badge
               frame="indicator"

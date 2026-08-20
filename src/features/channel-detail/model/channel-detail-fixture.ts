@@ -4,7 +4,7 @@ import type { ChannelDetail } from './channel-detail';
 export const CHANNEL_DETAIL_FIXTURE: ChannelDetail = {
   id: '550e8400-e29b-41d4-a716-446655440000',
   name: '메타 광고',
-  logoUrl: 'https://cdn.chaeso.zip/channels/meta-logo.png',
+  iconUrl: 'https://cdn.chaeso.zip/channels/meta-logo.png',
   tagline: '퍼포먼스와 브랜딩을 모두 커버하는 국내 최다 사용 채널',
   summary: {
     keywords: ['KPI 최적', '입문자 추천'],

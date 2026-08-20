@@ -17,7 +17,7 @@ function createChannel(id: string, name: string): ChannelListItem {
   return {
     id,
     name,
-    logoUrl: null,
+    iconUrl: null,
     description: `${name} 설명`,
     primaryCategory: 'OTHERS',
   };

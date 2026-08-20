@@ -26,6 +26,7 @@ const SIMULATION_RESULT: SimulationResponse = {
     {
       channelId: 'channel-a',
       channelName: '채널 A',
+      iconUrl: 'https://assets.chaeso-zip.com/icons/channel-a.png',
       channelProductId: null,
       allocatedBudgetWon: 500_000,
       allocationPct: 50,
@@ -41,6 +42,7 @@ const SIMULATION_RESULT: SimulationResponse = {
     {
       channelId: 'channel-b',
       channelName: '채널 B',
+      iconUrl: null,
       channelProductId: null,
       allocatedBudgetWon: 500_000,
       allocationPct: 50,
@@ -79,11 +81,13 @@ describe('simulator-channel', () => {
     expect(results).toMatchObject([
       {
         name: '채널 A',
+        iconUrl: 'https://assets.chaeso-zip.com/icons/channel-a.png',
         impressions: { value: '1.0~2.0만 회' },
         clicks: { value: '300~400회' },
       },
       {
         name: '채널 B',
+        iconUrl: null,
         impressions: { value: '1.5~2.5만 회', fillPercentage: 100 },
         clicks: { value: '200회' },
       },

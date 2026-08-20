@@ -7,7 +7,7 @@ import { ChannelLogo } from './channel-logo';
 const CHANNEL: ChannelListItem = {
   id: 'channel-naver',
   name: '네이버 검색 광고',
-  logoUrl: '/placeholder-g-search.svg',
+  iconUrl: '/placeholder-g-search.svg',
   description: '네이버 검색 광고 설명',
   primaryCategory: 'OTHERS',
 };
