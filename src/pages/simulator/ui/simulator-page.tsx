@@ -10,6 +10,7 @@ import { SimulatorChannelResults } from './simulator-channel-results';
 import { SimulatorChannelSelectionButton } from './simulator-channel-selection-button';
 import { SimulatorResultSummary } from './simulator-result-summary';
 import { SimulatorSubHeader } from './simulator-sub-header';
+import { SimulatorTutorialGate } from './simulator-tutorial-gate';
 
 export type SimulatorPageProps = {
   isLogin: boolean;
@@ -32,6 +33,7 @@ export function SimulatorPage({
 
   return (
     <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-hidden">
+      {isSavedResult ? null : <SimulatorTutorialGate />}
       <SimulatorSubHeader
         simulationResult={simulationResult}
         showSaveAction={!isSavedResult}
