@@ -53,9 +53,9 @@ export function CompareSavedResultPage({ comparisonId }: { comparisonId: string 
   const channels = mapChannelComparisonItemsToChannels(comparisonQuery.data.data.items);
 
   return (
-    <>
+    <main className="bg-surface-low flex min-h-0 flex-1 flex-col overflow-hidden">
       <CompareResultSubHeader title="저장된 채널 비교 결과예요" action={null} />
-      <main className="bg-surface-low px-016 sm:px-032 flex min-h-0 flex-1 justify-center overflow-y-auto lg:px-120">
+      <Box className="px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto overscroll-y-contain lg:px-120">
         <Box className="gap-020 pt-040 pb-072 flex w-full max-w-[792px] flex-col self-start">
           <CompareResultChannelCards
             channels={channels}
@@ -68,7 +68,7 @@ export function CompareSavedResultPage({ comparisonId }: { comparisonId: string 
           <CompareResultChannelCost channels={channels} />
           <CompareResultChannelInsightsDqa channels={channels} />
         </Box>
-      </main>
-    </>
+      </Box>
+    </main>
   );
 }

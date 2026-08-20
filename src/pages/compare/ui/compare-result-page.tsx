@@ -82,7 +82,10 @@ function CompareResultWithQuery({
   const displayedChannels = comparisonQuery.data.filter(({ id }) => channelIds.includes(id));
 
   return (
-    <>
+    <main
+      aria-busy={comparisonQuery.isPlaceholderData}
+      className="bg-surface-low flex min-h-0 flex-1 flex-col overflow-hidden"
+    >
       <CompareResultSubHeader
         action={
           <CompareResultSaveButton
@@ -92,10 +95,7 @@ function CompareResultWithQuery({
           />
         }
       />
-      <main
-        aria-busy={comparisonQuery.isPlaceholderData}
-        className="bg-surface-low px-016 sm:px-032 flex min-h-0 flex-1 justify-center overflow-y-auto lg:px-120"
-      >
+      <Box className="px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto overscroll-y-contain lg:px-120">
         <Box className="gap-020 pt-040 pb-072 flex w-full max-w-[792px] flex-col self-start">
           {comparisonQuery.isPlaceholderData ? (
             <span role="status" className="sr-only">
@@ -123,8 +123,8 @@ function CompareResultWithQuery({
           <CompareResultChannelCost channels={displayedChannels} />
           <CompareResultChannelInsightsDqa channels={displayedChannels} />
         </Box>
-      </main>
-    </>
+      </Box>
+    </main>
   );
 }
 
