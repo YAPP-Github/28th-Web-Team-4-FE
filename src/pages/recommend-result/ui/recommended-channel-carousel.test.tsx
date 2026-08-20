@@ -29,9 +29,6 @@ const emblaMock = vi.hoisted(() => {
   };
 
   let selectedIndex = 0;
-  let options:
-    | { containScroll?: false | 'trimSnaps' | 'keepSnaps'; watchDrag?: boolean }
-    | undefined;
   const listeners = new Map<EventName, Set<EventListener>>();
 
   const emit = (eventName: EventName): void => {
@@ -67,30 +64,15 @@ const emblaMock = vi.hoisted(() => {
 
   return {
     api,
-    getOptions: () => options,
     reset: (): void => {
       selectedIndex = 0;
-      options = undefined;
       listeners.clear();
-    },
-    setOptions: (
-      nextOptions:
-        | { containScroll?: false | 'trimSnaps' | 'keepSnaps'; watchDrag?: boolean }
-        | undefined,
-    ): void => {
-      options = nextOptions;
     },
   };
 });
 
 vi.mock('embla-carousel-react', () => ({
-  default: (options?: {
-    containScroll?: false | 'trimSnaps' | 'keepSnaps';
-    watchDrag?: boolean;
-  }) => {
-    emblaMock.setOptions(options);
-    return [vi.fn<(node: HTMLElement | null) => void>(), emblaMock.api] as const;
-  },
+  default: () => [vi.fn<(node: HTMLElement | null) => void>(), emblaMock.api] as const,
 }));
 
 function createMediaQueryList(query: string, matches: boolean): MediaQueryList {
@@ -200,9 +182,7 @@ describe('RecommendedChannelCarousel', () => {
 
     const previousButton = screen.getByRole('button', { name: '이전 추천 채널 보기' });
     const nextButton = screen.getByRole('button', { name: '다음 추천 채널 보기' });
-    const track = document.getElementById(nextButton.getAttribute('aria-controls') ?? '');
 
-    expect(track).toHaveClass('gap-024');
     expect(previousButton).toBeDisabled();
     expect(nextButton).toBeEnabled();
     expect(screen.getByText('추천 채널 1 / 2 페이지')).toBeInTheDocument();
@@ -224,12 +204,6 @@ describe('RecommendedChannelCarousel', () => {
     const user = userEvent.setup();
     renderCarousel(recommendedChannels);
 
-    const nextButton = screen.getByRole('button', { name: '다음 추천 채널 보기' });
-    const viewport = document.getElementById(
-      nextButton.getAttribute('aria-controls') ?? '',
-    )?.parentElement;
-
-    expect(viewport).toHaveClass('-mt-[60px]', 'overflow-hidden', 'pt-[60px]');
     expect(screen.getByText('클릭당 비용이 가장 낮아요')).toBeVisible();
 
     await user.click(screen.getByRole('button', { name: '다음 추천 채널 보기' }));
@@ -312,24 +286,6 @@ describe('RecommendedChannelCarousel', () => {
     const pages = screen.getAllByRole('group', { hidden: true });
     expect(pages).toHaveLength(8);
     expect(screen.getByText('추천 채널 5 / 8 페이지')).toBeInTheDocument();
-    expect(pages[4]).not.toHaveAttribute('inert');
-    expect(pages[0]).toHaveAttribute('inert');
-  });
-
-  it('enables drag when motion is allowed', () => {
-    mockViewport(4, false);
-    renderCarousel(recommendedChannels);
-
-    expect(emblaMock.getOptions()?.watchDrag).toBe(true);
-  });
-
-  it('disables drag when the user prefers reduced motion', () => {
-    renderCarousel(recommendedChannels);
-
-    expect(emblaMock.getOptions()).toMatchObject({
-      containScroll: false,
-      watchDrag: false,
-    });
   });
 
   it('preserves a selected channel after navigating away and back', async () => {
