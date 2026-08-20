@@ -13,6 +13,7 @@ import { CompareResultChannelCards } from './compare-result-channel-cards';
 import { CompareResultChannelCost } from './compare-result-channel-cost';
 import { CompareResultChannelDetailsTable } from './compare-result-channel-details';
 import { CompareResultChannelInsightsDqa } from './compare-result-channel-insights-dqa';
+import { CompareResultChannelPickerContainer } from './compare-result-channel-picker-container';
 import { CompareResultChannelPerformance } from './compare-result-channel-performance';
 import { CompareResultErrorState, CompareResultLoadingState } from './compare-result-query-states';
 import { CompareResultSaveButton } from './compare-result-save-button';
@@ -61,6 +62,10 @@ function CompareResultWithQuery({
     void setChannelIds(channelIds.filter((id) => id !== channelId));
   };
 
+  const addChannel = (channelId: string) => {
+    void setChannelIds([...channelIds, channelId]);
+  };
+
   if (comparisonQuery.isPending) {
     return <CompareResultLoadingState />;
   }
@@ -73,6 +78,8 @@ function CompareResultWithQuery({
       />
     );
   }
+
+  const displayedChannels = comparisonQuery.data.filter(({ id }) => channelIds.includes(id));
 
   return (
     <>
@@ -96,14 +103,25 @@ function CompareResultWithQuery({
             </span>
           ) : null}
           <CompareResultChannelCards
-            channels={comparisonQuery.data}
+            addChannelSlot={
+              !comparisonQuery.isPlaceholderData &&
+              channelIds.length === 2 &&
+              displayedChannels.length === 2 ? (
+                <CompareResultChannelPickerContainer
+                  channelIds={channelIds}
+                  onboardingId={onboardingId}
+                  onSelectChannel={addChannel}
+                />
+              ) : null
+            }
+            channels={displayedChannels}
             removeDisabled={comparisonQuery.isPlaceholderData}
             onRemoveChannel={removeChannel}
           />
-          <CompareResultChannelPerformance channels={comparisonQuery.data} />
-          <CompareResultChannelDetailsTable channels={comparisonQuery.data} />
-          <CompareResultChannelCost channels={comparisonQuery.data} />
-          <CompareResultChannelInsightsDqa channels={comparisonQuery.data} />
+          <CompareResultChannelPerformance channels={displayedChannels} />
+          <CompareResultChannelDetailsTable channels={displayedChannels} />
+          <CompareResultChannelCost channels={displayedChannels} />
+          <CompareResultChannelInsightsDqa channels={displayedChannels} />
         </Box>
       </main>
     </>

@@ -95,12 +95,15 @@ describe('CompareResultChannelPicker', () => {
 
     render(<PickerHarness />);
 
-    await user.click(screen.getByLabelText('비교할 채널 추가'));
+    const trigger = screen.getByLabelText('비교할 채널 추가');
+    expect(trigger).toHaveClass('cursor-pointer');
+    await user.click(trigger);
 
     const searchInput = await screen.findByRole('combobox', { name: '추가할 채널 검색' });
     expect(searchInput).toHaveFocus();
     expect(screen.getAllByText('추천')).toHaveLength(2);
     expect(screen.getByRole('option', { name: /구글 검색 광고/ })).toBeVisible();
+    expect(screen.getByRole('option', { name: /구글 검색 광고/ })).toHaveClass('cursor-pointer');
     expect(screen.getByRole('option', { name: /카카오 모먼트/ })).toBeVisible();
     screen
       .getAllByRole('checkbox', { hidden: true })
