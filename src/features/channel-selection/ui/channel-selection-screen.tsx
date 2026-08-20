@@ -5,6 +5,7 @@ import NumberFlow from '@number-flow/react';
 import { Search } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
 import { Input as BaseInput } from '@base-ui/react/input';
+import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 
 import { useChannels } from '@/features/channel-selection/api/use-channels';
 import {
@@ -188,21 +189,23 @@ function ChannelSelectionContent({
   }
 
   return (
-    <Box
-      as="ul"
-      className="gap-x-024 gap-y-016 grid w-full grid-cols-1 justify-items-center md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-    >
-      {channels.map((channel) => (
-        <Box key={channel.id} as="li" className="flex w-full justify-center">
-          <ChannelCard
-            channel={channel}
-            checked={selectedIds.includes(channel.id)}
-            onToggle={onToggle}
-            onViewDetail={onViewDetail}
-          />
-        </Box>
-      ))}
-    </Box>
+    <BaseTooltip.Provider delay={150} timeout={400}>
+      <Box
+        as="ul"
+        className="gap-x-024 gap-y-016 grid w-full grid-cols-1 justify-items-center md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      >
+        {channels.map((channel) => (
+          <Box key={channel.id} as="li" className="flex w-full justify-center">
+            <ChannelCard
+              channel={channel}
+              checked={selectedIds.includes(channel.id)}
+              onToggle={onToggle}
+              onViewDetail={onViewDetail}
+            />
+          </Box>
+        ))}
+      </Box>
+    </BaseTooltip.Provider>
   );
 }
 
