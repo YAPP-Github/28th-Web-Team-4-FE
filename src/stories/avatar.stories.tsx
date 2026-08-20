@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, within } from 'storybook/test';
 
 import { Avatar } from '@/shared/ui/avatar';
+import { Skeleton } from '@/shared/ui/skeleton';
 
 const meta = {
   title: 'components/Avatar',
@@ -38,6 +39,12 @@ export const Hover: Story = {
 export const CustomSize: Story = {
   args: {
     className: 'size-12',
+  },
+};
+
+export const CustomFallback: Story = {
+  args: {
+    fallback: <Skeleton className="size-full" />,
   },
 };
 
