@@ -40,7 +40,10 @@ export const Default: Story = {
   args: {
     children: (
       <>
-        <ChannelDetailModalHeader channel={CHANNEL_HEADER} />
+        <ChannelDetailModalHeader
+          channel={CHANNEL_HEADER}
+          description={CHANNEL_DETAIL_FIXTURE.tagline}
+        />
         <ChannelDetailContent channel={CHANNEL_DETAIL_FIXTURE} />
       </>
     ),
@@ -57,7 +60,10 @@ export const Loading: Story = {
   args: {
     children: (
       <>
-        <ChannelDetailModalHeader channel={CHANNEL_HEADER} />
+        <ChannelDetailModalHeader
+          channel={CHANNEL_HEADER}
+          description={CHANNEL_DETAIL_FIXTURE.tagline}
+        />
         <ChannelDetailContentSkeleton />
       </>
     ),
@@ -70,7 +76,10 @@ export const EmptyProducts: Story = {
   args: {
     children: (
       <>
-        <ChannelDetailModalHeader channel={CHANNEL_HEADER} />
+        <ChannelDetailModalHeader
+          channel={CHANNEL_HEADER}
+          description={CHANNEL_DETAIL_FIXTURE.tagline}
+        />
         <ChannelDetailContent channel={CHANNEL_DETAIL_EMPTY_PRODUCTS_FIXTURE} />
       </>
     ),

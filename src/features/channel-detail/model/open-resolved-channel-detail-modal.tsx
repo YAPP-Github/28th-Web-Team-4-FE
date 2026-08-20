@@ -14,6 +14,7 @@ export function openResolvedChannelDetailModal(channel: ChannelDetail): string {
             iconUrl: channel.iconUrl,
             description: channel.tagline,
           }}
+          description={channel.tagline ?? '채널 설명이 아직 없어요.'}
         />
         <ChannelDetailContent channel={channel} />
       </>

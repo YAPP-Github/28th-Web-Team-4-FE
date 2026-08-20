@@ -1,8 +1,9 @@
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 import { X } from 'lucide-react';
 
 import type { ChannelDetailHeaderData } from '@/features/channel-detail/model/channel-list-item';
 import { ChannelDetailHeader } from '@/features/channel-detail/ui/channel-detail-header';
+import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Modal } from '@/shared/ui/modal';
@@ -10,9 +11,13 @@ import { Text } from '@/shared/ui/text';
 
 export function ChannelDetailModalHeader({
   channel,
+  description,
 }: {
   channel: ChannelDetailHeaderData;
+  description: ReactNode;
 }): JSX.Element {
+  const isTextDescription = typeof description === 'string';
+
   return (
     <HStack className="gap-012 w-full items-start justify-between">
       <Box className="min-w-0 flex-1">
@@ -28,10 +33,16 @@ export function ChannelDetailModalHeader({
           }
           description={
             <Modal.Description
-              render={<Text as="p" variant="subtitle-xxs" className="line-clamp-2" />}
+              render={
+                <Text
+                  as="div"
+                  variant="subtitle-xxs"
+                  className={cn('min-h-044 w-full', isTextDescription ? 'line-clamp-2' : undefined)}
+                />
+              }
               className="text-text-low m-0 text-left"
             >
-              {channel.description ?? '채널 설명이 아직 없어요.'}
+              {description}
             </Modal.Description>
           }
         />
