@@ -3,7 +3,10 @@ import { useState, type JSX } from 'react';
 import { Check } from 'lucide-react';
 import Image, { type ImageProps } from 'next/image';
 
-import type { RecommendedChannel } from '@/pages/recommend-result/model/recommended-channels';
+import type {
+  RecommendedChannel,
+  RecommendedChannelMatchBadgeTone,
+} from '@/pages/recommend-result/model/recommended-channels';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/shared/ui/cn';
@@ -18,6 +21,7 @@ import { RecommendedChannelLockOverlay } from './recommended-channel-lock-overla
 
 type RecommendedChannelCardProps = {
   channel: RecommendedChannel;
+  matchBadgeTone: RecommendedChannelMatchBadgeTone;
   selected: boolean;
   locked?: boolean;
   imageLoading?: ImageProps['loading'];
@@ -27,6 +31,7 @@ type RecommendedChannelCardProps = {
 
 export function RecommendedChannelCard({
   channel,
+  matchBadgeTone,
   selected,
   locked = false,
   imageLoading = 'eager',
@@ -114,11 +119,7 @@ export function RecommendedChannelCard({
                   : undefined
               }
             />
-            <Badge
-              frame="indicator"
-              tone={channel.matchRate >= 85 ? 'primary' : 'orange'}
-              className="left-020 top-018 absolute"
-            >
+            <Badge frame="indicator" tone={matchBadgeTone} className="left-020 top-018 absolute">
               적합도 {channel.matchRate}%
             </Badge>
             <Box

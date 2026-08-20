@@ -3,12 +3,16 @@
 import type { JSX } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 
-import type { RecommendedChannel } from '@/pages/recommend-result/model/recommended-channels';
+import type {
+  RecommendedChannel,
+  RecommendedChannelMatchBadgeTone,
+} from '@/pages/recommend-result/model/recommended-channels';
 
 import { RecommendedChannelCard } from './recommended-channel-card';
 
 type RecommendedChannelGridProps = {
   channels: readonly RecommendedChannel[];
+  matchBadgeToneByChannelId: ReadonlyMap<string, RecommendedChannelMatchBadgeTone>;
   startDelay?: number;
   startIndex?: number;
   selectedChannelIds: readonly string[];
@@ -54,6 +58,7 @@ const cardVariants = {
 
 export function RecommendedChannelGrid({
   channels,
+  matchBadgeToneByChannelId,
   startDelay = 0.04,
   startIndex = 0,
   selectedChannelIds,
@@ -73,6 +78,7 @@ export function RecommendedChannelGrid({
             <li key={channel.id} className="flex w-full justify-center">
               <RecommendedChannelCard
                 channel={channel}
+                matchBadgeTone={matchBadgeToneByChannelId.get(channel.id) ?? 'gray'}
                 selected={selectedChannelIds.includes(channel.id)}
                 locked={isRecommendedChannelLocked(isGuest, channelIndex)}
                 imageLoading={channelIndex < 4 ? 'eager' : 'lazy'}
@@ -105,6 +111,7 @@ export function RecommendedChannelGrid({
           >
             <RecommendedChannelCard
               channel={channel}
+              matchBadgeTone={matchBadgeToneByChannelId.get(channel.id) ?? 'gray'}
               selected={selectedChannelIds.includes(channel.id)}
               locked={isRecommendedChannelLocked(isGuest, channelIndex)}
               imageLoading={channelIndex < 4 ? 'eager' : 'lazy'}
