@@ -10,7 +10,24 @@ import { Text } from '@/shared/ui/text';
 
 export type FooterProps = Omit<ComponentProps<'footer'>, 'children'>;
 
-const FOOTER_NAVIGATION_ITEMS = ['이용 약관', '개인정보 처리방침', '요금제'] as const;
+type FooterNavigationItemConfig = {
+  label: string;
+  href?: string;
+};
+
+const FOOTER_NAVIGATION_ITEMS: readonly FooterNavigationItemConfig[] = [
+  {
+    label: '이용 약관',
+    href: 'https://extreme-moonstone-8ae.notion.site/3b2b0b17e916806c92cdec7eac6c0f7c',
+  },
+  {
+    label: '개인정보 처리방침',
+    href: 'https://extreme-moonstone-8ae.notion.site/3b2b0b17e91680dc9567c8db372aa63d',
+  },
+  {
+    label: '요금제',
+  },
+];
 const FOOTER_NAVIGATION_SEPARATOR = '|';
 const FOOTER_ICON_ITEMS = [
   {
@@ -29,12 +46,25 @@ const FOOTER_ICON_ITEMS = [
   },
 ] as const;
 
-function FooterNavigationItem({ label }: { label: string }): JSX.Element {
+function FooterNavigationItem({ label, href }: FooterNavigationItemConfig): JSX.Element {
   return (
     <Box as="li" className="contents">
-      <Text as="span" variant="subtitle-md" className="text-text-medium">
-        {label}
-      </Text>
+      {href ? (
+        <Text
+          as="a"
+          variant="subtitle-md"
+          className="text-text-medium focus-visible:outline-sys-primary-default rounded-xxs cursor-pointer underline-offset-2 outline-none hover:underline focus-visible:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+          href={href}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          {label}
+        </Text>
+      ) : (
+        <Text as="span" variant="subtitle-md" className="text-text-medium">
+          {label}
+        </Text>
+      )}
     </Box>
   );
 }
@@ -87,7 +117,7 @@ export function Footer({ className, ...rest }: FooterProps): JSX.Element {
             >
               {intersperseFooterNavigationItems(
                 FOOTER_NAVIGATION_ITEMS.map((item) => (
-                  <FooterNavigationItem key={item} label={item} />
+                  <FooterNavigationItem key={item.label} label={item.label} href={item.href} />
                 )),
               )}
             </Box>

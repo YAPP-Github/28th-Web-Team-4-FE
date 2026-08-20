@@ -9,9 +9,24 @@ describe('Footer', () => {
     expect(screen.getByRole('contentinfo')).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'chaesozip' })).toBeInTheDocument();
     expect(screen.getByText('© 2026 CHAESOZIP. ALL RIGHTS RESERVED')).toBeInTheDocument();
-    expect(screen.getByText('이용 약관')).toBeInTheDocument();
-    expect(screen.getByText('개인정보 처리방침')).toBeInTheDocument();
+    const termsLink = screen.getByRole('link', { name: '이용 약관' });
+    expect(termsLink).toHaveAttribute(
+      'href',
+      'https://extreme-moonstone-8ae.notion.site/3b2b0b17e916806c92cdec7eac6c0f7c',
+    );
+    expect(termsLink).toHaveAttribute('target', '_blank');
+    expect(termsLink).toHaveAttribute('rel', 'noopener noreferrer');
+
+    const privacyLink = screen.getByRole('link', { name: '개인정보 처리방침' });
+    expect(privacyLink).toHaveAttribute(
+      'href',
+      'https://extreme-moonstone-8ae.notion.site/3b2b0b17e91680dc9567c8db372aa63d',
+    );
+    expect(privacyLink).toHaveAttribute('target', '_blank');
+    expect(privacyLink).toHaveAttribute('rel', 'noopener noreferrer');
+
     expect(screen.getByText('요금제')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: '요금제' })).not.toBeInTheDocument();
     expect(screen.getByRole('img', { name: '이메일' })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: '네이버 블로그' })).toBeInTheDocument();
 
