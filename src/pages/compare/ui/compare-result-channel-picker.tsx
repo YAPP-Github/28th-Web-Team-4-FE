@@ -10,7 +10,10 @@ import { Button } from '@/shared/ui/button';
 import { Checkbox } from '@/shared/ui/checkbox';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
+import { Skeleton } from '@/shared/ui/skeleton';
 import { Text } from '@/shared/ui/text';
+
+const PICKER_SKELETON_ROW_IDS = ['first', 'second', 'third', 'fourth', 'fifth'] as const;
 
 export type CompareResultChannelPickerProps = {
   disabled?: boolean;
@@ -18,9 +21,11 @@ export type CompareResultChannelPickerProps = {
   isPending: boolean;
   onOpenChange: (open: boolean) => void;
   onRetry: () => void;
+  onSearchKeywordChange: (searchKeyword: string) => void;
   onSelect: (option: ComparisonChannelOption) => void;
   open: boolean;
   options: readonly ComparisonChannelOption[];
+  searchKeyword: string;
 };
 
 function PickerStatus({
@@ -30,10 +35,18 @@ function PickerStatus({
 }: Pick<CompareResultChannelPickerProps, 'isError' | 'isPending' | 'onRetry'>): JSX.Element | null {
   if (isPending) {
     return (
-      <Box role="status" className="px-016 py-020 flex justify-center">
-        <Text variant="body-xl" className="text-text-low">
+      <Box role="status" className="flex flex-col">
+        <Text as="span" variant="body-xl" className="sr-only">
           채널을 불러오고 있어요
         </Text>
+        {PICKER_SKELETON_ROW_IDS.map((rowId) => (
+          <Box key={rowId} className="bg-surface-lowest px-016 py-010 flex h-[42px] items-center">
+            <Skeleton
+              data-testid="channel-picker-skeleton"
+              className="h-012 w-[100px] rounded-[var(--radius-xxs)]"
+            />
+          </Box>
+        ))}
       </Box>
     );
   }
@@ -60,16 +73,20 @@ export function CompareResultChannelPicker({
   isPending,
   onOpenChange,
   onRetry,
+  onSearchKeywordChange,
   onSelect,
   open,
   options,
+  searchKeyword,
 }: CompareResultChannelPickerProps): JSX.Element {
-  const hasOptions = options.length > 0;
+  const hasSearchKeyword = searchKeyword.trim().length > 0;
   const showList = !isPending && !isError;
 
   return (
     <Combobox.Root<ComparisonChannelOption>
       items={options}
+      filter={null}
+      inputValue={searchKeyword}
       open={open}
       value={null}
       disabled={disabled}
@@ -79,6 +96,9 @@ export function CompareResultChannelPicker({
       isItemEqualToValue={(option, selectedOption) => option.id === selectedOption.id}
       onOpenChange={(nextOpen) => {
         onOpenChange(nextOpen);
+      }}
+      onInputValueChange={(nextSearchKeyword) => {
+        onSearchKeywordChange(nextSearchKeyword);
       }}
       onValueChange={(option) => {
         if (option) {
@@ -143,66 +163,78 @@ export function CompareResultChannelPicker({
 
             <PickerStatus isError={isError} isPending={isPending} onRetry={onRetry} />
 
-            {showList ? (
-              <>
+            <>
+              {showList && hasSearchKeyword ? (
                 <Combobox.Empty>
                   <Box className="px-016 py-020 flex justify-center">
                     <Text variant="body-xl" className="text-text-low text-center">
-                      {hasOptions ? '검색 결과가 없어요' : '추가할 수 있는 채널이 없어요'}
+                      검색 결과가 없어요
                     </Text>
                   </Box>
                 </Combobox.Empty>
-                <Combobox.List className="scroll-py-006 max-h-[min(480px,calc(var(--available-height)-72px))] overflow-y-auto overscroll-contain outline-none">
-                  {(option: ComparisonChannelOption) => (
-                    <Combobox.Item
-                      key={option.id}
-                      value={option}
-                      render={({ className, ...itemProps }, state) => (
-                        <Box
+              ) : null}
+              <Combobox.List
+                className={cn(
+                  'scroll-py-006 max-h-[min(480px,calc(var(--available-height)-72px))] overflow-y-auto overscroll-contain outline-none',
+                  !showList && 'hidden',
+                )}
+              >
+                {(option: ComparisonChannelOption) => (
+                  <Combobox.Item
+                    key={option.id}
+                    value={option}
+                    disabled={option.isDisabled}
+                    render={({ className, ...itemProps }) => (
+                      <Box
+                        className={cn(
+                          [
+                            'flex min-h-[34px] w-full cursor-pointer items-center gap-010 px-016 py-006 outline-none select-none',
+                            'hover:not-data-disabled:bg-surface-low data-highlighted:bg-surface-low data-disabled:cursor-not-allowed',
+                          ],
+                          className,
+                        )}
+                        {...itemProps}
+                      >
+                        <Checkbox
+                          aria-hidden
+                          checked={false}
+                          disabled={option.isDisabled}
+                          readOnly
+                          renderMode="label-control"
+                          size="s"
+                          className="pointer-events-none focus-visible:outline-none"
+                        />
+                        <Text
+                          variant="subtitle-xxs"
                           className={cn(
-                            [
-                              'flex min-h-[34px] w-full cursor-pointer items-center gap-010 px-016 py-006 outline-none select-none',
-                              'hover:bg-surface-low data-highlighted:bg-surface-low',
-                            ],
-                            className,
+                            'min-w-0 flex-1 truncate',
+                            option.isDisabled ? 'text-text-low' : 'text-text-high',
                           )}
-                          {...itemProps}
                         >
-                          <Checkbox
-                            aria-label={`${option.name} 선택`}
-                            checked={state.selected}
-                            readOnly
-                            renderMode="label-control"
+                          {option.name}
+                        </Text>
+                        {option.isRecommended ? (
+                          <Badge
+                            frame="indicator"
+                            tone="orange"
                             size="s"
-                            className="pointer-events-none focus-visible:outline-none"
-                          />
-                          <Text
-                            variant="subtitle-xxs"
-                            className="text-text-high min-w-0 flex-1 truncate"
+                            className="bg-sys-primary-lowest"
                           >
-                            {option.name}
-                          </Text>
-                          {option.isRecommended ? (
-                            <Badge
-                              frame="indicator"
-                              tone="orange"
-                              size="s"
-                              className="bg-sys-primary-lowest"
-                            >
-                              추천
-                            </Badge>
-                          ) : null}
-                        </Box>
-                      )}
-                    />
-                  )}
-                </Combobox.List>
+                            추천
+                          </Badge>
+                        ) : null}
+                      </Box>
+                    )}
+                  />
+                )}
+              </Combobox.List>
+              {showList ? (
                 <Box
                   aria-hidden
                   className="from-surface-lowest pointer-events-none absolute inset-x-px bottom-px h-[45px] rounded-b-[var(--radius-m)] bg-gradient-to-t to-transparent"
                 />
-              </>
-            ) : null}
+              ) : null}
+            </>
           </Combobox.Popup>
         </Combobox.Positioner>
       </Combobox.Portal>

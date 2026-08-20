@@ -10,9 +10,15 @@ import {
 } from './compare-result-channel-picker';
 
 const OPTIONS = [
-  { id: 'channel-google', name: '구글 검색 광고', isRecommended: true },
-  { id: 'channel-kakao', name: '카카오 모먼트', isRecommended: false },
-  { id: 'channel-meta', name: '메타 광고', isRecommended: true },
+  { id: 'channel-google', isDisabled: false, isRecommended: true, name: '구글 검색 광고' },
+  { id: 'channel-kakao', isDisabled: false, isRecommended: false, name: '카카오 모먼트' },
+  { id: 'channel-meta', isDisabled: false, isRecommended: true, name: '메타 광고' },
+  {
+    id: 'channel-meta-search',
+    isDisabled: true,
+    isRecommended: false,
+    name: '메타 검색 광고',
+  },
 ] as const satisfies readonly ComparisonChannelOption[];
 
 const retryMock = vi.fn<() => void>();
@@ -30,6 +36,8 @@ function PickerHarness({
   options = OPTIONS,
 }: Partial<HarnessProps>): JSX.Element {
   const [open, setOpen] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const filteredOptions = options.filter((option) => option.name.includes(searchKeyword));
 
   return (
     <div>
@@ -37,11 +45,19 @@ function PickerHarness({
         disabled={disabled}
         isError={isError}
         isPending={isPending}
-        onOpenChange={setOpen}
+        onOpenChange={(nextOpen) => {
+          setOpen(nextOpen);
+
+          if (!nextOpen) {
+            setSearchKeyword('');
+          }
+        }}
         onRetry={retryMock}
+        onSearchKeywordChange={setSearchKeyword}
         onSelect={selectMock}
         open={open}
-        options={options}
+        options={filteredOptions}
+        searchKeyword={searchKeyword}
       />
       <button type="button">외부 버튼</button>
     </div>
@@ -49,7 +65,9 @@ function PickerHarness({
 }
 
 function renderOpenPicker(
-  props: Partial<Pick<CompareResultChannelPickerProps, 'isError' | 'isPending' | 'options'>> = {},
+  props: Partial<
+    Pick<CompareResultChannelPickerProps, 'isError' | 'isPending' | 'options' | 'searchKeyword'>
+  > = {},
 ) {
   return render(
     <CompareResultChannelPicker
@@ -57,9 +75,11 @@ function renderOpenPicker(
       isPending={props.isPending ?? false}
       onOpenChange={vi.fn<(open: boolean) => void>()}
       onRetry={retryMock}
+      onSearchKeywordChange={vi.fn<(searchKeyword: string) => void>()}
       onSelect={selectMock}
       open
       options={props.options ?? OPTIONS}
+      searchKeyword={props.searchKeyword ?? ''}
     />,
   );
 }
@@ -82,6 +102,9 @@ describe('CompareResultChannelPicker', () => {
     expect(screen.getAllByText('추천')).toHaveLength(2);
     expect(screen.getByRole('option', { name: /구글 검색 광고/ })).toBeVisible();
     expect(screen.getByRole('option', { name: /카카오 모먼트/ })).toBeVisible();
+    screen
+      .getAllByRole('checkbox', { hidden: true })
+      .forEach((checkbox) => expect(checkbox).not.toBeChecked());
   });
 
   it('입력한 채널명으로 목록을 필터링한다', async () => {
@@ -123,6 +146,27 @@ describe('CompareResultChannelPicker', () => {
     expect(selectMock).toHaveBeenCalledWith(OPTIONS[1]);
   });
 
+  it('현재 비교 중인 채널은 unchecked disabled 상태로 표시하고 선택하지 않는다', async () => {
+    const user = userEvent.setup();
+
+    render(<PickerHarness />);
+    await user.click(screen.getByLabelText('비교할 채널 추가'));
+    const searchInput = await screen.findByRole('combobox', { name: '추가할 채널 검색' });
+    await user.type(searchInput, '메타 검색');
+
+    const selectedChannel = screen.getByRole('option', { name: /메타 검색 광고/ });
+    const checkbox = selectedChannel.querySelector('[role="checkbox"]');
+    expect(selectedChannel).toHaveAttribute('aria-disabled', 'true');
+    expect(checkbox).toHaveAttribute('aria-hidden', 'true');
+    expect(checkbox).toHaveAttribute('aria-disabled', 'true');
+    expect(checkbox).not.toBeChecked();
+
+    await user.click(selectedChannel);
+    await user.keyboard('{ArrowDown}{Enter}');
+
+    expect(selectMock).not.toHaveBeenCalled();
+  });
+
   it('Escape로 닫은 뒤 다시 열면 검색어가 초기화된다', async () => {
     const user = userEvent.setup();
 
@@ -156,7 +200,34 @@ describe('CompareResultChannelPicker', () => {
     renderOpenPicker({ isPending: true, options: [] });
 
     expect(screen.getByRole('status')).toHaveTextContent('채널을 불러오고 있어요');
+    expect(screen.getAllByTestId('channel-picker-skeleton')).toHaveLength(5);
     expect(screen.getByLabelText('추가할 채널 선택')).toHaveAttribute('aria-busy', 'true');
+  });
+
+  it('조회 상태가 바뀌어도 목록을 mount한 채 검색창 포커스를 유지한다', async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<PickerHarness options={[]} />);
+
+    await user.click(screen.getByLabelText('비교할 채널 추가'));
+    const searchInput = await screen.findByRole('combobox', { name: '추가할 채널 검색' });
+
+    rerender(<PickerHarness isPending options={[]} />);
+
+    expect(screen.getByRole('listbox', { hidden: true })).toHaveClass('hidden');
+    expect(screen.getByRole('combobox', { name: '추가할 채널 검색' })).toBe(searchInput);
+    expect(searchInput).toHaveFocus();
+
+    rerender(<PickerHarness isError options={[]} />);
+
+    expect(screen.getByRole('listbox', { hidden: true })).toHaveClass('hidden');
+    expect(screen.getByRole('combobox', { name: '추가할 채널 검색' })).toBe(searchInput);
+    expect(searchInput).toHaveFocus();
+
+    rerender(<PickerHarness options={OPTIONS} />);
+
+    expect(screen.getByRole('listbox')).toBeVisible();
+    expect(screen.getByRole('combobox', { name: '추가할 채널 검색' })).toBe(searchInput);
+    expect(searchInput).toHaveFocus();
   });
 
   it('검색 결과가 없으면 빈 상태를 표시한다', async () => {
@@ -169,10 +240,10 @@ describe('CompareResultChannelPicker', () => {
     expect(screen.getByRole('status')).toHaveTextContent('검색 결과가 없어요');
   });
 
-  it('추가 가능한 채널이 없으면 별도 빈 상태를 표시한다', () => {
+  it('검색 전에는 빈 상태를 표시하지 않는다', () => {
     renderOpenPicker({ options: [] });
 
-    expect(screen.getByRole('status')).toHaveTextContent('추가할 수 있는 채널이 없어요');
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 
   it('오류 상태에서 재시도를 요청한다', async () => {
