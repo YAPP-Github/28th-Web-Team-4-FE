@@ -528,7 +528,7 @@ describe('ComparePage', () => {
     expect(getChannelCheckbox('메타 피드 광고')).toBeChecked();
   });
 
-  it('선택한 채널 팝업을 다시 열어도 완료를 누르기 전에는 편집 모드를 유지하고 초기화는 검색을 유지한다', async () => {
+  it('선택한 채널 팝업을 닫으면 편집을 취소하고 초기화는 검색을 유지한다', async () => {
     const user = userEvent.setup();
     renderComparePage('?q=네이버');
     expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
@@ -541,15 +541,17 @@ describe('ComparePage', () => {
     await user.click(within(popover).getByRole('button', { name: '편집' }));
     expect(within(popover).getByRole('button', { name: '완료' })).toBeVisible();
 
+    await user.click(within(popover).getByRole('button', { name: '네이버 검색 광고 선택 해제' }));
+
     await user.keyboard('{Escape}');
     await user.click(getSelectedChannelsTrigger(2));
 
     const reopenedPopover = await screen.findByTestId('selected-channels-popover');
-    expect(within(reopenedPopover).getByRole('button', { name: '완료' })).toBeVisible();
-    expect(within(reopenedPopover).queryByRole('button', { name: '편집' })).not.toBeInTheDocument();
-    expect(
-      within(reopenedPopover).getByRole('button', { name: '네이버 검색 광고 선택 해제' }),
-    ).toBeVisible();
+    expect(within(reopenedPopover).getByRole('button', { name: '편집' })).toBeVisible();
+    expect(within(reopenedPopover).queryByRole('button', { name: '완료' })).not.toBeInTheDocument();
+    expect(within(reopenedPopover).getByText('네이버 검색 광고')).toBeVisible();
+
+    await user.click(within(reopenedPopover).getByRole('button', { name: '편집' }));
 
     await user.click(within(reopenedPopover).getByRole('button', { name: '초기화' }));
     expect(getSelectedChannelsTrigger(2)).toBeVisible();

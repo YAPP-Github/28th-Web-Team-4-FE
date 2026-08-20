@@ -33,6 +33,11 @@ export function useSelectedChannelsEdit({
     setIsEditing(false);
   };
 
+  const cancelEditing = () => {
+    setDraftSelectedChannels(selectedChannels);
+    setIsEditing(false);
+  };
+
   const clearDisplayedSelection = () => {
     if (isEditing) {
       setDraftSelectedChannels([]);
@@ -56,6 +61,7 @@ export function useSelectedChannelsEdit({
     isEmpty,
     selectedCount,
     clearDisplayedSelection,
+    cancelEditing,
     completeEditing,
     removeDisplayedChannel,
     startEditing,

@@ -252,14 +252,23 @@ function SelectedChannelsPopover({
     isEditing,
     isEmpty,
     selectedCount,
+    cancelEditing,
     clearDisplayedSelection,
     completeEditing,
     removeDisplayedChannel,
     startEditing,
   } = selectedChannelsEdit;
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open && isEditing) {
+      cancelEditing();
+    }
+
+    onOpenChange(open);
+  };
+
   return (
-    <Popover.Root open={isOpen} onOpenChange={onOpenChange}>
+    <Popover.Root open={isOpen} onOpenChange={handleOpenChange}>
       <FilterTrigger
         accessibleName={`선택한 채널, ${selectedCount}개 선택됨`}
         count={selectedCount}
@@ -315,7 +324,7 @@ function SelectedChannelsPopover({
                       type="button"
                       aria-label={`${channel.name} 선택 해제`}
                       onClick={() => removeDisplayedChannel(channel.id)}
-                      className="bg-sys-error-default size-020 focus-visible:outline-sys-primary-default flex shrink-0 items-center justify-center rounded-[var(--radius-max)] text-white outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+                      className="bg-sys-error-default size-020 focus-visible:outline-sys-primary-default flex shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-max)] text-white outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
                     >
                       <Minus aria-hidden className="size-012" strokeWidth={2.5} />
                     </button>

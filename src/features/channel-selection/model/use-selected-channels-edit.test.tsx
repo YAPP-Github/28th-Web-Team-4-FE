@@ -54,4 +54,22 @@ describe('useSelectedChannelsEdit', () => {
 
     expect(onCommit).toHaveBeenCalledWith([]);
   });
+
+  it('편집을 취소하면 draft를 버리고 실제 선택 상태로 돌아간다', () => {
+    const onCommit = vi.fn<(channels: readonly ChannelListItem[]) => void>();
+    const { result } = renderHook(() =>
+      useSelectedChannelsEdit({
+        selectedChannels: [CHANNELS[0], CHANNELS[1]],
+        onCommit,
+      }),
+    );
+
+    act(() => result.current.startEditing());
+    act(() => result.current.removeDisplayedChannel('channel-b'));
+    act(() => result.current.cancelEditing());
+
+    expect(result.current.isEditing).toBe(false);
+    expect(result.current.displayedChannels).toEqual([CHANNELS[0], CHANNELS[1]]);
+    expect(onCommit).not.toHaveBeenCalled();
+  });
 });
