@@ -42,6 +42,7 @@ export type ChannelSelectionScreenProps = {
   title: string;
   submitLabel: string;
   onComplete: (channelIds: readonly string[]) => void;
+  selectionLimit?: number;
   variant?: ChannelSelectionScreenVariant;
   limitToast?: {
     id: string;
@@ -121,12 +122,14 @@ function ChannelSearchInput({
 function ChannelSelectionSubHeader({
   title,
   category,
+  selectionLimit,
   onCategoryChange,
   query,
   onQueryChange,
 }: {
   title: string;
   category: readonly string[];
+  selectionLimit: number;
   onCategoryChange: (category: string[]) => void;
   query: string;
   onQueryChange: (query: string) => void;
@@ -139,7 +142,7 @@ function ChannelSelectionSubHeader({
             {title}
           </Text>
           <Text as="p" variant="subtitle-xxs" className="text-text-low">
-            최대 3개까지 선택할 수 있어요
+            최대 {selectionLimit}개까지 선택할 수 있어요
           </Text>
         </Box>
         <Box className="gap-016 flex w-full flex-col sm:w-auto sm:flex-row sm:items-center">
@@ -207,15 +210,18 @@ export function ChannelSelectionScreen({
   title,
   submitLabel,
   onComplete,
+  selectionLimit = CHANNEL_SELECTION_LIMIT,
   variant = 'default',
-  limitToast = DEFAULT_LIMIT_TOAST,
+  limitToast,
   onViewDetail,
 }: ChannelSelectionScreenProps): JSX.Element {
   const shouldReduceMotion = useReducedMotion();
   const queryState = useChannelSelectionQueryState();
   const channelSelection = useChannelSelection({
-    limitToastId: limitToast.id,
-    limitToastMessage: limitToast.message,
+    limit: selectionLimit,
+    limitToastId: limitToast?.id ?? DEFAULT_LIMIT_TOAST.id,
+    limitToastMessage:
+      limitToast?.message ?? `채널은 최대 ${selectionLimit}개까지 선택할 수 있어요.`,
   });
 
   const normalizedQuery = queryState.q.trim();
@@ -266,6 +272,7 @@ export function ChannelSelectionScreen({
         <ChannelSelectionSubHeader
           title={title}
           category={categories}
+          selectionLimit={selectionLimit}
           onCategoryChange={queryState.setCategories}
           query={queryState.q}
           onQueryChange={queryState.setSearchQuery}
@@ -314,16 +321,20 @@ export function ChannelSelectionScreen({
               onClick={handleComplete}
               className="h-[44px] w-full max-w-[320px]"
             >
-              {submitLabel} (
-              <NumberFlow
-                value={channelSelection.selectedCount}
-                trend={0}
-                animated={!shouldReduceMotion}
-                transformTiming={{ duration: 80, easing: 'ease-out' }}
-                spinTiming={{ duration: 80, easing: 'ease-out' }}
-                opacityTiming={{ duration: 50, easing: 'ease-out' }}
-              />
-              /{CHANNEL_SELECTION_LIMIT})
+              <span className="inline-flex items-center">
+                {submitLabel} (
+                <span className="inline-flex translate-y-px">
+                  <NumberFlow
+                    value={channelSelection.selectedCount}
+                    trend={0}
+                    animated={!shouldReduceMotion}
+                    transformTiming={{ duration: 80, easing: 'ease-out' }}
+                    spinTiming={{ duration: 80, easing: 'ease-out' }}
+                    opacityTiming={{ duration: 50, easing: 'ease-out' }}
+                  />
+                </span>
+                /{selectionLimit})
+              </span>
             </Button>
           </Box>
         </Box>

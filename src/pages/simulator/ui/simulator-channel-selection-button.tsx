@@ -11,11 +11,15 @@ import { Box } from '@/shared/ui/layout/box';
 export function SimulatorChannelSelectionButton({
   selectedChannelIds,
   onSimulationResult,
+  onChannelRemove,
+  initialFilterOpen = false,
 }: {
   selectedChannelIds: readonly string[];
   onSimulationResult: (result: SimulationResponse) => void;
+  onChannelRemove?: (channelId: string) => void;
+  initialFilterOpen?: boolean;
 }): JSX.Element {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(initialFilterOpen);
 
   return (
     <>
@@ -38,6 +42,7 @@ export function SimulatorChannelSelectionButton({
         onOpenChange={setIsFilterOpen}
         selectedChannelIds={selectedChannelIds}
         onSimulationResult={onSimulationResult}
+        onChannelRemove={onChannelRemove}
       />
     </>
   );
