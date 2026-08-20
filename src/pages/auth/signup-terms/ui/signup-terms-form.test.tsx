@@ -70,7 +70,25 @@ describe('SignupTermsForm', () => {
 
     const signupButton = screen.getByRole('button', { name: '가입하기' });
     expect(signupButton).toBeDisabled();
-    expect(screen.getAllByRole('button', { name: '보기' })).toHaveLength(3);
+    const agreementLinks = screen.getAllByRole('link', { name: '보기' });
+    expect(agreementLinks).toHaveLength(3);
+    expect(agreementLinks[0]).toHaveAttribute(
+      'href',
+      'https://extreme-moonstone-8ae.notion.site/3b2b0b17e916806c92cdec7eac6c0f7c',
+    );
+    expect(agreementLinks[1]).toHaveAttribute(
+      'href',
+      'https://app.notion.com/p/3b2b0b17e91680dc9567c8db372aa63d?source=copy_link',
+    );
+    expect(agreementLinks[2]).toHaveAttribute(
+      'href',
+      'https://app.notion.com/p/3b2b0b17e91680dc9567c8db372aa63d?source=copy_link',
+    );
+    agreementLinks.forEach((link) => {
+      expect(link).toHaveAttribute('target', '_blank');
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    });
+    expect(screen.queryAllByRole('button', { name: '보기' })).toHaveLength(0);
 
     await user.click(screen.getByRole('checkbox', { name: /서비스 이용약관 동의/ }));
     await user.click(screen.getByRole('checkbox', { name: /개인정보 수집·이용 동의/ }));
