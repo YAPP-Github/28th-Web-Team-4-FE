@@ -94,6 +94,7 @@ export function CompareResultChannelPicker({
       itemToStringLabel={(option) => option.name}
       itemToStringValue={(option) => option.id}
       isItemEqualToValue={(option, selectedOption) => option.id === selectedOption.id}
+      className="flex h-full w-full lg:w-[256px]"
       onOpenChange={(nextOpen) => {
         onOpenChange(nextOpen);
       }}
@@ -111,7 +112,7 @@ export function CompareResultChannelPicker({
         aria-label="비교할 채널 추가"
         className={[
           'bg-surface-background-default border-outline-default text-text-low',
-          'flex h-[112px] w-full shrink-0 cursor-pointer flex-col items-center justify-center rounded-[var(--radius-m)] border border-dashed lg:w-[256px]',
+          'flex h-full w-full shrink-0 cursor-pointer flex-col items-center justify-center rounded-[var(--radius-m)] border border-dashed lg:w-[256px]',
           'transition-colors outline-none hover:bg-surface-low focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-outline-high',
           'disabled:cursor-not-allowed disabled:opacity-50',
         ].join(' ')}
