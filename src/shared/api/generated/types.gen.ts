@@ -287,6 +287,10 @@ export type SimulationItemResponse = {
    */
   channelName: string;
   /**
+   * 심볼 로고 이미지 URL
+   */
+  iconUrl: string | null;
+  /**
    * 추정 근거가 된 대표 상품 id. 단가 정보가 없으면 null
    */
   channelProductId: string | null;
@@ -468,6 +472,10 @@ export type RecommendationItemResponse = {
    * 채널명
    */
   channelName: string;
+  /**
+   * 워드마크 로고 이미지 URL
+   */
+  wordmarkUrl: string | null;
   /**
    * 적합도(%)
    */
@@ -787,9 +795,9 @@ export type ChannelComparisonItemResponse = {
    */
   channelName: string;
   /**
-   * 채널 로고 미리보기 URL
+   * 심볼 로고 이미지 URL
    */
-  previewImageUrl: string | null;
+  iconUrl: string | null;
   /**
    * 채널의 주요 오디언스. 등록된 정보가 없으면 null, 비로그인이면 MOCK 값
    */
@@ -807,7 +815,7 @@ export type ChannelComparisonItemResponse = {
    */
   minBudgetWon: number | null;
   /**
-   * 채널 장점. 등록된 정보가 없으면 빈 배열
+   * 채널 장점(최대 3개). 등록된 정보가 없으면 빈 배열
    */
   advantages: Array<string>;
   /**
@@ -823,7 +831,7 @@ export type ChannelComparisonItemResponse = {
    */
   cpmWon: number | null;
   /**
-   * 온보딩 조건과의 적합도(%). 로그인 뒤 온보딩이 있을 때만 계산값, 비로그인이면 MOCK 값
+   * 온보딩 조건과의 적합도(%). 로그인 뒤 온보딩이 있을 때만 계산값, 그 외(온보딩 X·비로그인)는 null
    */
   matchRate: number | null;
   /**
@@ -831,8 +839,7 @@ export type ChannelComparisonItemResponse = {
    */
   estImpressions: CountRangeResponse | null;
   /**
-   * 예상 클릭 수 범위. 로그인했고 온보딩이 없으면 기본 값(100만원, 1개월) 기준,
-   * 예산 부족 또는 추정 불가 시 null. 비로그인이면 MOCK 값
+   * 예상 클릭 수 범위. 로그인했고 온보딩이 없으면 기본 값(100만원, 1개월) 기준, 예산 부족 또는 추정 불가 시 null. 비로그인이면 MOCK 값
    */
   estClicks: CountRangeResponse | null;
 };
@@ -1440,9 +1447,9 @@ export type ChannelListItemResponse = {
    */
   name: string;
   /**
-   * 로고 이미지 URL
+   * 심볼 로고 이미지 URL
    */
-  logoUrl: string | null;
+  iconUrl: string | null;
   /**
    * 채널 핵심 요약
    */
@@ -1560,9 +1567,9 @@ export type ChannelDetailResponse = {
    */
   tagline: string | null;
   /**
-   * 로고 이미지 URL
+   * 심볼 로고 이미지 URL
    */
-  logoUrl: string | null;
+  iconUrl: string | null;
   /**
    * 채널 핵심 요약
    */
