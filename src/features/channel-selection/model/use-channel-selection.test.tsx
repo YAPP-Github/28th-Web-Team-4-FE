@@ -77,6 +77,22 @@ describe('useChannelSelection', () => {
     expect(result.current.canSubmit).toBe(false);
   });
 
+  it('선택 목록을 전달한 순서로 설정한다', () => {
+    const { result } = renderHook(() => useChannelSelection());
+
+    act(() => {
+      result.current.toggleChannel(CHANNELS[0]);
+      result.current.toggleChannel(CHANNELS[1]);
+    });
+
+    act(() => {
+      result.current.setSelectedChannels([CHANNELS[2], CHANNELS[0]]);
+    });
+
+    expect(result.current.selectedChannels).toEqual([CHANNELS[2], CHANNELS[0]]);
+    expect(result.current.selectedIds).toEqual(['channel-c', 'channel-a']);
+  });
+
   it('세 개를 선택한 뒤 네 번째 채널을 추가하지 않고 경고한다', () => {
     const { result } = renderHook(() =>
       useChannelSelection({

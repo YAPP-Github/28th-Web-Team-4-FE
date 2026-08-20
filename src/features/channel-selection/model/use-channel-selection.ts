@@ -21,7 +21,7 @@ export function useChannelSelection({
   limitToastId = DEFAULT_LIMIT_TOAST_ID,
   limitToastMessage = DEFAULT_LIMIT_TOAST_MESSAGE,
 }: UseChannelSelectionOptions = {}) {
-  const [selectedChannels, setSelectedChannels] = useState<ChannelListItem[]>([]);
+  const [selectedChannels, setSelectedChannelsState] = useState<ChannelListItem[]>([]);
   const selectedIds = selectedChannels.map((channel) => channel.id);
   const selectedCount = selectedIds.length;
   const canSubmit = selectedCount === limit;
@@ -37,7 +37,7 @@ export function useChannelSelection({
       return;
     }
 
-    setSelectedChannels((currentSelectedChannels) =>
+    setSelectedChannelsState((currentSelectedChannels) =>
       currentSelectedChannels.some((selectedChannel) => selectedChannel.id === channel.id)
         ? currentSelectedChannels.filter((selectedChannel) => selectedChannel.id !== channel.id)
         : [...currentSelectedChannels, channel],
@@ -45,13 +45,17 @@ export function useChannelSelection({
   };
 
   const removeChannel = (channelId: string) => {
-    setSelectedChannels((currentSelectedChannels) =>
+    setSelectedChannelsState((currentSelectedChannels) =>
       currentSelectedChannels.filter((channel) => channel.id !== channelId),
     );
   };
 
   const clearSelection = () => {
-    setSelectedChannels([]);
+    setSelectedChannelsState([]);
+  };
+
+  const setSelectedChannels = (nextSelectedChannels: readonly ChannelListItem[]) => {
+    setSelectedChannelsState([...nextSelectedChannels].slice(0, limit));
   };
 
   return {
@@ -63,5 +67,6 @@ export function useChannelSelection({
     toggleChannel,
     removeChannel,
     clearSelection,
+    setSelectedChannels,
   };
 }
