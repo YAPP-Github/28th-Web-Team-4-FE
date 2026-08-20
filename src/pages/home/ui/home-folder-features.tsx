@@ -108,6 +108,9 @@ const SPRING_TRANSITION = {
   mass: 0.8,
 } as const;
 
+const FEATURE_OVERLAY_SCALE_CLASS =
+  'scale-50 @min-[700px]:scale-[0.58] @min-[800px]:scale-[0.67] @min-[900px]:scale-75 @min-[1000px]:scale-[0.83] @min-[1100px]:scale-[0.92] @min-[1200px]:scale-100';
+
 export function HomeFolderFeatures(): JSX.Element {
   const containerRef = useRef<HTMLElement>(null);
   const shouldReduceMotion = useReducedMotion();
@@ -153,6 +156,7 @@ export function HomeFolderFeatures(): JSX.Element {
   const card2Scale = activeStep >= 2 ? 0.88 : 1;
 
   const card3Y = activeStep >= 2 ? '0%' : '120%';
+  const activeFeature = FEATURE_FOLDERS[Math.min(activeStep, FEATURE_FOLDERS.length - 1)];
 
   return (
     <section
@@ -166,7 +170,7 @@ export function HomeFolderFeatures(): JSX.Element {
           backgroundColor: isProcessScene ? '#1D1D20' : '#F4F4F5',
         }}
         transition={{ duration: 0.25, ease: 'easeInOut' }}
-        className="px-016 sm:px-032 sticky top-0 flex h-screen w-full flex-col items-center justify-center overflow-hidden"
+        className="px-016 sm:px-032 lg:top-072 sticky top-14 flex h-[calc(100dvh-56px)] w-full flex-col items-center justify-center overflow-hidden lg:h-[calc(100dvh-72px)]"
       >
         {/* ========================================================= */}
         {/* SCENE 1: 3단 폴더 기능 소개 무대 (activeStep 0 ~ 2)          */}
@@ -191,8 +195,43 @@ export function HomeFolderFeatures(): JSX.Element {
             </h2>
           </div>
 
-          {/* 3단 계단식 스택 무대 (1200 x 762 비율) */}
-          <div className="relative aspect-[1200/762] max-h-[64vh] w-full max-w-[1200px]">
+          {/* 모바일에서는 축소된 폴더 이미지의 UI를 가리지 않도록 카피를 무대 밖에 둔다. */}
+          <AnimatePresence initial={false} mode="wait">
+            <motion.div
+              key={activeFeature.id}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={shouldReduceMotion ? undefined : { opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              data-testid="mobile-feature-copy"
+              className="mb-[16px] flex w-full origin-top-left [zoom:0.82] flex-col items-start min-[375px]:[zoom:0.86] min-[430px]:[zoom:0.9] min-[500px]:[zoom:0.95] min-[580px]:[zoom:1] sm:hidden"
+            >
+              <span className="font-pre text-text-low text-[11px] leading-[1.3] font-semibold">
+                {activeFeature.category}
+              </span>
+              <h3 className="font-pre text-text-highest mt-[4px] text-[20px] leading-[1.3] font-bold tracking-tight break-keep whitespace-pre-line">
+                {activeFeature.title}
+              </h3>
+              <Button
+                frame="button"
+                tone="stroke"
+                nativeButton={false}
+                render={<Link href={activeFeature.buttonHref} />}
+                className="px-012 py-008 mt-[10px] h-9"
+                rightIcon={<ArrowRight aria-hidden className="size-[14px]" />}
+              >
+                {activeFeature.buttonLabel}
+              </Button>
+            </motion.div>
+          </AnimatePresence>
+
+          {/*
+            3단 계단식 스택 무대 (1200 x 762 비율).
+            100.7874vh = 64vh * (1200 / 762). 높이만 제한해 비율이 깨지지 않도록
+            뷰포트 높이 제한을 동일 비율의 최대 너비로 환산한다. lg의 추가 제한은
+            72px 헤더와 3단 스택 오프셋까지 viewport 안에 남길 공간을 확보한다.
+          */}
+          <div className="[container-type:inline-size] relative aspect-[1200/762] w-full max-w-[min(1200px,100.7874vh)] lg:max-w-[min(1200px,100.7874vh,calc(122.7dvh-240px))]">
             {/* ================= 1번 폴더: 채널 추천 ================= */}
             <motion.div
               animate={{
@@ -215,14 +254,16 @@ export function HomeFolderFeatures(): JSX.Element {
                 sizes="(max-width: 1200px) 100vw, 1200px"
               />
 
-              <div className="absolute top-[6.5%] left-[5%] z-10 flex max-w-[36%] flex-col items-start sm:max-w-[340px]">
-                <span className="font-pre text-text-low text-[clamp(11px,1.2vw,16px)] leading-[1.3] font-semibold">
+              <div
+                className={`absolute top-[6.5%] left-[5%] z-10 hidden w-[340px] origin-top-left flex-col items-start sm:flex ${FEATURE_OVERLAY_SCALE_CLASS}`}
+              >
+                <span className="font-pre text-text-low text-[16px] leading-[24px] font-semibold">
                   {FEATURE_FOLDERS[0].category}
                 </span>
-                <h3 className="text-text-highest typo-heading-lg sm:typo-heading-xxl lg:typo-display-sm mt-[clamp(4px,0.8vw,10px)] break-keep whitespace-pre-line">
+                <h3 className="text-text-highest typo-display-sm mt-[10px] break-keep whitespace-pre-line">
                   {FEATURE_FOLDERS[0].title}
                 </h3>
-                <div className="mt-[clamp(6px,1.5vw,20px)] origin-top-left scale-[0.6] min-[420px]:scale-[0.72] sm:scale-[0.82] md:scale-[0.9] lg:scale-100">
+                <div className="mt-[20px]">
                   <Button
                     frame="button"
                     tone="stroke"
@@ -246,7 +287,7 @@ export function HomeFolderFeatures(): JSX.Element {
               transition={SPRING_TRANSITION}
               style={{
                 transformOrigin: 'top center',
-                top: '54px',
+                top: '7.0866%',
                 zIndex: 20,
               }}
               className="absolute inset-x-0 aspect-[1200/762] size-full overflow-hidden rounded-[24px] drop-shadow-[0_24px_48px_rgba(0,0,0,0.12)] select-none"
@@ -260,14 +301,16 @@ export function HomeFolderFeatures(): JSX.Element {
                 sizes="(max-width: 1200px) 100vw, 1200px"
               />
 
-              <div className="absolute top-[6.5%] left-[5%] z-10 flex max-w-[36%] flex-col items-start sm:max-w-[340px]">
-                <span className="font-pre text-text-low text-[clamp(11px,1.2vw,16px)] leading-[1.3] font-semibold">
+              <div
+                className={`absolute top-[6.5%] left-[5%] z-10 hidden w-[340px] origin-top-left flex-col items-start sm:flex ${FEATURE_OVERLAY_SCALE_CLASS}`}
+              >
+                <span className="font-pre text-text-low text-[16px] leading-[24px] font-semibold">
                   {FEATURE_FOLDERS[1].category}
                 </span>
-                <h3 className="text-text-highest typo-heading-lg sm:typo-heading-xxl lg:typo-display-sm mt-[clamp(4px,0.8vw,10px)] break-keep whitespace-pre-line">
+                <h3 className="text-text-highest typo-display-sm mt-[10px] break-keep whitespace-pre-line">
                   {FEATURE_FOLDERS[1].title}
                 </h3>
-                <div className="mt-[clamp(6px,1.5vw,20px)] origin-top-left scale-[0.6] min-[420px]:scale-[0.72] sm:scale-[0.82] md:scale-[0.9] lg:scale-100">
+                <div className="mt-[20px]">
                   <Button
                     frame="button"
                     tone="stroke"
@@ -290,7 +333,7 @@ export function HomeFolderFeatures(): JSX.Element {
               transition={SPRING_TRANSITION}
               style={{
                 transformOrigin: 'top center',
-                top: '108px',
+                top: '14.1732%',
                 zIndex: 30,
               }}
               className="absolute inset-x-0 aspect-[1200/762] size-full overflow-hidden rounded-[24px] drop-shadow-[0_28px_56px_rgba(0,0,0,0.16)] select-none"
@@ -304,14 +347,16 @@ export function HomeFolderFeatures(): JSX.Element {
                 sizes="(max-width: 1200px) 100vw, 1200px"
               />
 
-              <div className="absolute top-[6.5%] left-[5%] z-10 flex max-w-[36%] flex-col items-start sm:max-w-[340px]">
-                <span className="font-pre text-text-low text-[clamp(11px,1.2vw,16px)] leading-[1.3] font-semibold">
+              <div
+                className={`absolute top-[6.5%] left-[5%] z-10 hidden w-[340px] origin-top-left flex-col items-start sm:flex ${FEATURE_OVERLAY_SCALE_CLASS}`}
+              >
+                <span className="font-pre text-text-low text-[16px] leading-[24px] font-semibold">
                   {FEATURE_FOLDERS[2].category}
                 </span>
-                <h3 className="text-text-highest typo-heading-lg sm:typo-heading-xxl lg:typo-display-sm mt-[clamp(4px,0.8vw,10px)] break-keep whitespace-pre-line">
+                <h3 className="text-text-highest typo-display-sm mt-[10px] break-keep whitespace-pre-line">
                   {FEATURE_FOLDERS[2].title}
                 </h3>
-                <div className="mt-[clamp(6px,1.5vw,20px)] origin-top-left scale-[0.6] min-[420px]:scale-[0.72] sm:scale-[0.82] md:scale-[0.9] lg:scale-100">
+                <div className="mt-[20px]">
                   <Button
                     frame="button"
                     tone="stroke"
