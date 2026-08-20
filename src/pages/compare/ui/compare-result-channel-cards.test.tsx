@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import type { CompareResultChannelSummary } from '@/pages/compare/model/compare-result-channel';
@@ -30,10 +31,14 @@ const removeChannelMock = vi.fn<(channelId: string) => void>();
 function renderChannelCards(
   channels: readonly CompareResultChannelSummary[] = MOCK_CHANNELS,
   removeDisabled = false,
+  addChannelSlot: ReactNode = null,
+  readOnly = false,
 ) {
   return render(
     <CompareResultChannelCards
+      addChannelSlot={addChannelSlot}
       channels={channels}
+      readOnly={readOnly}
       removeDisabled={removeDisabled}
       onRemoveChannel={removeChannelMock}
     />,
@@ -56,6 +61,12 @@ describe('CompareResultChannelCards', () => {
     expect(screen.getByText('적합도 82%')).toBeVisible();
     expect(screen.queryByText('채널 추가하기')).not.toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /비교에서 제거/ })).toHaveLength(3);
+    expect(
+      screen.getByRole('heading', { name: '네이버 검색 광고' }).closest('article'),
+    ).toHaveClass('cursor-pointer');
+    expect(screen.getByRole('button', { name: '네이버 검색 광고 비교에서 제거' })).toHaveClass(
+      'cursor-pointer',
+    );
   });
 
   it('채널 제거 버튼으로 선택한 채널 ID를 전달한다', () => {
@@ -74,11 +85,22 @@ describe('CompareResultChannelCards', () => {
     }
   });
 
-  it('채널이 2개면 제거 버튼 없이 채널 추가 카드를 표시한다', () => {
-    renderChannelCards(MOCK_CHANNELS.slice(0, 2));
+  it('채널 추가 slot을 제공하면 제거 버튼 없이 표시한다', () => {
+    renderChannelCards(
+      MOCK_CHANNELS.slice(0, 2),
+      false,
+      <button type="button">채널 추가하기</button>,
+    );
 
     expect(screen.getByText('채널 추가하기')).toBeVisible();
     expect(screen.queryByRole('button', { name: /비교에서 제거/ })).not.toBeInTheDocument();
+  });
+
+  it('읽기 전용이면 제거 버튼과 채널 추가 slot을 표시하지 않는다', () => {
+    renderChannelCards(MOCK_CHANNELS, false, <button type="button">채널 추가하기</button>, true);
+
+    expect(screen.queryByRole('button', { name: /비교에서 제거/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('채널 추가하기')).not.toBeInTheDocument();
   });
 
   it('임시 로고가 없는 채널은 채널명의 첫 글자를 표시한다', () => {

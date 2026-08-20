@@ -28,6 +28,7 @@ import { showWarningToast } from '@/shared/ui/toast';
 import { RecommendedChannelCarousel } from './recommended-channel-carousel';
 import { RecommendResultSaveAction } from './recommend-result-save-action';
 import { RecommendResultSubHeader } from './recommend-result-sub-header';
+import { RecommendResultTutorialGate } from './recommend-result-tutorial-gate';
 
 type RecommendResultPageProps = {
   channels?: readonly RecommendedChannel[];
@@ -145,14 +146,17 @@ export function RecommendResultWithRecommendations({
   };
 
   return (
-    <RecommendResultPage
-      channels={recommendationsQuery.data}
-      headerAction={
-        <RecommendResultSaveAction onboardingId={onboardingId} serviceName={serviceName} />
-      }
-      isGuest={isGuest}
-      onboardingId={onboardingId}
-      onCompare={handleCompare}
-    />
+    <>
+      <RecommendResultTutorialGate />
+      <RecommendResultPage
+        channels={recommendationsQuery.data}
+        headerAction={
+          <RecommendResultSaveAction onboardingId={onboardingId} serviceName={serviceName} />
+        }
+        isGuest={isGuest}
+        onboardingId={onboardingId}
+        onCompare={handleCompare}
+      />
+    </>
   );
 }

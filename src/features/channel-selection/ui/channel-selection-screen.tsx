@@ -29,6 +29,7 @@ import {
   ChannelSelectionErrorState,
   ChannelSelectionLoadingFallback,
 } from './channel-selection-states';
+import { ComparisonChannelSelectionSubHeader } from './comparison-channel-selection-sub-header';
 
 const SEARCH_DEBOUNCE_MS = 300;
 const EMPTY_CHANNELS: ChannelListItem[] = [];
@@ -42,6 +43,7 @@ export type ChannelSelectionScreenProps = {
   submitLabel: string;
   onComplete: (channelIds: readonly string[]) => void;
   selectionLimit?: number;
+  variant?: ChannelSelectionScreenVariant;
   limitToast?: {
     id: string;
     message: string;
@@ -49,6 +51,8 @@ export type ChannelSelectionScreenProps = {
   /** 전달되면 각 채널 카드에 "자세히 보기" 버튼을 노출하고, 클릭 시 해당 채널로 호출한다. */
   onViewDetail?: (channel: ChannelListItem) => void;
 };
+
+export type ChannelSelectionScreenVariant = 'default' | 'comparison';
 
 function getCategoryLabel(category: string): string {
   return CHANNEL_CATEGORY_OPTION_LIST.find((option) => option.value === category)?.label ?? '전체';
@@ -156,7 +160,7 @@ type ChannelSelectionContentProps = {
   isInitialLoading: boolean;
   onResetFilters: () => void;
   onRetry: () => void;
-  onToggle: (channelId: string) => void;
+  onToggle: (channel: ChannelListItem) => void;
   onViewDetail?: (channel: ChannelListItem) => void;
   selectedIds: readonly string[];
 };
@@ -207,6 +211,7 @@ export function ChannelSelectionScreen({
   submitLabel,
   onComplete,
   selectionLimit = CHANNEL_SELECTION_LIMIT,
+  variant = 'default',
   limitToast,
   onViewDetail,
 }: ChannelSelectionScreenProps): JSX.Element {
@@ -252,14 +257,27 @@ export function ChannelSelectionScreen({
 
   return (
     <Box className="flex min-h-0 flex-1 flex-col">
-      <ChannelSelectionSubHeader
-        title={title}
-        category={categories}
-        selectionLimit={selectionLimit}
-        onCategoryChange={queryState.setCategories}
-        query={queryState.q}
-        onQueryChange={queryState.setSearchQuery}
-      />
+      {variant === 'comparison' ? (
+        <ComparisonChannelSelectionSubHeader
+          title={title}
+          category={categories}
+          onCategoryChange={queryState.setCategories}
+          query={queryState.q}
+          onQueryChange={queryState.setSearchQuery}
+          selectedChannels={channelSelection.selectedChannels}
+          onClearSelection={channelSelection.clearSelection}
+          onRemoveChannel={channelSelection.removeChannel}
+        />
+      ) : (
+        <ChannelSelectionSubHeader
+          title={title}
+          category={categories}
+          selectionLimit={selectionLimit}
+          onCategoryChange={queryState.setCategories}
+          query={queryState.q}
+          onQueryChange={queryState.setSearchQuery}
+        />
+      )}
       <Box
         aria-busy={isFetching}
         className="px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto lg:px-120"

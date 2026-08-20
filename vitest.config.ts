@@ -50,6 +50,7 @@ export default defineConfig({
             '@base-ui/react/toast',
             'overlay-kit',
             'react-use-measure',
+            'embla-carousel-react',
           ],
         },
         plugins: [

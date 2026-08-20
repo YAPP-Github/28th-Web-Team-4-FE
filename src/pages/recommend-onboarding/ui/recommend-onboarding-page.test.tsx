@@ -39,6 +39,39 @@ function renderRecommendOnboardingPage(props?: { initialServiceName?: string }) 
   );
 }
 
+type User = ReturnType<typeof userEvent.setup>;
+
+async function advanceToServiceTypeStep(user: User): Promise<void> {
+  await user.type(screen.getByRole('textbox', { name: '서비스 이름' }), '채소집');
+  await user.click(screen.getByRole('button', { name: '다음' }));
+  await user.click(screen.getByText('쇼핑·커머스'));
+  await user.click(screen.getByRole('button', { name: '다음' }));
+}
+
+async function advanceToBudgetStep(
+  user: User,
+  serviceTypeLabel: '모바일 앱' | '웹 서비스',
+  adGoalLabel: '구매·결제 전환' | '앱 설치',
+): Promise<void> {
+  await advanceToServiceTypeStep(user);
+  await user.click(screen.getByText(serviceTypeLabel));
+  await user.click(screen.getByRole('button', { name: '다음' }));
+  await user.click(screen.getByText('20대'));
+  await user.click(screen.getByRole('button', { name: '다음' }));
+  await user.click(screen.getByText(adGoalLabel));
+  await user.click(screen.getByRole('button', { name: '다음' }));
+}
+
+function getServiceTypeEditButton(): HTMLElement {
+  const editButton = screen.getAllByRole('button', { name: '수정' })[2];
+
+  if (!editButton) {
+    throw new Error('Expected a service type edit button.');
+  }
+
+  return editButton;
+}
+
 describe('RecommendOnboardingPage', () => {
   beforeEach(() => {
     pushMock.mockReset();
@@ -182,5 +215,84 @@ describe('RecommendOnboardingPage', () => {
     expect(
       screen.queryByRole('heading', { name: '서비스 형태가 무엇인가요?' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('서비스 형태가 바뀌면 기존 광고 목표를 초기화하고 재선택 후 원래 단계로 복귀한다', async () => {
+    const user = userEvent.setup();
+
+    renderRecommendOnboardingPage();
+    await advanceToBudgetStep(user, '웹 서비스', '구매·결제 전환');
+    await user.click(getServiceTypeEditButton());
+    await user.click(screen.getByText('모바일 앱'));
+    await user.click(screen.getByRole('button', { name: '다음' }));
+
+    expect(screen.getByRole('radiogroup', { name: '광고 목표' })).toBeVisible();
+    expect(screen.getAllByRole('radio')).toHaveLength(7);
+    expect(screen.getByRole('button', { name: '다음' })).toBeDisabled();
+    for (const option of screen.getAllByRole('radio')) {
+      expect(option).not.toBeChecked();
+    }
+    expect(screen.getByText('20대')).toBeVisible();
+
+    await user.click(screen.getByText('앱 설치'));
+    await user.click(screen.getByRole('button', { name: '다음' }));
+
+    expect(
+      screen.getByRole('heading', { name: '광고에 사용할 수 있는 총 예산은 얼마인가요?' }),
+    ).toBeVisible();
+    expect(screen.getByText('모바일 앱')).toBeVisible();
+    expect(screen.getByText('20대')).toBeVisible();
+    expect(screen.getByText('앱 설치')).toBeVisible();
+  });
+
+  it('앱 서비스에서 웹 서비스로 바꾸면 앱 전용 목표를 제거하고 재선택을 요구한다', async () => {
+    const user = userEvent.setup();
+
+    renderRecommendOnboardingPage();
+    await advanceToBudgetStep(user, '모바일 앱', '앱 설치');
+    await user.click(getServiceTypeEditButton());
+    await user.click(screen.getByText('웹 서비스'));
+    await user.click(screen.getByRole('button', { name: '다음' }));
+
+    expect(screen.getByRole('radiogroup', { name: '광고 목표' })).toBeVisible();
+    expect(screen.getAllByRole('radio')).toHaveLength(5);
+    expect(screen.queryByRole('radio', { name: '앱 설치' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('radio', { name: '인앱 구매·행동' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '다음' })).toBeDisabled();
+  });
+
+  it('서비스 형태를 바꾸지 않으면 기존 광고 목표를 유지하고 원래 단계로 복귀한다', async () => {
+    const user = userEvent.setup();
+
+    renderRecommendOnboardingPage();
+    await advanceToBudgetStep(user, '웹 서비스', '구매·결제 전환');
+    await user.click(getServiceTypeEditButton());
+    await user.click(screen.getByRole('button', { name: '다음' }));
+
+    expect(
+      screen.getByRole('heading', { name: '광고에 사용할 수 있는 총 예산은 얼마인가요?' }),
+    ).toBeVisible();
+    expect(screen.queryByRole('radiogroup', { name: '광고 목표' })).not.toBeInTheDocument();
+    expect(screen.getByText('구매·결제 전환')).toBeVisible();
+  });
+
+  it('광고 목표를 선택하기 전에는 서비스 형태를 바꿔도 기존 진행 단계로 복귀한다', async () => {
+    const user = userEvent.setup();
+
+    renderRecommendOnboardingPage();
+    await advanceToServiceTypeStep(user);
+    await user.click(screen.getByText('웹 서비스'));
+    await user.click(screen.getByRole('button', { name: '다음' }));
+    await user.click(getServiceTypeEditButton());
+    await user.click(screen.getByText('모바일 앱'));
+    await user.click(screen.getByRole('button', { name: '다음' }));
+
+    expect(
+      screen.getByRole('heading', {
+        name: '어떤 연령층을 타깃으로 광고를 진행할까요?',
+      }),
+    ).toBeVisible();
+    expect(screen.queryByRole('radiogroup', { name: '광고 목표' })).not.toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: '20대' })).toBeVisible();
   });
 });

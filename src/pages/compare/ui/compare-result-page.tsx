@@ -13,7 +13,9 @@ import { CompareResultChannelCards } from './compare-result-channel-cards';
 import { CompareResultChannelCost } from './compare-result-channel-cost';
 import { CompareResultChannelDetailsTable } from './compare-result-channel-details';
 import { CompareResultChannelInsightsDqa } from './compare-result-channel-insights-dqa';
+import { CompareResultChannelPickerContainer } from './compare-result-channel-picker-container';
 import { CompareResultChannelPerformance } from './compare-result-channel-performance';
+import { CompareResultGuestLock } from './compare-result-guest-lock';
 import { CompareResultErrorState, CompareResultLoadingState } from './compare-result-query-states';
 import { CompareResultSaveButton } from './compare-result-save-button';
 import { CompareResultSubHeader } from './compare-result-sub-header';
@@ -61,6 +63,10 @@ function CompareResultWithQuery({
     void setChannelIds(channelIds.filter((id) => id !== channelId));
   };
 
+  const addChannel = (channelId: string) => {
+    void setChannelIds([...channelIds, channelId]);
+  };
+
   if (comparisonQuery.isPending) {
     return <CompareResultLoadingState />;
   }
@@ -74,13 +80,19 @@ function CompareResultWithQuery({
     );
   }
 
+  const displayedChannels = comparisonQuery.data.filter(({ id }) => channelIds.includes(id));
+  const isGuest = authSession?.authenticated === false;
+  const channelCards = isGuest
+    ? displayedChannels.map((channel) => ({ ...channel, matchRate: null }))
+    : displayedChannels;
+
   return (
     <>
       <CompareResultSubHeader
         action={
           <CompareResultSaveButton
             channelIds={channelIds}
-            isGuest={authSession?.authenticated === false}
+            isGuest={isGuest}
             onboardingId={onboardingId}
           />
         }
@@ -96,14 +108,29 @@ function CompareResultWithQuery({
             </span>
           ) : null}
           <CompareResultChannelCards
-            channels={comparisonQuery.data}
+            addChannelSlot={
+              !comparisonQuery.isPlaceholderData &&
+              channelIds.length === 2 &&
+              displayedChannels.length === 2 ? (
+                <CompareResultChannelPickerContainer
+                  channelIds={channelIds}
+                  onboardingId={onboardingId}
+                  onSelectChannel={addChannel}
+                />
+              ) : null
+            }
+            channels={channelCards}
             removeDisabled={comparisonQuery.isPlaceholderData}
             onRemoveChannel={removeChannel}
           />
-          <CompareResultChannelPerformance channels={comparisonQuery.data} />
-          <CompareResultChannelDetailsTable channels={comparisonQuery.data} />
-          <CompareResultChannelCost channels={comparisonQuery.data} />
-          <CompareResultChannelInsightsDqa channels={comparisonQuery.data} />
+          <CompareResultGuestLock locked={isGuest}>
+            <CompareResultChannelPerformance channels={displayedChannels} />
+          </CompareResultGuestLock>
+          <CompareResultGuestLock locked={isGuest}>
+            <CompareResultChannelDetailsTable channels={displayedChannels} />
+          </CompareResultGuestLock>
+          <CompareResultChannelCost channels={displayedChannels} />
+          <CompareResultChannelInsightsDqa channels={displayedChannels} />
         </Box>
       </main>
     </>

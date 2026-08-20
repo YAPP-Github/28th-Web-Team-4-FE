@@ -31,7 +31,8 @@ export const Basic: Story = {
 
     await expect(canvas.getByRole('contentinfo')).toBeVisible();
     await expect(canvas.getByText('© 2026 CHAESOZIP. ALL RIGHTS RESERVED')).toBeVisible();
-    await expect(canvas.getByText('개인정보 처리방침')).toBeVisible();
+    await expect(canvas.getByRole('link', { name: '이용 약관' })).toBeVisible();
+    await expect(canvas.getByRole('link', { name: '개인정보 처리방침' })).toBeVisible();
     await expect(canvas.getByRole('img', { name: '이메일' })).toBeVisible();
     await expect(canvas.getByRole('img', { name: '네이버 블로그' })).toBeVisible();
   },
