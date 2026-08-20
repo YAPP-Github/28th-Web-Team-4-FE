@@ -9,8 +9,15 @@ import { useGoogleAuth } from '@/pages/auth/auth-entry/model/use-google-auth';
 import { markGoogleLinkFeedbackPending } from '@/shared/lib/auth/google-link-feedback';
 
 type GoogleCredentialResponse = { credential?: string };
-type GooglePromptMomentNotification = {
-  isSkippedMoment: () => boolean;
+type GoogleButtonConfiguration = {
+  type: 'standard';
+  theme: 'outline';
+  size: 'large';
+  text: 'continue_with';
+  shape: 'rectangular';
+  logo_alignment: 'center';
+  width: string;
+  locale: 'ko';
 };
 type GoogleIdentity = {
   accounts: {
@@ -19,7 +26,7 @@ type GoogleIdentity = {
         callback: (response: GoogleCredentialResponse) => void;
         client_id: string;
       }) => void;
-      prompt: (momentListener?: (notification: GooglePromptMomentNotification) => void) => void;
+      renderButton: (parent: HTMLElement, options: GoogleButtonConfiguration) => void;
     };
   };
 };
@@ -44,7 +51,7 @@ export function useGoogleAuthFlow({ onDeferLink }: UseGoogleAuthFlowOptions) {
   const [googleLinkError, setGoogleLinkError] = useState<string>();
   const [isGoogleLinkPending, setIsGoogleLinkPending] = useState(false);
 
-  const initializeGoogleIdentity = () => {
+  const initializeGoogleIdentity = (buttonContainer: HTMLElement | null) => {
     const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim();
     const google = getGoogleIdentity();
 
@@ -58,40 +65,42 @@ export function useGoogleAuthFlow({ onDeferLink }: UseGoogleAuthFlowOptions) {
       return;
     }
 
-    google.accounts.id.initialize({
-      client_id: googleClientId,
-      callback: ({ credential }) => {
-        if (credential) {
-          googleAuthMutation.mutate(credential, {
-            onSuccess: (resolution) => {
-              if (resolution.type === 'link') {
-                setGoogleLinkError(undefined);
-                setGoogleLinkRequest({ email: resolution.email, idToken: credential });
-              }
-            },
-          });
-        }
-      },
-    });
-    setGoogleInitializationError(undefined);
-    setIsGoogleReady(true);
-  };
-
-  const promptGoogleIdentity = () => {
-    const google = getGoogleIdentity();
-
-    if (!google) {
+    if (!buttonContainer) {
       setIsGoogleReady(false);
-      setGoogleInitializationError('Google 로그인을 불러오지 못했습니다. 다시 시도해 주세요.');
+      setGoogleInitializationError('Google 로그인 버튼을 불러오지 못했습니다. 다시 시도해 주세요.');
       return;
     }
 
-    setGoogleInitializationError(undefined);
-    google.accounts.id.prompt((notification) => {
-      if (notification.isSkippedMoment()) {
-        setGoogleInitializationError('Google 로그인을 진행하지 못했습니다. 다시 시도해 주세요.');
-      }
+    google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: ({ credential }) => {
+        if (!credential) {
+          return;
+        }
+
+        googleAuthMutation.mutate(credential, {
+          onSuccess: (resolution) => {
+            if (resolution.type === 'link') {
+              setGoogleLinkError(undefined);
+              setGoogleLinkRequest({ email: resolution.email, idToken: credential });
+            }
+          },
+        });
+      },
     });
+    buttonContainer.replaceChildren();
+    google.accounts.id.renderButton(buttonContainer, {
+      type: 'standard',
+      theme: 'outline',
+      size: 'large',
+      text: 'continue_with',
+      shape: 'rectangular',
+      logo_alignment: 'center',
+      width: String(Math.min(400, Math.max(200, buttonContainer.clientWidth || 400))),
+      locale: 'ko',
+    });
+    setGoogleInitializationError(undefined);
+    setIsGoogleReady(true);
   };
 
   const deferGoogleLink = () => {
@@ -146,6 +155,5 @@ export function useGoogleAuthFlow({ onDeferLink }: UseGoogleAuthFlowOptions) {
     isGoogleAuthPending: googleAuthMutation.isPending,
     isGoogleLinkPending,
     isGoogleReady,
-    promptGoogleIdentity,
   };
 }

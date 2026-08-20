@@ -183,4 +183,3 @@ node --run build
 ## 후속 작업
 
 - 약관별 `보기` 버튼에 실제 약관 콘텐츠 또는 상세 화면을 연결합니다.
-- 명시적인 Google 로그인 CTA는 One Tap `prompt()` 대신 GIS가 렌더링하는 Sign in with Google 버튼으로 전환하고, One Tap은 보조 진입점으로만 유지하는 방안을 검토합니다.

@@ -118,4 +118,54 @@ describe('useSignupDraftStore', () => {
     };
     expect(persisted.state).not.toHaveProperty('identity');
   });
+
+  it('keeps the current draft when session storage has no saved value', () => {
+    const merge = useSignupDraftStore.persist.getOptions().merge;
+    const currentState = {
+      ...useSignupDraftStore.getState(),
+      identity: {
+        method: 'email' as const,
+        email: 'new@example.com',
+        emailVerified: true,
+        password: '',
+      },
+    };
+
+    const merged = merge?.(undefined, currentState);
+
+    expect(merged).toMatchObject({
+      identity: currentState.identity,
+      hasHydrated: currentState.hasHydrated,
+    });
+  });
+
+  it('does not overwrite an in-memory Google draft with a persisted draft without identity', () => {
+    const merge = useSignupDraftStore.persist.getOptions().merge;
+    const currentState = {
+      ...useSignupDraftStore.getState(),
+      identity: {
+        method: 'google' as const,
+        email: 'google@example.com',
+        signupToken: 'one-time-token',
+      },
+      nickname: '구글 사용자',
+    };
+
+    const merged = merge?.(
+      {
+        nickname: '',
+        companyName: '',
+        occupation: undefined,
+        serviceTermsAgreed: false,
+        privacyAgreed: false,
+        marketingAgreed: false,
+      },
+      currentState,
+    );
+
+    expect(merged).toMatchObject({
+      identity: currentState.identity,
+      nickname: '',
+    });
+  });
 });

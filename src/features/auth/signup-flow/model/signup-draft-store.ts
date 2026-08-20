@@ -175,6 +175,10 @@ export const useSignupDraftStore = create<SignupDraftStore>()(
         };
       },
       merge: (persistedState, currentState) => {
+        if (!persistedState || typeof persistedState !== 'object') {
+          return currentState;
+        }
+
         const persistedDraft = persistedState as PersistedSignupDraft;
 
         return {
@@ -182,7 +186,7 @@ export const useSignupDraftStore = create<SignupDraftStore>()(
           ...persistedDraft,
           identity: persistedDraft.identity
             ? { ...persistedDraft.identity, password: '' }
-            : undefined,
+            : currentState.identity,
         };
       },
       onRehydrateStorage: () => (state) => {
