@@ -51,7 +51,7 @@ function HydratedSignupNameForm({
   } = useForm<SignupNameInput, unknown, SignupNameOutput>({
     defaultValues: { nickname: initialNickname },
     mode: 'onSubmit',
-    reValidateMode: 'onSubmit',
+    reValidateMode: 'onChange',
     resolver: zodResolver(signupNameSchema),
   });
 

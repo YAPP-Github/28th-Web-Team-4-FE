@@ -30,7 +30,7 @@ export function useSignupPasswordForm({
       passwordConfirmation: initialPassword,
     },
     mode: 'onSubmit',
-    reValidateMode: 'onSubmit',
+    reValidateMode: 'onChange',
     resolver: zodResolver(signupPasswordSchema),
   });
 

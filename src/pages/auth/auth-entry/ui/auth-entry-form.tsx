@@ -143,8 +143,9 @@ export function AuthEntryForm(): JSX.Element {
     setError,
   } = useForm<AuthEntryInput, unknown, AuthEntryOutput>({
     defaultValues: { email: '' },
+    mode: 'onSubmit',
     resolver: zodResolver(authEntrySchema),
-    reValidateMode: 'onSubmit',
+    reValidateMode: 'onChange',
   });
 
   const submit = handleSubmit(({ email: validatedEmail }) => {

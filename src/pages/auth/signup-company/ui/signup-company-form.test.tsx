@@ -79,6 +79,23 @@ describe('SignupCompanyForm', () => {
     expect(pushMock).not.toHaveBeenCalledWith('/signup/occupation');
   });
 
+  it('revalidates the company name while editing after submit validation', async () => {
+    const user = userEvent.setup();
+    setNameStepCompleted();
+    render(<SignupCompanyForm />);
+
+    const companyNameInput = screen.getByLabelText('회사명');
+    await user.type(companyNameInput, '가'.repeat(51));
+    await user.click(screen.getByRole('button', { name: '다음' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('회사명은 50자 이하로 입력해 주세요');
+
+    await user.clear(companyNameInput);
+    await user.type(companyNameInput, '채소컴퍼니');
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
   it('trims and stores a company name', async () => {
     const user = userEvent.setup();
     setNameStepCompleted();

@@ -43,7 +43,7 @@ function HydratedSignupCompanyForm({
   } = useForm<SignupCompanyInput, unknown, SignupCompanyOutput>({
     defaultValues: { companyName: initialCompanyName },
     mode: 'onSubmit',
-    reValidateMode: 'onSubmit',
+    reValidateMode: 'onChange',
     resolver: zodResolver(signupCompanySchema),
   });
 

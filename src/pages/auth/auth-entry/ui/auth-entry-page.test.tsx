@@ -252,6 +252,22 @@ describe('AuthEntryPage', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('이메일 형식을 확인해 주세요.');
   });
 
+  it('revalidates the email while editing after submit validation', async () => {
+    const user = userEvent.setup();
+    renderAuthEntryPage();
+
+    const emailInput = screen.getByRole('textbox', { name: '이메일' });
+    await user.type(emailInput, 'invalid-email');
+    await user.click(screen.getByRole('button', { name: '이메일로 시작하기' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('이메일 형식을 확인해 주세요.');
+
+    await user.clear(emailInput);
+    await user.type(emailInput, 'valid@example.com');
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
   it('shows the password form for an existing local account', async () => {
     const user = userEvent.setup();
     getAuthEmailMethodsMock.mockResolvedValue(['LOCAL']);
