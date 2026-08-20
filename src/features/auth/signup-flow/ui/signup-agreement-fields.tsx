@@ -24,16 +24,19 @@ const AGREEMENT_ITEMS = [
     agreement: 'serviceTermsAgreed',
     label: '서비스 이용약관 동의',
     qualifier: '필수',
+    href: 'https://extreme-moonstone-8ae.notion.site/3b2b0b17e916806c92cdec7eac6c0f7c',
   },
   {
     agreement: 'privacyAgreed',
     label: '개인정보 수집·이용 동의',
     qualifier: '필수',
+    href: 'https://app.notion.com/p/3b2b0b17e91680dc9567c8db372aa63d?source=copy_link',
   },
   {
     agreement: 'marketingAgreed',
     label: '마케팅 정보 수신 동의',
     qualifier: '선택',
+    href: 'https://app.notion.com/p/3b2b0b17e91680dc9567c8db372aa63d?source=copy_link',
   },
 ] as const;
 
@@ -77,7 +80,7 @@ export function SignupAgreementFields({
       <div className="border-outline-low border-t" />
 
       <VStack className="gap-014 items-stretch">
-        {AGREEMENT_ITEMS.map(({ agreement, label, qualifier }) => {
+        {AGREEMENT_ITEMS.map(({ agreement, label, qualifier, href }) => {
           const id = `${idPrefix}-${agreement}`;
 
           return (
@@ -95,13 +98,24 @@ export function SignupAgreementFields({
                 <span className="typo-subtitle-xxl text-text-high">{label}</span>
                 <span className="typo-subtitle-xxs text-text-medium">({qualifier})</span>
               </label>
-              <button
-                className="typo-body-xl text-text-low shrink-0 underline underline-offset-2"
-                type="button"
-                onClick={() => onViewAgreement?.(agreement)}
-              >
-                보기
-              </button>
+              {href ? (
+                <a
+                  className="typo-body-xl text-text-low focus-visible:outline-sys-primary-default rounded-xxs shrink-0 underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+                  href={href}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  보기
+                </a>
+              ) : (
+                <button
+                  className="typo-body-xl text-text-low focus-visible:outline-sys-primary-default rounded-xxs shrink-0 underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+                  type="button"
+                  onClick={() => onViewAgreement?.(agreement)}
+                >
+                  보기
+                </button>
+              )}
             </HStack>
           );
         })}
