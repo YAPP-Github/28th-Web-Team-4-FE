@@ -1,6 +1,7 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 const APP_URL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
+const LONG_AUDIENCE = '20~40대 직장인과 육아 중인 고객, 관련 상품을 반복 구매하는 사용자';
 
 const CHANNELS = [
   {
@@ -24,7 +25,7 @@ const CHANNELS = [
 ].map((channel, index) => ({
   ...channel,
   previewImageUrl: null,
-  audienceSummary: '20~40대 직장인과 육아 중인 고객, 관련 상품을 반복 구매하는 사용자',
+  audienceSummary: LONG_AUDIENCE,
   adFormats: ['피드', '배너', '영상', '카러셀'],
   targetingMethods: ['관심사', '행동', '지역', '유사 타겟'],
   minBudgetWon: 200_000 + index * 100_000,
@@ -40,9 +41,7 @@ test.use({
   viewport: { width: 390, height: 844 },
 });
 
-test('모바일에서 결과 본문을 끝까지 스크롤해도 헤더와 결과 제목을 계속 보여준다', async ({
-  page,
-}) => {
+async function mockComparisonResponse(page: Page): Promise<void> {
   await page.route(/\/api\/v1\/channel-comparisons(?:\?|$)/, async (route) => {
     if (route.request().method() !== 'GET') {
       await route.continue();
@@ -59,6 +58,12 @@ test('모바일에서 결과 본문을 끝까지 스크롤해도 헤더와 결�
       }),
     });
   });
+}
+
+test('모바일에서 결과 본문을 끝까지 스크롤해도 헤더와 결과 제목을 계속 보여준다', async ({
+  page,
+}) => {
+  await mockComparisonResponse(page);
 
   await page.goto(`${APP_URL}/compare/result?channels=channel-naver,channel-kakao,channel-meta`);
 
@@ -79,4 +84,17 @@ test('모바일에서 결과 본문을 끝까지 스크롤해도 헤더와 결�
 
   await expect(siteHome).toBeInViewport();
   await expect(resultTitle).toBeInViewport();
+});
+
+test.describe('모바일 터치 입력', () => {
+  test.use({ hasTouch: true });
+
+  test('잘린 상세 값을 탭하면 전체 문구를 보여준다', async ({ page }) => {
+    await mockComparisonResponse(page);
+    await page.goto(`${APP_URL}/compare/result?channels=channel-naver,channel-kakao,channel-meta`);
+
+    await page.getByText(LONG_AUDIENCE, { exact: true }).first().tap();
+
+    await expect(page.getByRole('tooltip').filter({ hasText: LONG_AUDIENCE })).toBeVisible();
+  });
 });

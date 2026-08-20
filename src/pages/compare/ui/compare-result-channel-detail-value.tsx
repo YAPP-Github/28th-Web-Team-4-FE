@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, type JSX } from 'react';
+import { useRef, useState, type JSX } from 'react';
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 
 import { Text } from '@/shared/ui/text';
@@ -19,22 +19,33 @@ export function CompareResultChannelDetailValue({
   children,
 }: CompareResultChannelDetailValueProps): JSX.Element {
   const textRef = useRef<HTMLSpanElement>(null);
+  const [open, setOpen] = useState(false);
+
+  const isCurrentTextClamped = (): boolean => {
+    const textElement = textRef.current;
+
+    return textElement !== null && isTextClamped(textElement);
+  };
 
   return (
     <BaseTooltip.Root
+      open={open}
       onOpenChange={(nextOpen, eventDetails) => {
-        if (!nextOpen) {
+        if (nextOpen && !isCurrentTextClamped()) {
+          eventDetails.cancel();
           return;
         }
 
-        const textElement = textRef.current;
-        if (textElement === null || !isTextClamped(textElement)) {
-          eventDetails.cancel();
-        }
+        setOpen(nextOpen);
       }}
     >
       <BaseTooltip.Trigger
         closeOnClick={false}
+        onClick={() => {
+          if (isCurrentTextClamped()) {
+            setOpen((currentOpen) => !currentOpen);
+          }
+        }}
         className="block w-full min-w-0 touch-manipulation bg-transparent p-0 text-left"
       >
         <Text

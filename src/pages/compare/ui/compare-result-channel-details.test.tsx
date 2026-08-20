@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { MOCK_COMPARE_RESULT_CHANNELS } from '@/pages/compare/model/compare-result-channel';
@@ -64,34 +64,9 @@ describe('CompareResultChannelDetailsTable', () => {
 
     await user.unhover(value);
 
-    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-  });
-
-  it('잘린 상세 값을 누르면 전체 문구 툴팁을 보여준다', async () => {
-    const user = userEvent.setup();
-    const longAudience =
-      '20~40대 직장인, 육아 중인 여성, 건강기능식품에 관심이 많은 반복 구매 고객과 신규 유입 사용자';
-
-    render(
-      <CompareResultChannelDetailsTable
-        channels={[
-          {
-            ...MOCK_COMPARE_RESULT_CHANNELS[0],
-            details: {
-              ...MOCK_COMPARE_RESULT_CHANNELS[0].details,
-              primaryAudience: longAudience,
-            },
-          },
-        ]}
-      />,
-    );
-
-    const value = screen.getByText(longAudience);
-    mockClampedText(value);
-
-    await user.click(value);
-
-    expect(await screen.findByRole('tooltip')).toHaveTextContent(longAudience);
+    await waitFor(() => {
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
   });
 
   it('잘리지 않은 상세 값에는 호버해도 툴팁을 보여주지 않는다', async () => {
