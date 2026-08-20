@@ -11,7 +11,7 @@ export const bubbleShellVariants = cva('px-026 py-022 shadow-drop-shadow-01 w-fu
   variants: {
     frame: {
       bot: 'bg-surface-lowest rounded-bl-m rounded-br-m rounded-tr-m',
-      user: 'bg-surface-high rounded-bl-m rounded-br-m rounded-tl-m',
+      user: 'bg-surface-highest rounded-bl-m rounded-br-m rounded-tl-m',
     },
   },
 });
