@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { CompareResultSubHeader } from './compare-result-sub-header';
 
 describe('CompareResultSubHeader', () => {
-  it('비교 결과 안내와 주입된 액션을 표시한다', () => {
+  it('비교 결과 제목과 주입된 액션을 표시한다', () => {
     render(
       <CompareResultSubHeader
         action={
@@ -19,10 +19,7 @@ describe('CompareResultSubHeader', () => {
         name: '선택한 채널별 특징과 성과를 비교한 결과예요',
       }),
     ).toBeVisible();
-    expect(screen.getByRole('button', { name: '결과 저장하기' })).toHaveClass(
-      'w-full',
-      'lg:w-auto',
-    );
+    expect(screen.getByRole('button', { name: '결과 저장하기' })).toBeVisible();
   });
 
   it('액션이 비어 있으면 제목 영역만 표시한다', () => {

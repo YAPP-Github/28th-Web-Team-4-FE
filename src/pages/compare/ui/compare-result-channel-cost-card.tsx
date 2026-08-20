@@ -36,6 +36,7 @@ type CompareResultChannelCostColumnProps = {
   metric: CompareResultChannelCostMetric;
   maximumValue: number;
   minimumValue: number | null;
+  uniqueMinimum: boolean;
   recommendation: string;
 };
 
@@ -53,6 +54,7 @@ function CompareResultChannelCostColumn({
   metric,
   maximumValue,
   minimumValue,
+  uniqueMinimum,
   recommendation,
 }: CompareResultChannelCostColumnProps): JSX.Element {
   const value = channel[metric];
@@ -65,6 +67,7 @@ function CompareResultChannelCostColumn({
         maximumValue={maximumValue}
         recommended={recommended}
         recommendation={recommendation}
+        showRecommendation={recommended && uniqueMinimum}
       />
       <Text
         variant={recommended ? 'subtitle-xs' : 'subtitle-xxs'}
@@ -92,6 +95,9 @@ export function CompareResultChannelCostCard({
   });
   const maximumValue = Math.max(...availableValues, 1);
   const minimumValue = availableValues.length > 0 ? Math.min(...availableValues) : null;
+  const uniqueMinimum =
+    minimumValue !== null &&
+    channels.filter((channel) => channel[metric] === minimumValue).length === 1;
   const titleId = `compare-result-channel-${metric}-title`;
 
   return (
@@ -120,6 +126,7 @@ export function CompareResultChannelCostCard({
               metric={metric}
               maximumValue={maximumValue}
               minimumValue={minimumValue}
+              uniqueMinimum={uniqueMinimum}
               recommendation={config.recommendation}
             />
           ))}

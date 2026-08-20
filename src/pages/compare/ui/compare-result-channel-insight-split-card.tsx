@@ -37,7 +37,7 @@ export function CompareResultChannelInsightSplitCard({
         </Box>
 
         <Box className="border-outline-lower gap-002 pl-030 flex min-w-0 flex-1 flex-col self-stretch border-l">
-          {channel.insight.advantages.slice(0, 2).map((advantage) => (
+          {channel.insight.advantages.map((advantage) => (
             <Text as="p" key={advantage} variant="subtitle-xxs" className="text-text-medium w-full">
               {advantage}
             </Text>

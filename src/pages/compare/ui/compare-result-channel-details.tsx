@@ -1,4 +1,7 @@
+'use client';
+
 import type { JSX } from 'react';
+import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 
 import type {
   CompareResultChannel,
@@ -6,6 +9,8 @@ import type {
 } from '@/pages/compare/model/compare-result-channel';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
+
+import { CompareResultChannelDetailValue } from './compare-result-channel-detail-value';
 
 const DETAIL_ROWS = [
   {
@@ -56,58 +61,61 @@ export function CompareResultChannelDetailsTable({
         채널별 상세 정보
       </Text>
 
-      <Box className="w-full overflow-x-auto">
-        <table className="w-full min-w-[552px] table-fixed border-collapse">
-          <caption className="sr-only">선택한 채널의 상세 정보 비교</caption>
-          <colgroup>
-            <col className="w-[192px]" />
-            {channels.map((channel) => (
-              <col key={channel.id} />
-            ))}
-          </colgroup>
-          <thead className="bg-surface-low border-outline-low border-y">
-            <tr className="h-032">
-              <th aria-label="비교 항목" />
+      <Box className="w-full overflow-x-auto overflow-y-hidden overscroll-x-contain">
+        <BaseTooltip.Provider delay={150} timeout={400}>
+          <table className="w-full min-w-[552px] table-fixed border-collapse">
+            <caption className="sr-only">선택한 채널의 상세 정보 비교</caption>
+            <colgroup>
+              <col className="w-[192px]" />
               {channels.map((channel) => (
-                <Text
-                  as="th"
-                  key={channel.id}
-                  scope="col"
-                  variant="caption-lg"
-                  className="text-text-low px-000 py-008 text-left"
-                >
-                  {channel.name}
-                </Text>
+                <col key={channel.id} />
               ))}
-            </tr>
-          </thead>
-          <tbody>
-            {DETAIL_ROWS.map((row) => (
-              <tr key={row.key} className="border-outline-low h-[70px] border-b last:border-b-0">
-                <th scope="row" className="px-010 py-014 text-left align-middle">
-                  <Box className="gap-002 flex flex-col items-start whitespace-nowrap">
-                    <Text as="span" variant="subtitle-lg" className="text-text-high">
-                      {row.label}
-                    </Text>
-                    <Text as="span" variant="body-xs" className="text-text-low">
-                      {row.description}
-                    </Text>
-                  </Box>
-                </th>
+            </colgroup>
+            <thead className="bg-surface-low border-outline-low border-y">
+              <tr className="h-032">
+                <th aria-label="비교 항목" />
                 {channels.map((channel) => (
                   <Text
-                    as="td"
+                    as="th"
                     key={channel.id}
-                    variant="subtitle-xxs"
-                    className="text-text-default px-000 py-014 align-middle whitespace-nowrap"
+                    scope="col"
+                    variant="caption-lg"
+                    className="text-text-low px-012 py-008 text-left"
                   >
-                    {channel.details[row.key]}
+                    {channel.name}
                   </Text>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {DETAIL_ROWS.map((row) => (
+                <tr key={row.key} className="border-outline-low border-b last:border-b-0">
+                  <th scope="row" className="px-012 py-014 text-left align-top">
+                    <Box className="gap-002 flex flex-col items-start whitespace-nowrap">
+                      <Text as="span" variant="subtitle-lg" className="text-text-high">
+                        {row.label}
+                      </Text>
+                      <Text as="span" variant="body-xs" className="text-text-low">
+                        {row.description}
+                      </Text>
+                    </Box>
+                  </th>
+                  {channels.map((channel) => (
+                    <Box
+                      as="td"
+                      key={channel.id}
+                      className="px-012 py-014 min-h-[70px] max-w-0 min-w-0 overflow-hidden align-top"
+                    >
+                      <CompareResultChannelDetailValue>
+                        {channel.details[row.key]}
+                      </CompareResultChannelDetailValue>
+                    </Box>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </BaseTooltip.Provider>
       </Box>
     </Box>
   );

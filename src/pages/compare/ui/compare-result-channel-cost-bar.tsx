@@ -30,6 +30,8 @@ type CompareResultChannelCostBarProps = {
   recommended: boolean;
   /** 추천 Tooltip에 표시할 안내 문구. */
   recommendation: string;
+  /** 최저값이 유일한 채널일 때만 추천 Tooltip을 표시한다. */
+  showRecommendation?: boolean;
 };
 
 /** 추천 Tooltip을 막대 내부 좌표의 anchor 위에 표시한다. */
@@ -111,6 +113,7 @@ export function CompareResultChannelCostBar({
   maximumValue,
   recommended,
   recommendation,
+  showRecommendation = recommended,
 }: CompareResultChannelCostBarProps): JSX.Element {
   const available = value !== null;
   const label = available ? COST_FORMATTER.format(value) : '확인 불가';
@@ -148,7 +151,7 @@ export function CompareResultChannelCostBar({
           </Bar>
         </BarChart>
       </Box>
-      {recommended ? (
+      {showRecommendation ? (
         <RecommendationCallout anchorTop={recommendationAnchorTop}>
           {recommendation}
         </RecommendationCallout>

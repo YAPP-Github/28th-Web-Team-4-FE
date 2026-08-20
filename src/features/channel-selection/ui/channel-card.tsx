@@ -14,6 +14,7 @@ import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
+import { ChannelDescriptionTooltip } from './channel-description-tooltip';
 import { ChannelLogo } from './channel-logo';
 
 type ChannelCardProps = {
@@ -54,14 +55,14 @@ function ChannelCardHeader({
 }
 
 function ChannelCardBody({ channel }: { channel: ChannelListItem }): JSX.Element {
+  const description = channel.description ?? '채널 설명이 아직 없어요.';
+
   return (
     <Box className="gap-002 flex w-full flex-col items-start">
       <Text as="h2" variant="subtitle-lg" className="text-text-high line-clamp-1 w-full">
         {channel.name}
       </Text>
-      <Text as="p" variant="body-lg" className="text-text-medium line-clamp-2 w-full break-keep">
-        {channel.description ?? '채널 설명이 아직 없어요.'}
-      </Text>
+      <ChannelDescriptionTooltip description={description} />
     </Box>
   );
 }
