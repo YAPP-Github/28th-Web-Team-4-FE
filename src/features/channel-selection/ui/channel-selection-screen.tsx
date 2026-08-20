@@ -268,8 +268,7 @@ export function ChannelSelectionScreen({
           query={queryState.q}
           onQueryChange={queryState.setSearchQuery}
           selectedChannels={channelSelection.selectedChannels}
-          onClearSelection={channelSelection.clearSelection}
-          onRemoveChannel={channelSelection.removeChannel}
+          onSelectedChannelsChange={channelSelection.setSelectedChannels}
         />
       ) : (
         <ChannelSelectionSubHeader

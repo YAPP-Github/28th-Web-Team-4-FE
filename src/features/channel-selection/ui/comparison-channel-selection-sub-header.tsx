@@ -11,6 +11,7 @@ import {
   type ChannelCategory,
   type ChannelListItem,
 } from '@/features/channel-selection/model/channel-page';
+import { useSelectedChannelsEdit } from '@/features/channel-selection/model/use-selected-channels-edit';
 import { Checkbox } from '@/shared/ui/checkbox';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
@@ -46,9 +47,8 @@ const POPOVER_ACTION_BUTTON_CLASSES = cn(
 type ComparisonChannelSelectionSubHeaderProps = {
   category: readonly ChannelCategory[];
   onCategoryChange: (category: ChannelCategory[]) => void;
-  onClearSelection: () => void;
   onQueryChange: (query: string) => void;
-  onRemoveChannel: (channelId: string) => void;
+  onSelectedChannelsChange: (channels: readonly ChannelListItem[]) => void;
   query: string;
   selectedChannels: readonly ChannelListItem[];
   title: string;
@@ -232,20 +232,31 @@ function CategoryPopover({
 
 function SelectedChannelsPopover({
   isOpen,
-  onClearSelection,
   onOpenChange,
-  onRemoveChannel,
+  onSelectedChannelsChange,
   selectedChannels,
 }: {
   isOpen: boolean;
-  onClearSelection: () => void;
   onOpenChange: (open: boolean) => void;
-  onRemoveChannel: (channelId: string) => void;
+  onSelectedChannelsChange: (channels: readonly ChannelListItem[]) => void;
   selectedChannels: readonly ChannelListItem[];
 }): JSX.Element {
-  const [isEditing, setIsEditing] = useState(false);
-  const selectedCount = selectedChannels.length;
-  const isEmpty = selectedCount === 0;
+  const selectedChannelsEdit = useSelectedChannelsEdit({
+    selectedChannels,
+    onCommit: onSelectedChannelsChange,
+  });
+  const {
+    displayedChannels,
+    displayedCount,
+    isDisplayedEmpty,
+    isEditing,
+    isEmpty,
+    selectedCount,
+    clearDisplayedSelection,
+    completeEditing,
+    removeDisplayedChannel,
+    startEditing,
+  } = selectedChannelsEdit;
 
   return (
     <Popover.Root open={isOpen} onOpenChange={onOpenChange}>
@@ -260,31 +271,31 @@ function SelectedChannelsPopover({
       <PopupPositioner>
         <Popover.Popup
           data-testid="selected-channels-popover"
-          className={cn(POPUP_CLASSES, 'py-012', isEmpty && 'h-[130px]')}
+          className={cn(POPUP_CLASSES, 'py-012', isDisplayedEmpty && 'h-[130px]')}
         >
           <HStack className="px-018 py-006 h-046 justify-between">
             <Popover.Title className="m-0">
               <Text variant="subtitle-lg" className="text-text-highest">
                 선택한 채널{' '}
-                <span className={isEmpty ? 'text-text-low' : 'text-text-primary'}>
-                  {selectedCount}
+                <span className={isDisplayedEmpty ? 'text-text-low' : 'text-text-primary'}>
+                  {displayedCount}
                 </span>
               </Text>
             </Popover.Title>
             <HStack className="gap-016">
-              <PopoverActionButton disabled={isEmpty} onClick={onClearSelection}>
+              <PopoverActionButton disabled={isDisplayedEmpty} onClick={clearDisplayedSelection}>
                 초기화
               </PopoverActionButton>
               {isEditing ? (
-                <PopoverActionButton onClick={() => setIsEditing(false)}>완료</PopoverActionButton>
+                <PopoverActionButton onClick={completeEditing}>완료</PopoverActionButton>
               ) : (
-                <PopoverActionButton disabled={isEmpty} onClick={() => setIsEditing(true)}>
+                <PopoverActionButton disabled={isEmpty} onClick={startEditing}>
                   편집
                 </PopoverActionButton>
               )}
             </HStack>
           </HStack>
-          {isEmpty ? (
+          {isDisplayedEmpty ? (
             <Popover.Description className="px-018 py-006 m-0 h-[60px]">
               <Stack className="h-full justify-center">
                 <Text variant="subtitle-xxs" className="text-text-low">
@@ -297,13 +308,13 @@ function SelectedChannelsPopover({
             </Popover.Description>
           ) : (
             <Box as="ul" className="pt-012">
-              {selectedChannels.map((channel) => (
+              {displayedChannels.map((channel) => (
                 <HStack as="li" key={channel.id} className="gap-010 px-018 py-008">
                   {isEditing ? (
                     <button
                       type="button"
                       aria-label={`${channel.name} 선택 해제`}
-                      onClick={() => onRemoveChannel(channel.id)}
+                      onClick={() => removeDisplayedChannel(channel.id)}
                       className="bg-sys-error-default size-020 focus-visible:outline-sys-primary-default flex shrink-0 items-center justify-center rounded-[var(--radius-max)] text-white outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
                     >
                       <Minus aria-hidden className="size-012" strokeWidth={2.5} />
@@ -326,9 +337,8 @@ function SelectedChannelsPopover({
 export function ComparisonChannelSelectionSubHeader({
   category,
   onCategoryChange,
-  onClearSelection,
   onQueryChange,
-  onRemoveChannel,
+  onSelectedChannelsChange,
   query,
   selectedChannels,
   title,
@@ -352,9 +362,8 @@ export function ComparisonChannelSelectionSubHeader({
             <Box aria-hidden className="border-outline-low h-[34px] border-l" />
             <SelectedChannelsPopover
               isOpen={openPopover === 'selectedChannels'}
-              onClearSelection={onClearSelection}
               onOpenChange={(open) => setOpenPopover(open ? 'selectedChannels' : null)}
-              onRemoveChannel={onRemoveChannel}
+              onSelectedChannelsChange={onSelectedChannelsChange}
               selectedChannels={selectedChannels}
             />
           </HStack>
