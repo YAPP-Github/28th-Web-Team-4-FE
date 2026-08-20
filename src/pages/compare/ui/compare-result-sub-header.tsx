@@ -1,5 +1,4 @@
 import type { JSX, ReactNode } from 'react';
-import { Info } from 'lucide-react';
 
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
@@ -16,16 +15,13 @@ export function CompareResultSubHeader({
   return (
     <Box className="bg-surface-lowest border-outline-low min-h-072 px-016 py-016 sm:px-032 w-full border-y lg:px-120 lg:py-0">
       <Box className="gap-016 lg:min-h-072 flex w-full max-w-[1200px] flex-col lg:mx-auto lg:flex-row lg:items-center lg:justify-between">
-        <Box className="gap-006 flex max-w-full min-w-0 items-center">
-          <Text
-            as="h1"
-            variant="heading-lg"
-            className="text-text-highest min-w-0 [overflow-wrap:anywhere] break-keep"
-          >
-            {title}
-          </Text>
-          <Info aria-hidden="true" className="text-icon-default size-018 shrink-0" />
-        </Box>
+        <Text
+          as="h1"
+          variant="heading-lg"
+          className="text-text-highest min-w-0 [overflow-wrap:anywhere] break-keep"
+        >
+          {title}
+        </Text>
         {action}
       </Box>
     </Box>
