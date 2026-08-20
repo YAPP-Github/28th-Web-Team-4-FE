@@ -143,7 +143,7 @@ describe('AuthEntryPage', () => {
     expect(screen.getByRole('button', { name: 'Google로 시작하기' })).toBeDisabled();
   });
 
-  it('uses the GIS button for an explicit Google sign-in retry', () => {
+  it('keeps the custom Google button visible while using GIS for sign-in', () => {
     const initializeMock = vi.fn<(options: unknown) => void>();
     const renderButtonMock = vi.fn<(parent: HTMLElement, options: unknown) => void>();
     const promptMock = vi.fn<() => void>();
@@ -167,6 +167,10 @@ describe('AuthEntryPage', () => {
         text: 'continue_with',
       }),
     );
+    expect(screen.getByRole('button', { name: 'Google로 시작하기' })).toBeEnabled();
+    const googleButtonContainer = document.querySelector('div[aria-hidden="true"]');
+    expect(googleButtonContainer).toHaveClass('pointer-events-auto');
+    expect(googleButtonContainer).not.toHaveClass('pointer-events-none');
     expect(promptMock).not.toHaveBeenCalled();
   });
 
