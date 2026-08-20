@@ -17,7 +17,44 @@ class ResizeObserverStub {
   disconnect(): void {}
 }
 
-vi.stubGlobal('ResizeObserver', ResizeObserverStub);
+class IntersectionObserverStub {
+  constructor(private readonly callback: IntersectionObserverCallback) {}
+
+  observe(element: Element): void {
+    this.callback(
+      [
+        {
+          boundingClientRect: element.getBoundingClientRect(),
+          intersectionRatio: 1,
+          intersectionRect: element.getBoundingClientRect(),
+          isIntersecting: true,
+          rootBounds: null,
+          target: element,
+          time: 0,
+        } as IntersectionObserverEntry,
+      ],
+      this as unknown as IntersectionObserver,
+    );
+  }
+
+  unobserve(): void {}
+  disconnect(): void {}
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
+}
+
+Object.defineProperty(globalThis, 'ResizeObserver', {
+  writable: true,
+  configurable: true,
+  value: ResizeObserverStub,
+});
+
+Object.defineProperty(globalThis, 'IntersectionObserver', {
+  writable: true,
+  configurable: true,
+  value: IntersectionObserverStub,
+});
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
