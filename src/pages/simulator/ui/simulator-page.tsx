@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type JSX } from 'react';
+import { useRouter } from 'next/navigation';
 import type { SimulationResponse } from '@/shared/api/generated';
 
 import { Box } from '@/shared/ui/layout/box';
@@ -10,6 +11,24 @@ import { SimulatorChannelResults } from './simulator-channel-results';
 import { SimulatorChannelSelectionButton } from './simulator-channel-selection-button';
 import { SimulatorResultSummary } from './simulator-result-summary';
 import { SimulatorSubHeader } from './simulator-sub-header';
+import { SimulatorTutorialGate } from './simulator-tutorial-gate';
+
+function createSimulatorResultHref(
+  channelIds: readonly string[],
+  preserveFilterOpen = false,
+): string {
+  const searchParams = new URLSearchParams();
+
+  for (const channelId of channelIds) {
+    searchParams.append('channelIds', channelId);
+  }
+
+  if (preserveFilterOpen) {
+    searchParams.set('filterOpen', 'true');
+  }
+
+  return channelIds.length > 0 ? `/simulator?${searchParams.toString()}` : '/simulator';
+}
 
 export type SimulatorPageProps = {
   isLogin: boolean;
@@ -17,6 +36,7 @@ export type SimulatorPageProps = {
   selectedChannelIds?: readonly string[];
   initialSimulationResult?: SimulationResponse | null;
   isSavedResult?: boolean;
+  initialFilterOpen?: boolean;
 };
 
 export function SimulatorPage({
@@ -25,13 +45,23 @@ export function SimulatorPage({
   selectedChannelIds = [],
   initialSimulationResult = null,
   isSavedResult = false,
+  initialFilterOpen = false,
 }: SimulatorPageProps): JSX.Element {
+  const router = useRouter();
   const [simulationResult, setSimulationResult] = useState<SimulationResponse | null>(
     initialSimulationResult,
   );
 
+  const handleChannelRemove = (channelId: string): void => {
+    const nextChannelIds = selectedChannelIds.filter((selectedId) => selectedId !== channelId);
+
+    setSimulationResult(null);
+    router.replace(createSimulatorResultHref(nextChannelIds, true), { scroll: false });
+  };
+
   return (
     <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-hidden">
+      {isSavedResult ? null : <SimulatorTutorialGate />}
       <SimulatorSubHeader
         simulationResult={simulationResult}
         showSaveAction={!isSavedResult}
@@ -61,7 +91,9 @@ export function SimulatorPage({
       {!isSavedResult && isLogin && isChannelSelectionComplete ? (
         <SimulatorChannelSelectionButton
           selectedChannelIds={selectedChannelIds}
+          initialFilterOpen={initialFilterOpen}
           onSimulationResult={setSimulationResult}
+          onChannelRemove={handleChannelRemove}
         />
       ) : null}
     </main>

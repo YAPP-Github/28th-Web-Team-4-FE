@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ChannelListItem } from '@/features/channel-selection/model/channel-page';
 
@@ -16,7 +17,7 @@ function createChannel(id: string, name: string): ChannelListItem {
   return {
     id,
     name,
-    logoUrl: null,
+    iconUrl: null,
     description: `${name} 설명`,
     primaryCategory: 'OTHERS',
   };

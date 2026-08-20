@@ -85,7 +85,7 @@ function createChannel(
   return {
     id,
     name,
-    logoUrl: null,
+    iconUrl: null,
     description: `${name} 채널 설명`,
     primaryCategory,
   };
@@ -121,7 +121,7 @@ function createComparisonItem(
   return {
     channelId,
     channelName: COMPARISON_CHANNEL_NAMES[channelId] ?? `${channelId} 채널`,
-    previewImageUrl: null,
+    iconUrl: null,
     audienceSummary: '20~40대',
     adFormats: ['배너'],
     targetingMethods: ['관심사'],
@@ -1310,6 +1310,27 @@ describe('ComparePage', () => {
       screen.queryByRole('heading', { name: '서비스명을 입력해 주세요' }),
     ).not.toBeInTheDocument();
     expect(saveMock).not.toHaveBeenCalled();
+  });
+
+  it('비로그인 사용자는 맞춤 비교 구간 대신 로그인 안내를 보여준다', async () => {
+    renderCompareResultPage('?channels=channel-naver,channel-kakao', undefined, {
+      authenticated: false,
+    });
+
+    expect(
+      await screen.findByRole('heading', { name: '선택한 채널별 특징과 성과를 비교한 결과예요' }),
+    ).toBeVisible();
+    expect(screen.getAllByRole('heading', { name: '네이버 검색 광고' })[0]).toBeVisible();
+    expect(screen.queryByText(/^적합도/)).not.toBeInTheDocument();
+    expect(screen.getAllByText('로그인하면')[0]).toBeVisible();
+    expect(screen.getAllByText('전체 결과를 볼 수 있어요')[0]).toBeVisible();
+    expect(screen.getAllByRole('link', { name: '로그인하기' })[0]).toBeVisible();
+    expect(screen.getByRole('region', { name: '채널별 CPC와 CPM' })).toBeVisible();
+    expect(screen.getByRole('region', { name: '채널별 인사이트' })).toBeVisible();
+    expect(
+      screen.queryByRole('region', { name: '채널별 예상 노출 · 클릭 수' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: '채널별 상세 정보' })).not.toBeInTheDocument();
   });
 
   it('채널 비교 결과 저장에 실패하면 경고 토스트를 보여준다', async () => {

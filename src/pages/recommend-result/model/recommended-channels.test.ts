@@ -18,6 +18,7 @@ describe('recommendedChannels', () => {
         {
           channelId: 'kakao-1',
           channelName: '카카오 비즈보드',
+          wordmarkUrl: 'https://assets.chaeso-zip.com/wordmarks/kakao.png',
           matchRate: 84,
           recommendationReason: '모바일 도달에 적합해요.',
           primaryTarget: '20대',
@@ -38,7 +39,8 @@ describe('recommendedChannels', () => {
         cpcPrice: '클릭 1회당 320원~',
         isLowestCpc: true,
         matchRate: 84,
-        thumbnailSrc: '/recommend-assets/kakao-ad.png',
+        thumbnailSrc: 'https://assets.chaeso-zip.com/wordmarks/kakao.png',
+        thumbnailFallbackSrc: '/recommend-assets/kakao-ad.png',
         metrics: [
           { label: '예상 노출', value: '12,000~15,000회' },
           { label: '예상 클릭', value: '300~450회' },
@@ -57,6 +59,7 @@ describe('recommendedChannels', () => {
     ): RecommendationItemResponse => ({
       channelId,
       channelName: channelId,
+      wordmarkUrl: null,
       matchRate: 80,
       recommendationReason: '추천 이유',
       primaryTarget: '20대',
@@ -89,6 +92,7 @@ describe('recommendedChannels', () => {
       {
         channelId: 'missing-cpc',
         channelName: '단가 없는 채널',
+        wordmarkUrl: null,
         matchRate: 70,
         recommendationReason: '추천 이유',
         primaryTarget: '20대',
@@ -111,6 +115,7 @@ describe('recommendedChannels', () => {
         {
           channelId: 'unknown-1',
           channelName: '새로운 광고 채널',
+          wordmarkUrl: null,
           matchRate: 42,
           recommendationReason: '조건에 맞는 채널이에요.',
           primaryTarget: '정보 없음',

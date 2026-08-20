@@ -9,7 +9,7 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
   return {
     id: 'channel-meta',
     name: '메타 광고',
-    logoUrl: ' https://cdn.example.com/meta.png ',
+    iconUrl: ' https://cdn.example.com/meta.png ',
     tagline: ' 퍼포먼스와 브랜딩을 모두 커버하는 채널 ',
     description: ' 정교한 관심사 타기팅을 제공해요. ',
     primaryCategory: 'SHOPPING_COMMERCE',
@@ -91,7 +91,7 @@ describe('toChannelDetailViewModel', () => {
     expect(result).toMatchObject({
       id: 'channel-meta',
       name: '메타 광고',
-      logoUrl: 'https://cdn.example.com/meta.png',
+      iconUrl: 'https://cdn.example.com/meta.png',
       tagline: '퍼포먼스와 브랜딩을 모두 커버하는 채널',
       summary: {
         keywords: ['KPI 최적', '입문자 추천'],
@@ -139,7 +139,7 @@ describe('toChannelDetailViewModel', () => {
   it('nullable 필드가 null이면 화면에서 사용할 기본 표시값으로 변환한다', () => {
     const result = toChannelDetailViewModel(
       createChannelDetail({
-        logoUrl: null,
+        iconUrl: null,
         tagline: null,
         description: null,
         primaryAgeBand: null,
@@ -168,7 +168,7 @@ describe('toChannelDetailViewModel', () => {
       }),
     );
 
-    expect(result.logoUrl).toBe('');
+    expect(result.iconUrl).toBe('');
     expect(result.tagline).toBe('');
     expect(result.summary.paragraphs).toEqual([]);
     expect(result.summary.keywords).toEqual([]);

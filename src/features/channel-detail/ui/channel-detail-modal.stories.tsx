@@ -16,7 +16,7 @@ import { ChannelDetailModal } from './channel-detail-modal';
 const CHANNEL_HEADER = {
   id: CHANNEL_DETAIL_FIXTURE.id,
   name: CHANNEL_DETAIL_FIXTURE.name,
-  logoUrl: CHANNEL_DETAIL_FIXTURE.logoUrl,
+  iconUrl: CHANNEL_DETAIL_FIXTURE.iconUrl,
   description: CHANNEL_DETAIL_FIXTURE.tagline,
 } as const;
 

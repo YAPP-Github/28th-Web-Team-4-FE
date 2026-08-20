@@ -33,7 +33,7 @@ function CompareResultChannelCard({
   return (
     <Box
       as="article"
-      className="bg-surface-lowest px-016 pt-018 flex h-[112px] w-full shrink-0 cursor-pointer items-start rounded-[var(--radius-m)] lg:w-[256px]"
+      className="bg-surface-lowest px-016 py-018 flex h-full w-full shrink-0 cursor-pointer items-start rounded-[var(--radius-m)] lg:w-[256px]"
     >
       <Box className="flex w-full items-start justify-between">
         <Box aria-hidden="true" className="size-016 shrink-0" />
@@ -90,7 +90,7 @@ export function CompareResultChannelCards({
   return (
     <Box as="ul" className="gap-012 flex w-full flex-col lg:flex-row">
       {channels.map((channel, index) => (
-        <Box as="li" key={channel.id} className="w-full lg:w-auto">
+        <Box as="li" key={channel.id} className="flex w-full lg:w-auto">
           <CompareResultChannelCard
             channel={channel}
             highlighted={index === 0}
@@ -101,7 +101,7 @@ export function CompareResultChannelCards({
         </Box>
       ))}
       {!readOnly && addChannelSlot != null ? (
-        <Box as="li" className="w-full lg:w-auto">
+        <Box as="li" className="flex w-full lg:w-auto">
           {addChannelSlot}
         </Box>
       ) : null}

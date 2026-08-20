@@ -64,6 +64,7 @@ const SIMULATION_RESULT: SimulationResponse = {
     {
       channelId: 'channel-a',
       channelName: '채널 A',
+      iconUrl: null,
       channelProductId: 'product-a',
       allocatedBudgetWon: 500_000,
       allocationPct: null,

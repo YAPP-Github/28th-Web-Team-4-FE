@@ -7,6 +7,7 @@ import { SimulatorChannelSelectionButton } from './simulator-channel-selection-b
 
 const SELECTED_CHANNEL_IDS = ['channel-a', 'channel-b', 'channel-c'] as const;
 const onSimulationResultMock = vi.fn<(result: SimulationResponse) => void>();
+const onChannelRemoveMock = vi.fn<(channelId: string) => void>();
 const estimateMutationFnMock = vi.hoisted(() => vi.fn<(options: unknown) => Promise<unknown>>());
 
 vi.mock('@/features/simulator-filter/api/use-simulator-filter-channels', () => ({
@@ -25,12 +26,17 @@ vi.mock('@/shared/api/generated/@tanstack/react-query.gen', () => ({
   estimateSimulationMutation: () => ({ mutationFn: estimateMutationFnMock }),
 }));
 
-function renderSimulatorChannelSelectionButton() {
+function renderSimulatorChannelSelectionButton(
+  selectedChannelIds: readonly string[] = SELECTED_CHANNEL_IDS,
+  initialFilterOpen = false,
+) {
   return render(
     <QueryClientProvider client={new QueryClient()}>
       <SimulatorChannelSelectionButton
-        selectedChannelIds={SELECTED_CHANNEL_IDS}
+        selectedChannelIds={selectedChannelIds}
+        initialFilterOpen={initialFilterOpen}
         onSimulationResult={onSimulationResultMock}
+        onChannelRemove={onChannelRemoveMock}
       />
     </QueryClientProvider>,
   );
@@ -39,6 +45,7 @@ function renderSimulatorChannelSelectionButton() {
 describe('SimulatorChannelSelectionButton', () => {
   beforeEach(() => {
     onSimulationResultMock.mockReset();
+    onChannelRemoveMock.mockReset();
     estimateMutationFnMock.mockReset();
     estimateMutationFnMock.mockResolvedValue({
       data: {
@@ -71,6 +78,12 @@ describe('SimulatorChannelSelectionButton', () => {
     expect(screen.getByText('매체별 예산 배분')).toBeVisible();
   });
 
+  it('초기 필터 열림 상태를 유지한다', async () => {
+    renderSimulatorChannelSelectionButton(SELECTED_CHANNEL_IDS, true);
+
+    expect(await screen.findByRole('dialog', { name: '필터' })).toBeVisible();
+  });
+
   it('필터 패널의 닫기 버튼을 누르면 패널을 닫는다', async () => {
     const user = userEvent.setup();
     renderSimulatorChannelSelectionButton();
@@ -83,6 +96,28 @@ describe('SimulatorChannelSelectionButton', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog', { name: '필터' })).not.toBeInTheDocument();
     });
+  });
+
+  it('채널별 X 버튼을 누르면 해당 채널 삭제를 요청한다', async () => {
+    const user = userEvent.setup();
+    renderSimulatorChannelSelectionButton();
+
+    await user.click(screen.getByRole('button', { name: '필터 조정하기' }));
+    await user.click(screen.getByRole('button', { name: '채널 A 채널 삭제' }));
+
+    expect(onChannelRemoveMock).toHaveBeenCalledWith('channel-a');
+  });
+
+  it('선택 채널이 3개 미만이면 채널 추가 링크를 보여준다', async () => {
+    const user = userEvent.setup();
+    renderSimulatorChannelSelectionButton(['channel-a', 'channel-b']);
+
+    await user.click(screen.getByRole('button', { name: '필터 조정하기' }));
+
+    expect(screen.getByRole('link', { name: '채널 추가하기' })).toHaveAttribute(
+      'href',
+      '/simulator/channels?channelIds=channel-a&channelIds=channel-b',
+    );
   });
 
   it('총 광고 예산 슬라이더를 조작하면 예산 표시를 갱신한다', async () => {

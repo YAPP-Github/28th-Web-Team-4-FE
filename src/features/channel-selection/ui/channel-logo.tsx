@@ -11,7 +11,7 @@ import { Text } from '@/shared/ui/text';
 type ChannelLogoVariant = 'card' | 'selected';
 
 type ChannelLogoProps = {
-  channel: Pick<ChannelListItem, 'logoUrl' | 'name'>;
+  channel: Pick<ChannelListItem, 'iconUrl' | 'name'>;
   variant?: ChannelLogoVariant;
 };
 
@@ -26,9 +26,9 @@ const CHANNEL_LOGO_SIZE: Record<ChannelLogoVariant, number> = {
 };
 
 export function ChannelLogo({ channel, variant = 'card' }: ChannelLogoProps): JSX.Element {
-  const logoUrl = channel.logoUrl?.trim() ?? '';
-  const [failedLogoUrl, setFailedLogoUrl] = useState<string | null>(null);
-  const shouldShowLogo = logoUrl.length > 0 && failedLogoUrl !== logoUrl;
+  const iconUrl = channel.iconUrl?.trim() ?? '';
+  const [failedIconUrl, setFailedIconUrl] = useState<string | null>(null);
+  const shouldShowLogo = iconUrl.length > 0 && failedIconUrl !== iconUrl;
   const logoSize = CHANNEL_LOGO_SIZE[variant];
 
   return (
@@ -40,12 +40,12 @@ export function ChannelLogo({ channel, variant = 'card' }: ChannelLogoProps): JS
     >
       {shouldShowLogo ? (
         <Image
-          src={logoUrl}
+          src={iconUrl}
           alt=""
           width={logoSize}
           height={logoSize}
           onError={() => {
-            setFailedLogoUrl(logoUrl);
+            setFailedIconUrl(iconUrl);
           }}
           className="size-full object-cover"
         />

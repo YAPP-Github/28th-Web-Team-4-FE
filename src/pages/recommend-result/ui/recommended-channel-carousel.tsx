@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState, useSyncExternalStore, type CSSProperties, type JSX } from 'react';
+import { useId, useSyncExternalStore, type JSX } from 'react';
 import { Button as BaseButton } from '@base-ui/react/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -9,6 +9,7 @@ import { Box } from '@/shared/ui/layout/box';
 import { Flex } from '@/shared/ui/layout/flex';
 
 import { RecommendedChannelGrid } from './recommended-channel-grid';
+import { useRecommendedChannelCarousel } from './use-recommended-channel-carousel';
 
 type RecommendedChannelCarouselProps = {
   channels: readonly RecommendedChannel[];
@@ -17,10 +18,6 @@ type RecommendedChannelCarouselProps = {
   isGuest?: boolean;
   onOpenDetail: (channel: RecommendedChannel) => void;
   onToggleSelection: (channelId: string) => void;
-};
-
-type CarouselTrackStyle = CSSProperties & {
-  '--carousel-translate-x': string;
 };
 
 type CarouselArrowDirection = 'previous' | 'next';
@@ -42,6 +39,7 @@ type CarouselPaginationProps = {
 const TABLET_MEDIA_QUERY = '(min-width: 48rem)';
 const SMALL_DESKTOP_MEDIA_QUERY = '(min-width: 64rem)';
 const DESKTOP_MEDIA_QUERY = '(min-width: 80rem)';
+const REDUCED_MOTION_MEDIA_QUERY = '(prefers-reduced-motion)';
 
 const CAROUSEL_BREAKPOINTS = [
   TABLET_MEDIA_QUERY,
@@ -76,6 +74,21 @@ function getCarouselColumnsSnapshot(): 1 | 2 | 3 | 4 {
 
 function getServerCarouselColumnsSnapshot(): 1 {
   return 1;
+}
+
+function subscribeToReducedMotion(onStoreChange: () => void): () => void {
+  const mediaQuery = window.matchMedia(REDUCED_MOTION_MEDIA_QUERY);
+  mediaQuery.addEventListener('change', onStoreChange);
+
+  return () => mediaQuery.removeEventListener('change', onStoreChange);
+}
+
+function getReducedMotionSnapshot(): boolean {
+  return window.matchMedia(REDUCED_MOTION_MEDIA_QUERY).matches;
+}
+
+function getReducedMotionServerSnapshot(): boolean {
+  return false;
 }
 
 function getChannelPages(
@@ -142,6 +155,7 @@ function CarouselPagination({
   );
 }
 
+/** 추천 채널을 브레이크포인트별 페이지로 나누고, 터치 스와이프로 이동할 수 있는 캐러셀. */
 export function RecommendedChannelCarousel({
   channels,
   startDelay = 0.04,
@@ -151,13 +165,23 @@ export function RecommendedChannelCarousel({
   onToggleSelection,
 }: RecommendedChannelCarouselProps): JSX.Element {
   const carouselId = useId();
+  const shouldReduceMotion = useSyncExternalStore(
+    subscribeToReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot,
+  );
   const channelsPerPage = useSyncExternalStore(
     subscribeToCarouselColumns,
     getCarouselColumnsSnapshot,
     getServerCarouselColumnsSnapshot,
   );
-  const [currentStartIndex, setCurrentStartIndex] = useState(0);
   const pages = getChannelPages(channels, channelsPerPage);
+  const { currentStartIndex, emblaRef, goPrevious, goNext, goToPage } =
+    useRecommendedChannelCarousel({
+      channelsPerPage,
+      pageCount: pages.length,
+      shouldReduceMotion,
+    });
   const lastPage = Math.max(pages.length - 1, 0);
   const lastStartIndex = lastPage * channelsPerPage;
   const safeStartIndex = Math.min(
@@ -166,17 +190,6 @@ export function RecommendedChannelCarousel({
   );
   const currentPage = Math.floor(safeStartIndex / channelsPerPage);
   const hasMultiplePages = pages.length > 1;
-  const trackStyle: CarouselTrackStyle = {
-    '--carousel-translate-x': `${currentPage * -100}%`,
-  };
-
-  const handlePrevious = (): void => {
-    setCurrentStartIndex((startIndex) => Math.max(startIndex - channelsPerPage, 0));
-  };
-
-  const handleNext = (): void => {
-    setCurrentStartIndex((startIndex) => Math.min(startIndex + channelsPerPage, lastStartIndex));
-  };
 
   return (
     <Box
@@ -191,22 +204,21 @@ export function RecommendedChannelCarousel({
             direction="previous"
             controlsId={carouselId}
             disabled={currentPage === 0}
-            onClick={handlePrevious}
+            onClick={goPrevious}
           />
           <CarouselArrowButton
             direction="next"
             controlsId={carouselId}
             disabled={currentPage === lastPage}
-            onClick={handleNext}
+            onClick={goNext}
           />
         </>
       ) : null}
 
-      <Box className="overflow-x-clip">
+      <Box ref={emblaRef} className="-mt-[60px] overflow-hidden pt-[60px]">
         <Flex
           id={carouselId}
-          style={trackStyle}
-          className="motion-safe:ease-in-out-cubic w-full flex-row gap-0 motion-safe:[transform:translate3d(var(--carousel-translate-x),0,0)] motion-safe:transition-transform motion-safe:duration-[280ms] motion-safe:will-change-transform motion-reduce:transition-none"
+          className="gap-024 w-full touch-pan-y [touch-action:pan-y_pinch-zoom] flex-row"
         >
           {pages.map((page, pageIndex) => {
             const startIndex = pageIndex * channelsPerPage;
@@ -220,7 +232,7 @@ export function RecommendedChannelCarousel({
                 aria-label={`${pageIndex + 1} / ${pages.length}`}
                 aria-hidden={isInactivePage ? true : undefined}
                 inert={isInactivePage}
-                className="w-full shrink-0 basis-full"
+                className="w-full min-w-0 shrink-0 basis-full"
               >
                 <RecommendedChannelGrid
                   channels={page}
@@ -241,7 +253,7 @@ export function RecommendedChannelCarousel({
         pageCount={pages.length}
         currentPage={currentPage}
         controlsId={carouselId}
-        onPageChange={(pageIndex) => setCurrentStartIndex(pageIndex * channelsPerPage)}
+        onPageChange={goToPage}
       />
 
       {hasMultiplePages ? (
