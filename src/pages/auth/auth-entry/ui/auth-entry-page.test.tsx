@@ -69,7 +69,7 @@ async function openGoogleLinkModal() {
         >((options) => {
           credentialCallback = options.callback;
         }),
-        prompt: vi.fn<() => void>(),
+        renderButton: vi.fn<(parent: HTMLElement, options: unknown) => void>(),
       },
     },
   });
@@ -115,9 +115,10 @@ describe('AuthEntryPage', () => {
 
   it('initializes Google authentication from Script onReady', () => {
     const initializeMock = vi.fn<(options: unknown) => void>();
+    const renderButtonMock = vi.fn<(parent: HTMLElement, options: unknown) => void>();
     vi.stubEnv('NEXT_PUBLIC_GOOGLE_CLIENT_ID', 'google-client-id');
     vi.stubGlobal('google', {
-      accounts: { id: { initialize: initializeMock, prompt: vi.fn<() => void>() } },
+      accounts: { id: { initialize: initializeMock, renderButton: renderButtonMock } },
     });
     renderAuthEntryPage();
 
@@ -126,7 +127,10 @@ describe('AuthEntryPage', () => {
     expect(initializeMock).toHaveBeenCalledWith(
       expect.objectContaining({ client_id: 'google-client-id' }),
     );
-    expect(screen.getByRole('button', { name: 'Google로 시작하기' })).toBeEnabled();
+    expect(renderButtonMock).toHaveBeenCalledWith(
+      expect.any(HTMLElement),
+      expect.objectContaining({ text: 'continue_with', locale: 'ko' }),
+    );
   });
 
   it('shows an error when Google authentication has no Client ID', () => {
@@ -139,26 +143,31 @@ describe('AuthEntryPage', () => {
     expect(screen.getByRole('button', { name: 'Google로 시작하기' })).toBeDisabled();
   });
 
-  it('shows guidance when Google One Tap is skipped', async () => {
-    const user = userEvent.setup();
-    const promptMock = vi.fn<
-      (listener?: (notification: { isSkippedMoment: () => boolean }) => void) => void
-    >((listener) => {
-      listener?.({ isSkippedMoment: () => true });
-    });
+  it('uses the GIS button for an explicit Google sign-in retry', () => {
+    const initializeMock = vi.fn<(options: unknown) => void>();
+    const renderButtonMock = vi.fn<(parent: HTMLElement, options: unknown) => void>();
+    const promptMock = vi.fn<() => void>();
     vi.stubEnv('NEXT_PUBLIC_GOOGLE_CLIENT_ID', 'google-client-id');
     vi.stubGlobal('google', {
-      accounts: { id: { initialize: vi.fn<(options: unknown) => void>(), prompt: promptMock } },
+      accounts: {
+        id: {
+          initialize: initializeMock,
+          renderButton: renderButtonMock,
+          prompt: promptMock,
+        },
+      },
     });
     renderAuthEntryPage();
     act(() => scriptPropsMock.mock.calls.at(-1)?.[0].onReady?.());
 
-    await user.click(screen.getByRole('button', { name: 'Google로 시작하기' }));
-
-    expect(promptMock).toHaveBeenCalledWith(expect.any(Function));
-    expect(screen.getByRole('alert')).toHaveTextContent(
-      'Google 로그인을 진행하지 못했습니다. 다시 시도해 주세요.',
+    expect(renderButtonMock).toHaveBeenCalledWith(
+      expect.any(HTMLElement),
+      expect.objectContaining({
+        type: 'standard',
+        text: 'continue_with',
+      }),
     );
+    expect(promptMock).not.toHaveBeenCalled();
   });
 
   it('shows the account link modal and continues with local login when deferred', async () => {

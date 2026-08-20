@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type JSX } from 'react';
+import { useRef, useState, type JSX } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
@@ -10,7 +10,6 @@ import type { z } from 'zod';
 import { AuthForm } from '@/features/auth/auth-form';
 import { getApiErrorMessage } from '@/shared/api/api-error';
 import { Button } from '@/shared/ui/button';
-import { GoogleLogo } from '@/shared/ui/google-logo';
 import { InputField } from '@/shared/ui/input-field';
 import { Text } from '@/shared/ui/text';
 import { authEntrySchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
@@ -131,10 +130,10 @@ export function AuthEntryForm(): JSX.Element {
     isGoogleAuthPending,
     isGoogleLinkPending,
     isGoogleReady,
-    promptGoogleIdentity,
   } = useGoogleAuthFlow({
     onDeferLink: (email) => setExistingAccountEmail(email),
   });
+  const googleButtonContainerRef = useRef<HTMLDivElement>(null);
   const {
     clearErrors,
     formState: { errors },
@@ -190,7 +189,7 @@ export function AuthEntryForm(): JSX.Element {
       <Script
         src="https://accounts.google.com/gsi/client"
         strategy="afterInteractive"
-        onReady={initializeGoogleIdentity}
+        onReady={() => initializeGoogleIdentity(googleButtonContainerRef.current)}
       />
       <AuthForm
         actions={
@@ -208,16 +207,26 @@ export function AuthEntryForm(): JSX.Element {
             >
               이메일로 시작하기
             </Button>
-            <Button
-              frame="button"
-              tone="social"
-              type="button"
-              disabled={resolveEmailMutation.isPending || isGoogleAuthPending || !isGoogleReady}
-              leftIcon={<GoogleLogo alt="" />}
-              onClick={promptGoogleIdentity}
-            >
-              Google로 시작하기
-            </Button>
+            <div className="relative flex min-h-[50px] w-full justify-center">
+              {isGoogleReady ? null : (
+                <Button frame="button" tone="social" type="button" disabled>
+                  Google로 시작하기
+                </Button>
+              )}
+              <div
+                ref={googleButtonContainerRef}
+                className={
+                  isGoogleReady
+                    ? `flex w-full justify-center ${
+                        resolveEmailMutation.isPending || isGoogleAuthPending
+                          ? 'pointer-events-none opacity-60'
+                          : ''
+                      }`
+                    : 'hidden'
+                }
+                aria-disabled={resolveEmailMutation.isPending || isGoogleAuthPending}
+              />
+            </div>
             <button
               type="button"
               className="typo-subtitle-xxs text-text-medium self-center underline underline-offset-2"
