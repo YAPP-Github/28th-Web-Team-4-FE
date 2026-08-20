@@ -21,7 +21,7 @@ vi.mock('@/shared/api/hey-api', () => ({
 const CHANNEL: ChannelListItemResponse = {
   id: 'channel-meta',
   name: '메타 광고',
-  logoUrl: null,
+  iconUrl: null,
   description: '목적에 맞는 정교한 타기팅 채널',
   primaryCategory: 'SHOPPING_COMMERCE',
 };
@@ -32,7 +32,7 @@ function createDetailResponse(
   return {
     id: CHANNEL.id,
     name: CHANNEL.name,
-    logoUrl: null,
+    iconUrl: null,
     tagline: '상세 API tagline',
     description: '메타 광고 상세 설명',
     primaryCategory: CHANNEL.primaryCategory,

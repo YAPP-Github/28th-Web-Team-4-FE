@@ -30,7 +30,7 @@ export type ChannelRecommendationReason = {
 export type ChannelDetail = {
   id: string;
   name: string;
-  logoUrl: string;
+  iconUrl: string;
   tagline: string;
   summary: {
     keywords: string[];

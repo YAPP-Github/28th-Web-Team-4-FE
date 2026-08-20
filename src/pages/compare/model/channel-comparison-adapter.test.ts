@@ -8,7 +8,7 @@ function createComparisonItem(
   return {
     channelId: 'channel-naver',
     channelName: '네이버 검색 광고',
-    previewImageUrl: null,
+    iconUrl: null,
     audienceSummary: '20~40대 여성',
     adFormats: ['배너', '피드', '릴스'],
     targetingMethods: ['관심사', '행동'],
@@ -142,7 +142,7 @@ describe('mapChannelComparisonItemsToChannels', () => {
 
   it('저장된 결과가 제공한 미리보기 로고를 우선 사용한다', () => {
     const [channel] = mapChannelComparisonItemsToChannels([
-      createComparisonItem({ previewImageUrl: 'https://cdn.example.com/naver.png' }),
+      createComparisonItem({ iconUrl: 'https://cdn.example.com/naver.png' }),
     ]);
 
     expect(channel.logoSrc).toBe('https://cdn.example.com/naver.png');

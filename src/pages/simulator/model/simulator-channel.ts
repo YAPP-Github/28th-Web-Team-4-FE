@@ -17,6 +17,7 @@ export type ChannelMetric = {
 export type ChannelResult = {
   channelId?: string;
   name: string;
+  iconUrl?: string | null;
   type?: ChannelType;
   basisNote?: string;
   isExecutable?: boolean;
@@ -204,6 +205,7 @@ export function createChannelResults(
     return {
       channelId: channel.id,
       name: item?.channelName ?? channel.name,
+      iconUrl: item?.iconUrl,
       basisNote: item?.basisNote,
       isExecutable: item?.isExecutable,
       budgetWon: item?.allocatedBudgetWon ?? 0,

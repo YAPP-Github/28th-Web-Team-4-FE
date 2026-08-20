@@ -9,7 +9,7 @@ export function getRecommendedChannelDetailHeader(
   return {
     id: channel.id,
     name: channel.name,
-    logoUrl: channel.thumbnailSrc,
+    iconUrl: channel.thumbnailSrc,
     description: channel.description,
   };
 }

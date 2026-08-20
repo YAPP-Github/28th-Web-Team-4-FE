@@ -124,7 +124,7 @@ export function toChannelDetailViewModel(channel: ChannelDetailResponseForAdapte
   return {
     id: channel.id,
     name: channel.name,
-    logoUrl: channel.logoUrl?.trim() ?? '',
+    iconUrl: channel.iconUrl?.trim() ?? '',
     tagline: tagline ?? '',
     summary: {
       keywords: getNonEmptyTextList(channel.tags),

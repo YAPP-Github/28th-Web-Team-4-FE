@@ -22,7 +22,7 @@ export function ChannelDetailQuery({
         channel={{
           id: channel.id,
           name: channel.name,
-          logoUrl: channel.logoUrl,
+          iconUrl: channel.iconUrl,
           description: channel.tagline,
         }}
       />

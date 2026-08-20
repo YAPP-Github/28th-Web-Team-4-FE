@@ -64,7 +64,7 @@ export function mapChannelComparisonItemsToChannels(
   const maximumClicks = getMaximumRangeCenter(items, 'estClicks');
 
   return items.map((item) => {
-    const logoSrc = item.previewImageUrl ?? getTemporaryChannelLogoSrc(item.channelName);
+    const logoSrc = item.iconUrl ?? getTemporaryChannelLogoSrc(item.channelName);
 
     return {
       id: item.channelId,

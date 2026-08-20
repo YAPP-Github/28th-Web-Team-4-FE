@@ -17,6 +17,7 @@ export type RecommendedChannel = {
   isLowestCpc: boolean;
   matchRate: number;
   thumbnailSrc: string;
+  thumbnailFallbackSrc?: string;
   metrics: RecommendedChannelMetric[];
 };
 
@@ -51,7 +52,7 @@ function formatOptionalCountRange(range: CountRangeResponse | null): string {
   return formatCountRange(range);
 }
 
-function getRecommendationThumbnailSrc(item: RecommendationItemResponse): string {
+function getRecommendationThumbnailFallbackSrc(item: RecommendationItemResponse): string {
   const channelName = item.channelName.toLowerCase();
 
   if (channelName.includes('카카오')) {
@@ -96,29 +97,38 @@ export function mapRecommendationItemsToChannels(
 ): RecommendedChannel[] {
   const lowestCpcWon = getLowestCpcWon(itemList);
 
-  return itemList.map((item) => ({
-    id: item.channelId,
-    name: item.channelName,
-    description: item.recommendationReason,
-    cpcPrice: getCpcPriceLabel(item.cpcWon),
-    isLowestCpc: lowestCpcWon !== null && item.cpcWon === lowestCpcWon,
-    matchRate: item.matchRate,
-    thumbnailSrc: getRecommendationThumbnailSrc(item),
-    metrics: [
-      { label: '예상 노출', value: formatOptionalCountRange(item.estImpressions) },
-      { label: '예상 클릭', value: formatOptionalCountRange(item.estClicks) },
-      {
-        label: '최소 예산',
-        value:
-          typeof item.minBudgetWon === 'number' ? formatCompactWon(item.minBudgetWon) : '정보 없음',
-      },
-      { label: '주요 타깃', value: item.primaryTarget },
-      {
-        label: '과금 방식',
-        value: getPricingModelLabel(item.pricingModel),
-      },
-    ],
-  }));
+  return itemList.map((item) => {
+    const thumbnailFallbackSrc = getRecommendationThumbnailFallbackSrc(item);
+    const wordmarkUrl = item.wordmarkUrl?.trim() ?? '';
+    const hasWordmark = wordmarkUrl.length > 0;
+
+    return {
+      id: item.channelId,
+      name: item.channelName,
+      description: item.recommendationReason,
+      cpcPrice: getCpcPriceLabel(item.cpcWon),
+      isLowestCpc: lowestCpcWon !== null && item.cpcWon === lowestCpcWon,
+      matchRate: item.matchRate,
+      thumbnailSrc: hasWordmark ? wordmarkUrl : thumbnailFallbackSrc,
+      ...(hasWordmark ? { thumbnailFallbackSrc } : {}),
+      metrics: [
+        { label: '예상 노출', value: formatOptionalCountRange(item.estImpressions) },
+        { label: '예상 클릭', value: formatOptionalCountRange(item.estClicks) },
+        {
+          label: '최소 예산',
+          value:
+            typeof item.minBudgetWon === 'number'
+              ? formatCompactWon(item.minBudgetWon)
+              : '정보 없음',
+        },
+        { label: '주요 타깃', value: item.primaryTarget },
+        {
+          label: '과금 방식',
+          value: getPricingModelLabel(item.pricingModel),
+        },
+      ],
+    };
+  });
 }
 
 export const recommendedChannels = [

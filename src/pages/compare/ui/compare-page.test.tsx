@@ -85,7 +85,7 @@ function createChannel(
   return {
     id,
     name,
-    logoUrl: null,
+    iconUrl: null,
     description: `${name} 채널 설명`,
     primaryCategory,
   };
@@ -121,7 +121,7 @@ function createComparisonItem(
   return {
     channelId,
     channelName: COMPARISON_CHANNEL_NAMES[channelId] ?? `${channelId} 채널`,
-    previewImageUrl: null,
+    iconUrl: null,
     audienceSummary: '20~40대',
     adFormats: ['배너'],
     targetingMethods: ['관심사'],
