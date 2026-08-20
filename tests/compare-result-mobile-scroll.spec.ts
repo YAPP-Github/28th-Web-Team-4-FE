@@ -60,6 +60,20 @@ async function mockComparisonResponse(page: Page): Promise<void> {
   });
 }
 
+async function mockSavedComparisonResponse(page: Page): Promise<void> {
+  await page.route(/\/api\/v1\/channel-comparisons\/comparison-mobile(?:\?|$)/, async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        data: { items: CHANNELS },
+        error: null,
+        code: null,
+      }),
+    });
+  });
+}
+
 test('모바일에서 결과 본문을 끝까지 스크롤해도 헤더와 결과 제목을 계속 보여준다', async ({
   page,
 }) => {
@@ -90,8 +104,8 @@ test.describe('모바일 터치 입력', () => {
   test.use({ hasTouch: true });
 
   test('잘린 상세 값을 탭하면 전체 문구를 보여준다', async ({ page }) => {
-    await mockComparisonResponse(page);
-    await page.goto(`${APP_URL}/compare/result?channels=channel-naver,channel-kakao,channel-meta`);
+    await mockSavedComparisonResponse(page);
+    await page.goto(`${APP_URL}/compare/saved/comparison-mobile`);
 
     await page.getByText(LONG_AUDIENCE, { exact: true }).first().tap();
 
