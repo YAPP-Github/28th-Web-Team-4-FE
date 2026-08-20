@@ -27,7 +27,7 @@ describe('CompareResultChannelInsightCard', () => {
     },
   );
 
-  it('split 카드에서는 장점을 앞의 2개까지만 보여준다', () => {
+  it('split 카드에서 모든 장점을 보여준다', () => {
     const channel = {
       ...MOCK_COMPARE_RESULT_CHANNELS[0],
       insight: {
@@ -42,6 +42,6 @@ describe('CompareResultChannelInsightCard', () => {
 
     expect(within(card).getByText('첫 번째 장점')).toBeVisible();
     expect(within(card).getByText('두 번째 장점')).toBeVisible();
-    expect(within(card).queryByText('세 번째 장점')).not.toBeInTheDocument();
+    expect(within(card).getByText('세 번째 장점')).toBeVisible();
   });
 });
