@@ -22,6 +22,7 @@ const { onCompareMock, pushMock, showWarningToastMock } = vi.hoisted(() => ({
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: pushMock }),
+  usePathname: () => '/recommend/onboarding-87',
 }));
 
 vi.mock('@/shared/api/hey-api', () => ({
@@ -467,7 +468,7 @@ describe('RecommendResultPage', () => {
     const blurredContent = lockedArticle.querySelector('.blur-\\[4px\\]');
 
     expect(loginLinks).toHaveLength(2);
-    expect(loginLinks[0]).toHaveAttribute('href', '/login');
+    expect(loginLinks[0]).toHaveAttribute('href', '/login?returnTo=%2Frecommend%2Fonboarding-87');
     expect(lockedArticle).toHaveAttribute('data-locked', 'true');
     expect(lockedArticle).not.toHaveClass('motion-safe:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)]');
     expect(lockedArticle).toHaveTextContent('전체 결과를 볼 수 있어요');

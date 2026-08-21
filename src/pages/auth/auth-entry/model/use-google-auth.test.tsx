@@ -80,4 +80,21 @@ describe('useGoogleAuth', () => {
     expect(pushMock).not.toHaveBeenCalled();
     expect(replaceMock).not.toHaveBeenCalled();
   });
+
+  it('returns an existing Google account to the requested page after login', async () => {
+    authenticateGoogleMock.mockResolvedValue({ type: 'login' });
+    const queryClient = new QueryClient({
+      defaultOptions: { mutations: { retry: false } },
+    });
+    const wrapper = ({ children }: PropsWithChildren) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+    const { result } = renderHook(() => useGoogleAuth({ returnTo: '/recommend/onboarding-87' }), {
+      wrapper,
+    });
+
+    act(() => result.current.mutate('google-id-token'));
+
+    await waitFor(() => expect(replaceMock).toHaveBeenCalledWith('/recommend/onboarding-87'));
+  });
 });

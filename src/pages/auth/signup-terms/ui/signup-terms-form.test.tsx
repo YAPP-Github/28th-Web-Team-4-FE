@@ -199,7 +199,7 @@ describe('SignupTermsForm', () => {
     expect(pushMock).toHaveBeenCalledWith('/signup/occupation');
   });
 
-  it('submits Google signup without an email password', async () => {
+  it('submits Google signup without an email password and moves home after success', async () => {
     const user = userEvent.setup();
     useSignupDraftStore.setState(
       {
@@ -230,6 +230,9 @@ describe('SignupTermsForm', () => {
         termsAgreed: true,
         marketingAgreed: true,
       },
+    });
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/');
     });
   });
 });

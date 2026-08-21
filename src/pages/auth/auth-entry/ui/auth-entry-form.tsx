@@ -25,9 +25,11 @@ type AuthEntryOutput = z.output<typeof authEntrySchema>;
 function ExistingAccountForm({
   email,
   onBack,
+  returnTo,
 }: {
   email: string;
   onBack: () => void;
+  returnTo: string;
 }): JSX.Element {
   const router = useRouter();
   const [password, setPassword] = useState('');
@@ -44,7 +46,7 @@ function ExistingAccountForm({
 
     try {
       await authenticateLocal(email, password);
-      router.replace('/');
+      router.replace(returnTo);
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error, '로그인 중 문제가 발생했습니다.'));
       setIsPending(false);
@@ -116,7 +118,7 @@ function ExistingAccountForm({
   );
 }
 
-export function AuthEntryForm(): JSX.Element {
+export function AuthEntryForm({ returnTo = '/' }: { returnTo?: string }): JSX.Element {
   const router = useRouter();
   const [existingAccountEmail, setExistingAccountEmail] = useState<string>();
   const resolveEmailMutation = useResolveAuthEmail();
@@ -133,6 +135,7 @@ export function AuthEntryForm(): JSX.Element {
     isGoogleReady,
   } = useGoogleAuthFlow({
     onDeferLink: (email) => setExistingAccountEmail(email),
+    returnTo,
   });
   const googleButtonContainerRef = useRef<HTMLDivElement>(null);
   const isGoogleButtonDisabled =
@@ -183,6 +186,7 @@ export function AuthEntryForm(): JSX.Element {
       <ExistingAccountForm
         email={existingAccountEmail}
         onBack={() => setExistingAccountEmail(undefined)}
+        returnTo={returnTo}
       />
     );
   }
