@@ -2,7 +2,12 @@
 
 import { useState, type JSX } from 'react';
 
-import type { SavedRecommendation } from '@/pages/mypage/model/my-page-content';
+import type {
+  SavedChannelComparison,
+  SavedRecommendation,
+  SavedResultTabKind,
+  SavedSimulation,
+} from '@/pages/mypage/model/my-page-content';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
@@ -16,32 +21,63 @@ const SAVED_RESULTS_PER_PAGE = 5;
 export type SavedResultsPageProps = {
   isLoggedIn: boolean;
   isLoading?: boolean;
+  isError?: boolean;
   recommendations?: readonly SavedRecommendation[];
+  comparisons?: readonly SavedChannelComparison[];
+  simulations?: readonly SavedSimulation[];
+  recommendationsLoading?: boolean;
+  recommendationsError?: boolean;
+  comparisonsLoading?: boolean;
+  comparisonsError?: boolean;
+  simulationsLoading?: boolean;
+  simulationsError?: boolean;
   totalPages?: number;
+  currentPage?: number;
+  onPageChange?: (page: number) => void;
+  activeTab?: SavedResultTabKind;
+  onTabChange?: (value: SavedResultTabKind) => void;
+  isPaginated?: boolean;
 };
 
 export function SavedResultsPage({
   isLoggedIn,
   isLoading = false,
+  isError = false,
   recommendations = [],
+  comparisons = [],
+  simulations = [],
+  recommendationsLoading = false,
+  recommendationsError = false,
+  comparisonsLoading = false,
+  comparisonsError = false,
+  simulationsLoading = false,
+  simulationsError = false,
   totalPages,
+  currentPage,
+  onPageChange,
+  activeTab,
+  onTabChange,
+  isPaginated = false,
 }: SavedResultsPageProps): JSX.Element {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [internalCurrentPage, setInternalCurrentPage] = useState(1);
 
   if (isLoggedIn && isLoading) {
     return <SavedResultsSkeletonPage />;
   }
 
+  const resolvedCurrentPage = currentPage ?? internalCurrentPage;
   const resolvedTotalPages = Math.max(
     1,
     totalPages ?? Math.ceil(recommendations.length / SAVED_RESULTS_PER_PAGE),
   );
-  const safeCurrentPage = Math.min(currentPage, resolvedTotalPages);
-  const startIndex = (safeCurrentPage - 1) * SAVED_RESULTS_PER_PAGE;
-  const pageRecommendations = recommendations.slice(
-    startIndex,
-    startIndex + SAVED_RESULTS_PER_PAGE,
-  );
+  const safeCurrentPage = Math.min(resolvedCurrentPage, resolvedTotalPages);
+  const pageRecommendations = isPaginated
+    ? recommendations
+    : recommendations.slice(
+        (safeCurrentPage - 1) * SAVED_RESULTS_PER_PAGE,
+        safeCurrentPage * SAVED_RESULTS_PER_PAGE,
+      );
+  const handlePageChange = onPageChange ?? setInternalCurrentPage;
 
   return (
     <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-y-auto rounded-t-[var(--radius-l)]">
@@ -65,13 +101,23 @@ export function SavedResultsPage({
               <SavedResultsTabs
                 isLoggedIn={isLoggedIn}
                 recommendations={pageRecommendations}
+                comparisons={comparisons}
+                simulations={simulations}
                 linkRecommendations
+                recommendationsLoading={recommendationsLoading}
+                recommendationsError={recommendationsError || isError}
+                comparisonsLoading={comparisonsLoading}
+                comparisonsError={comparisonsError}
+                simulationsLoading={simulationsLoading}
+                simulationsError={simulationsError}
+                value={activeTab}
+                onValueChange={onTabChange}
               />
             </Box>
             <SavedResultsPagination
               currentPage={safeCurrentPage}
               totalPages={resolvedTotalPages}
-              onPageChange={setCurrentPage}
+              onPageChange={handlePageChange}
             />
           </Box>
         </Box>

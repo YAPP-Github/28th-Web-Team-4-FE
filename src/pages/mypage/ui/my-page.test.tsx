@@ -665,7 +665,7 @@ describe('MyPage', () => {
       description: '로그아웃했어요',
       type: 'success',
     });
-    expect(replaceMock).toHaveBeenCalledWith('/login');
+    expect(replaceMock).toHaveBeenCalledWith('/');
     expect(refreshMock).toHaveBeenCalledOnce();
     await waitFor(() => {
       expect(

@@ -13,7 +13,7 @@ export function LogoutButton(): JSX.Element {
   const handleLogout = (): void => {
     logout({
       onSuccess: () => {
-        router.replace('/login');
+        router.replace('/');
         router.refresh();
       },
     });

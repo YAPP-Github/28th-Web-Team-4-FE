@@ -1,10 +1,14 @@
 'use client';
 
-import type { JSX } from 'react';
+import { useState, type JSX } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 
-import type { SavedRecommendation, SavedResult } from '@/pages/mypage/model/my-page-content';
+import type {
+  SavedRecommendation,
+  SavedResult,
+  SavedResultTabKind,
+} from '@/pages/mypage/model/my-page-content';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
@@ -39,6 +43,8 @@ type SavedResultsTabsProps = {
   comparisonsError?: boolean;
   simulationsLoading?: boolean;
   simulationsError?: boolean;
+  value?: SavedResultTabKind;
+  onValueChange?: (value: SavedResultTabKind) => void;
 };
 
 const SAVED_RESULT_EMPTY_STATES = {
@@ -294,9 +300,19 @@ export function SavedResultsTabs({
   comparisonsError = false,
   simulationsLoading = false,
   simulationsError = false,
+  value,
+  onValueChange,
 }: SavedResultsTabsProps): JSX.Element {
+  const [internalValue, setInternalValue] = useState<SavedResultTabKind>('recommendation');
+  const resolvedValue = value ?? internalValue;
+  const handleValueChange = onValueChange ?? setInternalValue;
+
   return (
-    <Tabs.Root defaultValue="recommendation" className="w-full">
+    <Tabs.Root
+      value={resolvedValue}
+      onValueChange={(nextValue) => handleValueChange(nextValue as SavedResultTabKind)}
+      className="w-full"
+    >
       <SavedResultsTabList />
       <Tabs.Panel value="recommendation">
         <SavedResultPanel

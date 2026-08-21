@@ -26,7 +26,7 @@ export function SessionPageHeader({
   const handleLogout = (): void => {
     logout({
       onSuccess: () => {
-        router.replace('/login');
+        router.replace('/');
         router.refresh();
       },
     });
