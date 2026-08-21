@@ -232,13 +232,13 @@ export function MyPageSkeleton(): JSX.Element {
   return (
     <main
       aria-busy="true"
-      className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-y-auto rounded-t-[var(--radius-l)]"
+      className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-hidden rounded-t-[var(--radius-l)]"
     >
       <MyPageSubHeader />
       <Box
         role="status"
         aria-label="마이페이지를 불러오고 있어요"
-        className="bg-surface-background-default px-016 sm:px-032 lg:px-064 flex min-h-0 flex-1 flex-col items-center overflow-clip xl:px-[324px]"
+        className="bg-surface-background-default px-016 sm:px-032 lg:px-064 flex min-h-0 flex-1 touch-pan-y flex-col items-center overflow-y-auto overscroll-y-contain xl:px-[324px]"
       >
         <Box className="gap-016 py-024 flex w-full max-w-[792px] flex-1 flex-col">
           <ProfileSkeletonCard />

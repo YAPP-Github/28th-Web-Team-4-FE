@@ -68,9 +68,9 @@ export function MyPage({
   }
 
   return (
-    <main className="bg-surface-background-default flex min-h-0 flex-1 touch-pan-y flex-col overflow-y-auto rounded-t-[var(--radius-l)]">
+    <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-hidden rounded-t-[var(--radius-l)]">
       <MyPageSubHeader />
-      <Box className="bg-surface-background-default px-016 sm:px-032 lg:px-064 flex min-h-0 flex-1 flex-col items-center xl:px-[324px]">
+      <Box className="bg-surface-background-default px-016 sm:px-032 lg:px-064 flex min-h-0 flex-1 touch-pan-y flex-col items-center overflow-y-auto overscroll-y-contain xl:px-[324px]">
         <Box className="gap-016 py-024 flex w-full max-w-[792px] flex-1 flex-col">
           {isLoggedIn ? <AuthenticatedProfileCard /> : <GuestProfileCard />}
           {adsConditionContent}
