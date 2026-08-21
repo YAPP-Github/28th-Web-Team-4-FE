@@ -29,6 +29,15 @@ export type AnalyticsEntryPoint =
   | 'saved_result'
   | 'direct';
 
+/** React 분석 Scope가 하위 이벤트에 제공하는 공통 속성. */
+export type AnalyticsScopeProperties = {
+  entry_point: AnalyticsEntryPoint;
+  is_logged_in: boolean;
+};
+
+/** 명령형 tracker에서 선택적으로 덧붙일 수 있는 공통 흐름 속성. */
+export type AnalyticsCommonEventProperties = Partial<AnalyticsScopeProperties>;
+
 /** 인증 수단. */
 export type AnalyticsAuthMethod = 'email' | 'google';
 
@@ -141,8 +150,10 @@ export type AnalyticsAdConditionField =
   | 'budget'
   | 'campaign_period';
 
+/** 별도 이벤트 속성을 받지 않는 이벤트의 빈 객체 계약. */
 type NoAnalyticsProperties = Record<string, never>;
 
+/** 온보딩 단계 조회·완료·수정 이벤트가 공유하는 단계 정보. */
 type OnboardingStepProperties = {
   step_name: AnalyticsOnboardingStepName;
   step_number: number;
@@ -150,17 +161,20 @@ type OnboardingStepProperties = {
   is_edit: boolean;
 };
 
+/** 추천 결과에서 채널을 선택하거나 해제할 때 공유하는 속성. */
 type RecommendationSelectionProperties = {
   channel_id: string;
   rank: number;
   selected_count: number;
 };
 
+/** 비교 화면에서 채널을 선택하거나 해제할 때 공유하는 속성. */
 type ComparisonSelectionProperties = {
   channel_id: string;
   selected_count: number;
 };
 
+/** 예산 시뮬레이션 시작·완료·저장 이벤트가 공유하는 입력 조건. */
 type SimulationProperties = {
   budget_bucket: AnalyticsBudgetBucket;
   period: AnalyticsCampaignPeriod;
@@ -319,7 +333,7 @@ export type AnalyticsEventKey = keyof AnalyticsEventMap;
 
 /** 특정 이벤트 key가 허용하는 호출부 속성. */
 export type AnalyticsEventProperties<EventKey extends AnalyticsEventKey> =
-  AnalyticsEventMap[EventKey];
+  AnalyticsEventMap[EventKey] & AnalyticsCommonEventProperties;
 
 /** 이벤트별 허용 key 밖의 속성을 변수 객체에서도 거부하는 exact-property 계약. */
 export type ExactAnalyticsEventProperties<
@@ -330,21 +344,25 @@ export type ExactAnalyticsEventProperties<
 /** 이벤트를 전송할 분석 도구 조합. */
 export type AnalyticsDestination = 'posthog' | 'ga4' | 'both';
 
+/** 모든 registry 항목에 공통으로 포함되는 제품 영역과 스키마 버전. */
 type AnalyticsEventRegistryBase = {
   featureArea: AnalyticsFeatureArea;
   version: number;
 };
 
+/** PostHog에만 전송하는 이벤트의 registry 계약. */
 type PostHogEventDefinition = AnalyticsEventRegistryBase & {
   destination: 'posthog';
   posthogEventName: string;
 };
 
+/** GA4에만 전송하는 이벤트의 registry 계약. */
 type GA4EventDefinition = AnalyticsEventRegistryBase & {
   destination: 'ga4';
   ga4EventName: string;
 };
 
+/** PostHog와 GA4 양쪽에 전송하는 이벤트의 registry 계약. */
 type BothEventDefinition = AnalyticsEventRegistryBase & {
   destination: 'both';
   posthogEventName: string;
@@ -357,6 +375,7 @@ export type AnalyticsEventDefinition =
   | GA4EventDefinition
   | BothEventDefinition;
 
+/** 모든 이벤트 key에 destination 정의가 빠짐없이 존재하도록 강제하는 registry 타입. */
 type AnalyticsEventRegistry = Record<AnalyticsEventKey, AnalyticsEventDefinition>;
 
 const createBothEvent = (
