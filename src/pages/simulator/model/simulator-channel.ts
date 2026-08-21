@@ -21,6 +21,7 @@ export type ChannelResult = {
   type?: ChannelType;
   basisNote?: string;
   isExecutable?: boolean;
+  additionalBudgetWon?: number;
   budgetWon?: number;
   cpcWon?: number | null;
   impressions: ChannelMetric;
@@ -34,24 +35,34 @@ export type SimulatorBasisTooltip = {
 };
 
 const SIMULATOR_BASIS_TOOLTIPS = {
-  insufficientBudget: {
-    title: '예산이 부족해요',
-    description: ['예산을 10만 원 더 추가하면', '광고할 수 있어요'],
-  },
   unavailableImpressionData: {
     title: '정보 확인이 어려워요',
     description: ['매체 특성상 상세 데이터를', '제공하지 않아요.'],
   },
 } as const satisfies Record<string, SimulatorBasisTooltip>;
 
-export function getSimulatorBasisTooltip(basisNote?: string): SimulatorBasisTooltip | undefined {
+export function getSimulatorBasisTooltip(
+  basisNote?: string,
+  additionalBudgetWon?: number,
+): SimulatorBasisTooltip | undefined {
   const basisType = basisNote?.split('/')[0]?.trim().replace(/\s+/g, ' ');
 
   if (
+    basisType?.startsWith('집행 예산 부족') ||
     basisType?.startsWith('미집행 (배분 예산 0원)') ||
     basisType?.startsWith('배분 예산이 최소 단가보다 적어 집행 불가')
   ) {
-    return SIMULATOR_BASIS_TOOLTIPS.insufficientBudget;
+    if (additionalBudgetWon === undefined || additionalBudgetWon <= 0) {
+      return undefined;
+    }
+
+    return {
+      title: '예산이 부족해요',
+      description: [
+        `예산을 ${formatSimulatorBudget(additionalBudgetWon)} 더 추가하면`,
+        '광고할 수 있어요',
+      ],
+    };
   }
 
   if (
@@ -62,6 +73,16 @@ export function getSimulatorBasisTooltip(basisNote?: string): SimulatorBasisTool
   }
 
   return undefined;
+}
+
+function getAdditionalBudgetWon(item?: SimulationItemResponse): number | undefined {
+  if (!item || item.minBudgetWon === null) {
+    return undefined;
+  }
+
+  const difference = item.minBudgetWon - item.allocatedBudgetWon;
+
+  return difference > 0 ? difference : undefined;
 }
 
 const NUMBER_FORMATTER = new Intl.NumberFormat('ko-KR');
@@ -208,6 +229,7 @@ export function createChannelResults(
       iconUrl: item?.iconUrl,
       basisNote: item?.basisNote,
       isExecutable: item?.isExecutable,
+      additionalBudgetWon: getAdditionalBudgetWon(item),
       budgetWon: item?.allocatedBudgetWon ?? 0,
       cpcWon: item?.cpcWon,
       impressions: {

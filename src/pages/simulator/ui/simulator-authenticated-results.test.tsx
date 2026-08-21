@@ -53,11 +53,11 @@ const SIMULATION_RESULT: SimulationResponse = {
       estClicks: { min: 300, max: 400 },
       cpcWon: null,
       cpmWon: null,
-      minBudgetWon: null,
+      minBudgetWon: 600_000,
       isExecutable: false,
       shortfallWon: null,
       basisNote:
-        '미집행 (배분 예산 0원) / 매체 소개서 기반 / VAT 별도 가정 / CTR 미제공 시 전체 평균 CTR 적용',
+        '집행 예산 부족 / 매체 소개서 기반 / VAT 별도 가정 / CTR 미제공 시 전체 평균 CTR 적용',
     },
     {
       channelId: 'channel-b',

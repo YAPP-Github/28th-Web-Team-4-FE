@@ -113,10 +113,10 @@ describe('simulator-channel', () => {
     ]);
   });
 
-  it('basisNote의 첫 문구를 기준으로 피그마 툴팁을 분기한다', () => {
-    expect(getSimulatorBasisTooltip('미집행 (배분 예산 0원)/다른 산출 근거')).toEqual({
+  it('집행 예산 부족 basisNote와 부족 금액으로 피그마 툴팁을 만든다', () => {
+    expect(getSimulatorBasisTooltip('집행 예산 부족', 123_456)).toEqual({
       title: '예산이 부족해요',
-      description: ['예산을 10만 원 더 추가하면', '광고할 수 있어요'],
+      description: ['예산을 123,456원 더 추가하면', '광고할 수 있어요'],
     });
 
     expect(
@@ -127,5 +127,22 @@ describe('simulator-channel', () => {
     });
 
     expect(getSimulatorBasisTooltip('기준 데이터')).toBeUndefined();
+  });
+
+  it('최소 집행 예산과 배분 예산의 차액을 결과에 저장한다', () => {
+    const results = createChannelResults(CHANNELS, {
+      ...SIMULATION_RESULT,
+      items: [
+        {
+          ...SIMULATION_RESULT.items[0],
+          allocatedBudgetWon: 500_000,
+          minBudgetWon: 650_000,
+          basisNote: '집행 예산 부족',
+        },
+        SIMULATION_RESULT.items[1],
+      ],
+    });
+
+    expect(results[0]?.additionalBudgetWon).toBe(150_000);
   });
 });

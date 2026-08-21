@@ -173,12 +173,14 @@ function ChannelBasisInfo({
   channelName,
   basisNote,
   isExecutable,
+  additionalBudgetWon,
 }: {
   channelName: string;
   basisNote?: string;
   isExecutable?: boolean;
+  additionalBudgetWon?: number;
 }): JSX.Element | null {
-  const tooltip = getSimulatorBasisTooltip(basisNote);
+  const tooltip = getSimulatorBasisTooltip(basisNote, additionalBudgetWon);
 
   if (isExecutable !== false) {
     return null;
@@ -251,6 +253,7 @@ function ChannelResultRow({ channel }: { channel: ChannelResult }): JSX.Element 
               channelName={channel.name}
               basisNote={channel.basisNote}
               isExecutable={channel.isExecutable}
+              additionalBudgetWon={channel.additionalBudgetWon}
             />
           </Box>
         </Box>
