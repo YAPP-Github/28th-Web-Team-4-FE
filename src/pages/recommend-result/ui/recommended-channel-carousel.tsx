@@ -4,7 +4,10 @@ import { useId, useSyncExternalStore, type JSX } from 'react';
 import { Button as BaseButton } from '@base-ui/react/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-import type { RecommendedChannel } from '@/pages/recommend-result/model/recommended-channels';
+import {
+  getRecommendedChannelMatchBadgeToneById,
+  type RecommendedChannel,
+} from '@/pages/recommend-result/model/recommended-channels';
 import { Box } from '@/shared/ui/layout/box';
 import { Flex } from '@/shared/ui/layout/flex';
 
@@ -175,6 +178,7 @@ export function RecommendedChannelCarousel({
     getCarouselColumnsSnapshot,
     getServerCarouselColumnsSnapshot,
   );
+  const matchBadgeToneByChannelId = getRecommendedChannelMatchBadgeToneById(channels);
   const pages = getChannelPages(channels, channelsPerPage);
   const { currentStartIndex, emblaRef, goPrevious, goNext, goToPage } =
     useRecommendedChannelCarousel({
@@ -236,6 +240,7 @@ export function RecommendedChannelCarousel({
               >
                 <RecommendedChannelGrid
                   channels={page}
+                  matchBadgeToneByChannelId={matchBadgeToneByChannelId}
                   startDelay={startDelay}
                   startIndex={startIndex}
                   selectedChannelIds={selectedChannelIds}

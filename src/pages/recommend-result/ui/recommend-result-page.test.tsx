@@ -291,6 +291,14 @@ describe('RecommendResultPage', () => {
     expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (0/3)' })).toBeDisabled();
   });
 
+  it('shows match rate text', () => {
+    renderRecommendResultPage();
+
+    expect(screen.getByText('적합도 88%')).toBeInTheDocument();
+    expect(screen.getByText('적합도 74%')).toBeInTheDocument();
+    expect(screen.getByText('적합도 66%')).toBeInTheDocument();
+  });
+
   it.each([
     { label: '로그인 사용자', isGuest: false },
     { label: '게스트', isGuest: true },

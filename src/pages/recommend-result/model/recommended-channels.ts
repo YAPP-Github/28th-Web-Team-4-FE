@@ -21,6 +21,11 @@ export type RecommendedChannel = {
   metrics: RecommendedChannelMetric[];
 };
 
+export type RecommendedChannelMatchBadgeTone = 'primary' | 'orange' | 'gray';
+
+const TOP_MATCH_SCORE_INDEX = 0;
+const PRIORITY_MATCH_SCORE_MAX_INDEX = 2;
+
 const PRICING_MODEL_LABEL_MAP = {
   CPM: '노출당(CPM)',
   CPC: '클릭당(CPC)',
@@ -90,6 +95,36 @@ function getLowestCpcWon(itemList: readonly RecommendationItemResponse[]): numbe
 
     return lowestCpcWon === null ? cpcWon : Math.min(lowestCpcWon, cpcWon);
   }, null);
+}
+
+function getMatchBadgeToneByUniqueScoreIndex(index: number): RecommendedChannelMatchBadgeTone {
+  if (index === TOP_MATCH_SCORE_INDEX) {
+    return 'primary';
+  }
+
+  if (index <= PRIORITY_MATCH_SCORE_MAX_INDEX) {
+    return 'orange';
+  }
+
+  return 'gray';
+}
+
+export function getRecommendedChannelMatchBadgeToneById(
+  channels: readonly RecommendedChannel[],
+): ReadonlyMap<string, RecommendedChannelMatchBadgeTone> {
+  const uniqueMatchRates = [...new Set(channels.map((channel) => channel.matchRate))].toSorted(
+    (a, b) => b - a,
+  );
+  const toneByMatchRate = new Map(
+    uniqueMatchRates.map((matchRate, index) => [
+      matchRate,
+      getMatchBadgeToneByUniqueScoreIndex(index),
+    ]),
+  );
+
+  return new Map(
+    channels.map((channel) => [channel.id, toneByMatchRate.get(channel.matchRate) ?? 'gray']),
+  );
 }
 
 export function mapRecommendationItemsToChannels(
