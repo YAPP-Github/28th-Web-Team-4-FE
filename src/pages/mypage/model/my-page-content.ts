@@ -38,6 +38,7 @@ export type SavedResult = {
 
 export type SavedChannelComparison = SavedResult;
 export type SavedSimulation = SavedResult;
+export type SavedResultTabKind = 'recommendation' | 'comparison' | 'simulation';
 
 function formatSavedResultDate(createdAt: string): string {
   const dateMatch = /^(\d{4})-(\d{2})-(\d{2})/.exec(createdAt);
