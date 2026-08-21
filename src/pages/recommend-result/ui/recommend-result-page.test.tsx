@@ -221,6 +221,7 @@ function createChannelDetailResponse(
     name: '네이버 검색 광고',
     tagline: '검색 의도가 높은 고객에게 도달하기 좋아요',
     iconUrl: null,
+    previewImageUrls: [],
     description: '검색 광고로 구매 의도가 높은 고객을 만날 수 있어요',
     primaryCategory: 'SHOPPING_COMMERCE',
     mediaType: 'SEARCH',
