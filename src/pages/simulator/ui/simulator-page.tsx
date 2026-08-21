@@ -51,6 +51,9 @@ export function SimulatorPage({
   const [simulationResult, setSimulationResult] = useState<SimulationResponse | null>(
     initialSimulationResult,
   );
+  const loginHref = `/login?returnTo=${encodeURIComponent(
+    createSimulatorResultHref(selectedChannelIds, initialFilterOpen),
+  )}`;
 
   const handleChannelRemove = (channelId: string): void => {
     const nextChannelIds = selectedChannelIds.filter((selectedId) => selectedId !== channelId);
@@ -79,6 +82,7 @@ export function SimulatorPage({
           <SimulatorChannelResults
             isLogin={isLogin}
             isChannelSelectionComplete={isChannelSelectionComplete}
+            loginHref={loginHref}
             selectedChannelIds={selectedChannelIds}
             simulationResult={simulationResult}
           />

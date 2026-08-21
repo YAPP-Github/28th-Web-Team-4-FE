@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useSignupDraftStore } from '@/features/auth/signup-flow';
 import { authenticateGoogle } from '@/pages/auth/auth-entry/api/authenticate-google';
 
-export function useGoogleAuth() {
+export function useGoogleAuth({ returnTo = '/' }: { returnTo?: string } = {}) {
   const router = useRouter();
   const startGoogleSignup = useSignupDraftStore((state) => state.startGoogleSignup);
 
@@ -22,13 +22,14 @@ export function useGoogleAuth() {
           email: resolution.email,
           nickname: resolution.nickname,
           signupToken: resolution.signupToken,
+          returnTo,
         });
         router.push('/signup/name');
         return;
       }
 
       if (resolution.type === 'login') {
-        router.replace('/');
+        router.replace(returnTo);
         return;
       }
     },

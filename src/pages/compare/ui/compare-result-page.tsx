@@ -4,7 +4,10 @@ import { Suspense, type JSX } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useAuthSession } from '@/features/auth/session';
-import { useChannelComparisonResultQueryState } from '@/features/channel-comparison';
+import {
+  createChannelComparisonHref,
+  useChannelComparisonResultQueryState,
+} from '@/features/channel-comparison';
 
 import { useChannelComparison } from '@/pages/compare/api/use-channel-comparison';
 import { Box } from '@/shared/ui/layout/box';
@@ -85,6 +88,9 @@ function CompareResultWithQuery({
   const channelCards = isGuest
     ? displayedChannels.map((channel) => ({ ...channel, matchRate: null }))
     : displayedChannels;
+  const loginHref = `/login?returnTo=${encodeURIComponent(
+    createChannelComparisonHref(channelIds, { onboardingId: onboardingId ?? undefined }),
+  )}`;
 
   return (
     <main
@@ -123,10 +129,10 @@ function CompareResultWithQuery({
             removeDisabled={comparisonQuery.isPlaceholderData}
             onRemoveChannel={removeChannel}
           />
-          <CompareResultGuestLock locked={isGuest}>
+          <CompareResultGuestLock loginHref={loginHref} locked={isGuest}>
             <CompareResultChannelPerformance channels={displayedChannels} />
           </CompareResultGuestLock>
-          <CompareResultGuestLock locked={isGuest}>
+          <CompareResultGuestLock loginHref={loginHref} locked={isGuest}>
             <CompareResultChannelDetailsTable channels={displayedChannels} />
           </CompareResultGuestLock>
           <CompareResultChannelCost channels={displayedChannels} />

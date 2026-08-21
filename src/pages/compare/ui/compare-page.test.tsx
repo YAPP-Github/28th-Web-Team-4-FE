@@ -1334,7 +1334,10 @@ describe('ComparePage', () => {
     expect(screen.queryByText(/^적합도/)).not.toBeInTheDocument();
     expect(screen.getAllByText('로그인하면')[0]).toBeVisible();
     expect(screen.getAllByText('전체 결과를 볼 수 있어요')[0]).toBeVisible();
-    expect(screen.getAllByRole('link', { name: '로그인하기' })[0]).toBeVisible();
+    expect(screen.getAllByRole('link', { name: '로그인하기' })[0]).toHaveAttribute(
+      'href',
+      '/login?returnTo=%2Fcompare%2Fresult%3Fchannels%3Dchannel-naver%2Cchannel-kakao',
+    );
     expect(screen.getByRole('region', { name: '채널별 CPC와 CPM' })).toBeVisible();
     expect(screen.getByRole('region', { name: '채널별 인사이트' })).toBeVisible();
     expect(

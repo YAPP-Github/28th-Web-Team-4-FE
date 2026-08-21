@@ -7,7 +7,10 @@ import type * as MotionReact from 'motion/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
+import {
+  useRecommendOnboardingStore,
+  type RecommendOnboardingAnswer,
+} from '@/features/ad-onboarding';
 import type { ChannelDetailResponse, RecommendationItemResponse } from '@/shared/api/generated';
 import { server } from '@/shared/api/mocks/server';
 import type { RecommendedChannel } from '@/pages/recommend-result/model/recommended-channels';
@@ -22,6 +25,7 @@ const { onCompareMock, pushMock, showWarningToastMock } = vi.hoisted(() => ({
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: pushMock }),
+  usePathname: () => '/recommend/onboarding-87',
 }));
 
 vi.mock('@/shared/api/hey-api', () => ({
@@ -468,7 +472,7 @@ describe('RecommendResultPage', () => {
     const blurredContent = lockedArticle.querySelector('.blur-\\[4px\\]');
 
     expect(loginLinks).toHaveLength(2);
-    expect(loginLinks[0]).toHaveAttribute('href', '/login');
+    expect(loginLinks[0]).toHaveAttribute('href', '/login?returnTo=%2Frecommend%2Fonboarding-87');
     expect(lockedArticle).toHaveAttribute('data-locked', 'true');
     expect(lockedArticle).not.toHaveClass('motion-safe:shadow-[0_12px_28px_0_rgba(46,46,51,0.10)]');
     expect(lockedArticle).toHaveTextContent('전체 결과를 볼 수 있어요');
@@ -566,5 +570,201 @@ describe('RecommendResultPage', () => {
       });
     });
     expect(screen.getByRole('button', { name: '결과 저장하기' })).toBeEnabled();
+  });
+
+  it('re-submits a guest onboarding under the logged-in account before retrying the save', async () => {
+    const user = userEvent.setup();
+    const onboardingAnswer = {
+      serviceName: '채소집',
+      category: 'SHOPPING_COMMERCE',
+      serviceType: 'APP_AND_WEB',
+      ageRangeList: ['TWENTIES'],
+      adGoal: 'PURCHASE_CONVERSION',
+      budget: { minAmount: 500000, maxAmount: 5000000 },
+      campaignPeriod: 'ONE_MONTH',
+      adExperience: { type: 'FIRST_TIME' },
+    } as const satisfies RecommendOnboardingAnswer;
+    let saveRequestCount = 0;
+    let onboardingRequestBody: unknown;
+    let saveRequestBodies: unknown[] = [];
+
+    useRecommendOnboardingStore.setState({ answer: onboardingAnswer });
+    server.use(
+      http.post(/\/api\/v1\/recommendations$/, async ({ request }) => {
+        saveRequestCount += 1;
+        saveRequestBodies = [...saveRequestBodies, await request.json()];
+
+        if (saveRequestCount === 1) {
+          return HttpResponse.json(
+            {
+              success: false,
+              data: null,
+              error: {
+                code: 'ONB-007',
+                message: '온보딩 정보가 없습니다.',
+                fieldErrors: [],
+              },
+              code: null,
+            },
+            { status: 404 },
+          );
+        }
+
+        return HttpResponse.json(
+          {
+            success: true,
+            data: {
+              onboardingId: 'onboarding-authenticated',
+              channelCount: 1,
+              items: [apiRecommendation],
+            },
+            error: null,
+            code: null,
+          },
+          { status: 201 },
+        );
+      }),
+      http.post(/\/api\/v1\/onboarding$/, async ({ request }) => {
+        onboardingRequestBody = await request.json();
+
+        return HttpResponse.json(
+          {
+            success: true,
+            data: {
+              onboardingId: 'onboarding-authenticated',
+              createdAt: '2026-08-22T00:00:00Z',
+            },
+            error: null,
+            code: null,
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    renderRecommendResultWithRecommendations();
+
+    await user.click(await screen.findByRole('button', { name: '결과 저장하기' }));
+
+    expect(await screen.findByRole('button', { name: '저장 완료' })).toBeDisabled();
+    expect(onboardingRequestBody).toMatchObject({
+      serviceName: '채소집',
+      industry: 'SHOPPING_COMMERCE',
+    });
+    expect(saveRequestBodies).toEqual([
+      { onboardingId: RECOMMENDATION_ONBOARDING_ID, serviceName: '채소집' },
+      { onboardingId: 'onboarding-authenticated', serviceName: '채소집' },
+    ]);
+    expect(screen.getByRole('button', { name: '저장 완료' })).toBeDisabled();
+  });
+
+  it('uses the migrated onboarding id for details and comparison without refetching recommendations', async () => {
+    const user = userEvent.setup();
+    const onboardingAnswer = {
+      serviceName: '채소집',
+      category: 'SHOPPING_COMMERCE',
+      serviceType: 'APP_AND_WEB',
+      ageRangeList: ['TWENTIES'],
+      adGoal: 'PURCHASE_CONVERSION',
+      budget: { minAmount: 500000, maxAmount: 5000000 },
+      campaignPeriod: 'ONE_MONTH',
+      adExperience: { type: 'FIRST_TIME' },
+    } as const satisfies RecommendOnboardingAnswer;
+    let saveRequestCount = 0;
+    let recommendationRequestCount = 0;
+    let detailRequestUrl: URL | undefined;
+
+    useRecommendOnboardingStore.setState({ answer: onboardingAnswer });
+    server.use(
+      http.get(/\/api\/v1\/recommendations$/, () => {
+        recommendationRequestCount += 1;
+
+        return HttpResponse.json({
+          success: true,
+          data: apiRecommendations,
+        });
+      }),
+      http.post(/\/api\/v1\/recommendations$/, async ({ request }) => {
+        saveRequestCount += 1;
+        await request.json();
+
+        if (saveRequestCount === 1) {
+          return HttpResponse.json(
+            {
+              success: false,
+              data: null,
+              error: { code: 'ONB-007', message: '온보딩 정보가 없습니다.', fieldErrors: [] },
+              code: null,
+            },
+            { status: 404 },
+          );
+        }
+
+        return HttpResponse.json(
+          {
+            success: true,
+            data: {
+              onboardingId: 'onboarding-authenticated',
+              channelCount: 1,
+              items: [apiRecommendation],
+            },
+            error: null,
+            code: null,
+          },
+          { status: 201 },
+        );
+      }),
+      http.post(/\/api\/v1\/onboarding$/, () =>
+        HttpResponse.json(
+          {
+            success: true,
+            data: {
+              onboardingId: 'onboarding-authenticated',
+              createdAt: '2026-08-22T00:00:00Z',
+            },
+            error: null,
+            code: null,
+          },
+          { status: 201 },
+        ),
+      ),
+      http.get(/\/api\/v1\/channels\/[^/]+$/, ({ request }) => {
+        detailRequestUrl = new URL(request.url);
+
+        return HttpResponse.json({
+          success: true,
+          data: createChannelDetailResponse(),
+        });
+      }),
+    );
+
+    renderWithProviders(
+      <Suspense fallback={<div>loading</div>}>
+        <RecommendResultWithRecommendations
+          isGuest={false}
+          onboardingId={RECOMMENDATION_ONBOARDING_ID}
+        />
+      </Suspense>,
+    );
+    await user.click(await screen.findByRole('button', { name: '결과 저장하기' }));
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: '저장 완료' })).toBeDisabled();
+    });
+
+    for (const checkbox of screen
+      .getAllByRole('checkbox', { name: /비교 목록 선택/ })
+      .slice(0, 3)) {
+      await user.click(checkbox);
+    }
+    await user.click(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (3/3)' }));
+
+    expect(pushMock).toHaveBeenCalledWith(
+      '/compare/result?channels=channel-naver,channel-youtube,channel-kakao&onboardingId=onboarding-authenticated',
+    );
+
+    await user.click(screen.getByRole('button', { name: '네이버 검색 광고 상세 정보 열기' }));
+    await screen.findByRole('dialog', { name: '네이버 검색 광고' });
+    expect(detailRequestUrl?.searchParams.get('onboardingId')).toBe('onboarding-authenticated');
+    expect(recommendationRequestCount).toBe(1);
   });
 });

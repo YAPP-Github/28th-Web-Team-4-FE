@@ -38,13 +38,14 @@ export type GoogleLinkRequest = {
 
 type UseGoogleAuthFlowOptions = {
   onDeferLink: (email: string) => void;
+  returnTo?: string;
 };
 
 const getGoogleIdentity = () => (window as typeof window & { google?: GoogleIdentity }).google;
 
-export function useGoogleAuthFlow({ onDeferLink }: UseGoogleAuthFlowOptions) {
+export function useGoogleAuthFlow({ onDeferLink, returnTo = '/' }: UseGoogleAuthFlowOptions) {
   const router = useRouter();
-  const googleAuthMutation = useGoogleAuth();
+  const googleAuthMutation = useGoogleAuth({ returnTo });
   const [isGoogleReady, setIsGoogleReady] = useState(false);
   const [googleInitializationError, setGoogleInitializationError] = useState<string>();
   const [googleLinkRequest, setGoogleLinkRequest] = useState<GoogleLinkRequest>();
@@ -133,7 +134,7 @@ export function useGoogleAuthFlow({ onDeferLink }: UseGoogleAuthFlowOptions) {
     try {
       await linkGoogleAccount(googleLinkRequest.idToken);
       markGoogleLinkFeedbackPending();
-      router.replace('/');
+      router.replace(returnTo);
     } catch (error) {
       setGoogleLinkError(getApiErrorMessage(error, 'Google 계정을 연결하지 못했습니다.'));
       setIsGoogleLinkPending(false);

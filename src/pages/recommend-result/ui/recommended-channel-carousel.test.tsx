@@ -75,6 +75,10 @@ vi.mock('embla-carousel-react', () => ({
   default: () => [vi.fn<(node: HTMLElement | null) => void>(), emblaMock.api] as const,
 }));
 
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/recommend/onboarding-87',
+}));
+
 function createMediaQueryList(query: string, matches: boolean): MediaQueryList {
   return {
     matches,

@@ -1,23 +1,11 @@
-import { signup } from '@/shared/api/generated';
-import { authenticateLocal } from '@/shared/api/authenticate-local';
-
 import { submitSignup } from './submit-signup';
 
-vi.mock('@/shared/api/generated', () => ({
-  signup: vi.fn<typeof signup>(),
-}));
-
-vi.mock('@/shared/api/authenticate-local', () => ({
-  authenticateLocal: vi.fn<typeof authenticateLocal>(),
-}));
-
-const signupMock = vi.mocked(signup);
-const authenticateLocalMock = vi.mocked(authenticateLocal);
 const fetchMock = vi.fn<typeof fetch>();
 
 describe('submitSignup', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', fetchMock);
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -34,23 +22,14 @@ describe('submitSignup', () => {
       termsAgreed: true,
       marketingAgreed: false,
     } as const;
-    signupMock.mockResolvedValue({
-      data: {
-        success: true,
-        data: { id: 'user-1', email: body.email, nickname: body.nickname },
-        error: null,
-        code: null,
-      },
-      response: new Response(null, { status: 201 }),
-    });
-    authenticateLocalMock.mockResolvedValue();
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
 
     await expect(submitSignup({ method: 'email', body })).resolves.toBeUndefined();
-    expect(signupMock).toHaveBeenCalledWith({
-      body,
-      throwOnError: true,
+    expect(fetchMock).toHaveBeenCalledWith('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
     });
-    expect(authenticateLocalMock).toHaveBeenCalledWith(body.email, body.password);
   });
 
   it('submits a completed Google signup draft', async () => {
@@ -65,7 +44,6 @@ describe('submitSignup', () => {
     fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
 
     await expect(submitSignup({ method: 'google', body })).resolves.toBeUndefined();
-    expect(authenticateLocalMock).not.toHaveBeenCalled();
     expect(fetchMock).toHaveBeenCalledWith('/api/auth/signup/google', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

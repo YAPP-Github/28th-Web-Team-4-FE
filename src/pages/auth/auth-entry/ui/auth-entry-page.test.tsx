@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { getAuthEmailMethods } from '@/pages/auth/auth-entry/api/resolve-auth-email';
 import { authenticateGoogle } from '@/pages/auth/auth-entry/api/authenticate-google';
+import { authenticateLocal } from '@/pages/auth/auth-entry/api/authenticate-local';
 import { linkGoogleAccount } from '@/pages/auth/auth-entry/api/link-google-account';
 import { markGoogleLinkFeedbackPending } from '@/shared/lib/auth/google-link-feedback';
 
@@ -31,6 +32,9 @@ vi.mock('@/pages/auth/auth-entry/api/resolve-auth-email', () => ({
 vi.mock('@/pages/auth/auth-entry/api/authenticate-google', () => ({
   authenticateGoogle: vi.fn<typeof authenticateGoogle>(),
 }));
+vi.mock('@/pages/auth/auth-entry/api/authenticate-local', () => ({
+  authenticateLocal: vi.fn<typeof authenticateLocal>(),
+}));
 vi.mock('@/pages/auth/auth-entry/api/link-google-account', () => ({
   linkGoogleAccount: vi.fn<typeof linkGoogleAccount>(),
 }));
@@ -40,10 +44,11 @@ vi.mock('@/shared/lib/auth/google-link-feedback', () => ({
 
 const getAuthEmailMethodsMock = vi.mocked(getAuthEmailMethods);
 const authenticateGoogleMock = vi.mocked(authenticateGoogle);
+const authenticateLocalMock = vi.mocked(authenticateLocal);
 const linkGoogleAccountMock = vi.mocked(linkGoogleAccount);
 const markGoogleLinkFeedbackPendingMock = vi.mocked(markGoogleLinkFeedbackPending);
 
-function renderAuthEntryPage() {
+function renderAuthEntryPage(returnTo?: string) {
   const queryClient = new QueryClient({
     defaultOptions: {
       mutations: { retry: false },
@@ -53,12 +58,12 @@ function renderAuthEntryPage() {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthEntryPage />
+      <AuthEntryPage returnTo={returnTo} />
     </QueryClientProvider>,
   );
 }
 
-async function openGoogleLinkModal() {
+async function openGoogleLinkModal(returnTo?: string) {
   let credentialCallback: ((response: { credential?: string }) => void) | undefined;
   vi.stubEnv('NEXT_PUBLIC_GOOGLE_CLIENT_ID', 'google-client-id');
   vi.stubGlobal('google', {
@@ -77,7 +82,7 @@ async function openGoogleLinkModal() {
     type: 'link',
     email: 'member@example.com',
   });
-  renderAuthEntryPage();
+  renderAuthEntryPage(returnTo);
   act(() => scriptPropsMock.mock.calls.at(-1)?.[0].onReady?.());
   act(() => credentialCallback?.({ credential: 'google-id-token' }));
 
@@ -232,6 +237,18 @@ describe('AuthEntryPage', () => {
     });
   });
 
+  it('returns a linked Google account to the requested page', async () => {
+    const user = userEvent.setup();
+    linkGoogleAccountMock.mockResolvedValue();
+    expect(await openGoogleLinkModal('/recommend/onboarding-87')).toBeVisible();
+
+    await user.click(screen.getByRole('button', { name: '연동하기' }));
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/recommend/onboarding-87');
+    });
+  });
+
   it('keeps the link modal open and shows the API error when linking fails', async () => {
     const user = userEvent.setup();
     linkGoogleAccountMock.mockRejectedValue({
@@ -303,6 +320,23 @@ describe('AuthEntryPage', () => {
     expect(screen.getByPlaceholderText('비밀번호를 입력해 주세요')).toBeInTheDocument();
   });
 
+  it('returns a local account to the requested page after login', async () => {
+    const user = userEvent.setup();
+    getAuthEmailMethodsMock.mockResolvedValue(['LOCAL']);
+    authenticateLocalMock.mockResolvedValue();
+    renderAuthEntryPage('/recommend/onboarding-87');
+
+    await user.type(screen.getByRole('textbox', { name: '이메일' }), 'member@example.com');
+    await user.click(screen.getByRole('button', { name: '이메일로 시작하기' }));
+    await user.type(await screen.findByPlaceholderText('비밀번호를 입력해 주세요'), 'Password1!');
+    await user.click(screen.getByRole('button', { name: '로그인하기' }));
+
+    await waitFor(() => {
+      expect(authenticateLocalMock).toHaveBeenCalledWith('member@example.com', 'Password1!');
+      expect(replaceMock).toHaveBeenCalledWith('/recommend/onboarding-87');
+    });
+  });
+
   it('returns to email entry when the readonly account email is clicked', async () => {
     const user = userEvent.setup();
     getAuthEmailMethodsMock.mockResolvedValue(['LOCAL']);
@@ -329,6 +363,21 @@ describe('AuthEntryPage', () => {
 
     await waitFor(() => {
       expect(pushMock).toHaveBeenCalledWith('/signup?email=new%40example.com');
+    });
+  });
+
+  it('passes the login prompt page to an email signup', async () => {
+    const user = userEvent.setup();
+    getAuthEmailMethodsMock.mockResolvedValue([]);
+    renderAuthEntryPage('/recommend/onboarding-87');
+
+    await user.type(screen.getByRole('textbox', { name: '이메일' }), 'new@example.com');
+    await user.click(screen.getByRole('button', { name: '이메일로 시작하기' }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith(
+        '/signup?email=new%40example.com&returnTo=%2Frecommend%2Fonboarding-87',
+      );
     });
   });
 

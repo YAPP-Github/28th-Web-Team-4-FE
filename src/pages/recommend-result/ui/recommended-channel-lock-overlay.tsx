@@ -1,7 +1,10 @@
+'use client';
+
 import type { JSX } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
@@ -9,6 +12,9 @@ import { VStack } from '@/shared/ui/layout/v-stack';
 
 /** 비로그인 추천 카드에 표시하는 Figma 기준 잠금 오버레이. */
 export function RecommendedChannelLockOverlay(): JSX.Element {
+  const pathname = usePathname();
+  const loginHref = pathname ? `/login?returnTo=${encodeURIComponent(pathname)}` : '/login';
+
   return (
     <Box className="absolute inset-0 z-30 text-center">
       <Box
@@ -37,7 +43,7 @@ export function RecommendedChannelLockOverlay(): JSX.Element {
           </VStack>
         </VStack>
         <Link
-          href="/login"
+          href={loginHref}
           className="text-text-login typo-body-md w-[175px] text-center underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           로그인하기

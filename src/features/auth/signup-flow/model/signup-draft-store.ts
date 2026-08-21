@@ -21,6 +21,7 @@ export type SignupIdentity =
     };
 
 type SignupDraft = {
+  returnTo: string;
   identity?: SignupIdentity;
   nickname: string;
   companyName: string;
@@ -36,9 +37,14 @@ type PersistedSignupDraft = Omit<SignupDraft, 'identity'> & {
 
 type SignupDraftStore = SignupDraft & {
   hasHydrated: boolean;
-  startEmailSignup: (email: string) => void;
+  startEmailSignup: (email: string, returnTo?: string) => void;
   completeEmailVerification: (email: string) => void;
-  startGoogleSignup: (identity: { email: string; signupToken: string; nickname?: string }) => void;
+  startGoogleSignup: (identity: {
+    email: string;
+    signupToken: string;
+    nickname?: string;
+    returnTo?: string;
+  }) => void;
   setPassword: (password: string) => void;
   setNickname: (nickname: string) => void;
   setCompanyName: (companyName: string) => void;
@@ -51,6 +57,7 @@ type SignupDraftStore = SignupDraft & {
 };
 
 const initialSignupDraft: SignupDraft = {
+  returnTo: '/',
   identity: undefined,
   nickname: '',
   companyName: '',
@@ -60,6 +67,7 @@ const initialSignupDraft: SignupDraft = {
   marketingAgreed: false,
 };
 const initialPersistedSignupDraft: PersistedSignupDraft = {
+  returnTo: '/',
   nickname: '',
   companyName: '',
   occupation: undefined,
@@ -68,17 +76,24 @@ const initialPersistedSignupDraft: PersistedSignupDraft = {
   marketingAgreed: false,
 };
 
+function normalizeReturnTo(value: unknown): string {
+  return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//')
+    ? value
+    : '/';
+}
+
 export const useSignupDraftStore = create<SignupDraftStore>()(
   persist(
     (set) => ({
       ...initialSignupDraft,
       hasHydrated: false,
-      startEmailSignup: (email) =>
+      startEmailSignup: (email, returnTo = '/') =>
         set((state) =>
           state.identity?.method === 'email' && state.identity.email === email
-            ? state
+            ? { returnTo: normalizeReturnTo(returnTo) }
             : {
                 ...initialSignupDraft,
+                returnTo: normalizeReturnTo(returnTo),
                 identity: { method: 'email', email, emailVerified: false, password: '' },
               },
         ),
@@ -91,9 +106,10 @@ export const useSignupDraftStore = create<SignupDraftStore>()(
                 identity: { method: 'email', email, emailVerified: true, password: '' },
               },
         ),
-      startGoogleSignup: ({ email, signupToken, nickname = '' }) =>
+      startGoogleSignup: ({ email, signupToken, nickname = '', returnTo = '/' }) =>
         set({
           ...initialSignupDraft,
+          returnTo: normalizeReturnTo(returnTo),
           identity: { method: 'google', email, signupToken },
           nickname,
         }),
@@ -112,9 +128,10 @@ export const useSignupDraftStore = create<SignupDraftStore>()(
     }),
     {
       name: 'signup-draft',
-      version: 3,
+      version: 4,
       storage: createJSONStorage<PersistedSignupDraft>(() => sessionStorage),
       partialize: ({
+        returnTo,
         identity,
         nickname,
         companyName,
@@ -123,6 +140,7 @@ export const useSignupDraftStore = create<SignupDraftStore>()(
         privacyAgreed,
         marketingAgreed,
       }): PersistedSignupDraft => ({
+        returnTo,
         identity:
           identity?.method === 'email'
             ? {
@@ -143,7 +161,8 @@ export const useSignupDraftStore = create<SignupDraftStore>()(
           return initialPersistedSignupDraft;
         }
 
-        const legacyDraft = persistedState as SignupDraft & {
+        const legacyDraft = persistedState as Omit<SignupDraft, 'returnTo'> & {
+          returnTo?: unknown;
           email?: string;
           emailVerified?: boolean;
           password?: string;
@@ -152,6 +171,7 @@ export const useSignupDraftStore = create<SignupDraftStore>()(
           email,
           emailVerified,
           identity,
+          returnTo: persistedReturnTo,
           password: _password,
           ...persistedSignupDraft
         } = legacyDraft;
@@ -159,6 +179,7 @@ export const useSignupDraftStore = create<SignupDraftStore>()(
         if (identity?.method === 'email') {
           return {
             ...persistedSignupDraft,
+            returnTo: normalizeReturnTo(persistedReturnTo),
             identity: {
               method: 'email',
               email: identity.email,
@@ -169,6 +190,7 @@ export const useSignupDraftStore = create<SignupDraftStore>()(
 
         return {
           ...persistedSignupDraft,
+          returnTo: normalizeReturnTo(persistedReturnTo),
           identity: email
             ? { method: 'email' as const, email, emailVerified: Boolean(emailVerified) }
             : undefined,
