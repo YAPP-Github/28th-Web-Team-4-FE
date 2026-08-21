@@ -94,10 +94,7 @@ function RecommendationCallout({ children, anchorTop }: RecommendationCalloutPro
         className="absolute left-1/2 size-px -translate-x-1/2"
         style={{ top: anchorTop }}
       />
-      <Tooltip.Content
-        className="bg-surface-highest"
-        arrowClassName="bg-surface-highest rotate-0 [clip-path:polygon(0_0,100%_0,50%_100%)]"
-      >
+      <Tooltip.Content className="bg-surface-highest" arrowClassName="bg-surface-highest">
         {children}
       </Tooltip.Content>
     </Tooltip.Root>
