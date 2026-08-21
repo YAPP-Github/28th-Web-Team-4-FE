@@ -24,7 +24,7 @@ export function AccountActions(): JSX.Element {
       onSuccess: () => {
         showToast({ id: 'logout-success', description: '로그아웃했어요', type: 'success' });
         setActiveModal(null);
-        router.replace('/login');
+        router.replace('/');
         router.refresh();
       },
     });

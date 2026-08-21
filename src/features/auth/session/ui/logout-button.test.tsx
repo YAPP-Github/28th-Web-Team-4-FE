@@ -49,13 +49,13 @@ describe('LogoutButton', () => {
     logoutAuthSessionMock.mockReset();
   });
 
-  it('clears the cached session and moves to login after logout', async () => {
+  it('clears the cached session and moves to home after logout', async () => {
     logoutAuthSessionMock.mockResolvedValue();
     const queryClient = renderLogoutButton();
 
     fireEvent.click(screen.getByRole('button', { name: '로그아웃' }));
 
-    await waitFor(() => expect(replaceMock).toHaveBeenCalledWith('/login'));
+    await waitFor(() => expect(replaceMock).toHaveBeenCalledWith('/'));
     expect(queryClient.getQueryData(authSessionQueryKey)).toEqual({ authenticated: false });
     expect(queryClient.getQueryData(myProfileQueryKey)).toBeUndefined();
     expect(refreshMock).toHaveBeenCalledOnce();
@@ -78,14 +78,14 @@ describe('LogoutButton', () => {
     expect(replaceMock).not.toHaveBeenCalled();
   });
 
-  it('moves to login when session revalidation confirms logout succeeded', async () => {
+  it('moves to home when session revalidation confirms logout succeeded', async () => {
     logoutAuthSessionMock.mockRejectedValue(new Error('response lost'));
     getAuthSessionMock.mockResolvedValue({ authenticated: false });
     const queryClient = renderLogoutButton();
 
     fireEvent.click(screen.getByRole('button', { name: '로그아웃' }));
 
-    await waitFor(() => expect(replaceMock).toHaveBeenCalledWith('/login'));
+    await waitFor(() => expect(replaceMock).toHaveBeenCalledWith('/'));
     expect(getAuthSessionMock).toHaveBeenCalledOnce();
     expect(queryClient.getQueryData(authSessionQueryKey)).toEqual({ authenticated: false });
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
