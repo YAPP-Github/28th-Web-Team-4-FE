@@ -1,3 +1,5 @@
+import { isServiceNameComplete } from '@/features/ad-onboarding/model/common-onboarding-rules';
+
 export type RecommendOnboardingNewSearchParams = {
   serviceName?: string | string[] | undefined;
 };
@@ -10,5 +12,5 @@ export function getInitialRecommendOnboardingServiceName(
 
   return serviceNameList
     .map((serviceName) => serviceName?.trim() ?? '')
-    .find((serviceName) => serviceName.length > 0);
+    .find((serviceName) => isServiceNameComplete(serviceName));
 }

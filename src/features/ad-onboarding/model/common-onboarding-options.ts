@@ -51,6 +51,9 @@ export type CampaignPeriodId =
   | 'TWO_TO_THREE_MONTHS'
   | 'OVER_THREE_MONTHS';
 
+/** 온보딩 첫 단계에서 입력하는 서비스 이름 최대 글자 수. */
+export const MAX_ONBOARDING_SERVICE_NAME_LENGTH = 50;
+
 /** 예산 Slider와 입력에서 허용하는 원 단위 확정 금액. */
 export type BudgetAmount = 0 | 500000 | 2000000 | 5000000 | 10000000;
 
