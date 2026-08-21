@@ -10,6 +10,7 @@ import type { z } from 'zod';
 import { AuthForm } from '@/features/auth/auth-form';
 import { getApiErrorMessage } from '@/shared/api/api-error';
 import { Button } from '@/shared/ui/button';
+import { GoogleLogo } from '@/shared/ui/google-logo';
 import { InputField } from '@/shared/ui/input-field';
 import { Text } from '@/shared/ui/text';
 import { authEntrySchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
@@ -134,6 +135,8 @@ export function AuthEntryForm(): JSX.Element {
     onDeferLink: (email) => setExistingAccountEmail(email),
   });
   const googleButtonContainerRef = useRef<HTMLDivElement>(null);
+  const isGoogleButtonDisabled =
+    resolveEmailMutation.isPending || isGoogleAuthPending || !isGoogleReady;
   const {
     clearErrors,
     formState: { errors },
@@ -208,23 +211,21 @@ export function AuthEntryForm(): JSX.Element {
               이메일로 시작하기
             </Button>
             <div className="relative flex min-h-[50px] w-full justify-center">
-              {isGoogleReady ? null : (
-                <Button frame="button" tone="social" type="button" disabled>
-                  Google로 시작하기
-                </Button>
-              )}
+              <Button
+                frame="button"
+                tone="social"
+                type="button"
+                disabled={isGoogleButtonDisabled}
+                leftIcon={<GoogleLogo alt="" />}
+              >
+                Google로 시작하기
+              </Button>
               <div
                 ref={googleButtonContainerRef}
-                className={
-                  isGoogleReady
-                    ? `flex w-full justify-center ${
-                        resolveEmailMutation.isPending || isGoogleAuthPending
-                          ? 'pointer-events-none opacity-60'
-                          : ''
-                      }`
-                    : 'hidden'
-                }
-                aria-disabled={resolveEmailMutation.isPending || isGoogleAuthPending}
+                className={`absolute inset-0 z-10 flex w-full justify-center opacity-0 ${
+                  isGoogleButtonDisabled ? 'pointer-events-none' : 'pointer-events-auto'
+                }`}
+                aria-hidden="true"
               />
             </div>
             <button
