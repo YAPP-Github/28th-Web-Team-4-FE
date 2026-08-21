@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { SimulationResponse } from '@/shared/api/generated';
 
@@ -288,6 +288,37 @@ describe('AuthenticatedChannelResults', () => {
     await act(async () => {
       await vi.advanceTimersByTimeAsync(1);
     });
+    expect(screen.queryAllByRole('tooltip')).toHaveLength(0);
+  });
+
+  it('모바일에서 정보 아이콘을 누르고 있는 동안 툴팁을 보여준다', async () => {
+    vi.useFakeTimers();
+
+    render(
+      <AuthenticatedChannelResults
+        isChannelSelectionComplete
+        selectedChannelIds={SELECTED_CHANNEL_IDS}
+        simulationResult={SIMULATION_RESULT}
+      />,
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(4_001);
+    });
+
+    const infoButton = screen.getByRole('button', { name: '채널 A 기준 정보 안내' });
+    fireEvent.pointerDown(infoButton, { pointerType: 'touch' });
+
+    const openedTooltip = screen
+      .getAllByRole('tooltip')
+      .find(
+        (element) =>
+          element.textContent?.includes('예산이 부족해요') && element.hasAttribute('data-open'),
+      );
+    expect(openedTooltip).toBeDefined();
+
+    fireEvent.pointerUp(infoButton, { pointerType: 'touch' });
+
     expect(screen.queryAllByRole('tooltip')).toHaveLength(0);
   });
 });

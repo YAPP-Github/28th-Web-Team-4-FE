@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type JSX } from 'react';
+import { useEffect, useState, type JSX, type PointerEvent } from 'react';
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 import Image from 'next/image';
 import { Info } from 'lucide-react';
@@ -200,6 +200,18 @@ function ChannelBasisInfo({
     tooltip !== undefined;
   const [open, setOpen] = useState(false);
 
+  const handleTouchPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType === 'touch') {
+      setOpen(true);
+    }
+  };
+
+  const handleTouchPointerEnd = (event: PointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType === 'touch') {
+      setOpen(false);
+    }
+  };
+
   useEffect(() => {
     if (!shouldAutoOpen) {
       return;
@@ -236,6 +248,10 @@ function ChannelBasisInfo({
         <BaseTooltip.Trigger
           aria-label={`${channelName} 기준 정보 안내`}
           delay={0}
+          onPointerDown={handleTouchPointerDown}
+          onPointerUp={handleTouchPointerEnd}
+          onPointerCancel={handleTouchPointerEnd}
+          onPointerLeave={handleTouchPointerEnd}
           className="text-icon-default hover:text-icon-high focus-visible:outline-outline-selected size-014 relative inline-flex shrink-0 items-center justify-center rounded-full before:absolute before:-inset-[5px] before:content-[''] focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           <Info aria-hidden className="size-014" strokeWidth={1.8} />
