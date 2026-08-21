@@ -8,6 +8,7 @@ import {
   recommendedChannels,
   type RecommendedChannel,
 } from './recommended-channels';
+import { getRecommendedChannelDetailHeader } from './recommended-channel-details';
 
 function createRecommendedChannel(id: string, matchRate: number): RecommendedChannel {
   return {
@@ -31,41 +32,68 @@ describe('recommendedChannels', () => {
   });
 
   it('maps API recommendation items to the card view model', () => {
+    const [channel] = mapRecommendationItemsToChannels([
+      {
+        channelId: 'kakao-1',
+        channelName: '카카오 비즈보드',
+        wordmarkUrl: 'https://assets.chaeso-zip.com/wordmarks/kakao.png',
+        matchRate: 84,
+        recommendationReason: '모바일 도달에 적합해요.',
+        primaryTarget: '20대',
+        cpcWon: 320,
+        pricingModel: 'CPC',
+        minBudgetWon: 300000,
+        estImpressions: { min: 12000, max: 15000 },
+        estClicks: { min: 300, max: 450 },
+        isExecutable: true,
+        shortfallWon: null,
+      },
+    ]);
+
+    expect(channel).toEqual({
+      id: 'kakao-1',
+      name: '카카오 비즈보드',
+      description: '모바일 도달에 적합해요.',
+      cpcPrice: '클릭 1회당 320원~',
+      isLowestCpc: true,
+      matchRate: 84,
+      thumbnailSrc: 'https://assets.chaeso-zip.com/wordmarks/kakao.png',
+      thumbnailFallbackSrc: '/recommend-assets/kakao-ad.png',
+      metrics: [
+        { label: '예상 노출', value: '12,000~15,000회' },
+        { label: '예상 클릭', value: '300~450회' },
+        { label: '최소 예산', value: '30만' },
+        { label: '주요 타깃', value: '20대' },
+        { label: '과금 방식', value: '클릭당(CPC)' },
+      ],
+    });
+    expect(getRecommendedChannelDetailHeader(channel).iconUrl).toBe(
+      'https://assets.chaeso-zip.com/wordmarks/kakao.png',
+    );
+  });
+
+  it('uses the fallback image when a recommendation has no wordmark URL', () => {
     expect(
       mapRecommendationItemsToChannels([
         {
-          channelId: 'kakao-1',
-          channelName: '카카오 비즈보드',
-          wordmarkUrl: 'https://assets.chaeso-zip.com/wordmarks/kakao.png',
-          matchRate: 84,
-          recommendationReason: '모바일 도달에 적합해요.',
+          channelId: 'youtube-1',
+          channelName: '유튜브 쇼츠 광고',
+          wordmarkUrl: null,
+          matchRate: 80,
+          recommendationReason: '영상 도달에 적합해요.',
           primaryTarget: '20대',
           cpcWon: 320,
           pricingModel: 'CPC',
           minBudgetWon: 300000,
-          estImpressions: { min: 12000, max: 15000 },
-          estClicks: { min: 300, max: 450 },
+          estImpressions: null,
+          estClicks: null,
           isExecutable: true,
           shortfallWon: null,
         },
       ]),
-    ).toEqual([
+    ).toMatchObject([
       {
-        id: 'kakao-1',
-        name: '카카오 비즈보드',
-        description: '모바일 도달에 적합해요.',
-        cpcPrice: '클릭 1회당 320원~',
-        isLowestCpc: true,
-        matchRate: 84,
-        thumbnailSrc: 'https://assets.chaeso-zip.com/wordmarks/kakao.png',
-        thumbnailFallbackSrc: '/recommend-assets/kakao-ad.png',
-        metrics: [
-          { label: '예상 노출', value: '12,000~15,000회' },
-          { label: '예상 클릭', value: '300~450회' },
-          { label: '최소 예산', value: '30만' },
-          { label: '주요 타깃', value: '20대' },
-          { label: '과금 방식', value: '클릭당(CPC)' },
-        ],
+        thumbnailSrc: '/recommend-assets/youtube-ad.png',
       },
     ]);
   });
