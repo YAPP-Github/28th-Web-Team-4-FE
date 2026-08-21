@@ -41,7 +41,7 @@ function getSendResolutionErrorMessage(resolution: SignupEmailCodeResolution): s
   return undefined;
 }
 
-export function useSignupEmailVerificationForm(email: string) {
+export function useSignupEmailVerificationForm(email: string, returnTo = '/') {
   const router = useRouter();
   const [verificationState, dispatch] = useReducer(
     signupEmailVerificationReducer,
@@ -120,7 +120,7 @@ export function useSignupEmailVerificationForm(email: string) {
       return;
     }
 
-    startEmailSignup(email);
+    startEmailSignup(email, returnTo);
 
     if (
       (storedEmail === email && emailVerified) ||
@@ -132,7 +132,7 @@ export function useSignupEmailVerificationForm(email: string) {
 
     initiallySentEmailRef.current = email;
     sendInitialCode(email);
-  }, [email, emailVerified, hasHydrated, sendInitialCode, startEmailSignup, storedEmail]);
+  }, [email, emailVerified, hasHydrated, returnTo, sendInitialCode, startEmailSignup, storedEmail]);
 
   const changeCode = (value: string) => {
     const nextCode = value.replace(/\D/g, '').slice(0, 6);
@@ -159,7 +159,7 @@ export function useSignupEmailVerificationForm(email: string) {
   };
 
   const goToPreviousStep = () => {
-    router.push('/login');
+    router.push(returnTo === '/' ? '/login' : `/login?returnTo=${encodeURIComponent(returnTo)}`);
   };
 
   const resendCode = () => {

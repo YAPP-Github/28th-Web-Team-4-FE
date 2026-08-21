@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
@@ -14,6 +14,7 @@ import { getApiErrorMessage } from '@/shared/api/api-error';
 import { submitSignup } from '@/pages/auth/signup-terms/api/submit-signup';
 
 export type SignupTermsDraft = SignupAgreements & {
+  returnTo: string;
   identity: SignupIdentity;
   nickname: string;
   companyName: string;
@@ -24,6 +25,7 @@ export function useSignupTermsForm(signupDraft: SignupTermsDraft) {
   const router = useRouter();
   const setStoredAgreements = useSignupDraftStore((state) => state.setAgreements);
   const resetSignupDraft = useSignupDraftStore((state) => state.resetSignupDraft);
+  const signupCompletedRef = useRef(false);
   const [agreements, setAgreements] = useState<SignupAgreements>({
     serviceTermsAgreed: signupDraft.serviceTermsAgreed,
     privacyAgreed: signupDraft.privacyAgreed,
@@ -31,11 +33,20 @@ export function useSignupTermsForm(signupDraft: SignupTermsDraft) {
   });
   const [errorMessage, setErrorMessage] = useState<string>();
   const requiredAgreementsAccepted = agreements.serviceTermsAgreed && agreements.privacyAgreed;
+  useEffect(() => {
+    return () => {
+      if (signupCompletedRef.current) {
+        resetSignupDraft();
+      }
+    };
+  }, [resetSignupDraft]);
+
   const signupMutation = useMutation({
     mutationFn: submitSignup,
     onSuccess: () => {
-      resetSignupDraft();
-      router.replace('/');
+      const returnTo = signupDraft.returnTo;
+      signupCompletedRef.current = true;
+      router.replace(returnTo);
     },
     onError: (error) => {
       setErrorMessage(getApiErrorMessage(error, '회원가입 중 문제가 발생했습니다.'));

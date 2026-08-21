@@ -366,6 +366,21 @@ describe('AuthEntryPage', () => {
     });
   });
 
+  it('passes the login prompt page to an email signup', async () => {
+    const user = userEvent.setup();
+    getAuthEmailMethodsMock.mockResolvedValue([]);
+    renderAuthEntryPage('/recommend/onboarding-87');
+
+    await user.type(screen.getByRole('textbox', { name: '이메일' }), 'new@example.com');
+    await user.click(screen.getByRole('button', { name: '이메일로 시작하기' }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith(
+        '/signup?email=new%40example.com&returnTo=%2Frecommend%2Fonboarding-87',
+      );
+    });
+  });
+
   it('guides a Google-only account to Google login', async () => {
     const user = userEvent.setup();
     getAuthEmailMethodsMock.mockResolvedValue(['GOOGLE']);

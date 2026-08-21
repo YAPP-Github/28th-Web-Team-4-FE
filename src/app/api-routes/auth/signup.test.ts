@@ -1,10 +1,9 @@
-import { login, signup } from '@/shared/api/generated';
+import { signup } from '@/shared/api/generated';
 import { writeAuthSession } from '@/app/api-routes/auth/session-cookie';
 
 import { postSignup } from './signup';
 
 vi.mock('@/shared/api/generated', () => ({
-  login: vi.fn<typeof login>(),
   signup: vi.fn<typeof signup>(),
 }));
 vi.mock('@/app/api-routes/auth/session-cookie', () => ({
@@ -12,7 +11,6 @@ vi.mock('@/app/api-routes/auth/session-cookie', () => ({
 }));
 
 const signupMock = vi.mocked(signup);
-const loginMock = vi.mocked(login);
 const writeAuthSessionMock = vi.mocked(writeAuthSession);
 const tokens = {
   accessToken: 'access-token',
@@ -65,32 +63,11 @@ function errorResponse(status: number): Awaited<ReturnType<typeof signup>> {
   } as unknown as Awaited<ReturnType<typeof signup>>;
 }
 
-function loginSuccessResponse(): Awaited<ReturnType<typeof login>> {
-  return {
-    data: { success: true, data: tokens, error: null, code: null },
-    response: new Response(null, { status: 200 }),
-  } as unknown as Awaited<ReturnType<typeof login>>;
-}
-
-function loginErrorResponse(status: number): Awaited<ReturnType<typeof login>> {
-  return {
-    data: undefined,
-    error: {
-      success: false,
-      data: null,
-      error: { code: 'AUTH-004', message: '로그인에 실패했습니다.', fieldErrors: [] },
-      code: null,
-    },
-    response: new Response(null, { status }),
-  } as unknown as Awaited<ReturnType<typeof login>>;
-}
-
 describe('email signup BFF', () => {
   beforeEach(() => {
     vi.stubEnv('BFF_ALLOWED_ORIGINS', 'https://chaeso-zip.com,http://localhost:3000');
     vi.clearAllMocks();
     signupMock.mockResolvedValue(successResponse());
-    loginMock.mockResolvedValue(loginSuccessResponse());
     writeAuthSessionMock.mockResolvedValue({
       accessToken: tokens.accessToken,
       accessTokenExpiresAt: 1_800_000,
@@ -164,7 +141,7 @@ describe('email signup BFF', () => {
     expect(writeAuthSessionMock).not.toHaveBeenCalled();
   });
 
-  it('creates a session with a BFF-only login when signup returns user data', async () => {
+  it('rejects a signup response without issued tokens', async () => {
     signupMock.mockResolvedValue({
       data: {
         success: true,
@@ -173,42 +150,11 @@ describe('email signup BFF', () => {
         code: null,
       },
       response: new Response(null, { status: 201 }),
-    });
+    } as unknown as Awaited<ReturnType<typeof signup>>);
 
     const response = await postSignup(signupRequest());
 
-    expect(response.status).toBe(204);
-    expect(loginMock).toHaveBeenCalledWith({
-      body: { email: 'new@example.com', password: 'Password1!' },
-    });
-    expect(writeAuthSessionMock).toHaveBeenCalledWith(tokens);
-  });
-
-  it('forwards the BFF-only login error without replacing the session', async () => {
-    signupMock.mockResolvedValue({
-      data: {
-        success: true,
-        data: { id: 'user-1', email: 'new@example.com', nickname: '채소러버' },
-        error: null,
-        code: null,
-      },
-      response: new Response(null, { status: 201 }),
-    });
-    loginMock.mockResolvedValue(loginErrorResponse(401));
-
-    const response = await postSignup(signupRequest());
-
-    expect(response.status).toBe(401);
-    expect(await response.json()).toEqual({
-      success: false,
-      data: null,
-      error: {
-        code: 'AUTH-004',
-        message: '로그인에 실패했습니다.',
-        fieldErrors: [],
-      },
-      code: null,
-    });
+    expect(response.status).toBe(502);
     expect(writeAuthSessionMock).not.toHaveBeenCalled();
   });
 });

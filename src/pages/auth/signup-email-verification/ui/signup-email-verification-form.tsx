@@ -23,7 +23,13 @@ function getVerificationFeedback(
   return undefined;
 }
 
-export function SignupEmailVerificationForm({ email }: { email: string }): JSX.Element {
+export function SignupEmailVerificationForm({
+  email,
+  returnTo = '/',
+}: {
+  email: string;
+  returnTo?: string;
+}): JSX.Element {
   const {
     changeCode,
     code,
@@ -35,7 +41,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
     resendCode,
     status,
     submit,
-  } = useSignupEmailVerificationForm(email);
+  } = useSignupEmailVerificationForm(email, returnTo);
   const feedback = getVerificationFeedback(status, errorMessage);
 
   return (

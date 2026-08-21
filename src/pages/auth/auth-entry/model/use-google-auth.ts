@@ -22,6 +22,7 @@ export function useGoogleAuth({ returnTo = '/' }: { returnTo?: string } = {}) {
           email: resolution.email,
           nickname: resolution.nickname,
           signupToken: resolution.signupToken,
+          returnTo,
         });
         router.push('/signup/name');
         return;

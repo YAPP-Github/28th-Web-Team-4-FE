@@ -17,15 +17,14 @@ import type { RecommendedChannel } from '@/pages/recommend-result/model/recommen
 
 import { RecommendResultPage, RecommendResultWithRecommendations } from './recommend-result-page';
 
-const { onCompareMock, pushMock, replaceMock, showWarningToastMock } = vi.hoisted(() => ({
+const { onCompareMock, pushMock, showWarningToastMock } = vi.hoisted(() => ({
   onCompareMock: vi.fn<(channelIds: readonly string[]) => void>(),
   pushMock: vi.fn<(href: string) => void>(),
-  replaceMock: vi.fn<(href: string) => void>(),
   showWarningToastMock: vi.fn<(description: string, options?: { id?: string }) => void>(),
 }));
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: pushMock, replace: replaceMock }),
+  useRouter: () => ({ push: pushMock }),
   usePathname: () => '/recommend/onboarding-87',
 }));
 
@@ -284,7 +283,6 @@ describe('RecommendResultPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     pushMock.mockReset();
-    replaceMock.mockReset();
     useRecommendOnboardingStore.setState(initialStore, true);
   });
 
@@ -657,6 +655,6 @@ describe('RecommendResultPage', () => {
       { onboardingId: RECOMMENDATION_ONBOARDING_ID, serviceName: '채소집' },
       { onboardingId: 'onboarding-authenticated', serviceName: '채소집' },
     ]);
-    expect(replaceMock).toHaveBeenCalledWith('/recommend/onboarding-authenticated');
+    expect(screen.getByRole('button', { name: '저장 완료' })).toBeDisabled();
   });
 });

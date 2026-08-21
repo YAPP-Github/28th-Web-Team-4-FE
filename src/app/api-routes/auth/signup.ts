@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { login, signup } from '@/shared/api/generated';
+import { signup } from '@/shared/api/generated';
 import { extractTokenResponse } from '@/shared/lib/auth/session';
 import { writeAuthSession } from '@/app/api-routes/auth/session-cookie';
 
@@ -47,34 +47,12 @@ export async function postSignup(request: Request): Promise<Response> {
 
   const signupTokens = extractTokenResponse(signupResult.data.data);
 
-  if (signupTokens) {
-    await writeAuthSession(signupTokens);
-    return new Response(null, { status: 204 });
-  }
-
-  // 이메일 가입 API는 현재 사용자 정보만 반환하므로, 세션 발급은 BFF 안에서만 수행한다.
-  const loginResult = await login({
-    body: {
-      email: body.data.email,
-      password: body.data.password,
-    },
-  });
-
-  if (loginResult.error !== undefined) {
-    return upstreamErrorResponse(loginResult.error, loginResult.response?.status);
-  }
-
-  if (!loginResult.data) {
+  // 가입 응답에 발급된 토큰이 없으면 계약을 위반한 응답이므로 세션을 만들지 않는다.
+  if (!signupTokens) {
     return upstreamErrorResponse(null);
   }
 
-  const loginTokens = extractTokenResponse(loginResult.data.data);
-
-  if (!loginTokens) {
-    return upstreamErrorResponse(null);
-  }
-
-  await writeAuthSession(loginTokens);
+  await writeAuthSession(signupTokens);
 
   return new Response(null, { status: 204 });
 }

@@ -2,7 +2,6 @@
 
 import { useState, type JSX } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
 
 import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
 import { submitRecommendOnboarding } from '@/features/ad-onboarding/api/submit-recommend-onboarding';
@@ -43,7 +42,6 @@ export function RecommendResultSaveAction({
   onboardingId,
   serviceName,
 }: RecommendResultSaveActionProps): JSX.Element {
-  const router = useRouter();
   const onboardingAnswer = useRecommendOnboardingStore((state) => state.answer);
   const saveRecommendation = useSaveRecommendation();
   const migrateOnboarding = useMutation({ mutationFn: submitRecommendOnboarding });
@@ -92,9 +90,6 @@ export function RecommendResultSaveAction({
                   },
                 },
                 {
-                  onSuccess: () => {
-                    router.replace(`/recommend/${newOnboardingId}`);
-                  },
                   onError: showSaveError,
                 },
               );

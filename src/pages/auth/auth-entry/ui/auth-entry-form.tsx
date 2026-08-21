@@ -171,6 +171,9 @@ export function AuthEntryForm({ returnTo = '/' }: { returnTo?: string }): JSX.El
         }
 
         const searchParams = new URLSearchParams({ email: resolution.email });
+        if (returnTo !== '/') {
+          searchParams.set('returnTo', returnTo);
+        }
         router.push(`/signup?${searchParams.toString()}`);
       },
       onError: (error: unknown) => {

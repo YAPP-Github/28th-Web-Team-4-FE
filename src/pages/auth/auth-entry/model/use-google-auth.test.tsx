@@ -55,6 +55,31 @@ describe('useGoogleAuth', () => {
     });
   });
 
+  it('keeps the requested page in a new Google signup draft', async () => {
+    authenticateGoogleMock.mockResolvedValue({
+      type: 'signup',
+      email: 'google@example.com',
+      nickname: '구글 사용자',
+      signupToken: 'one-time-token',
+    });
+    const queryClient = new QueryClient({
+      defaultOptions: { mutations: { retry: false } },
+    });
+    const wrapper = ({ children }: PropsWithChildren) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+    const { result } = renderHook(() => useGoogleAuth({ returnTo: '/recommend/onboarding-87' }), {
+      wrapper,
+    });
+
+    act(() => result.current.mutate('google-id-token'));
+
+    await waitFor(() => expect(pushMock).toHaveBeenCalledWith('/signup/name'));
+    expect(useSignupDraftStore.getState()).toMatchObject({
+      returnTo: '/recommend/onboarding-87',
+    });
+  });
+
   it('exposes a link requirement without routing or treating it as an error', async () => {
     authenticateGoogleMock.mockResolvedValue({
       type: 'link',

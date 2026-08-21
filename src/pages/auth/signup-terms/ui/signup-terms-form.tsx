@@ -20,6 +20,7 @@ export function SignupTermsForm(): JSX.Element | null {
   const canAccessStep = useSignupStepGuard('terms');
   const signupDraft = useSignupDraftStore(
     useShallow((state) => ({
+      returnTo: state.returnTo,
       identity: state.identity,
       nickname: state.nickname,
       companyName: state.companyName,
