@@ -7,7 +7,7 @@ import { VStack } from '@/shared/ui/layout/v-stack';
 import { Text } from '@/shared/ui/text';
 
 /** 비로그인 비교 결과의 MOCK/맞춤 구간에 표시하는 Figma 기준 잠금 오버레이. */
-export function CompareResultGuestLockOverlay(): JSX.Element {
+export function CompareResultGuestLockOverlay({ loginHref }: { loginHref: string }): JSX.Element {
   return (
     <Box className="absolute inset-0 z-10 text-center">
       <Box
@@ -35,7 +35,7 @@ export function CompareResultGuestLockOverlay(): JSX.Element {
           </VStack>
         </VStack>
         <Link
-          href="/login"
+          href={loginHref}
           className="text-text-login typo-body-md w-[175px] text-center underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           로그인하기
@@ -48,12 +48,14 @@ export function CompareResultGuestLockOverlay(): JSX.Element {
 type CompareResultGuestLockProps = {
   locked?: boolean;
   children: ReactNode;
+  loginHref: string;
 };
 
 /** 잠긴 비교 결과 섹션 전체를 blur 처리하고 로그인 유도 오버레이를 올린다. */
 export function CompareResultGuestLock({
   locked = false,
   children,
+  loginHref,
 }: CompareResultGuestLockProps): JSX.Element {
   if (!locked) {
     return <>{children}</>;
@@ -64,7 +66,7 @@ export function CompareResultGuestLock({
       <Box aria-hidden inert>
         {children}
       </Box>
-      <CompareResultGuestLockOverlay />
+      <CompareResultGuestLockOverlay loginHref={loginHref} />
     </Box>
   );
 }

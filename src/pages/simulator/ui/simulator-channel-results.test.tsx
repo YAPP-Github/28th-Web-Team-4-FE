@@ -29,6 +29,7 @@ describe('SimulatorChannelResults', () => {
       <SimulatorChannelResults
         isLogin
         isChannelSelectionComplete
+        loginHref="/login"
         selectedChannelIds={['channel-a', 'channel-b', 'channel-c']}
       />,
     );
@@ -50,6 +51,7 @@ describe('SimulatorChannelResults', () => {
       <SimulatorChannelResults
         isLogin
         isChannelSelectionComplete
+        loginHref="/login"
         selectedChannelIds={['channel-a', 'channel-b', 'channel-c']}
       />,
     );
@@ -74,6 +76,7 @@ describe('SimulatorChannelResults', () => {
       <SimulatorChannelResults
         isLogin
         isChannelSelectionComplete
+        loginHref="/login"
         selectedChannelIds={['channel-a', 'channel-b', 'channel-c']}
       />,
     );
@@ -87,10 +90,24 @@ describe('SimulatorChannelResults', () => {
   });
 
   it('채널 선택 전에는 단가 툴팁을 열 수 없다', () => {
-    render(<SimulatorChannelResults isLogin />);
+    render(<SimulatorChannelResults isLogin loginHref="/login" />);
 
     expect(
       screen.queryByRole('button', { name: '채널별 클릭당 비용 안내' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('비로그인 로그인 링크가 현재 시뮬레이터 결과 주소를 보존한다', () => {
+    render(
+      <SimulatorChannelResults
+        isLogin={false}
+        loginHref="/login?returnTo=%2Fsimulator%3FchannelIds%3Dchannel-a%26filterOpen%3Dtrue"
+      />,
+    );
+
+    expect(screen.getByRole('link', { name: '로그인하기' })).toHaveAttribute(
+      'href',
+      '/login?returnTo=%2Fsimulator%3FchannelIds%3Dchannel-a%26filterOpen%3Dtrue',
+    );
   });
 });

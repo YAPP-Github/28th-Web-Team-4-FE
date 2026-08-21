@@ -12,7 +12,7 @@ import {
 } from './simulator-channel-performance';
 import { SimulatorChannelTable } from './simulator-channel-table';
 
-function GuestLockOverlay(): JSX.Element {
+function GuestLockOverlay({ loginHref }: { loginHref: string }): JSX.Element {
   return (
     <Box className="absolute inset-x-0 top-[50px] bottom-0 z-10 overflow-hidden">
       <Box
@@ -30,7 +30,7 @@ function GuestLockOverlay(): JSX.Element {
             </Text>
           </Box>
           <Link
-            href="/login"
+            href={loginHref}
             className="typo-body-sm text-text-login w-full text-center underline underline-offset-2"
           >
             로그인하기
@@ -42,8 +42,10 @@ function GuestLockOverlay(): JSX.Element {
 }
 
 export function GuestChannelResults({
+  loginHref,
   view = 'graph',
 }: {
+  loginHref: string;
   view?: SimulatorResultsView;
 }): JSX.Element {
   return (
@@ -53,7 +55,7 @@ export function GuestChannelResults({
       ) : (
         <ChannelPerformanceContent channels={simulatorPreviewChannels} />
       )}
-      <GuestLockOverlay />
+      <GuestLockOverlay loginHref={loginHref} />
     </>
   );
 }

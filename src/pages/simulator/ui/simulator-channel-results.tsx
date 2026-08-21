@@ -20,6 +20,7 @@ import {
 type SimulatorChannelResultsProps = {
   isLogin: boolean;
   isChannelSelectionComplete?: boolean;
+  loginHref: string;
   selectedChannelIds?: readonly string[];
   simulationResult?: SimulationResponse | null;
 };
@@ -108,6 +109,7 @@ function ChannelCostInfo({
 export function SimulatorChannelResults({
   isLogin,
   isChannelSelectionComplete = false,
+  loginHref,
   selectedChannelIds = [],
   simulationResult = null,
 }: SimulatorChannelResultsProps): JSX.Element {
@@ -154,7 +156,7 @@ export function SimulatorChannelResults({
           view={view}
         />
       ) : (
-        <GuestChannelResults view={view} />
+        <GuestChannelResults loginHref={loginHref} view={view} />
       )}
     </Box>
   );
