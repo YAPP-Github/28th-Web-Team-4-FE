@@ -399,7 +399,7 @@ export const saveChannelComparison = <ThrowOnError extends boolean = false>(
 /**
  * 회원가입 최종 제출
  *
- * 이메일 인증 완료 후 로컬 계정을 생성한다. 인증 미완료 시 400, 이메일 중복 시 409.
+ * 이메일 인증 완료 후 로컬 계정을 생성하고 토큰을 발급한다. 인증 미완료 시 400, 이메일 중복 시 409.
  * 탈퇴 후 30일 이내(휴면) 이메일이면 가입 대신 409(AUTH-014)로 로그인을 안내한다.
  */
 export const signup = <ThrowOnError extends boolean = false>(
@@ -535,7 +535,9 @@ export const login = <ThrowOnError extends boolean = false>(
 /**
  * 로그인 수단 조회
  *
- * 이메일로 사용 가능한 로그인 수단을 조회한다. 비밀번호 입력 전 화면 분기용.
+ * 탈퇴 여부에 상관없이 이메일로 사용 가능한 로그인 수단을 조회한다.
+ * 탈퇴 후 30일 이내(휴면) 계정도 로그인 화면으로 안내하면 되며,
+ * 로그인에 성공하면 자동으로 복구된다.
  *
  * methods
  * [LOCAL]: 비밀번호 입력창.
