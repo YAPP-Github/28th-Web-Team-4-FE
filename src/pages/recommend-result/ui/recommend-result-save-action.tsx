@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type JSX } from 'react';
+import type { JSX } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
 import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
@@ -12,6 +12,7 @@ import { showWarningToast } from '@/shared/ui/toast';
 
 type RecommendResultSaveActionProps = {
   onboardingId: string;
+  onOnboardingIdChange: (onboardingId: string) => void;
   serviceName: string;
 };
 
@@ -40,12 +41,12 @@ function getSaveRecommendationButtonStatus({
 
 export function RecommendResultSaveAction({
   onboardingId,
+  onOnboardingIdChange,
   serviceName,
 }: RecommendResultSaveActionProps): JSX.Element {
   const onboardingAnswer = useRecommendOnboardingStore((state) => state.answer);
   const saveRecommendation = useSaveRecommendation();
   const migrateOnboarding = useMutation({ mutationFn: submitRecommendOnboarding });
-  const [activeOnboardingId, setActiveOnboardingId] = useState(onboardingId);
   const isSaved = saveRecommendation.isSuccess;
   const isPending = saveRecommendation.isPending || migrateOnboarding.isPending;
   const isDisabled = isPending || isSaved;
@@ -68,7 +69,7 @@ export function RecommendResultSaveAction({
     saveRecommendation.mutate(
       {
         body: {
-          onboardingId: activeOnboardingId,
+          onboardingId,
           serviceName,
         },
       },
@@ -81,7 +82,7 @@ export function RecommendResultSaveAction({
 
           migrateOnboarding.mutate(onboardingAnswer, {
             onSuccess: ({ onboardingId: newOnboardingId }) => {
-              setActiveOnboardingId(newOnboardingId);
+              onOnboardingIdChange(newOnboardingId);
               saveRecommendation.mutate(
                 {
                   body: {

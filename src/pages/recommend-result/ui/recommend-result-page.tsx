@@ -140,9 +140,10 @@ export function RecommendResultWithRecommendations({
   const router = useRouter();
   const serviceName = useRecommendOnboardingStore((state) => state.answer?.serviceName ?? '채소집');
   const recommendationsQuery = useRecommendations(onboardingId);
+  const [activeOnboardingId, setActiveOnboardingId] = useState(onboardingId);
 
   const handleCompare = (channelIds: readonly string[]): void => {
-    router.push(createChannelComparisonHref(channelIds, { onboardingId }));
+    router.push(createChannelComparisonHref(channelIds, { onboardingId: activeOnboardingId }));
   };
 
   return (
@@ -151,10 +152,14 @@ export function RecommendResultWithRecommendations({
       <RecommendResultPage
         channels={recommendationsQuery.data}
         headerAction={
-          <RecommendResultSaveAction onboardingId={onboardingId} serviceName={serviceName} />
+          <RecommendResultSaveAction
+            onboardingId={activeOnboardingId}
+            onOnboardingIdChange={setActiveOnboardingId}
+            serviceName={serviceName}
+          />
         }
         isGuest={isGuest}
-        onboardingId={onboardingId}
+        onboardingId={activeOnboardingId}
         onCompare={handleCompare}
       />
     </>
