@@ -126,6 +126,16 @@ describe('simulator-channel', () => {
       description: ['매체 특성상 상세 데이터를', '제공하지 않아요.'],
     });
 
+    expect(getSimulatorBasisTooltip('집행 예산 부족', undefined, false)).toEqual({
+      title: '정보 확인이 어려워요',
+      description: ['매체 특성상 상세 데이터를', '제공하지 않아요.'],
+    });
+
+    expect(getSimulatorBasisTooltip('기타 미집행 사유', undefined, false)).toEqual({
+      title: '정보 확인이 어려워요',
+      description: ['매체 특성상 상세 데이터를', '제공하지 않아요.'],
+    });
+
     expect(getSimulatorBasisTooltip('기준 데이터')).toBeUndefined();
   });
 

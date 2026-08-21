@@ -44,6 +44,7 @@ const SIMULATOR_BASIS_TOOLTIPS = {
 export function getSimulatorBasisTooltip(
   basisNote?: string,
   additionalBudgetWon?: number,
+  isExecutable?: boolean,
 ): SimulatorBasisTooltip | undefined {
   const basisType = basisNote?.split('/')[0]?.trim().replace(/\s+/g, ' ');
 
@@ -52,23 +53,25 @@ export function getSimulatorBasisTooltip(
     basisType?.startsWith('미집행 (배분 예산 0원)') ||
     basisType?.startsWith('배분 예산이 최소 단가보다 적어 집행 불가')
   ) {
-    if (additionalBudgetWon === undefined || additionalBudgetWon <= 0) {
-      return undefined;
+    if (additionalBudgetWon !== undefined && additionalBudgetWon > 0) {
+      return {
+        title: '예산이 부족해요',
+        description: [
+          `예산을 ${formatSimulatorBudget(additionalBudgetWon)} 더 추가하면`,
+          '광고할 수 있어요',
+        ],
+      };
     }
-
-    return {
-      title: '예산이 부족해요',
-      description: [
-        `예산을 ${formatSimulatorBudget(additionalBudgetWon)} 더 추가하면`,
-        '광고할 수 있어요',
-      ],
-    };
   }
 
   if (
     basisType?.startsWith('노출 정보 미제공 상품 (집행 가능 여부만 판단)') ||
     basisType?.startsWith('견적 문의 필요 (등록된 단가 정보 없음)')
   ) {
+    return SIMULATOR_BASIS_TOOLTIPS.unavailableImpressionData;
+  }
+
+  if (isExecutable === false) {
     return SIMULATOR_BASIS_TOOLTIPS.unavailableImpressionData;
   }
 
