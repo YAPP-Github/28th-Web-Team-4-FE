@@ -2439,7 +2439,7 @@ export type SignupErrors = {
    */
   400: ApiResponse;
   /**
-   * 이미 사용 중이거나 탈퇴 처리 중인 이메일
+   * 이미 사용 중인 이메일(AUTH-002), 탈퇴 후 유예기간 이내라 로그인이 필요한 휴면 계정(AUTH-014), 또는 유예기간이 지나 탈퇴 처리 중인 계정(AUTH-013)
    */
   409: ApiResponse;
   /**
@@ -2476,7 +2476,7 @@ export type SignupGoogleErrors = {
    */
   401: ApiResponse;
   /**
-   * 이미 사용 중이거나 탈퇴 처리 중인 이메일
+   * 이미 사용 중인 이메일(AUTH-002), 탈퇴 후 유예기간 이내라 로그인이 필요한 휴면 계정(AUTH-014), 또는 유예기간이 지나 탈퇴 처리 중인 계정(AUTH-013)
    */
   409: ApiResponse;
   /**
@@ -2509,7 +2509,7 @@ export type SendSignupCodeErrors = {
    */
   400: ApiResponse;
   /**
-   * 이미 사용 중이거나 탈퇴 처리 중인 이메일
+   * 이미 사용 중인 이메일(AUTH-002), 탈퇴 후 유예기간 이내라 로그인이 필요한 휴면 계정(AUTH-014), 또는 유예기간이 지나 탈퇴 처리 중인 계정(AUTH-013)
    */
   409: ApiResponse;
   /**
@@ -2645,7 +2645,7 @@ export type LoginErrors = {
    */
   401: ApiResponse;
   /**
-   * 탈퇴 처리된 계정(AUTH-013)
+   * 탈퇴 후 유예기간이 지나 탈퇴 처리 중인 계정(AUTH-013)
    */
   409: ApiResponse;
   /**
@@ -2658,7 +2658,7 @@ export type LoginError = LoginErrors[keyof LoginErrors];
 
 export type LoginResponses = {
   /**
-   * 로그인 성공
+   * 로그인 성공(탈퇴 후 30일 이내 자동 복구)
    */
   200: ApiResponseTokenResponse;
 };
@@ -2715,7 +2715,7 @@ export type GoogleAuthErrors = {
    */
   401: ApiResponse;
   /**
-   * 탈퇴 처리된 계정(AUTH-013)
+   * 구글 미연결 상태로 탈퇴 후 유예기간 이내라 로그인이 필요한 휴면 계정(AUTH-014), 또는 유예기간이 지나 탈퇴 처리 중인 계정(AUTH-013)
    */
   409: ApiResponse;
   /**
@@ -2728,7 +2728,7 @@ export type GoogleAuthError = GoogleAuthErrors[keyof GoogleAuthErrors];
 
 export type GoogleAuthResponses = {
   /**
-   * 로그인 성공 / 연결 확인 필요 / 가입 필요
+   * 로그인 성공(탈퇴 후 30일 이내 자동 복구) / 연결 확인 필요 / 가입 필요
    */
   200: ApiResponseGoogleAuthResponse;
 };

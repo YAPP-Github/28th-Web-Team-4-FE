@@ -668,6 +668,7 @@ export const saveChannelComparisonMutation = (
  * 회원가입 최종 제출
  *
  * 이메일 인증 완료 후 로컬 계정을 생성한다. 인증 미완료 시 400, 이메일 중복 시 409.
+ * 탈퇴 후 30일 이내(휴면) 이메일이면 가입 대신 409(AUTH-014)로 로그인을 안내한다.
  */
 export const signupMutation = (
   options?: Partial<Options<SignupData>>,
@@ -688,7 +689,10 @@ export const signupMutation = (
 /**
  * 구글 최종 회원가입
  *
- * POST /auth/google 이 내려준 signupToken 과 추가 프로필(닉네임/회사명/직무/약관 동의)로 신규 회원가입을 완료하고 토큰을 발급한다. 가입에 성공하면 signupToken 은 즉시 폐기되어 재사용 불가능.
+ * POST /auth/google 이 내려준 signupToken 과 추가 프로필(닉네임/회사명/직무/약관 동의)로
+ * 신규 회원가입을 완료하고 토큰을 발급한다.
+ * 가입에 성공하면 signupToken 은 즉시 폐기되어 재사용 불가능.
+ * 탈퇴 후 30일 이내(휴면) 이메일이면 가입 대신 409(AUTH-014)로 로그인을 안내한다.
  */
 export const signupGoogleMutation = (
   options?: Partial<Options<SignupGoogleData>>,
@@ -713,7 +717,12 @@ export const signupGoogleMutation = (
 /**
  * 회원가입 이메일 인증코드 발송
  *
- * 가입할 이메일로 6자리 인증코드를 발송한다. 로컬로 이미 가입된 이메일: 409. 구글로만 가입된 이메일: 발송하지 않고 200 과 code: EMAIL_ALREADY_USED_WITH_GOOGLE. 그 외: 발송 후 200.
+ * 가입할 이메일로 6자리 인증코드를 발송한다.
+ * 로컬로 이미 가입된 이메일: 409.
+ * 탈퇴 후 30일 이내(휴면) 이메일: 발송하지 않고 409(AUTH-014), 로그인을 안내한다.
+ * 탈퇴 후 30일이 지난 이메일: 409(AUTH-013).
+ * 구글로만 가입된 이메일: 발송하지 않고 200 과 code: EMAIL_ALREADY_USED_WITH_GOOGLE.
+ * 그 외: 발송 후 200.
  */
 export const sendSignupCodeMutation = (
   options?: Partial<Options<SendSignupCodeData>>,
@@ -767,7 +776,11 @@ export const verifySignupCodeMutation = (
 /**
  * 토큰 재발급
  *
- * Refresh Token 을 회전시켜 새 access/refresh 토큰 쌍을 발급한다. 기존 Refresh Token 은 즉시 폐기된다. 이미 회전된 토큰을 다시 제출하면 재사용으로 보고 해당 세션(family) 전체를 폐기하므로, 동시에 여러 번 호출하지 말고 한 번만 보낸다. Access Token 이 만료된 상태에서 호출하므로 인증이 필요 없다. refreshTokenExpiresIn 은 로그인 후 90일에 가까워질수록 짧아진다.
+ * Refresh Token 을 회전시켜 새 access/refresh 토큰 쌍을 발급한다.
+ * 기존 Refresh Token 은 즉시 폐기된다. 이미 회전된 토큰을 다시 제출하면 재사용으로 보고
+ * 해당 세션(family) 전체를 폐기하므로, 동시에 여러 번 호출하지 말고 한 번만 보낸다.
+ * Access Token 이 만료된 상태에서 호출하므로 인증이 필요 없다.
+ * refreshTokenExpiresIn 은 로그인 후 90일에 가까워질수록 짧아진다.
  */
 export const refreshMutation = (
   options?: Partial<Options<RefreshData>>,
@@ -788,7 +801,8 @@ export const refreshMutation = (
 /**
  * 로그아웃
  *
- * 제출한 Refresh Token 의 세션(family)을 폐기한다. 인증된 사용자만 호출할 수 있고, 토큰 소유자가 인증 사용자와 다르면 401. 이미 폐기된 세션이어도 200 을 반환한다.
+ * 제출한 Refresh Token 의 세션(family)을 폐기한다. 인증된 사용자만 호출할 수 있고,
+ * 토큰 소유자가 인증 사용자와 다르면 401. 이미 폐기된 세션이어도 200 을 반환한다.
  */
 export const logoutMutation = (
   options?: Partial<Options<LogoutData>>,
@@ -809,7 +823,9 @@ export const logoutMutation = (
 /**
  * 로컬 로그인
  *
- * 이메일/비밀번호로 로그인하고 access/refresh 토큰을 발급한다. 자격증명이 올바르지 않으면 401. 구글로만 가입되어 로컬 인증정보가 없는 이메일이면 AUTH-010 으로 별도 응답한다.
+ * 이메일/비밀번호로 로그인하고 access/refresh 토큰을 발급한다. 자격증명이 올바르지 않으면 401.
+ * 구글로만 가입되어 로컬 인증정보가 없는 이메일이면 AUTH-010 으로 별도 응답한다.
+ * 탈퇴 후 30일 이내(휴면) 계정이 이메일/비번이 맞으면 자동으로 복구한 뒤 로그인 처리.
  */
 export const loginMutation = (
   options?: Partial<Options<LoginData>>,
@@ -831,7 +847,12 @@ export const loginMutation = (
  * 로그인 수단 조회
  *
  * 이메일로 사용 가능한 로그인 수단을 조회한다. 비밀번호 입력 전 화면 분기용.
- * methods [LOCAL]: 비밀번호 입력창. [LOCAL, GOOGLE]: 비밀번호 입력창과 구글 버튼. [GOOGLE]: 구글로 가입된 계정 안내. []: 미가입 -> 회원가입 화면.
+ *
+ * methods
+ * [LOCAL]: 비밀번호 입력창.
+ * [LOCAL, GOOGLE]: 비밀번호 입력창과 구글 버튼.
+ * [GOOGLE]: 구글로 가입된 계정 안내.
+ * []: 미가입 -> 회원가입 화면.
  */
 export const loginMethodsMutation = (
   options?: Partial<Options<LoginMethodsData>>,
@@ -856,8 +877,14 @@ export const loginMethodsMutation = (
 /**
  * 구글 인증 진입
  *
- * 구글 idToken 을 검증하고 계정 상태에 따라 status 로 분기한다. 탈퇴 처리된 계정인 경우 가입 수단과 관계없이 409(AUTH-013) 예외를 반환한다.
- * LOGIN: 토큰 발급. LINK_REQUIRED: linkRequired 와 email 을 내려주며, 사용자 확인 후 POST /auth/google/link 호출. SIGNUP_REQUIRED: signupRequired 와 일회성 signupToken, 프리필 값을 내려준다.
+ * 구글 idToken 을 검증하고 계정 상태에 따라 status 로 분기한다.
+ * 이미 구글이 연결된 계정이 탈퇴 후 30일 이내(휴면)라면 자동으로 복구한 뒤 LOGIN 으로 응답한다.
+ * 아직 구글이 연결되지 않은 탈퇴 계정(LINK_REQUIRED 대상)이거나 유예기간이 지난 탈퇴 계정이면
+ * 409 예외(AUTH-014 또는 AUTH-013)를 반환한다.
+ *
+ * LOGIN: 토큰 발급.
+ * LINK_REQUIRED: linkRequired 와 email 을 내려주며, 사용자 확인 후 POST /auth/google/link 호출.
+ * SIGNUP_REQUIRED: signupRequired 와 일회성 signupToken, 프리필 값을 내려준다.
  */
 export const googleAuthMutation = (
   options?: Partial<Options<GoogleAuthData>>,
@@ -882,7 +909,9 @@ export const googleAuthMutation = (
 /**
  * 구글 계정 연결 확인
  *
- * linkRequired:true 응답을 받고 사용자가 '예'를 선택했을 때만 호출한다. 진입 때 보낸 idToken 을 재전송하면 재검증 후 같은 이메일의 로컬 계정에 구글 로그인을 연결하고 토큰을 발급한다.
+ * linkRequired:true 응답을 받고 사용자가 '예'를 선택했을 때만 호출한다.
+ * 진입 때 보낸 idToken 을 재전송하면 재검증 후 같은 이메일의 로컬 계정에 구글 로그인을
+ * 연결하고 토큰을 발급한다.
  */
 export const linkGoogleMutation = (
   options?: Partial<Options<LinkGoogleData>>,
