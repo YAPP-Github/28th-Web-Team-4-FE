@@ -97,6 +97,112 @@ export const EmptyProducts: Story = {
   },
 };
 
+export const PreviewImages: Story = {
+  args: {
+    children: (
+      <>
+        <ChannelDetailModalHeader
+          channel={CHANNEL_HEADER}
+          description={CHANNEL_DETAIL_FIXTURE.tagline}
+        />
+        <ChannelDetailContent channel={CHANNEL_DETAIL_FIXTURE} />
+      </>
+    ),
+    open: true,
+    onOpenChange: () => undefined,
+  },
+  play: async () => {
+    const body = within(document.body);
+
+    await userEvent.click(body.getByRole('tab', { name: '광고 예시' }));
+    await waitFor(async () => {
+      await expect(body.getAllByRole('img')).toHaveLength(
+        CHANNEL_DETAIL_FIXTURE.previewImageUrls.length + 1,
+      );
+    });
+  },
+};
+
+export const SinglePreviewImage: Story = {
+  args: {
+    children: (
+      <>
+        <ChannelDetailModalHeader
+          channel={CHANNEL_HEADER}
+          description={CHANNEL_DETAIL_FIXTURE.tagline}
+        />
+        <ChannelDetailContent
+          channel={{
+            ...CHANNEL_DETAIL_FIXTURE,
+            previewImageUrls: ['/recommend-assets/meta-ad.png'],
+            similarCases: [],
+          }}
+        />
+      </>
+    ),
+    open: true,
+    onOpenChange: () => undefined,
+  },
+  play: async () => {
+    const body = within(document.body);
+
+    await userEvent.click(body.getByRole('tab', { name: '광고 예시' }));
+    await waitFor(async () => {
+      await expect(body.getAllByRole('img')).toHaveLength(2);
+    });
+  },
+};
+
+export const SimilarCasesOnly: Story = {
+  args: {
+    children: (
+      <>
+        <ChannelDetailModalHeader
+          channel={CHANNEL_HEADER}
+          description={CHANNEL_DETAIL_FIXTURE.tagline}
+        />
+        <ChannelDetailContent channel={{ ...CHANNEL_DETAIL_FIXTURE, previewImageUrls: [] }} />
+      </>
+    ),
+    open: true,
+    onOpenChange: () => undefined,
+  },
+  play: async () => {
+    const body = within(document.body);
+
+    await userEvent.click(body.getByRole('tab', { name: '광고 예시' }));
+    await waitFor(async () => {
+      await expect(body.getByText('내셔널지오그래픽')).toBeVisible();
+    });
+  },
+};
+
+export const EmptyPreviewImages: Story = {
+  args: {
+    children: (
+      <>
+        <ChannelDetailModalHeader
+          channel={CHANNEL_HEADER}
+          description={CHANNEL_DETAIL_FIXTURE.tagline}
+        />
+        <ChannelDetailContent
+          channel={{ ...CHANNEL_DETAIL_FIXTURE, previewImageUrls: [], similarCases: [] }}
+        />
+      </>
+    ),
+    open: true,
+    onOpenChange: () => undefined,
+  },
+  play: async () => {
+    const body = within(document.body);
+
+    await userEvent.click(body.getByRole('tab', { name: '광고 예시' }));
+    await waitFor(async () => {
+      await expect(body.getByText('등록된 광고 예시가 없습니다.')).toBeVisible();
+    });
+  },
+};
+
 export const OpenWithOverlayKit: Story = {
   args: {
     children: <ChannelDetailContent channel={CHANNEL_DETAIL_FIXTURE} />,
