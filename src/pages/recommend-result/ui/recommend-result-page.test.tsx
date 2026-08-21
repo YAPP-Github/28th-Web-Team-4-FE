@@ -7,21 +7,25 @@ import type * as MotionReact from 'motion/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
+import {
+  useRecommendOnboardingStore,
+  type RecommendOnboardingAnswer,
+} from '@/features/ad-onboarding';
 import type { ChannelDetailResponse, RecommendationItemResponse } from '@/shared/api/generated';
 import { server } from '@/shared/api/mocks/server';
 import type { RecommendedChannel } from '@/pages/recommend-result/model/recommended-channels';
 
 import { RecommendResultPage, RecommendResultWithRecommendations } from './recommend-result-page';
 
-const { onCompareMock, pushMock, showWarningToastMock } = vi.hoisted(() => ({
+const { onCompareMock, pushMock, replaceMock, showWarningToastMock } = vi.hoisted(() => ({
   onCompareMock: vi.fn<(channelIds: readonly string[]) => void>(),
   pushMock: vi.fn<(href: string) => void>(),
+  replaceMock: vi.fn<(href: string) => void>(),
   showWarningToastMock: vi.fn<(description: string, options?: { id?: string }) => void>(),
 }));
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: pushMock }),
+  useRouter: () => ({ push: pushMock, replace: replaceMock }),
   usePathname: () => '/recommend/onboarding-87',
 }));
 
@@ -279,6 +283,7 @@ describe('RecommendResultPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     pushMock.mockReset();
+    replaceMock.mockReset();
     useRecommendOnboardingStore.setState(initialStore, true);
   });
 
@@ -566,5 +571,91 @@ describe('RecommendResultPage', () => {
       });
     });
     expect(screen.getByRole('button', { name: '결과 저장하기' })).toBeEnabled();
+  });
+
+  it('re-submits a guest onboarding under the logged-in account before retrying the save', async () => {
+    const user = userEvent.setup();
+    const onboardingAnswer = {
+      serviceName: '채소집',
+      category: 'SHOPPING_COMMERCE',
+      serviceType: 'APP_AND_WEB',
+      ageRangeList: ['TWENTIES'],
+      adGoal: 'PURCHASE_CONVERSION',
+      budget: { minAmount: 500000, maxAmount: 5000000 },
+      campaignPeriod: 'ONE_MONTH',
+      adExperience: { type: 'FIRST_TIME' },
+    } as const satisfies RecommendOnboardingAnswer;
+    let saveRequestCount = 0;
+    let onboardingRequestBody: unknown;
+    let saveRequestBodies: unknown[] = [];
+
+    useRecommendOnboardingStore.setState({ answer: onboardingAnswer });
+    server.use(
+      http.post(/\/api\/v1\/recommendations$/, async ({ request }) => {
+        saveRequestCount += 1;
+        saveRequestBodies = [...saveRequestBodies, await request.json()];
+
+        if (saveRequestCount === 1) {
+          return HttpResponse.json(
+            {
+              success: false,
+              data: null,
+              error: {
+                code: 'ONB-007',
+                message: '온보딩 정보가 없습니다.',
+                fieldErrors: [],
+              },
+              code: null,
+            },
+            { status: 404 },
+          );
+        }
+
+        return HttpResponse.json(
+          {
+            success: true,
+            data: {
+              onboardingId: 'onboarding-authenticated',
+              channelCount: 1,
+              items: [apiRecommendation],
+            },
+            error: null,
+            code: null,
+          },
+          { status: 201 },
+        );
+      }),
+      http.post(/\/api\/v1\/onboarding$/, async ({ request }) => {
+        onboardingRequestBody = await request.json();
+
+        return HttpResponse.json(
+          {
+            success: true,
+            data: {
+              onboardingId: 'onboarding-authenticated',
+              createdAt: '2026-08-22T00:00:00Z',
+            },
+            error: null,
+            code: null,
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    renderRecommendResultWithRecommendations();
+
+    await user.click(await screen.findByRole('button', { name: '결과 저장하기' }));
+
+    expect(await screen.findByRole('button', { name: '저장 완료' })).toBeDisabled();
+    expect(onboardingRequestBody).toMatchObject({
+      serviceName: '채소집',
+      industry: 'SHOPPING_COMMERCE',
+    });
+    expect(saveRequestBodies).toEqual([
+      { onboardingId: RECOMMENDATION_ONBOARDING_ID, serviceName: '채소집' },
+      { onboardingId: 'onboarding-authenticated', serviceName: '채소집' },
+    ]);
+    expect(replaceMock).toHaveBeenCalledWith('/recommend/onboarding-authenticated');
   });
 });
