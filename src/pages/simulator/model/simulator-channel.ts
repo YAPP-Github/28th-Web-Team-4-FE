@@ -41,18 +41,63 @@ const SIMULATOR_BASIS_TOOLTIPS = {
   },
 } as const satisfies Record<string, SimulatorBasisTooltip>;
 
+const BUDGET_INSUFFICIENT_BASIS_PREFIXES = [
+  '집행 예산 부족',
+  '미집행 (배분 예산 0원)',
+  '배분 예산이 최소 단가보다 적어 집행 불가',
+] as const;
+
+const INFORMATION_UNAVAILABLE_BASIS_PREFIXES = [
+  '노출 정보 미제공 상품 (집행 가능 여부만 판단)',
+  '견적 문의 필요 (등록된 단가 정보 없음)',
+] as const;
+
+export type SimulatorExecutionStatus =
+  | 'executable'
+  | 'budget-insufficient'
+  | 'information-unavailable';
+
+function getBasisType(basisNote?: string): string | undefined {
+  return basisNote?.split('/')[0]?.trim().replace(/\s+/g, ' ');
+}
+
+function matchesBasisType(basisType: string | undefined, prefixes: readonly string[]): boolean {
+  return prefixes.some((prefix) => basisType?.startsWith(prefix));
+}
+
+export function getSimulatorExecutionStatus(
+  basisNote?: string,
+  isExecutable?: boolean,
+): SimulatorExecutionStatus | undefined {
+  if (isExecutable === undefined) {
+    return undefined;
+  }
+
+  if (isExecutable) {
+    return 'executable';
+  }
+
+  const basisType = getBasisType(basisNote);
+
+  if (matchesBasisType(basisType, BUDGET_INSUFFICIENT_BASIS_PREFIXES)) {
+    return 'budget-insufficient';
+  }
+
+  if (matchesBasisType(basisType, INFORMATION_UNAVAILABLE_BASIS_PREFIXES)) {
+    return 'information-unavailable';
+  }
+
+  return 'information-unavailable';
+}
+
 export function getSimulatorBasisTooltip(
   basisNote?: string,
   additionalBudgetWon?: number,
   isExecutable?: boolean,
 ): SimulatorBasisTooltip | undefined {
-  const basisType = basisNote?.split('/')[0]?.trim().replace(/\s+/g, ' ');
+  const basisType = getBasisType(basisNote);
 
-  if (
-    basisType?.startsWith('집행 예산 부족') ||
-    basisType?.startsWith('미집행 (배분 예산 0원)') ||
-    basisType?.startsWith('배분 예산이 최소 단가보다 적어 집행 불가')
-  ) {
+  if (matchesBasisType(basisType, BUDGET_INSUFFICIENT_BASIS_PREFIXES)) {
     if (additionalBudgetWon !== undefined && additionalBudgetWon > 0) {
       return {
         title: '예산이 부족해요',
@@ -64,10 +109,7 @@ export function getSimulatorBasisTooltip(
     }
   }
 
-  if (
-    basisType?.startsWith('노출 정보 미제공 상품 (집행 가능 여부만 판단)') ||
-    basisType?.startsWith('견적 문의 필요 (등록된 단가 정보 없음)')
-  ) {
+  if (matchesBasisType(basisType, INFORMATION_UNAVAILABLE_BASIS_PREFIXES)) {
     return SIMULATOR_BASIS_TOOLTIPS.unavailableImpressionData;
   }
 

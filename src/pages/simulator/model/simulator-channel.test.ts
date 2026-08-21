@@ -8,6 +8,7 @@ import {
   formatSimulatorCpc,
   formatSimulatorTableCountRange,
   getSimulatorBasisTooltip,
+  getSimulatorExecutionStatus,
 } from './simulator-channel';
 
 const CHANNELS = [
@@ -147,6 +148,18 @@ describe('simulator-channel', () => {
     });
 
     expect(getSimulatorBasisTooltip('기준 데이터')).toBeUndefined();
+  });
+
+  it('백엔드 응답의 집행 사유로 운영 가능 상태를 구분한다', () => {
+    expect(getSimulatorExecutionStatus('기준 데이터', true)).toBe('executable');
+    expect(getSimulatorExecutionStatus('집행 예산 부족', false)).toBe('budget-insufficient');
+    expect(
+      getSimulatorExecutionStatus(
+        '노출 정보 미제공 상품 (집행 가능 여부만 판단) / 추가 안내',
+        false,
+      ),
+    ).toBe('information-unavailable');
+    expect(getSimulatorExecutionStatus(undefined, undefined)).toBeUndefined();
   });
 
   it('최소 집행 예산과 배분 예산의 차액을 결과에 저장한다', () => {
