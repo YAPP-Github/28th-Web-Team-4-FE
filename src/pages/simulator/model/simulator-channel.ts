@@ -196,6 +196,7 @@ export function createChannelResults(
     return channels.map((channel) => ({
       channelId: channel.id,
       name: channel.name,
+      iconUrl: channel.iconUrl,
       budgetWon: 0,
       cpcWon: null,
       impressions: {
@@ -229,7 +230,7 @@ export function createChannelResults(
     return {
       channelId: channel.id,
       name: item?.channelName ?? channel.name,
-      iconUrl: item?.iconUrl,
+      iconUrl: item?.iconUrl ?? channel.iconUrl,
       basisNote: item?.basisNote,
       isExecutable: item?.isExecutable,
       additionalBudgetWon: getAdditionalBudgetWon(item),

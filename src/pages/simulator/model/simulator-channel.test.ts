@@ -11,8 +11,16 @@ import {
 } from './simulator-channel';
 
 const CHANNELS = [
-  { id: 'channel-a', name: '채널 A' },
-  { id: 'channel-b', name: '채널 B' },
+  {
+    id: 'channel-a',
+    name: '채널 A',
+    iconUrl: 'https://assets.chaeso-zip.com/icons/channel-a-default.png',
+  },
+  {
+    id: 'channel-b',
+    name: '채널 B',
+    iconUrl: 'https://assets.chaeso-zip.com/icons/channel-b.png',
+  },
 ] as const;
 
 const SIMULATION_RESULT: SimulationResponse = {
@@ -87,7 +95,7 @@ describe('simulator-channel', () => {
       },
       {
         name: '채널 B',
-        iconUrl: null,
+        iconUrl: 'https://assets.chaeso-zip.com/icons/channel-b.png',
         impressions: { value: '1.5~2.5만 회', fillPercentage: 100 },
         clicks: { value: '200회' },
       },
@@ -103,10 +111,12 @@ describe('simulator-channel', () => {
 
     expect(results).toMatchObject([
       {
+        iconUrl: 'https://assets.chaeso-zip.com/icons/channel-a-default.png',
         impressions: { fillPercentage: 0 },
         clicks: { fillPercentage: 0 },
       },
       {
+        iconUrl: 'https://assets.chaeso-zip.com/icons/channel-b.png',
         impressions: { fillPercentage: 0 },
         clicks: { fillPercentage: 0 },
       },

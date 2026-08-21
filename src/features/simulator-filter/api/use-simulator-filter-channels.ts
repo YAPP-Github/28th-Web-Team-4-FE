@@ -45,6 +45,7 @@ function selectChannelInfo(response: GetChannelResponse): SimulatorFilterChannel
   return {
     id: response.data.id,
     name: response.data.name,
+    iconUrl: response.data.iconUrl,
     cost: selectRepresentativeCost(response),
   };
 }
