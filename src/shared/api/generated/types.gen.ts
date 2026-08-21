@@ -319,7 +319,7 @@ export type SimulationItemResponse = {
    */
   cpmWon: number | null;
   /**
-   * 대표 상품의 최소 집행 금액(원). null이면 대표 단가를 기준으로 판정한다
+   * 집행 가능 판정의 기준이 된 최소 집행 금액(원). 대표 상품에 등록된 값이 있으면 그 값, 없으면 대표 단가다. 단가 정보가 없어 추정할 수 없는 매체만 null
    */
   minBudgetWon: number | null;
   /**
