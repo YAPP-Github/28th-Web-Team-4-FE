@@ -19,6 +19,7 @@ export type SimulatorChannelCost = {
 export type SimulatorFilterChannel = {
   id: string;
   name: string;
+  iconUrl?: string | null;
   cost?: SimulatorChannelCost | null;
 };
 

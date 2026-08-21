@@ -462,7 +462,7 @@ export function SimulatorFilterPanel({
         <Modal.Backdrop className="backdrop-blur-[4px]" />
         <Modal.Popup
           className={[
-            'right-0 left-auto top-0 translate-x-0 translate-y-0 h-dvh w-[448px] max-w-[100vw] items-stretch justify-start rounded-tl-[var(--radius-l)] rounded-tr-none rounded-br-none rounded-bl-[var(--radius-l)] p-0',
+            'right-0 left-auto top-0 translate-x-0 translate-y-0 h-dvh w-[448px] max-w-[100vw] items-stretch justify-start rounded-none p-0 lg:rounded-tl-[var(--radius-l)] lg:rounded-bl-[var(--radius-l)]',
             'max-h-dvh overflow-y-auto overscroll-contain',
             'transition-[translate,opacity] duration-300 ease-out',
             'data-starting-style:translate-x-full data-ending-style:translate-x-full',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type JSX } from 'react';
+import { useEffect, useState, type JSX, type PointerEvent } from 'react';
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 import Image from 'next/image';
 import { Info } from 'lucide-react';
@@ -21,18 +21,22 @@ const CHANNEL_ICON_SRC: Record<ChannelType, string> = {
   newscash: '/simulator-assets/newscash.png',
   meta: '/simulator-assets/meta.svg',
 };
+const TOOLTIP_AUTO_OPEN_DURATION_MS = 2_000;
 
 function ChannelIcon({
   iconUrl,
   type,
   name,
+  isExecutable,
 }: {
   iconUrl?: string | null;
   type?: ChannelType;
   name: string;
+  isExecutable?: boolean;
 }): JSX.Element {
   const normalizedIconUrl = iconUrl?.trim() ?? '';
   const [failedIconUrl, setFailedIconUrl] = useState<string | null>(null);
+  const iconOpacityClass = isExecutable === false ? 'opacity-40' : undefined;
 
   if (normalizedIconUrl.length > 0 && failedIconUrl !== normalizedIconUrl) {
     return (
@@ -41,7 +45,10 @@ function ChannelIcon({
         alt=""
         width={36}
         height={36}
-        className="size-036 shrink-0 rounded-[var(--radius-xs)] object-cover"
+        className={cn(
+          'size-036 shrink-0 rounded-[var(--radius-xs)] object-cover',
+          iconOpacityClass,
+        )}
         onError={() => setFailedIconUrl(normalizedIconUrl)}
       />
     );
@@ -54,7 +61,7 @@ function ChannelIcon({
         alt=""
         width={36}
         height={36}
-        className="shrink-0 rounded-[var(--radius-xs)] object-cover"
+        className={cn('shrink-0 rounded-[var(--radius-xs)] object-cover', iconOpacityClass)}
       />
     );
   }
@@ -62,7 +69,10 @@ function ChannelIcon({
   return (
     <Box
       aria-hidden
-      className="bg-surface-low text-text-medium size-036 flex shrink-0 items-center justify-center rounded-[var(--radius-xs)]"
+      className={cn(
+        'bg-surface-low text-text-medium size-036 flex shrink-0 items-center justify-center rounded-[var(--radius-xs)]',
+        iconOpacityClass,
+      )}
     >
       <Text variant="subtitle-xxs">{Array.from(name.trim())[0] ?? '?'}</Text>
     </Box>
@@ -173,12 +183,46 @@ function ChannelBasisInfo({
   channelName,
   basisNote,
   isExecutable,
+  additionalBudgetWon,
+  autoOpenTooltipsKey,
 }: {
   channelName: string;
   basisNote?: string;
   isExecutable?: boolean;
+  additionalBudgetWon?: number;
+  autoOpenTooltipsKey?: object | null;
 }): JSX.Element | null {
-  const tooltip = getSimulatorBasisTooltip(basisNote);
+  const tooltip = getSimulatorBasisTooltip(basisNote, additionalBudgetWon, isExecutable);
+  const shouldAutoOpen =
+    autoOpenTooltipsKey !== null &&
+    autoOpenTooltipsKey !== undefined &&
+    isExecutable === false &&
+    tooltip !== undefined;
+  const [open, setOpen] = useState(false);
+
+  const handleTouchPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType === 'touch') {
+      setOpen(true);
+    }
+  };
+
+  const handleTouchPointerEnd = (event: PointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType === 'touch') {
+      setOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!shouldAutoOpen) {
+      return;
+    }
+
+    setOpen(true);
+
+    const timeoutId = window.setTimeout(() => setOpen(false), TOOLTIP_AUTO_OPEN_DURATION_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [autoOpenTooltipsKey, shouldAutoOpen]);
 
   if (isExecutable !== false) {
     return null;
@@ -200,10 +244,14 @@ function ChannelBasisInfo({
 
   return (
     <BaseTooltip.Provider delay={150} timeout={400}>
-      <BaseTooltip.Root>
+      <BaseTooltip.Root open={open} onOpenChange={setOpen}>
         <BaseTooltip.Trigger
           aria-label={`${channelName} 기준 정보 안내`}
           delay={0}
+          onPointerDown={handleTouchPointerDown}
+          onPointerUp={handleTouchPointerEnd}
+          onPointerCancel={handleTouchPointerEnd}
+          onPointerLeave={handleTouchPointerEnd}
           className="text-icon-default hover:text-icon-high focus-visible:outline-outline-selected size-014 relative inline-flex shrink-0 items-center justify-center rounded-full before:absolute before:-inset-[5px] before:content-[''] focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           <Info aria-hidden className="size-014" strokeWidth={1.8} />
@@ -219,7 +267,7 @@ function ChannelBasisInfo({
           >
             <BaseTooltip.Popup
               role="tooltip"
-              className="bg-surface-lowest p-016 shadow-drop-shadow-02 w-max max-w-[calc(100vw-32px)] rounded-[var(--radius-m)] rounded-tl-none"
+              className="bg-surface-lowest p-016 shadow-drop-shadow-02 w-max max-w-[calc(100vw-32px)] rounded-[var(--radius-m)] rounded-tl-none transition-opacity duration-1000 ease-out data-ending-style:opacity-0 motion-reduce:transition-none"
             >
               <Box className="gap-008 flex flex-col items-start text-left">
                 <span className="typo-subtitle-sm text-text-high">{tooltip.title}</span>
@@ -237,13 +285,30 @@ function ChannelBasisInfo({
   );
 }
 
-function ChannelResultRow({ channel }: { channel: ChannelResult }): JSX.Element {
+function ChannelResultRow({
+  channel,
+  autoOpenTooltipsKey,
+}: {
+  channel: ChannelResult;
+  autoOpenTooltipsKey?: object | null;
+}): JSX.Element {
   return (
     <Box className="gap-014 flex w-full items-start">
-      <ChannelIcon iconUrl={channel.iconUrl} type={channel.type} name={channel.name} />
+      <ChannelIcon
+        iconUrl={channel.iconUrl}
+        type={channel.type}
+        name={channel.name}
+        isExecutable={channel.isExecutable}
+      />
       <Box className="gap-006 flex min-w-0 flex-1 flex-col">
         <Box className="gap-006 flex min-w-0 items-center">
-          <Text variant="subtitle-md" className="text-text-default truncate">
+          <Text
+            variant="subtitle-md"
+            className={cn(
+              'truncate',
+              channel.isExecutable === false ? 'text-text-low' : 'text-text-default',
+            )}
+          >
             {channel.name}
           </Text>
           <Box className="group flex shrink-0">
@@ -251,6 +316,8 @@ function ChannelResultRow({ channel }: { channel: ChannelResult }): JSX.Element 
               channelName={channel.name}
               basisNote={channel.basisNote}
               isExecutable={channel.isExecutable}
+              additionalBudgetWon={channel.additionalBudgetWon}
+              autoOpenTooltipsKey={autoOpenTooltipsKey}
             />
           </Box>
         </Box>
@@ -292,14 +359,20 @@ function ChannelMetricLegend(): JSX.Element {
 
 export function ChannelPerformanceContent({
   channels,
+  autoOpenTooltipsKey = null,
 }: {
   channels: readonly ChannelResult[];
+  autoOpenTooltipsKey?: object | null;
 }): JSX.Element {
   return (
     <Box className="gap-024 flex w-full flex-col">
       <Box className="gap-022 flex w-full flex-col">
         {channels.map((channel) => (
-          <ChannelResultRow key={channel.channelId ?? channel.name} channel={channel} />
+          <ChannelResultRow
+            key={channel.channelId ?? channel.name}
+            channel={channel}
+            autoOpenTooltipsKey={autoOpenTooltipsKey}
+          />
         ))}
       </Box>
       <ChannelMetricLegend />

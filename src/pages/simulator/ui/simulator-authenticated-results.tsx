@@ -137,6 +137,6 @@ export function AuthenticatedChannelResults({
   return view === 'table' ? (
     <SimulatorChannelTable channels={channelResults} />
   ) : (
-    <ChannelPerformanceContent channels={channelResults} />
+    <ChannelPerformanceContent channels={channelResults} autoOpenTooltipsKey={simulationResult} />
   );
 }
