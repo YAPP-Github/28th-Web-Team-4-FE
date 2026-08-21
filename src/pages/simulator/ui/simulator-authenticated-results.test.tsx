@@ -1,11 +1,11 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { SimulationResponse } from '@/shared/api/generated';
 
 import { AuthenticatedChannelResults } from './simulator-authenticated-results';
 
 type SimulatorFilterChannelsResult = {
-  channels: { id: string; name: string }[];
+  channels: { id: string; name: string; iconUrl?: string | null }[];
   isPending: boolean;
   isError: boolean;
 };
@@ -74,9 +74,16 @@ const SIMULATION_RESULT: SimulationResponse = {
       isExecutable: false,
       shortfallWon: null,
       basisNote:
-        '노출 정보 미제공 상품 (집행 가능 여부만 판단) / 매체 소개서 기반 / VAT 별도 가정 / CTR 미제공 시 전체 평균 CTR 적용',
+        '집행 예산 부족 / 매체 소개서 기반 / VAT 별도 가정 / CTR 미제공 시 전체 평균 CTR 적용',
     },
   ],
+};
+
+const MIXED_EXECUTABILITY_RESULT: SimulationResponse = {
+  ...SIMULATION_RESULT,
+  items: SIMULATION_RESULT.items.map((item, index) =>
+    index === 1 ? { ...item, isExecutable: true } : item,
+  ),
 };
 
 vi.mock('@/features/simulator-filter/api/use-simulator-filter-channels', () => ({
@@ -96,6 +103,10 @@ beforeEach(() => {
 });
 
 describe('AuthenticatedChannelResults', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('채널 미선택 상태에서 채널 추가 방식을 선택하는 모달을 제공한다', async () => {
     const user = userEvent.setup();
     render(<AuthenticatedChannelResults isChannelSelectionComplete={false} />);
@@ -216,5 +227,67 @@ describe('AuthenticatedChannelResults', () => {
       expect(impressionTooltip).toHaveTextContent('매체 특성상 상세 데이터를');
       expect(impressionTooltip).toHaveTextContent('제공하지 않아요.');
     });
+  });
+
+  it('집행 불가 채널의 이름과 이미지를 집행 가능 채널보다 흐리게 보여준다', () => {
+    useSimulatorFilterChannelsMock.mockReturnValue({
+      channels: [
+        {
+          id: 'channel-a',
+          name: '채널 A',
+          iconUrl: '/simulator-assets/naver.png',
+        },
+        {
+          id: 'channel-b',
+          name: '채널 B',
+          iconUrl: '/simulator-assets/meta.svg',
+        },
+      ],
+      isPending: false,
+      isError: false,
+    });
+
+    const { container } = render(
+      <AuthenticatedChannelResults
+        isChannelSelectionComplete
+        selectedChannelIds={['channel-a', 'channel-b']}
+        simulationResult={MIXED_EXECUTABILITY_RESULT}
+      />,
+    );
+
+    expect(screen.getByText('채널 A')).toHaveClass('text-text-low');
+    expect(screen.getByText('채널 B')).toHaveClass('text-text-default');
+
+    const channelIcons = container.querySelectorAll('img[alt=""]');
+    expect(channelIcons).toHaveLength(2);
+    expect(channelIcons[0]).toHaveClass('opacity-40');
+    expect(channelIcons[1]).not.toHaveClass('opacity-40');
+  });
+
+  it('시뮬레이션 결과가 처음 표시되면 각 미집행 채널의 툴팁을 2초간 자동으로 보여준다', async () => {
+    vi.useFakeTimers();
+
+    render(
+      <AuthenticatedChannelResults
+        isChannelSelectionComplete
+        selectedChannelIds={SELECTED_CHANNEL_IDS}
+        simulationResult={SIMULATION_RESULT}
+      />,
+    );
+
+    const tooltips = screen.getAllByRole('tooltip');
+    expect(tooltips).toHaveLength(2);
+    expect(tooltips[0]).toHaveClass('transition-opacity', 'duration-1000');
+    expect(tooltips[0]).toHaveClass('data-ending-style:opacity-0');
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_999);
+    });
+    expect(screen.getAllByRole('tooltip')).toHaveLength(2);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
+    expect(screen.queryAllByRole('tooltip')).toHaveLength(0);
   });
 });
