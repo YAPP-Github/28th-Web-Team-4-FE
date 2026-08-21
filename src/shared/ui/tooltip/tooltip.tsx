@@ -27,7 +27,9 @@ import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
 const ARROW_SIZE_PX = 8;
-const ARROW_STATIC_OFFSET = `-${ARROW_SIZE_PX / 2}px`;
+const ARROW_DEPTH_PX = ARROW_SIZE_PX / 2;
+const ARROW_DIAMOND_SIZE_PX = ARROW_DEPTH_PX * Math.SQRT2;
+const ARROW_STATIC_OFFSET = `-${ARROW_DEPTH_PX}px`;
 const ARROW_MIDDLEWARE_PADDING = 6;
 const SHIFT_PADDING = 8;
 
@@ -150,6 +152,20 @@ const STATIC_SIDE_BY_PLACEMENT = {
   left: 'right',
 } as const;
 
+const ARROW_SIZE_CLASS_NAME_BY_PLACEMENT = {
+  top: 'h-004 w-008',
+  right: 'h-008 w-004',
+  bottom: 'h-004 w-008',
+  left: 'h-008 w-004',
+} as const;
+
+const ARROW_DIAMOND_POSITION_CLASS_NAME_BY_PLACEMENT = {
+  top: 'top-0 left-1/2 -translate-x-1/2 -translate-y-1/2',
+  right: 'top-1/2 right-0 translate-x-1/2 -translate-y-1/2',
+  bottom: 'bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2',
+  left: 'top-1/2 left-0 -translate-x-1/2 -translate-y-1/2',
+} as const;
+
 const resolveArrowPosition = (value: number | undefined) => {
   return value === undefined ? undefined : `${value}px`;
 };
@@ -173,10 +189,20 @@ const Arrow = ({ className, style, ...props }: TooltipArrowProps): JSX.Element =
       as="span"
       aria-hidden="true"
       ref={arrowRef}
-      className={cn('absolute size-008 rotate-45 bg-surface-toast', className)}
+      className={cn('absolute overflow-clip', ARROW_SIZE_CLASS_NAME_BY_PLACEMENT[side])}
       style={arrowStyle}
       {...props}
-    />
+    >
+      <Box
+        as="span"
+        className={cn(
+          'absolute rotate-45 bg-surface-toast',
+          ARROW_DIAMOND_POSITION_CLASS_NAME_BY_PLACEMENT[side],
+          className,
+        )}
+        style={{ width: ARROW_DIAMOND_SIZE_PX, height: ARROW_DIAMOND_SIZE_PX }}
+      />
+    </Box>
   );
 };
 

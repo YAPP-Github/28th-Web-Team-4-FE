@@ -3,6 +3,10 @@
 import type { JSX } from 'react';
 
 import type { ChannelDetail } from '@/features/channel-detail/model/channel-detail';
+import {
+  ChannelPreviewGallery,
+  ChannelPreviewGalleryEmptyState,
+} from '@/features/channel-detail/ui/panels/channel-preview-gallery';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
@@ -11,26 +15,28 @@ export type ChannelDetailCasesPanelProps = {
 };
 
 export function ChannelDetailCasesPanel({ channel }: ChannelDetailCasesPanelProps): JSX.Element {
-  if (channel.similarCases.length === 0) {
+  if (channel.previewImageUrls.length > 0) {
     return (
-      <Text as="p" variant="body-xl" className="text-text-medium">
-        등록된 광고 예시가 없습니다.
-      </Text>
+      <ChannelPreviewGallery channelName={channel.name} imageUrls={channel.previewImageUrls} />
     );
   }
 
-  return (
-    <Stack as="ul" className="w-full items-start gap-0">
-      {channel.similarCases.map((item) => (
-        <Text
-          key={item}
-          as="li"
-          variant="subtitle-xxs"
-          className="text-text-default list-inside list-disc"
-        >
-          {item}
-        </Text>
-      ))}
-    </Stack>
-  );
+  if (channel.similarCases.length > 0) {
+    return (
+      <Stack as="ul" className="w-full items-start gap-0">
+        {channel.similarCases.map((item) => (
+          <Text
+            key={item}
+            as="li"
+            variant="subtitle-xxs"
+            className="text-text-default list-inside list-disc"
+          >
+            {item}
+          </Text>
+        ))}
+      </Stack>
+    );
+  }
+
+  return <ChannelPreviewGalleryEmptyState />;
 }

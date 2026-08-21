@@ -9,6 +9,7 @@ const BASE_CHANNEL: ChannelDetail = {
   name: '메타 광고',
   iconUrl: '',
   tagline: '관심사에 맞는 고객에게 도달하기 좋아요',
+  previewImageUrls: [],
   summary: {
     keywords: ['KPI 최적', '입문자 추천'],
     paragraphs: [],
