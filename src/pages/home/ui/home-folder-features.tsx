@@ -4,15 +4,10 @@ import { useRef, useState, type JSX } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import {
-  motion,
-  useScroll,
-  useMotionValueEvent,
-  useReducedMotion,
-  AnimatePresence,
-} from 'motion/react';
+import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'motion/react';
 import { Button } from '@/shared/ui/button';
 import { useHeroHeaderToneStore } from '@/shared/lib/hero-header-tone';
+import { usePrefersReducedMotion } from '@/shared/lib/use-prefers-reduced-motion';
 
 type FolderFeatureItem = {
   id: string;
@@ -101,11 +96,25 @@ const PROCESS_STEPS: ProcessStepItem[] = [
   },
 ];
 
-const SPRING_TRANSITION = {
+const STACK_SPRING = {
   type: 'spring',
-  stiffness: 280,
-  damping: 24,
-  mass: 0.8,
+  duration: 0.5,
+  bounce: 0.1,
+} as const;
+
+const SCENE_TRANSITION = {
+  duration: 0.4,
+  ease: [0.23, 1, 0.32, 1],
+} as const;
+
+const REDUCED_MOTION_TRANSITION = {
+  opacity: { duration: 0.2, ease: [0.23, 1, 0.32, 1] },
+  transform: { duration: 0 },
+} as const;
+
+const PROCESS_CARD_CROSSFADE_TRANSITION = {
+  duration: 0.15,
+  ease: [0.23, 1, 0.32, 1],
 } as const;
 
 const FEATURE_OVERLAY_SCALE_CLASS =
@@ -113,7 +122,7 @@ const FEATURE_OVERLAY_SCALE_CLASS =
 
 export function HomeFolderFeatures(): JSX.Element {
   const containerRef = useRef<HTMLElement>(null);
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = usePrefersReducedMotion();
   const [activeStep, setActiveStep] = useState<number>(0);
   const [hoveredProcessIndex, setHoveredProcessIndex] = useState<number | null>(null);
 
@@ -152,16 +161,18 @@ export function HomeFolderFeatures(): JSX.Element {
     card1Scale = 0.76;
   }
 
-  const card2Y = activeStep >= 1 ? '0%' : '120%';
+  const card2Y = activeStep >= 1 ? '0%' : '16%';
   const card2Scale = activeStep >= 2 ? 0.88 : 1;
 
-  const card3Y = activeStep >= 2 ? '0%' : '120%';
+  const card3Y = activeStep >= 2 ? '0%' : '16%';
   const activeFeature = FEATURE_FOLDERS[Math.min(activeStep, FEATURE_FOLDERS.length - 1)];
 
   return (
     <section
       ref={containerRef}
       aria-label="채소집 기능 및 서비스 과정 소개"
+      data-active-step={activeStep}
+      data-process-scene={isProcessScene}
       className="relative h-[380vh] w-full"
     >
       {/* 뷰포트 고정 컨테이너 (배경색이 다크/라이트로 부드럽게 전환) */}
@@ -176,25 +187,15 @@ export function HomeFolderFeatures(): JSX.Element {
         {/* SCENE 1: 3단 폴더 기능 소개 무대 (activeStep 0 ~ 2)          */}
         {/* ========================================================= */}
         <motion.div
+          data-testid="feature-scene"
           animate={{
             opacity: isProcessScene ? 0 : 1,
-            scale: isProcessScene ? 0.94 : 1,
-            y: isProcessScene ? -20 : 0,
+            transform: shouldReduceMotion ? 'none' : `scale(${isProcessScene ? 0.98 : 1})`,
             pointerEvents: isProcessScene ? 'none' : 'auto',
           }}
-          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-          className="px-016 sm:px-032 absolute inset-0 flex flex-col items-center justify-center pb-[40px] lg:px-120"
+          transition={shouldReduceMotion ? REDUCED_MOTION_TRANSITION : SCENE_TRANSITION}
+          className="px-016 sm:px-032 absolute inset-0 flex flex-col items-center justify-center lg:px-120"
         >
-          {/* 상단 섹션 타이틀 헤더 */}
-          <div className="mb-[32px] flex w-full max-w-[1200px] -translate-y-[12px] flex-col items-start gap-[4px] sm:mb-[44px] sm:gap-[6px] lg:mb-[54px]">
-            <span className="text-sys-primary-default typo-subtitle-xxl sm:typo-heading-md lg:typo-heading-lg">
-              Feature
-            </span>
-            <h2 className="font-pre text-[22px] leading-[1.25] font-bold tracking-tight break-keep text-[var(--color-primitive-gray-900,#1D1D20)] sm:text-[30px] lg:text-[36px]">
-              광고 고민을 덜어주는 채소집의 핵심 기능을 만나보세요
-            </h2>
-          </div>
-
           {/* 모바일에서는 축소된 폴더 이미지의 UI를 가리지 않도록 카피를 무대 밖에 둔다. */}
           <AnimatePresence initial={false} mode="wait">
             <motion.div
@@ -235,9 +236,9 @@ export function HomeFolderFeatures(): JSX.Element {
             {/* ================= 1번 폴더: 채널 추천 ================= */}
             <motion.div
               animate={{
-                scale: shouldReduceMotion ? 1 : card1Scale,
+                transform: shouldReduceMotion ? 'none' : `scale(${card1Scale})`,
               }}
-              transition={SPRING_TRANSITION}
+              transition={shouldReduceMotion ? REDUCED_MOTION_TRANSITION : STACK_SPRING}
               style={{
                 transformOrigin: 'top center',
                 top: '0px',
@@ -280,11 +281,12 @@ export function HomeFolderFeatures(): JSX.Element {
             {/* ================= 2번 폴더: 채널 비교 ================= */}
             <motion.div
               animate={{
-                y: shouldReduceMotion ? '0%' : card2Y,
-                scale: shouldReduceMotion ? 1 : card2Scale,
+                transform: shouldReduceMotion
+                  ? 'none'
+                  : `translateY(${card2Y}) scale(${card2Scale})`,
                 opacity: activeStep >= 1 ? 1 : 0,
               }}
-              transition={SPRING_TRANSITION}
+              transition={shouldReduceMotion ? REDUCED_MOTION_TRANSITION : STACK_SPRING}
               style={{
                 transformOrigin: 'top center',
                 top: '7.0866%',
@@ -327,10 +329,10 @@ export function HomeFolderFeatures(): JSX.Element {
             {/* ================= 3번 폴더: 예산 시뮬레이션 ================= */}
             <motion.div
               animate={{
-                y: shouldReduceMotion ? '0%' : card3Y,
+                transform: shouldReduceMotion ? 'none' : `translateY(${card3Y}) scale(1)`,
                 opacity: activeStep >= 2 ? 1 : 0,
               }}
-              transition={SPRING_TRANSITION}
+              transition={shouldReduceMotion ? REDUCED_MOTION_TRANSITION : STACK_SPRING}
               style={{
                 transformOrigin: 'top center',
                 top: '14.1732%',
@@ -376,13 +378,13 @@ export function HomeFolderFeatures(): JSX.Element {
         {/* SCENE 2: The Process (그 자리에 배경 바뀌며 페이드인 등장) */}
         {/* ========================================================= */}
         <motion.div
+          data-testid="process-scene"
           animate={{
             opacity: isProcessScene ? 1 : 0,
-            scale: isProcessScene ? 1 : 1.05,
-            y: isProcessScene ? 0 : 24,
+            transform: shouldReduceMotion ? 'none' : `scale(${isProcessScene ? 1 : 0.98})`,
             pointerEvents: isProcessScene ? 'auto' : 'none',
           }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          transition={shouldReduceMotion ? REDUCED_MOTION_TRANSITION : SCENE_TRANSITION}
           className="px-016 sm:px-032 absolute inset-0 flex flex-col items-center justify-center lg:px-120"
         >
           <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-[24px] sm:gap-[48px] lg:gap-[80px]">
@@ -404,54 +406,103 @@ export function HomeFolderFeatures(): JSX.Element {
                 return (
                   <div
                     key={item.step}
+                    data-testid={`process-card-${item.step}`}
+                    data-hovered={isHovered}
                     onMouseEnter={() => setHoveredProcessIndex(index)}
                     onMouseLeave={() => setHoveredProcessIndex(null)}
-                    className={`relative flex h-[148px] w-full cursor-pointer flex-col justify-between rounded-[14px] p-[14px] transition-all duration-300 select-none sm:h-[220px] sm:rounded-[16px] sm:p-[20px] lg:h-[286px] lg:px-[30px] lg:py-[24px] ${
+                    style={
+                      shouldReduceMotion
+                        ? undefined
+                        : {
+                            transition:
+                              'background-color 150ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 180ms cubic-bezier(0.23, 1, 0.32, 1)',
+                          }
+                    }
+                    className={`relative h-[148px] w-full cursor-pointer overflow-hidden rounded-[14px] select-none sm:h-[220px] sm:rounded-[16px] lg:h-[286px] ${
                       isHovered
                         ? 'bg-white shadow-[0_20px_40px_rgba(0,0,0,0.24)]'
                         : 'bg-[var(--color-primitive-gray-800,#3F3F45)]'
                     }`}
                   >
-                    {/* 1) 호버 상태: 상단 타이틀 + 하단 3줄 상세 설명 */}
-                    {isHovered ? (
-                      <div className="flex h-full flex-col justify-between">
-                        <h3 className="font-pre text-[14px] leading-[1.3] font-bold tracking-tight break-keep whitespace-pre-line text-[var(--color-primitive-gray-900,#2E2E33)] sm:text-[18px] sm:leading-[26px] lg:text-[20px] lg:leading-[32px]">
-                          {item.title}
-                        </h3>
-                        <AnimatePresence>
+                    <AnimatePresence initial={false} mode="sync">
+                      {isHovered ? (
+                        <motion.div
+                          key="hovered"
+                          data-testid="process-card-hovered-content"
+                          initial={shouldReduceMotion ? false : { opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={
+                            shouldReduceMotion ? { duration: 0 } : PROCESS_CARD_CROSSFADE_TRANSITION
+                          }
+                          className="absolute inset-0 flex flex-col justify-between p-[14px] sm:p-[20px] lg:px-[30px] lg:py-[24px]"
+                        >
+                          <h3 className="font-pre text-[14px] leading-[1.3] font-bold tracking-tight break-keep whitespace-pre-line text-[var(--color-primitive-gray-900,#2E2E33)] sm:text-[18px] sm:leading-[26px] lg:text-[20px] lg:leading-[32px]">
+                            {item.title}
+                          </h3>
                           <motion.p
-                            initial={{ opacity: 0, y: 4 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
+                            data-testid="process-card-description"
+                            data-initial-opacity={0.5}
+                            data-opacity-duration-ms={150}
+                            data-translate-duration-ms={280}
+                            initial={
+                              shouldReduceMotion
+                                ? false
+                                : { opacity: 0.5, transform: 'translateY(4px)' }
+                            }
+                            animate={{ opacity: 1, transform: 'translateY(0px)' }}
+                            exit={{ opacity: 0.5, transform: 'translateY(2px)' }}
+                            transition={
+                              shouldReduceMotion
+                                ? { duration: 0 }
+                                : {
+                                    opacity: {
+                                      duration: 0.15,
+                                      ease: [0.23, 1, 0.32, 1],
+                                    },
+                                    transform: {
+                                      duration: 0.28,
+                                      ease: [0.77, 0, 0.175, 1],
+                                    },
+                                  }
+                            }
                             className="font-pre text-[11px] leading-[1.3] font-medium tracking-tight break-keep whitespace-pre-line text-[var(--color-primitive-gray-600,#6E6E76)] sm:text-[14px] sm:leading-[20px] lg:text-[15px] lg:leading-[24px]"
                           >
                             {item.description}
                           </motion.p>
-                        </AnimatePresence>
-                      </div>
-                    ) : (
-                      /* 2) 기본(Non-hover) 상태: 상단 아이콘 + 하단 텍스트 묶음 */
-                      <>
-                        <div className="relative size-[28px] shrink-0 sm:size-[36px] lg:size-[40px]">
-                          <Image
-                            src={item.iconSrc}
-                            alt={item.iconAlt}
-                            fill
-                            className="object-contain"
-                          />
-                        </div>
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="idle"
+                          data-testid="process-card-idle-content"
+                          initial={shouldReduceMotion ? false : { opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={
+                            shouldReduceMotion ? { duration: 0 } : PROCESS_CARD_CROSSFADE_TRANSITION
+                          }
+                          className="absolute inset-0 flex flex-col justify-between p-[14px] sm:p-[20px] lg:px-[30px] lg:py-[24px]"
+                        >
+                          <div className="relative size-[28px] shrink-0 sm:size-[36px] lg:size-[40px]">
+                            <Image
+                              src={item.iconSrc}
+                              alt={item.iconAlt}
+                              fill
+                              className="object-contain"
+                            />
+                          </div>
 
-                        <div className="flex flex-col gap-[2px] sm:gap-[6px]">
-                          <h3 className="font-pre text-[13.5px] leading-[1.3] font-bold tracking-tight break-keep whitespace-pre-line text-white sm:text-[18px] sm:leading-[26px] lg:text-[20px] lg:leading-[32px]">
-                            {item.title}
-                          </h3>
-                          <span className="text-text-low lg:typo-subtitle-xxl text-[11px] font-medium sm:text-[13px]">
-                            {item.stepLabel}
-                          </span>
-                        </div>
-                      </>
-                    )}
+                          <div className="flex flex-col gap-[2px] sm:gap-[6px]">
+                            <h3 className="font-pre text-[13.5px] leading-[1.3] font-bold tracking-tight break-keep whitespace-pre-line text-white sm:text-[18px] sm:leading-[26px] lg:text-[20px] lg:leading-[32px]">
+                              {item.title}
+                            </h3>
+                            <span className="text-text-low lg:typo-subtitle-xxl text-[11px] font-medium sm:text-[13px]">
+                              {item.stepLabel}
+                            </span>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 );
               })}
