@@ -900,12 +900,12 @@ export type SignupRequest = {
   marketingAgreed?: boolean;
 };
 
-export type ApiResponseUserResponse = {
+export type ApiResponseTokenResponse = {
   /**
    * 요청 성공 여부
    */
   success: boolean;
-  data: UserResponse;
+  data: TokenResponse;
   error: ErrorResponse | null;
   /**
    * 성공 안내 코드. 안내할 것이 없으면 null
@@ -914,21 +914,25 @@ export type ApiResponseUserResponse = {
 };
 
 /**
- * 회원 응답
+ * 토큰 응답
  */
-export type UserResponse = {
+export type TokenResponse = {
   /**
-   * 회원 식별자
+   * 액세스 토큰
    */
-  id: string;
+  accessToken: string;
   /**
-   * 이메일
+   * 리프레시 토큰
    */
-  email: string;
+  refreshToken: string;
   /**
-   * 닉네임
+   * 액세스 토큰 만료(초)
    */
-  nickname: string;
+  accessTokenExpiresIn: number;
+  /**
+   * 리프레시 토큰 만료(초, 고정값X)
+   */
+  refreshTokenExpiresIn: number;
 };
 
 /**
@@ -967,41 +971,6 @@ export type GoogleSignupRequest = {
    * 마케팅 수신 동의 여부(선택)
    */
   marketingAgreed?: boolean;
-};
-
-export type ApiResponseTokenResponse = {
-  /**
-   * 요청 성공 여부
-   */
-  success: boolean;
-  data: TokenResponse;
-  error: ErrorResponse | null;
-  /**
-   * 성공 안내 코드. 안내할 것이 없으면 null
-   */
-  code: string | null;
-};
-
-/**
- * 토큰 응답
- */
-export type TokenResponse = {
-  /**
-   * 액세스 토큰
-   */
-  accessToken: string;
-  /**
-   * 리프레시 토큰
-   */
-  refreshToken: string;
-  /**
-   * 액세스 토큰 만료(초)
-   */
-  accessTokenExpiresIn: number;
-  /**
-   * 리프레시 토큰 만료(초, 고정값X)
-   */
-  refreshTokenExpiresIn: number;
 };
 
 /**
@@ -2439,7 +2408,7 @@ export type SignupErrors = {
    */
   400: ApiResponse;
   /**
-   * 이미 사용 중인 이메일(AUTH-002), 탈퇴 후 유예기간 이내라 로그인이 필요한 휴면 계정(AUTH-014), 또는 유예기간이 지나 탈퇴 처리 중인 계정(AUTH-013)
+   * 이미 사용 중인 이메일(AUTH-002), 휴면 계정(AUTH-014), 또는 유예기간이 지나 탈퇴 처리 중인 계정(AUTH-013)
    */
   409: ApiResponse;
   /**
@@ -2452,9 +2421,9 @@ export type SignupError = SignupErrors[keyof SignupErrors];
 
 export type SignupResponses = {
   /**
-   * 가입 성공
+   * 가입 성공, 토큰 발급
    */
-  201: ApiResponseUserResponse;
+  201: ApiResponseTokenResponse;
 };
 
 export type SignupResponse = SignupResponses[keyof SignupResponses];
@@ -2476,7 +2445,7 @@ export type SignupGoogleErrors = {
    */
   401: ApiResponse;
   /**
-   * 이미 사용 중인 이메일(AUTH-002), 탈퇴 후 유예기간 이내라 로그인이 필요한 휴면 계정(AUTH-014), 또는 유예기간이 지나 탈퇴 처리 중인 계정(AUTH-013)
+   * 이미 사용 중인 이메일(AUTH-002), 휴면 계정(AUTH-014), 또는 유예기간이 지나 탈퇴 처리 중인 계정(AUTH-013)
    */
   409: ApiResponse;
   /**
@@ -2509,7 +2478,7 @@ export type SendSignupCodeErrors = {
    */
   400: ApiResponse;
   /**
-   * 이미 사용 중인 이메일(AUTH-002), 탈퇴 후 유예기간 이내라 로그인이 필요한 휴면 계정(AUTH-014), 또는 유예기간이 지나 탈퇴 처리 중인 계정(AUTH-013)
+   * 이미 사용 중인 이메일(AUTH-002), 휴면 계정(AUTH-014) 또는 유예기간이 지난 계정(AUTH-013)
    */
   409: ApiResponse;
   /**
@@ -2715,7 +2684,7 @@ export type GoogleAuthErrors = {
    */
   401: ApiResponse;
   /**
-   * 구글 미연결 상태로 탈퇴 후 유예기간 이내라 로그인이 필요한 휴면 계정(AUTH-014), 또는 유예기간이 지나 탈퇴 처리 중인 계정(AUTH-013)
+   * 구글 미연결 상태의 휴면 계정(AUTH-014), 또는 유예기간이 지나 탈퇴 처리 중인 계정(AUTH-013)
    */
   409: ApiResponse;
   /**
