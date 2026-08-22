@@ -109,6 +109,7 @@ describe('RecommendOnboardingPage', () => {
 
     expect(screen.getByRole('main')).toBeVisible();
     expect(screen.getByText('1')).toBeVisible();
+    expect(screen.getByText('1').parentElement).toHaveClass('bg-sys-primary-lowest');
     expect(screen.getByText('서비스 이름')).toBeVisible();
     expect(
       screen.getByRole('heading', {
