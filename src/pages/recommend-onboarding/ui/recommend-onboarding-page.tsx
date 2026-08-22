@@ -15,6 +15,8 @@ import {
 import { RECOMMEND_ONBOARDING_STEP_ID_LIST } from '@/features/ad-onboarding/model/onboarding-step';
 import { RecommendOnboardingFlow } from '@/features/ad-onboarding/ui/recommend-onboarding-flow';
 import { getApiErrorMessage } from '@/shared/api/api-error';
+import { ANALYTICS_EVENTS } from '@/shared/lib/analytics/events';
+import { trackClientEvent } from '@/shared/lib/analytics/track-client';
 import { Bubble } from '@/shared/ui/bubble';
 import { Box } from '@/shared/ui/layout/box';
 import { Stack } from '@/shared/ui/layout/stack';
@@ -58,6 +60,9 @@ export function RecommendOnboardingPage({
   const submitMutation = useMutation({
     mutationFn: submitRecommendOnboarding,
     onSuccess: (result) => {
+      trackClientEvent(ANALYTICS_EVENTS.recommendOnboardingCompleted, {
+        service_name_prefilled: Boolean(initialServiceName),
+      });
       router.push(`/recommend/onboarding/${result.onboardingId}`);
     },
     onError: (error) => {

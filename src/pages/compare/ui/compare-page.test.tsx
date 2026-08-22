@@ -16,20 +16,26 @@ import { server } from '@/shared/api/mocks/server';
 import { ComparePage } from './compare-page';
 import { CompareResultPage } from './compare-result-page';
 
-const { authSessionState, pushMock, replaceMock, showToastMock, showWarningToastMock } = vi.hoisted(
-  () => ({
-    authSessionState: {
-      value: {
-        authenticated: true,
-        accessTokenExpiresAt: Date.now() + 60_000,
-      } as { authenticated: false } | { authenticated: true; accessTokenExpiresAt: number },
-    },
-    pushMock: vi.fn<(href: string) => void>(),
-    replaceMock: vi.fn<(href: string) => void>(),
-    showToastMock: vi.fn<(options: unknown) => void>(),
-    showWarningToastMock: vi.fn<(description: string, options?: { id?: string }) => void>(),
-  }),
-);
+const {
+  authSessionState,
+  pushMock,
+  replaceMock,
+  showToastMock,
+  showWarningToastMock,
+  trackClientEventMock,
+} = vi.hoisted(() => ({
+  authSessionState: {
+    value: {
+      authenticated: true,
+      accessTokenExpiresAt: Date.now() + 60_000,
+    } as { authenticated: false } | { authenticated: true; accessTokenExpiresAt: number },
+  },
+  pushMock: vi.fn<(href: string) => void>(),
+  replaceMock: vi.fn<(href: string) => void>(),
+  showToastMock: vi.fn<(options: unknown) => void>(),
+  showWarningToastMock: vi.fn<(description: string, options?: { id?: string }) => void>(),
+  trackClientEventMock: vi.fn<(event: string, properties?: Record<string, unknown>) => void>(),
+}));
 
 vi.mock('@/features/auth/session', () => ({
   useAuthSession: () => ({
@@ -55,6 +61,10 @@ vi.mock('@number-flow/react', () => ({
 vi.mock('@/shared/ui/toast', () => ({
   showToast: showToastMock,
   showWarningToast: showWarningToastMock,
+}));
+
+vi.mock('@/shared/lib/analytics/track-client', () => ({
+  trackClientEvent: trackClientEventMock,
 }));
 
 vi.mock('motion/react', () => ({
@@ -1081,6 +1091,9 @@ describe('ComparePage', () => {
     expect(pushMock).toHaveBeenCalledWith(
       '/compare/result?channels=channel-naver,channel-kakao,channel-meta',
     );
+    expect(trackClientEventMock).toHaveBeenCalledWith('channel_comparison_started', {
+      selected_channel_count: 3,
+    });
   });
 
   it('비교에 필요한 채널 수보다 적은 channels query는 선택 화면을 유지한다', async () => {

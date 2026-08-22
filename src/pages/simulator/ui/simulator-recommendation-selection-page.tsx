@@ -5,6 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import { ANALYTICS_EVENTS } from '@/shared/lib/analytics/events';
+import { trackClientEvent } from '@/shared/lib/analytics/track-client';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/shared/ui/cn';
@@ -355,6 +357,9 @@ export function SimulatorRecommendationSelectionPage({
       searchParams.append('channelIds', channelId);
     }
 
+    trackClientEvent(ANALYTICS_EVENTS.simulatorRunStarted, {
+      selected_channel_count: channelIds.length,
+    });
     router.push(`/simulator?${searchParams.toString()}`);
   };
 

@@ -5,6 +5,8 @@ import { overlay } from 'overlay-kit';
 
 import { ResultSaveButton, type ResultSaveButtonStatus } from '@/features/result-save-action';
 import { getApiErrorMessage } from '@/shared/api/api-error';
+import { ANALYTICS_EVENTS } from '@/shared/lib/analytics/events';
+import { trackClientEvent } from '@/shared/lib/analytics/track-client';
 import { useSaveChannelComparison } from '@/pages/compare/api/use-save-channel-comparison';
 import { showToast, showWarningToast } from '@/shared/ui/toast';
 import { Tooltip } from '@/shared/ui/tooltip';
@@ -65,6 +67,10 @@ export function CompareResultSaveButton({
       },
       {
         onSuccess: () => {
+          trackClientEvent(ANALYTICS_EVENTS.channelComparisonResultSaved, {
+            channel_count: channelIds.length,
+            save_source: 'service_name',
+          });
           showToast({
             id: SAVE_CHANNEL_COMPARISON_SUCCESS_TOAST_ID,
             description: SAVE_CHANNEL_COMPARISON_SUCCESS_MESSAGE,
@@ -98,6 +104,10 @@ export function CompareResultSaveButton({
         },
         {
           onSuccess: () => {
+            trackClientEvent(ANALYTICS_EVENTS.channelComparisonResultSaved, {
+              channel_count: channelIds.length,
+              save_source: 'onboarding',
+            });
             showToast({
               id: SAVE_CHANNEL_COMPARISON_SUCCESS_TOAST_ID,
               description: SAVE_CHANNEL_COMPARISON_SUCCESS_MESSAGE,

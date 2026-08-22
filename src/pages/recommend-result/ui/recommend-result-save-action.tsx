@@ -7,6 +7,8 @@ import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
 import { submitRecommendOnboarding } from '@/features/ad-onboarding/api/submit-recommend-onboarding';
 import { ResultSaveButton, type ResultSaveButtonStatus } from '@/features/result-save-action';
 import { getApiErrorCode, getApiErrorMessage } from '@/shared/api/api-error';
+import { ANALYTICS_EVENTS } from '@/shared/lib/analytics/events';
+import { trackClientEvent } from '@/shared/lib/analytics/track-client';
 import { useSaveRecommendation } from '@/pages/recommend-result/api/use-save-recommendation';
 import { showWarningToast } from '@/shared/ui/toast';
 
@@ -74,6 +76,11 @@ export function RecommendResultSaveAction({
         },
       },
       {
+        onSuccess: () => {
+          trackClientEvent(ANALYTICS_EVENTS.recommendationResultSaved, {
+            onboarding_migrated: false,
+          });
+        },
         onError: (error) => {
           if (getApiErrorCode(error) !== 'ONB-007' || !onboardingAnswer) {
             showSaveError(error);
@@ -91,6 +98,11 @@ export function RecommendResultSaveAction({
                   },
                 },
                 {
+                  onSuccess: () => {
+                    trackClientEvent(ANALYTICS_EVENTS.recommendationResultSaved, {
+                      onboarding_migrated: true,
+                    });
+                  },
                   onError: showSaveError,
                 },
               );

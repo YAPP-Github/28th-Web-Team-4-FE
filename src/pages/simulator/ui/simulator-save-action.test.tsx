@@ -10,15 +10,18 @@ type SaveSimulationCallbacks = {
   onSuccess?: () => void;
 };
 
-const { mutateMock, resetMock, showToastMock, mutationState } = vi.hoisted(() => ({
-  mutateMock: vi.fn<(options: unknown, callbacks?: SaveSimulationCallbacks) => void>(),
-  resetMock: vi.fn<() => void>(),
-  showToastMock: vi.fn<(options: unknown) => void>(),
-  mutationState: {
-    isPending: false,
-    isSuccess: false,
-  },
-}));
+const { mutateMock, resetMock, showToastMock, trackClientEventMock, mutationState } = vi.hoisted(
+  () => ({
+    mutateMock: vi.fn<(options: unknown, callbacks?: SaveSimulationCallbacks) => void>(),
+    resetMock: vi.fn<() => void>(),
+    showToastMock: vi.fn<(options: unknown) => void>(),
+    trackClientEventMock: vi.fn<(event: string, properties?: Record<string, unknown>) => void>(),
+    mutationState: {
+      isPending: false,
+      isSuccess: false,
+    },
+  }),
+);
 
 vi.mock('@/pages/simulator/api/use-save-simulation', () => ({
   useSaveSimulation: () => ({
@@ -31,6 +34,10 @@ vi.mock('@/pages/simulator/api/use-save-simulation', () => ({
 vi.mock('@/shared/ui/toast', () => ({
   showToast: showToastMock,
   showWarningToast: vi.fn<(description: string, options?: unknown) => void>(),
+}));
+
+vi.mock('@/shared/lib/analytics/track-client', () => ({
+  trackClientEvent: trackClientEventMock,
 }));
 
 vi.mock('motion/react', () => ({
@@ -85,6 +92,7 @@ describe('SimulatorSaveAction', () => {
     mutateMock.mockReset();
     resetMock.mockReset();
     showToastMock.mockReset();
+    trackClientEventMock.mockReset();
     mutationState.isPending = false;
     mutationState.isSuccess = false;
   });
@@ -140,6 +148,9 @@ describe('SimulatorSaveAction', () => {
       id: 'simulator-save-success',
       description: '마이페이지에 결과를 저장했어요',
       type: 'success',
+    });
+    expect(trackClientEventMock).toHaveBeenCalledWith('simulation_result_saved', {
+      channel_count: 1,
     });
   });
 
