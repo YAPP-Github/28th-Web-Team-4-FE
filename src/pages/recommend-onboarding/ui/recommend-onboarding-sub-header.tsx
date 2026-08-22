@@ -28,7 +28,7 @@ export function RecommendOnboardingSubHeader({
       <Box className="mx-auto w-full max-w-[1200px] lg:grid lg:grid-cols-[204px_minmax(0,792px)_1fr]">
         <Box className="gap-006 py-018 flex flex-col items-center justify-center lg:col-start-2">
           <Box className="gap-012 flex w-full items-center">
-            <Badge frame="badge" tone="primary" className="w-[22px]">
+            <Badge frame="badge" tone="primary" className="bg-sys-primary-lowest w-[22px]">
               {currentStep + 1}
             </Badge>
             <Text variant="heading-lg" className="text-text-highest min-w-0 flex-1">
