@@ -74,9 +74,10 @@ describe('ChannelDetailAudiencePanel', () => {
     const primaryAgeBand = screen.getByText(CHANNEL_DETAIL_FIXTURE.audience.primaryAgeBand);
 
     expect(audienceTraits).toBeVisible();
-    expect(audienceTraits).toHaveClass('break-keep', '[overflow-wrap:anywhere]');
+    expect(audienceTraits).toHaveClass('break-keep', '[overflow-wrap:anywhere]', 'max-w-[70%]');
     expect(audienceTraits.parentElement).toHaveClass('h-auto', 'min-h-[96px]');
     expect(audienceTraits.parentElement).not.toHaveClass('h-[96px]');
+    expect(primaryAgeBand).not.toHaveClass('max-w-[70%]');
     expect(primaryAgeBand.parentElement).toHaveClass('h-[96px]');
   });
 });

@@ -70,12 +70,14 @@ function AudienceMetricCard({
   value,
   icon,
   className,
+  valueClassName,
   valueVariant = 'display-lg',
 }: {
   label: string;
   value: string;
   icon: AudienceIconVariant;
   className?: string;
+  valueClassName?: string;
   valueVariant?: TextVariant;
 }): JSX.Element {
   return (
@@ -94,7 +96,10 @@ function AudienceMetricCard({
       <Text
         as="dd"
         variant={valueVariant}
-        className="text-text-highest m-0 self-end text-right [overflow-wrap:anywhere] break-keep"
+        className={cn(
+          'text-text-highest m-0 self-end text-right [overflow-wrap:anywhere] break-keep',
+          valueClassName,
+        )}
       >
         {value}
       </Text>
@@ -135,6 +140,7 @@ export function ChannelDetailAudiencePanel({
         value={audience.traits}
         valueVariant="heading-md"
         className="col-span-2 h-auto min-h-[96px]"
+        valueClassName="max-w-[70%]"
       />
     </Box>
   );
