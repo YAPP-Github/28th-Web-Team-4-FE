@@ -199,6 +199,7 @@ describe('openChannelDetailModal', () => {
     expect(dialog).toBeVisible();
     expect(screen.getByRole('heading', { name: CHANNEL.name })).toBeVisible();
     expect(screen.getByRole('img', { name: `${CHANNEL.name} 로고` })).toBeVisible();
+    expect(screen.getByRole('img', { name: `${CHANNEL.name} 로고` })).toHaveClass('size-[56px]');
     expect(taglineLoading).toBeVisible();
     expect(screen.getByText('상세 로딩 중')).toBeVisible();
     expect(requestedId).toBe(CHANNEL.id);
