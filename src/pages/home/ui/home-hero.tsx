@@ -8,7 +8,6 @@ import {
   motion,
   useMotionValue,
   useMotionValueEvent,
-  useReducedMotion,
   useScroll,
   useTransform,
   type MotionValue,
@@ -17,12 +16,14 @@ import {
 import { Button } from '@/shared/ui/button';
 
 import { useHeroHeaderToneStore } from '@/shared/lib/hero-header-tone';
+import { usePrefersReducedMotion } from '@/shared/lib/use-prefers-reduced-motion';
 
 import {
   HERO_REVEAL_CTA_LABEL,
   HERO_SUBTEXT,
   HERO_TAGLINE_WORDS,
 } from '@/pages/home/model/home-hero-content';
+import { resolveHomeHeroRevealed } from '@/pages/home/model/home-scroll-timeline';
 import { HomeHeroServicePreview } from './home-hero-service-preview';
 
 // 기존 모션 레퍼런스의 "Position By Word In" 기준값.
@@ -188,7 +189,7 @@ function HomeHeroReducedMotion(): JSX.Element {
   return (
     <section
       aria-label="채소ZIP 소개"
-      className="bg-surface-lowest px-016 sm:px-032 flex w-full flex-col items-center justify-center py-[96px] lg:px-120"
+      className="bg-surface-lowest px-016 sm:px-032 flex w-full flex-col items-center justify-center overflow-x-clip py-[96px] lg:px-120"
     >
       <p
         className={`font-wanted text-center leading-[1.15] font-bold whitespace-nowrap ${TAGLINE_SIZE_CLASS} ${GRADIENT_TEXT_CLASS}`}
@@ -286,18 +287,15 @@ function HomeHeroScrollScrub(): JSX.Element {
   });
 
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    if (latest > 0.08) {
-      setIsRevealed(true);
-    } else {
-      setIsRevealed(false);
-    }
+    setIsRevealed(resolveHomeHeroRevealed(latest));
   });
 
   return (
     <section
       ref={sectionRef}
       aria-label="채소ZIP 소개"
-      className="lg:-mt-072 relative -mt-14 h-[160vh] w-full"
+      data-revealed={isRevealed}
+      className="lg:-mt-072 relative -mt-14 h-[200vh] w-full overflow-x-clip"
     >
       <motion.div
         style={{ backgroundColor: background }}
@@ -356,7 +354,7 @@ function HomeHeroScrollScrub(): JSX.Element {
 }
 
 export function HomeHero(): JSX.Element {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = usePrefersReducedMotion();
 
   if (shouldReduceMotion) {
     return <HomeHeroReducedMotion />;

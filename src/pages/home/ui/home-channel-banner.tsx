@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState, type JSX } from 'react';
 import Image from 'next/image';
-import { useInView, animate, useReducedMotion } from 'motion/react';
+import { useInView, animate } from 'motion/react';
+
+import { usePrefersReducedMotion } from '@/shared/lib/use-prefers-reduced-motion';
 
 const ROW_1_LOGOS = [
   {
@@ -105,7 +107,7 @@ function CountUp({ target, duration = 1.6 }: { target: number; duration?: number
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     if (!isInView) {
@@ -157,7 +159,7 @@ export function HomeChannelBanner(): JSX.Element {
       {/* 하단 무한 롤링 마키 배너 영역 (상단 간격 mt-96px로 시원하게 확대) */}
       <div className="relative mt-[64px] flex w-full flex-col gap-[32px] overflow-hidden sm:mt-[80px] sm:gap-[44px] lg:mt-[96px] lg:gap-[56px]">
         {/* Row 1: 왼쪽으로 무한 롤링 (풀 컬러 상시 노출) */}
-        <div className="flex w-max animate-[marquee-left_35s_linear_infinite] items-center gap-[36px] sm:gap-[44px] lg:gap-[50px]">
+        <div className="flex w-max animate-[marquee-left_50s_linear_infinite] items-center gap-[36px] motion-reduce:animate-none sm:gap-[44px] lg:gap-[50px]">
           {[...ROW_1_LOGOS, ...ROW_1_LOGOS, ...ROW_1_LOGOS].map((logo, idx) => (
             <div
               key={`r1-${logo.id}-${idx}`}
@@ -176,7 +178,7 @@ export function HomeChannelBanner(): JSX.Element {
         </div>
 
         {/* Row 2: 오른쪽/역방향으로 무한 롤링 (풀 컬러 상시 노출) */}
-        <div className="flex w-max animate-[marquee-right_40s_linear_infinite] items-center gap-[36px] sm:gap-[44px] lg:gap-[50px]">
+        <div className="flex w-max animate-[marquee-right_55s_linear_infinite] items-center gap-[36px] motion-reduce:animate-none sm:gap-[44px] lg:gap-[50px]">
           {[...ROW_2_LOGOS, ...ROW_2_LOGOS, ...ROW_2_LOGOS].map((logo, idx) => (
             <div
               key={`r2-${logo.id}-${idx}`}
