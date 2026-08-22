@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, within } from 'storybook/test';
 
-import { Logo, LOGO_TYPES } from '@/shared/ui/logo';
+import { Logo, LOGO_TONES, LOGO_TYPES } from '@/shared/ui/logo';
 
 const meta = {
   title: 'components/Logo',
@@ -9,11 +9,16 @@ const meta = {
   tags: ['autodocs'],
   args: {
     type: 'm',
+    tone: 'brand',
   },
   argTypes: {
     type: {
       control: 'select',
       options: LOGO_TYPES,
+    },
+    tone: {
+      control: 'select',
+      options: LOGO_TONES,
     },
     alt: { control: 'text' },
     className: { control: 'text' },
@@ -35,6 +40,27 @@ export const Default: Story = {
     const canvas = within(canvasElement);
 
     await expect(canvas.getByRole('img', { name: 'chaesozip' })).toBeVisible();
+  },
+};
+
+export const Inverse: Story = {
+  args: {
+    tone: 'inverse',
+  },
+  decorators: [
+    (Story) => (
+      <div className="bg-sys-primary-default rounded-m flex min-h-40 w-full items-center justify-center p-6">
+        <Story />
+      </div>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByRole('img', { name: 'chaesozip' })).toHaveClass(
+      'brightness-0',
+      'invert',
+    );
   },
 };
 
@@ -75,6 +101,7 @@ export const Decorative: Story = {
 export const AllTypes: Story = {
   argTypes: {
     type: { control: false },
+    tone: { control: false },
     alt: { control: false },
     className: { control: false },
   },

@@ -48,6 +48,7 @@ export function PageHeader(props: PageHeaderProps): JSX.Element {
     logoutError,
     ...rest
   } = props;
+  const logoTone = appearance === 'default' ? 'brand' : 'inverse';
 
   return (
     <HStack
@@ -69,16 +70,8 @@ export function PageHeader(props: PageHeaderProps): JSX.Element {
           aria-label="chaesozip"
           className="focus-visible:outline-sys-primary-default shrink-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
         >
-          <Logo
-            type="s"
-            alt=""
-            className={cn('lg:hidden', appearance !== 'default' && 'text-white')}
-          />
-          <Logo
-            type="m"
-            alt=""
-            className={cn('hidden lg:inline-flex', appearance !== 'default' && 'text-white')}
-          />
+          <Logo type="s" tone={logoTone} alt="" className="lg:hidden" />
+          <Logo type="m" tone={logoTone} alt="" className="hidden lg:inline-flex" />
         </Link>
 
         <Box
