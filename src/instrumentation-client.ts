@@ -2,6 +2,7 @@ import posthog from 'posthog-js';
 import * as Sentry from '@sentry/nextjs';
 
 import { isProduction } from '@/lib/is-production';
+import { registerSentryApiErrorInterceptor } from '@/shared/api/sentry-api-error-interceptor';
 
 if (isProduction) {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN ?? '', {
@@ -31,6 +32,8 @@ Sentry.init({
     Sentry.browserTracingIntegration(),
   ],
 });
+
+registerSentryApiErrorInterceptor();
 
 if (isProduction) {
   void import('@sentry/nextjs').then((lazyLoadedSentry) => {

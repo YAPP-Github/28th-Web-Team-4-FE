@@ -1,4 +1,12 @@
+import * as Sentry from '@sentry/nextjs';
+
 import { isTrustedMutation, upstreamErrorResponse } from './route-utils';
+
+vi.mock('@sentry/nextjs', () => ({
+  captureException: vi.fn<typeof Sentry.captureException>(),
+}));
+
+const captureExceptionMock = vi.mocked(Sentry.captureException);
 
 describe('auth BFF mutation origin checks', () => {
   beforeEach(() => {
@@ -92,7 +100,23 @@ describe('auth BFF upstream errors', () => {
     const response = upstreamErrorResponse(error, 401);
 
     expect(response.status).toBe(401);
+    expect(captureExceptionMock).not.toHaveBeenCalled();
     await expect(response.json()).resolves.toEqual(error);
+  });
+
+  it('reports unexpected upstream server errors', () => {
+    const error = new Error('upstream unavailable');
+
+    const response = upstreamErrorResponse(error);
+
+    expect(response.status).toBe(502);
+    expect(captureExceptionMock).toHaveBeenCalledWith(error, {
+      tags: {
+        feature: 'auth-bff',
+        'http.status_code': 502,
+        operation: 'upstream-error-response',
+      },
+    });
   });
 
   it.each([{ success: false }, { success: false, error: null }])(
@@ -101,6 +125,7 @@ describe('auth BFF upstream errors', () => {
       const response = upstreamErrorResponse(error, 401);
 
       expect(response.status).toBe(401);
+      expect(captureExceptionMock).not.toHaveBeenCalled();
       await expect(response.json()).resolves.toEqual({
         success: false,
         error: {
