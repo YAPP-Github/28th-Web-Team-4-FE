@@ -1,3 +1,4 @@
+/** 채널 상세 타깃층 패널과 지표 카드 레이아웃을 제공한다. */
 'use client';
 
 import type { JSX } from 'react';
@@ -90,17 +91,23 @@ function AudienceMetricCard({
           {label}
         </Text>
       </Box>
-      <Text as="dd" variant={valueVariant} className="text-text-highest m-0 self-end text-right">
+      <Text
+        as="dd"
+        variant={valueVariant}
+        className="text-text-highest m-0 self-end text-right [overflow-wrap:anywhere] break-keep"
+      >
         {value}
       </Text>
     </Stack>
   );
 }
 
+/** 채널 상세 타깃층 패널의 입력 데이터다. */
 export type ChannelDetailAudiencePanelProps = {
   channel: ChannelDetail;
 };
 
+/** 채널의 주요 타깃층 지표와 유저 특성을 카드 목록으로 표시한다. */
 export function ChannelDetailAudiencePanel({
   channel,
 }: ChannelDetailAudiencePanelProps): JSX.Element {
@@ -127,7 +134,7 @@ export function ChannelDetailAudiencePanel({
         label="유저 특성"
         value={audience.traits}
         valueVariant="heading-md"
-        className="col-span-2"
+        className="col-span-2 h-auto min-h-[96px]"
       />
     </Box>
   );
