@@ -1,7 +1,6 @@
 'use client';
 
 import type { JSX, ReactNode } from 'react';
-import { Sparkles } from 'lucide-react';
 import Image from 'next/image';
 
 import type { ChannelDetail } from '@/features/channel-detail/model/channel-detail';
@@ -14,6 +13,34 @@ function Emphasis({ children }: { children: ReactNode }): JSX.Element {
   return <strong className="text-text-highest font-semibold">{children}</strong>;
 }
 
+function RecommendationIcon(): JSX.Element {
+  return (
+    <div aria-hidden className="size-020 relative shrink-0 overflow-clip">
+      <Image
+        src="/channel-detail-assets/recommendation-sparkle-star-1.svg"
+        alt=""
+        width={13.1823}
+        height={13.1823}
+        className="absolute top-[3.41px] left-[0.91px] size-[13.1823px]"
+      />
+      <Image
+        src="/channel-detail-assets/recommendation-sparkle-star-2.svg"
+        alt=""
+        width={6.59117}
+        height={6.59117}
+        className="absolute top-[9.94px] left-[13px] size-[6.59117px]"
+      />
+      <Image
+        src="/channel-detail-assets/recommendation-sparkle-star-3.svg"
+        alt=""
+        width={3.66176}
+        height={3.66176}
+        className="absolute top-[4px] left-[13.54px] size-[3.66176px]"
+      />
+    </div>
+  );
+}
+
 function RecommendationReason({
   reason,
 }: {
@@ -22,7 +49,7 @@ function RecommendationReason({
   return (
     <Stack as="section" className="gap-008 w-full items-start">
       <HStack className="gap-006 h-024 items-center">
-        <Sparkles aria-hidden className="text-text-primary size-020" strokeWidth={2} />
+        <RecommendationIcon />
         <Text as="h3" variant="subtitle-sm" className="text-text-default m-0">
           이런 이유로 추천해요
         </Text>
