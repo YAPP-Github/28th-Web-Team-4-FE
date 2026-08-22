@@ -54,6 +54,10 @@ export function SimulatorPage({
   const loginHref = `/login?returnTo=${encodeURIComponent(
     createSimulatorResultHref(selectedChannelIds, initialFilterOpen),
   )}`;
+  const contentBottomSpacerClassName =
+    !isSavedResult && isLogin && isChannelSelectionComplete
+      ? 'h-[calc(120px+env(safe-area-inset-bottom))]'
+      : 'h-[calc(40px+env(safe-area-inset-bottom))]';
 
   const handleChannelRemove = (channelId: string): void => {
     const nextChannelIds = selectedChannelIds.filter((selectedId) => selectedId !== channelId);
@@ -71,13 +75,7 @@ export function SimulatorPage({
         title={isSavedResult ? '저장된 시뮬레이션 결과예요' : undefined}
       />
       <Box className="bg-surface-low px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto lg:px-120">
-        <Box
-          className={
-            isLogin && isChannelSelectionComplete
-              ? 'gap-020 pt-040 flex w-full max-w-[792px] flex-col'
-              : 'gap-020 py-040 flex w-full max-w-[792px] flex-col'
-          }
-        >
+        <Box className="gap-020 pt-040 flex w-full max-w-[792px] flex-col">
           <SimulatorResultSummary simulationResult={simulationResult} />
           <SimulatorChannelResults
             isLogin={isLogin}
@@ -87,9 +85,7 @@ export function SimulatorPage({
             simulationResult={simulationResult}
           />
           <SimulatorCalculationNote />
-          {!isSavedResult && isLogin && isChannelSelectionComplete ? (
-            <Box aria-hidden className="h-120 shrink-0" />
-          ) : null}
+          <Box aria-hidden className={`${contentBottomSpacerClassName} shrink-0`} />
         </Box>
       </Box>
       {!isSavedResult && isLogin && isChannelSelectionComplete ? (
