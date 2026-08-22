@@ -99,7 +99,9 @@ export function RecommendedChannelCard({
         />
       )}
 
-      <Stack className="relative h-full">
+      <Stack
+        className={cn('relative h-full', locked && '[clip-path:inset(0_round_var(--radius-l))]')}
+      >
         <Box
           aria-hidden={locked || undefined}
           inert={locked || undefined}
@@ -134,7 +136,12 @@ export function RecommendedChannelCard({
             </Box>
           </Box>
 
-          <VStack className="shadow-drop-shadow-02 bg-surface-lowest pointer-events-none relative min-h-[416px] w-full flex-1 rounded-b-[var(--radius-l)] p-[28px]">
+          <VStack
+            className={cn(
+              'bg-surface-lowest pointer-events-none relative min-h-[416px] w-full flex-1 rounded-b-[var(--radius-l)] p-[28px]',
+              !locked && 'shadow-drop-shadow-02',
+            )}
+          >
             <VStack className="gap-022 w-full flex-1">
               <VStack className="gap-022 w-full">
                 <VStack className="gap-010 w-full max-w-[175px] text-center">
