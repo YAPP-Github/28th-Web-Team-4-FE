@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs';
 import ky from 'ky';
 
 import { presignOnboardingPerformanceFiles, submitOnboarding } from '@/shared/api/generated';
@@ -12,7 +13,11 @@ vi.mock('@/shared/api/generated', () => ({
   presignOnboardingPerformanceFiles: vi.fn<typeof presignOnboardingPerformanceFiles>(),
   submitOnboarding: vi.fn<typeof submitOnboarding>(),
 }));
+vi.mock('@sentry/nextjs', () => ({
+  captureException: vi.fn<typeof Sentry.captureException>(),
+}));
 
+const captureExceptionMock = vi.mocked(Sentry.captureException);
 const presignOnboardingPerformanceFilesMock = vi.mocked(presignOnboardingPerformanceFiles);
 const submitOnboardingMock = vi.mocked(submitOnboarding);
 const kyPutMock = vi.spyOn(ky, 'put');
@@ -265,11 +270,18 @@ describe('submitRecommendOnboarding', () => {
       },
       response: new Response(null, { status: 200 }),
     });
-    kyPutMock.mockRejectedValue(new Error('upload failed'));
+    const uploadError = new Error('upload failed');
+    kyPutMock.mockRejectedValue(uploadError);
 
     await expect(submitRecommendOnboarding(answer)).rejects.toThrow(
       '성과 파일 업로드에 실패했어요.',
     );
+    expect(captureExceptionMock).toHaveBeenCalledWith(uploadError, {
+      tags: {
+        feature: 'recommend-onboarding',
+        operation: 'performance-file-upload',
+      },
+    });
     expect(submitOnboardingMock).not.toHaveBeenCalled();
   });
 });

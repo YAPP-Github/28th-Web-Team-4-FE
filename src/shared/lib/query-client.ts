@@ -1,11 +1,21 @@
 import {
   defaultShouldDehydrateQuery,
   environmentManager,
+  MutationCache,
+  QueryCache,
   QueryClient,
 } from '@tanstack/react-query';
 
+import { captureQueryError } from '@/shared/lib/sentry/error-reporting';
+
 function makeQueryClient() {
   return new QueryClient({
+    mutationCache: new MutationCache({
+      onError: (error) => captureQueryError(error, 'mutation'),
+    }),
+    queryCache: new QueryCache({
+      onError: (error) => captureQueryError(error, 'query'),
+    }),
     defaultOptions: {
       queries: {
         // With SSR, we usually want to set some default staleTime

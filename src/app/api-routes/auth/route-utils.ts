@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { captureException } from '@/shared/lib/sentry/error-reporting';
+
 const apiErrorSchema = z.object({
   error: z.object({
     code: z.string(),
@@ -54,6 +56,14 @@ export function invalidRequestResponse(): Response {
 }
 
 export function upstreamErrorResponse(error: unknown, status = 502): Response {
+  if (status >= 500) {
+    captureException(error, {
+      feature: 'auth-bff',
+      'http.status_code': status,
+      operation: 'upstream-error-response',
+    });
+  }
+
   const result = apiErrorSchema.safeParse(error);
 
   if (result.success) {
