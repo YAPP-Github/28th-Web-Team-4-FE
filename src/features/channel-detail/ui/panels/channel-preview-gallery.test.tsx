@@ -18,5 +18,6 @@ describe('ChannelPreviewGallery', () => {
     );
 
     expect(screen.getAllByRole('img')).toHaveLength(2);
+    expect(screen.getByRole('list', { name: '메타 광고 광고 예시 이미지' })).toHaveClass('w-full');
   });
 });

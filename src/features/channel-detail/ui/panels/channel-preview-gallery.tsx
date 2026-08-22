@@ -71,7 +71,7 @@ export function ChannelPreviewGallery({
     <Box
       as="ul"
       aria-label={`${channelName} 광고 예시 이미지`}
-      className="gap-012 columns-[132px] sm:columns-[180px]"
+      className="gap-012 w-full columns-[132px] sm:columns-[180px]"
     >
       {imageUrls.map((url, index) => (
         <ChannelPreviewImage key={url} src={url} alt={`${channelName} 광고 예시 ${index + 1}`} />
