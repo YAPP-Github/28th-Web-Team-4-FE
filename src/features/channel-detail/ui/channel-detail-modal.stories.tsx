@@ -116,6 +116,7 @@ export const PreviewImages: Story = {
 
     await userEvent.click(body.getByRole('tab', { name: '광고 예시' }));
     await waitFor(async () => {
+      await expect(body.getByText('내셔널지오그래픽')).toBeVisible();
       await expect(body.getAllByRole('img')).toHaveLength(
         CHANNEL_DETAIL_FIXTURE.previewImageUrls.length + 1,
       );
