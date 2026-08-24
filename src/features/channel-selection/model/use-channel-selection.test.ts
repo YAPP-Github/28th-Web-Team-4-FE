@@ -15,7 +15,7 @@ vi.mock('@/shared/ui/toast', () => ({
 const CHANNEL_A: ChannelListItem = {
   id: 'channel-a',
   name: '채널 A',
-  logoUrl: null,
+  iconUrl: null,
   description: '채널 A 설명',
   primaryCategory: 'OTHERS',
 };
@@ -23,7 +23,7 @@ const CHANNEL_A: ChannelListItem = {
 const CHANNEL_B: ChannelListItem = {
   id: 'channel-b',
   name: '채널 B',
-  logoUrl: null,
+  iconUrl: null,
   description: '채널 B 설명',
   primaryCategory: 'OTHERS',
 };
