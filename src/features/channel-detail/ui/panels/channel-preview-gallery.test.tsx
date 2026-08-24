@@ -7,8 +7,15 @@ import { Modal } from '@/shared/ui/modal';
 import { ChannelPreviewGallery } from './channel-preview-gallery';
 
 vi.mock('next/image', () => ({
-  default: ({ fill: _fill, sizes: _sizes, ...props }: ComponentProps<'img'> & { fill?: boolean }) =>
-    createElement('img', props),
+  default: ({
+    fill: _fill,
+    sizes: _sizes,
+    unoptimized: _unoptimized,
+    ...props
+  }: ComponentProps<'img'> & {
+    fill?: boolean;
+    unoptimized?: boolean;
+  }) => createElement('img', props),
 }));
 
 describe('ChannelPreviewGallery', () => {
@@ -70,9 +77,9 @@ describe('ChannelPreviewGallery', () => {
 
     const trigger = screen.getByRole('button', { name: '메타 광고 광고 예시 1 크게 보기' });
     await user.click(trigger);
-    expect(
-      await screen.findByRole('dialog', { name: '메타 광고 광고 예시 1 크게 보기' }),
-    ).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: '메타 광고 광고 예시 1 크게 보기' })).toBeVisible();
+    });
 
     await user.keyboard('{Escape}');
     await waitFor(() => {
@@ -83,9 +90,9 @@ describe('ChannelPreviewGallery', () => {
     expect(screen.getByRole('dialog', { name: '채널 상세 정보' })).toBeVisible();
 
     await user.click(trigger);
-    expect(
-      await screen.findByRole('dialog', { name: '메타 광고 광고 예시 1 크게 보기' }),
-    ).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: '메타 광고 광고 예시 1 크게 보기' })).toBeVisible();
+    });
 
     await user.click(document.body);
     await waitFor(() => {
