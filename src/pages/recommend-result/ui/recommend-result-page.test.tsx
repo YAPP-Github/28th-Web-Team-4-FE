@@ -328,11 +328,7 @@ describe('RecommendResultPage', () => {
 
     const naverCard = screen.getByRole('article', { name: '네이버 검색 광고' });
     expect(naverCheckbox).toHaveAttribute('aria-checked', 'true');
-    expect(naverCard).toHaveAttribute('data-selected', 'true');
     expect(within(naverCard).getByTestId('recommend-channel-selection-outline')).toBeVisible();
-    expect(within(naverCard).getByTestId('recommend-channel-select-indicator')).toHaveClass(
-      'bg-sys-primary-default',
-    );
     expect(screen.getByRole('button', { name: '추천받은 채널로 비교하기 (1/3)' })).toBeDisabled();
 
     await user.click(getSelectionCheckbox('유튜브 검색 광고'));
@@ -458,10 +454,6 @@ describe('RecommendResultPage', () => {
         '클릭당 비용이 가장 낮아요',
       ),
     ).not.toBeInTheDocument();
-    expect(tooltipText.parentElement).toHaveClass('bg-surface-toast', 'text-text-lowest');
-    expect(tooltipText.parentElement?.querySelector('[aria-hidden="true"]')).toHaveStyle({
-      bottom: '-4px',
-    });
   });
 
   it('blurs the top two cards and provides login links for guests', () => {

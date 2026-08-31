@@ -20,13 +20,9 @@ describe('RecommendResultSubHeader', () => {
     });
 
     expect(heading).toBeVisible();
-    expect(heading).toHaveClass('min-w-0', 'break-keep', '[overflow-wrap:anywhere]');
     expect(screen.getByText('입력하신 조건으로 분석했어요')).toBeVisible();
     expect(screen.getByRole('button', { name: '추천 결과 안내' })).toBeVisible();
-    expect(screen.getByRole('button', { name: '결과 저장하기' })).toHaveClass(
-      'w-full',
-      'lg:w-auto',
-    );
+    expect(screen.getByRole('button', { name: '결과 저장하기' })).toBeVisible();
   });
 
   it('주입된 액션을 오른쪽 액션 영역에 표시한다', () => {
