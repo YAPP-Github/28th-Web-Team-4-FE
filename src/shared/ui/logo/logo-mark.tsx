@@ -25,7 +25,6 @@ export function LogoMark({ className, type = 'm' }: LogoMarkProps): JSX.Element 
       fill="currentColor"
       width={dimensions.width}
       height={dimensions.height}
-      preserveAspectRatio="none"
       overflow="visible"
       className={cn('block max-w-none', className)}
     >
