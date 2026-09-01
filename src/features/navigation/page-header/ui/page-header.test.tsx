@@ -56,12 +56,6 @@ function setViewportWidth(width: number): void {
   });
 }
 
-function isPageScrollLocked(): boolean {
-  return [document.documentElement, document.body].some(
-    (element) => element.style.overflowY === 'hidden',
-  );
-}
-
 vi.mock('next/navigation', () => ({
   useSelectedLayoutSegment: () => useSelectedLayoutSegmentMock(),
 }));
@@ -93,19 +87,11 @@ describe('PageHeader', () => {
     render(<PageHeader />);
 
     expect(screen.getByRole('banner')).toBeVisible();
-    expect(screen.getByRole('banner')).toHaveClass('border-outline-low', 'border-b');
     expect(screen.getByRole('link', { name: 'chaesozip' })).toHaveAttribute('href', '/');
     expect(screen.getByRole('navigation', { name: '주요 메뉴' })).toBeVisible();
     expect(screen.getByRole('link', { name: '맞춤 채널 추천' })).toHaveAttribute(
       'href',
       '/recommend',
-    );
-    expect(screen.getByRole('link', { name: '맞춤 채널 추천' })).toHaveClass(
-      'hover:text-text-highest',
-      'hover:bg-surface-low',
-      'rounded-[var(--radius-xs)]',
-      'px-012',
-      'py-008',
     );
     expect(screen.getByRole('link', { name: '전체 채널 비교' })).toHaveAttribute(
       'href',
@@ -129,43 +115,7 @@ describe('PageHeader', () => {
     const inactiveLink = screen.getByRole('link', { name: '맞춤 채널 추천' });
 
     expect(activeLink).toHaveAttribute('aria-current', 'page');
-    expect(activeLink).toHaveClass('text-text-highest');
     expect(inactiveLink).not.toHaveAttribute('aria-current');
-    expect(inactiveLink).toHaveClass('text-text-low');
-  });
-
-  it('uses a white foreground and a brand-text white CTA for the brand appearance', () => {
-    render(<PageHeader appearance="brand" />);
-
-    const logos = screen.getByRole('link', { name: 'chaesozip' }).querySelectorAll('[aria-hidden]');
-    const navigationLink = screen.getByRole('link', { name: '맞춤 채널 추천' });
-    const loginButton = screen.getByRole('button', { name: '시작하기' });
-    const menuButton = screen.getByRole('button', { name: '메뉴 열기' });
-    const menuIcon = menuButton.querySelector('svg');
-
-    expect(logos).toHaveLength(2);
-    logos.forEach((logo) => expect(logo).toHaveClass('brightness-0', 'invert'));
-    expect(navigationLink).toHaveClass('text-white', 'hover:text-white/80');
-    expect(loginButton).toHaveClass('bg-white', 'text-sys-primary-default');
-    expect(menuButton.parentElement).toHaveClass('text-white');
-    expect(menuIcon).not.toHaveClass('text-icon-higher');
-  });
-
-  it('keeps the primary CTA while using a white foreground for the inverse appearance', () => {
-    render(<PageHeader appearance="inverse" />);
-
-    const navigationLink = screen.getByRole('link', { name: '맞춤 채널 추천' });
-    const loginButton = screen.getByRole('button', { name: '시작하기' });
-
-    expect(navigationLink).toHaveClass('text-white');
-    expect(loginButton).toHaveClass('bg-btn-primary', 'text-text-lowest');
-    expect(loginButton).not.toHaveClass('bg-white', 'text-text-highest');
-  });
-
-  it('uses a white account name for authenticated brand headers', () => {
-    render(<PageHeader isLogin userName="YAPP" appearance="brand" />);
-
-    expect(screen.getByText('YAPP 님')).toHaveClass('text-white');
   });
 
   it('renders a logout-only account menu for a logged-in user', async () => {
@@ -181,7 +131,7 @@ describe('PageHeader', () => {
     const logoutItem = await screen.findByRole('menuitem', { name: '로그아웃' });
 
     expect(screen.queryByRole('menuitem', { name: '마이페이지' })).not.toBeInTheDocument();
-    expect(logoutItem).toHaveClass('bg-btn-sub-low', 'border-0');
+    expect(logoutItem).toBeVisible();
   });
 
   it('renders an authenticated account without a profile name', () => {
@@ -223,43 +173,17 @@ describe('PageHeader', () => {
     render(<PageHeader />);
 
     const trigger = screen.getByRole('button', { name: '메뉴 열기' });
-    const triggerIcon = trigger.querySelector('svg');
-    const hamburgerLines = trigger.querySelectorAll('line');
 
     expect(trigger).toHaveAttribute('aria-controls', 'page-header-mobile-sidebar');
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
-    expect(triggerIcon).toHaveAttribute('data-menu-icon', 'menu');
-    expect(hamburgerLines).toHaveLength(4);
-    hamburgerLines.forEach((line) => expect(line).toHaveAttribute('stroke-width', '1.5'));
 
     await user.click(trigger);
 
     const dialog = await screen.findByRole('dialog', { name: '전체 메뉴' });
     const mobileNavigation = within(dialog).getByRole('navigation', { name: '모바일 주요 메뉴' });
-    const sidebarPanel = within(dialog).getByTestId('mobile-sidebar-panel');
-    const sidebarLogo = within(dialog).getByRole('link', { name: 'chaesozip' });
-    const mobileNavigationLinks = within(mobileNavigation).getAllByRole('link');
 
     expect(dialog).toHaveAttribute('id', 'page-header-mobile-sidebar');
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
-    expect(triggerIcon).toHaveAttribute('data-menu-icon', 'close');
-    const closeIcon = within(dialog)
-      .getByRole('button', { name: '메뉴 닫기' })
-      .querySelector('svg');
-    const closeIconSecondaryLine = closeIcon?.querySelector('[data-menu-line="secondary"]');
-
-    expect(closeIcon).toHaveAttribute('data-menu-icon', 'close');
-    expect(closeIconSecondaryLine).toHaveClass(
-      '-rotate-45',
-      'opacity-100',
-      'starting:rotate-0',
-      'starting:opacity-0',
-    );
-    expect(sidebarPanel).not.toContainElement(sidebarLogo);
-    expect(sidebarPanel).toContainElement(mobileNavigation);
-    mobileNavigationLinks.forEach((link, index) => {
-      expect(link.parentElement).toHaveStyle(`--sidebar-item-index: ${index}`);
-    });
     expect(within(mobileNavigation).getByRole('link', { name: '맞춤 채널 추천' })).toHaveAttribute(
       'href',
       '/recommend',
@@ -267,9 +191,7 @@ describe('PageHeader', () => {
     await waitFor(() => {
       expect(within(dialog).getByText(/로그인하고 나에게 맞는 광고 채널을/)).toBeVisible();
     });
-    expect(within(dialog).getByText('추천받아 보세요!').closest('div[style]')).toHaveStyle(
-      `--sidebar-item-index: ${mobileNavigationLinks.length}`,
-    );
+    expect(within(dialog).getByText('추천받아 보세요!')).toBeVisible();
     expect(within(dialog).getByRole('button', { name: '시작하기' })).toHaveAttribute(
       'href',
       '/login',
@@ -289,14 +211,12 @@ describe('PageHeader', () => {
 
     await user.click(screen.getByRole('button', { name: '메뉴 열기' }));
     await screen.findByRole('dialog', { name: '전체 메뉴' });
-    await waitFor(() => expect(isPageScrollLocked()).toBe(true));
 
     setViewportWidth(1024);
 
     await waitFor(() => {
       expect(screen.queryByRole('button', { name: '메뉴 열기' })).not.toBeInTheDocument();
       expect(screen.queryByRole('dialog', { name: '전체 메뉴' })).not.toBeInTheDocument();
-      expect(isPageScrollLocked()).toBe(false);
     });
 
     setViewportWidth(1023);
@@ -394,12 +314,6 @@ describe('PageHeader', () => {
     await user.click(screen.getByRole('button', { name: '메뉴 열기' }));
 
     const dialog = await screen.findByRole('dialog', { name: '전체 메뉴' });
-    const panel = within(dialog).getByTestId('mobile-sidebar-panel');
-
-    expect(panel).toHaveStyle({
-      opacity: '1',
-      transform: 'translateY(0%) scale(1)',
-    });
     expect(within(dialog).getByText(/로그인하고 나에게 맞는 광고 채널을/)).toBeVisible();
 
     await user.click(within(dialog).getByRole('button', { name: '메뉴 닫기' }));

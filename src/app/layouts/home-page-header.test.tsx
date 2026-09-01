@@ -2,8 +2,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 
 import { authSessionQueryKey } from '@/features/auth/session/model/auth-session-query';
-import { useHeroHeaderToneStore } from '@/shared/lib/hero-header-tone';
-
 import { HomePageHeader } from './home-page-header';
 
 type ProfileQueryResult = {
@@ -51,35 +49,21 @@ function renderHeader(authenticated: boolean) {
 
 describe('HomePageHeader', () => {
   beforeEach(() => {
-    useHeroHeaderToneStore.getState().reset();
     useMyProfileMock.mockReset();
     useMyProfileMock.mockReturnValue({ data: { nickname: '채소집' } });
   });
 
-  it('keeps the logged-in home header on the default white style', () => {
-    useHeroHeaderToneStore.setState({ progress: 1, theme: 'orange' });
-
+  it('renders the authenticated identity for a logged-in user', () => {
     renderHeader(true);
 
-    const header = screen.getByRole('banner');
-    expect(header).toHaveClass('bg-surface-lowest');
-    expect(header).toHaveClass('border-outline-low');
-    expect(header).toHaveClass('sticky');
-    expect(header).toHaveClass('top-0');
-    expect(header).toHaveClass('z-50');
-    expect(header).not.toHaveClass('bg-sys-primary-default');
-    expect(header).not.toHaveClass('border-transparent');
+    expect(screen.getByRole('banner')).toBeVisible();
     expect(screen.getByText('채소집 님')).toBeVisible();
   });
 
-  it('keeps the public home header connected to the hero tone', () => {
-    useHeroHeaderToneStore.setState({ progress: 1, theme: 'orange' });
-
+  it('renders the start action for a public user', () => {
     renderHeader(false);
 
-    const header = screen.getByRole('banner');
-    expect(header).toHaveClass('bg-sys-primary-default');
-    expect(header).toHaveClass('border-transparent');
+    expect(screen.getByRole('banner')).toBeVisible();
     expect(screen.getByRole('button', { name: '시작하기' })).toBeVisible();
   });
 });

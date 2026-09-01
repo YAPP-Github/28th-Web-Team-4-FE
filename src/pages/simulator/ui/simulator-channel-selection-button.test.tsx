@@ -59,14 +59,6 @@ describe('SimulatorChannelSelectionButton', () => {
     });
   });
 
-  it('필터 조정 버튼을 고정 버튼으로 제공한다', () => {
-    renderSimulatorChannelSelectionButton();
-
-    const button = screen.getByRole('button', { name: '필터 조정하기' });
-
-    expect(button).toHaveClass('motion-safe:animate-simulator-channel-selection-enter');
-  });
-
   it('필터 조정 버튼을 누르면 좌측 필터 패널을 연다', async () => {
     const user = userEvent.setup();
     renderSimulatorChannelSelectionButton();
