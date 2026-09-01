@@ -63,6 +63,8 @@ Conductor/비대화형 셸에서 기본 `node`가 `mise.toml`과 다르면 **`mi
 | `node --run skills:sync`      | `shared/skills` → Cursor/Claude/Agents 심볼릭 링크 |
 | `node --run rules:sync`       | `shared/rules` → Cursor `.mdc` / Claude rules 생성 |
 
+개발 서버 실행 요청에는 [`shared/rules/project-stack.md`](shared/rules/project-stack.md)의 Doppler 설정과 `3000`~`3004` 포트 선택 규칙을 따른다.
+
 프로젝트 스킬·rules 원본은 **`shared/skills/`** · **`shared/rules/`** (FSD `src/shared/`와 별개).  
 수정 후 각각 `skills:sync` / `rules:sync`. Claude 전용 스킬(예: PostHog)은 sync 대상이 아니다.
 
