@@ -45,7 +45,7 @@ export const ButtonBase = ({
             {leftIcon}
           </Box>
         ) : null}
-        <Text variant={textVariant}>{children}</Text>
+        {typeof children === 'string' ? <Text variant={textVariant}>{children}</Text> : children}
         {badge ? (
           <Box as="span" className="inline-flex shrink-0">
             {badge}

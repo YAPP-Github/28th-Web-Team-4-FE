@@ -6,6 +6,7 @@ import { expect, within } from 'storybook/test';
 import { Badge } from '@/shared/ui/badge';
 import { Button, BUTTON_FRAMES, type ButtonFrame } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
+import { Text } from '@/shared/ui/text';
 
 const SAMPLE = '텍스트';
 
@@ -188,6 +189,23 @@ export const ButtonStroke: Story = {
       }
     >
       {args.children}
+    </Button>
+  ),
+};
+
+export const ButtonStrokeTextOverride: Story = {
+  name: 'button / stroke / custom label',
+  args: {
+    frame: 'button',
+    tone: 'stroke',
+    children: '더 보기',
+    className: 'h-030 w-[242px] text-text-low',
+  },
+  render: (args) => (
+    <Button frame="button" tone="stroke" className={args.className}>
+      <Text variant="body-sm" className="text-text-low">
+        {args.children}
+      </Text>
     </Button>
   ),
 };
