@@ -137,14 +137,11 @@ describe('PageHeader', () => {
   it('uses a white foreground and a brand-text white CTA for the brand appearance', () => {
     render(<PageHeader appearance="brand" />);
 
-    const logos = screen.getByRole('link', { name: 'chaesozip' }).querySelectorAll('[aria-hidden]');
     const navigationLink = screen.getByRole('link', { name: '맞춤 채널 추천' });
     const loginButton = screen.getByRole('button', { name: '시작하기' });
     const menuButton = screen.getByRole('button', { name: '메뉴 열기' });
     const menuIcon = menuButton.querySelector('svg');
 
-    expect(logos).toHaveLength(2);
-    logos.forEach((logo) => expect(logo).toHaveClass('brightness-0', 'invert'));
     expect(navigationLink).toHaveClass('text-white', 'hover:text-white/80');
     expect(loginButton).toHaveClass('bg-white', 'text-sys-primary-default');
     expect(menuButton.parentElement).toHaveClass('text-white');

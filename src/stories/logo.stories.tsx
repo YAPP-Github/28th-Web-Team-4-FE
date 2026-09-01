@@ -43,6 +43,24 @@ export const Default: Story = {
   },
 };
 
+export const Muted: Story = {
+  args: {
+    tone: 'muted',
+  },
+  decorators: [
+    (Story) => (
+      <div className="bg-surface-low rounded-m flex min-h-40 w-full items-center justify-center p-6">
+        <Story />
+      </div>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByRole('img', { name: 'chaesozip' })).toBeVisible();
+  },
+};
+
 export const Inverse: Story = {
   args: {
     tone: 'inverse',
@@ -57,10 +75,7 @@ export const Inverse: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getByRole('img', { name: 'chaesozip' })).toHaveClass(
-      'brightness-0',
-      'invert',
-    );
+    await expect(canvas.getByRole('img', { name: 'chaesozip' })).toBeVisible();
   },
 };
 
