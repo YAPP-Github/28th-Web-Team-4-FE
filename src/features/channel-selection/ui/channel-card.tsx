@@ -21,7 +21,7 @@ type ChannelCardProps = {
   channel: ChannelListItem;
   checked: boolean;
   onToggle: (channel: ChannelListItem) => void;
-  /** 전달되면 카드에 "자세히 보기" 버튼을 노출하고, 클릭 시 채널을 넘겨 호출한다. */
+  /** 전달되면 카드에 "더 보기" 버튼을 노출하고, 클릭 시 채널을 넘겨 호출한다. */
   onViewDetail?: (channel: ChannelListItem) => void;
 };
 
@@ -140,7 +140,9 @@ export function ChannelCard({
               onViewDetail(channel);
             }}
           >
-            자세히 보기
+            <Text variant="body-sm" className="text-text-low">
+              더 보기
+            </Text>
           </Button>
         ) : null}
       </Box>

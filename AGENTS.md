@@ -2,7 +2,9 @@
 
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
 
@@ -62,6 +64,8 @@ Conductor/비대화형 셸에서 기본 `node`가 `mise.toml`과 다르면 **`mi
 | `node --run tokens`           | 디자인 토큰 빌드·검증                              |
 | `node --run skills:sync`      | `shared/skills` → Cursor/Claude/Agents 심볼릭 링크 |
 | `node --run rules:sync`       | `shared/rules` → Cursor `.mdc` / Claude rules 생성 |
+
+개발 서버 실행 요청에는 [`shared/rules/project-stack.md`](shared/rules/project-stack.md)의 Doppler 설정과 `3000`~`3004` 포트 선택 규칙을 따른다.
 
 프로젝트 스킬·rules 원본은 **`shared/skills/`** · **`shared/rules/`** (FSD `src/shared/`와 별개).  
 수정 후 각각 `skills:sync` / `rules:sync`. Claude 전용 스킬(예: PostHog)은 sync 대상이 아니다.

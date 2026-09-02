@@ -7,6 +7,7 @@ import type {
   ChannelDetail,
   ChannelProductRow,
 } from '@/features/channel-detail/model/channel-detail';
+import { InfoFillIcon } from '@/shared/ui/icon';
 import { Box } from '@/shared/ui/layout/box';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
@@ -121,7 +122,7 @@ export function ChannelDetailProductsPanel({
                       {column.label}
                     </Text>
                     {column.showInfo ? (
-                      <Info className="text-icon-medium size-014" aria-hidden />
+                      <Info className="text-icon-default size-012" aria-hidden />
                     ) : null}
                   </HStack>
                 </th>
@@ -141,8 +142,8 @@ export function ChannelDetailProductsPanel({
           </tbody>
         </table>
       </Box>
-      <HStack className="gap-006 items-start">
-        <Info className="text-icon-medium mt-002 size-014 shrink-0" aria-hidden />
+      <HStack className="gap-006 items-center">
+        <InfoFillIcon />
         <Text as="p" variant="subtitle-xxs" className="text-text-low">
           {channel.productsNote}
         </Text>

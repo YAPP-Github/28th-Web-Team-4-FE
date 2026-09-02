@@ -49,7 +49,7 @@ export type ChannelSelectionScreenProps = {
     id: string;
     message: string;
   };
-  /** 전달되면 각 채널 카드에 "자세히 보기" 버튼을 노출하고, 클릭 시 해당 채널로 호출한다. */
+  /** 전달되면 각 채널 카드에 "더 보기" 버튼을 노출하고, 클릭 시 해당 채널로 호출한다. */
   onViewDetail?: (channel: ChannelListItem) => void;
 };
 

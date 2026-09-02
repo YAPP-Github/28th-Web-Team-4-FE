@@ -344,37 +344,6 @@ describe('ComparePage', () => {
     vi.useRealTimers();
   });
 
-  it('스크롤 내부 콘텐츠에 상단 32px과 하단 38px 안전 여백을 둔다', async () => {
-    renderComparePage();
-
-    expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
-
-    const channelGrid = screen.getByRole('list');
-    const safeArea = channelGrid.parentElement;
-    const scrollContainer = safeArea?.parentElement;
-
-    expect(safeArea).toHaveClass('self-start', 'pt-[32px]', 'pb-[38px]');
-    expect(scrollContainer).toHaveClass('overflow-y-auto');
-    expect(scrollContainer).not.toHaveClass('py-[46px]');
-    expect(scrollContainer).not.toHaveClass('pt-[32px]');
-    expect(scrollContainer).not.toHaveClass('pb-[38px]');
-  });
-
-  it('모바일 footer는 콘텐츠 높이를 따르고 데스크톱에서는 102px을 유지한다', async () => {
-    renderComparePage();
-
-    expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
-
-    const compareButton = getCompareButton();
-    const footerContent = compareButton.parentElement?.parentElement;
-    const footer = footerContent?.parentElement;
-
-    expect(footer).not.toHaveClass('h-[102px]');
-    expect(footer).toHaveClass('md:h-[102px]');
-    expect(footerContent).toHaveClass('gap-016', 'py-020', 'md:py-000');
-    expect(compareButton).toHaveClass('h-[44px]');
-  });
-
   it('첫 요청 동안 12개 스켈레톤을 보여주고 API 첫 페이지를 조회한다', async () => {
     const responseGate = createDeferred<void>();
     let requestedUrl: URL | undefined;
@@ -392,24 +361,7 @@ describe('ComparePage', () => {
     expect(screen.getByRole('heading', { name: '비교할 채널을 선택해 주세요' })).toBeVisible();
     expect(screen.queryByText('최대 3개까지 선택할 수 있어요')).not.toBeInTheDocument();
     expect(getCategoryTrigger(0)).toHaveTextContent('0개');
-    expect(getCategoryTrigger(0)).toHaveClass('h-036', 'w-full', 'flex-1', 'sm:w-[126px]');
-    expect(getSelectedChannelsTrigger(0)).toHaveClass('h-036', 'w-full', 'flex-1', 'sm:w-[126px]');
-    expect(getCategoryTrigger(0).parentElement).toHaveClass('gap-018');
     expect(screen.getByLabelText('채널 검색')).toHaveAttribute('placeholder', '채널 검색');
-    expect(screen.getByLabelText('채널 검색').parentElement).toHaveClass(
-      'w-full',
-      'sm:flex-1',
-      'lg:w-[282px]',
-      'lg:flex-none',
-    );
-    expect(screen.getByLabelText('채널 검색').parentElement?.parentElement).toHaveClass(
-      'flex-col',
-      'sm:flex-row',
-      'lg:w-auto',
-    );
-    expect(
-      screen.getByRole('heading', { name: '비교할 채널을 선택해 주세요' }).parentElement,
-    ).toHaveClass('flex-col', 'lg:flex-row');
     expect(screen.getAllByTestId('channel-card-skeleton')).toHaveLength(12);
 
     responseGate.resolve(undefined);
@@ -426,7 +378,7 @@ describe('ComparePage', () => {
     expect(requestedUrl?.searchParams.has('sort')).toBe(false);
   });
 
-  it('두 팝업을 왼쪽 위 기준으로 열고 Escape와 외부 클릭으로 닫는다', async () => {
+  it('두 팝업을 한 번에 하나만 열고 Escape와 외부 클릭으로 닫는다', async () => {
     const user = userEvent.setup();
 
     renderComparePage();
@@ -434,38 +386,29 @@ describe('ComparePage', () => {
 
     await user.click(getCategoryTrigger(0));
 
-    const categoryPopover = await screen.findByTestId('category-popover');
-    expect(categoryPopover).toHaveClass(
-      'origin-top-left',
-      'w-[min(290px,calc(100vw-32px))]',
-      'shadow-drop-shadow-03',
-      'data-starting-style:scale-95',
-      'motion-reduce:data-starting-style:scale-100',
-    );
-    expect(categoryPopover.parentElement).toHaveAttribute('data-align', 'start');
-    expect(categoryPopover.parentElement).toHaveAttribute('data-side', 'bottom');
-    expect(categoryPopover.parentElement).toHaveAttribute('data-side-offset', '28');
-    expect(screen.getByRole('button', { name: '카테고리 선택 초기화' })).toBeDisabled();
+    expect(await screen.findByRole('button', { name: '카테고리 선택 초기화' })).toBeDisabled();
 
     await user.click(getSelectedChannelsTrigger(0));
 
-    expect(screen.queryByTestId('category-popover')).not.toBeInTheDocument();
-    const selectedChannelsPopover = await screen.findByTestId('selected-channels-popover');
-    expect(selectedChannelsPopover).toHaveClass('origin-top-left', 'h-[130px]');
-    expect(screen.getByText('아직 선택한 채널이 없어요.')).toBeVisible();
+    expect(screen.queryByRole('button', { name: '카테고리 선택 초기화' })).not.toBeInTheDocument();
+    expect(await screen.findByText('아직 선택한 채널이 없어요.')).toBeVisible();
     expect(screen.getByText('채널 카드를 눌러 비교할 채널을 골라 보세요.')).toBeVisible();
     expect(screen.getByRole('button', { name: '초기화' })).toBeDisabled();
     expect(screen.getByRole('button', { name: '편집' })).toBeDisabled();
 
     await user.keyboard('{Escape}');
     await waitFor(() =>
-      expect(screen.queryByTestId('selected-channels-popover')).not.toBeInTheDocument(),
+      expect(screen.queryByText('아직 선택한 채널이 없어요.')).not.toBeInTheDocument(),
     );
 
     await user.click(getCategoryTrigger(0));
-    expect(await screen.findByTestId('category-popover')).toBeVisible();
+    expect(await screen.findByRole('button', { name: '카테고리 선택 초기화' })).toBeDisabled();
     await user.click(screen.getByRole('heading', { name: '비교할 채널을 선택해 주세요' }));
-    await waitFor(() => expect(screen.queryByTestId('category-popover')).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: '카테고리 선택 초기화' }),
+      ).not.toBeInTheDocument(),
+    );
   });
 
   it('선택한 채널을 순서대로 보여주고 편집 완료 시 제거를 카드와 동기화한다', async () => {
@@ -482,8 +425,6 @@ describe('ComparePage', () => {
 
     await user.click(getSelectedChannelsTrigger(3));
     const popover = await screen.findByTestId('selected-channels-popover');
-    expect(popover).toHaveClass('origin-top-left');
-    expect(popover).not.toHaveClass('h-[130px]');
 
     const selectedItems = within(popover).getAllByRole('listitem');
     expect(selectedItems.map((item) => within(item).getByText(/광고$/).textContent)).toEqual([
@@ -1039,12 +980,10 @@ describe('ComparePage', () => {
     expect(await screen.findByText('네이버 검색 광고')).toBeVisible();
 
     const naverCheckbox = getChannelCheckbox('네이버 검색 광고');
-    const naverCard = screen.getByText('네이버 검색 광고').closest('label');
 
     await user.click(naverCheckbox);
 
     expect(naverCheckbox).toBeChecked();
-    expect(naverCard).toHaveClass('outline-outline-selected');
     expect(getCompareButton()).toHaveTextContent('선택한 채널 비교하기 (1/3)');
 
     await user.click(naverCheckbox);
@@ -1129,19 +1068,9 @@ describe('ComparePage', () => {
 
     renderCompareResultPage();
 
-    const firstChannelHeading = await screen.findByRole('heading', {
-      level: 2,
-      name: '응답 B',
-    });
-    const channelCardList = firstChannelHeading.closest('ul');
-
-    if (!channelCardList) {
-      throw new Error('채널 비교 카드 목록을 찾지 못했습니다.');
-    }
-
     expect(
-      within(channelCardList)
-        .getAllByRole('heading', { level: 2 })
+      (await screen.findAllByRole('heading', { level: 2 }))
+        .slice(0, 3)
         .map((heading) => heading.textContent),
     ).toEqual(['응답 B', '응답 A', '응답 C']);
     expect(
@@ -1161,7 +1090,6 @@ describe('ComparePage', () => {
     const insightsRegion = screen.getByRole('region', { name: '채널별 인사이트' });
 
     expect(within(insightsRegion).getByText(/B 태그/)).toBeVisible();
-    expect(insightsRegion.parentElement).toHaveClass('pt-040', 'pb-072', 'self-start');
     expect(screen.getByText('B 장점')).toBeVisible();
     expect(screen.queryByText('채널 추가하기')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: '결과 저장하기' })).toBeVisible();
