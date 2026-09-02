@@ -80,7 +80,7 @@ function FooterNavigationSeparator(): JSX.Element {
 }
 
 function FooterLogo(): JSX.Element {
-  return <Logo type="m" alt="chaesozip" className="h-[36px] w-[136px]" />;
+  return <Logo type="m" tone="muted" alt="chaesozip" className="h-[36px] w-[136px]" />;
 }
 
 function intersperseFooterNavigationItems(items: readonly JSX.Element[]): JSX.Element[] {
