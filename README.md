@@ -72,11 +72,11 @@ Tokens Studio의 토큰을 Style Dictionary로 변환해 Tailwind CSS 4의 `@the
 
 ### Continuous Delivery
 
-`main` 브랜치가 변경되면 Doppler 환경에서 Next.js를 빌드합니다. 정적 자산은 Amazon S3에 동기화하고 ARM64 컨테이너 이미지는 Amazon ECR을 거쳐 ECS Fargate에 배포합니다.
+`main` 브랜치가 변경되면 Doppler 환경에서 Next.js를 빌드합니다. 빌드된 정적 파일은 Amazon S3에 동기화한 뒤 CloudFront로 배포하고, ARM64 컨테이너 이미지는 Amazon ECR을 거쳐 VPC 내부의 ECS Fargate에 배포합니다. 서비스 트래픽은 public 서브넷의 Application Load Balancer(ALB)를 통해 private 서브넷의 ECS 태스크로 전달되며, ECS 네이티브 블루그린 배포로 무중단 전환을 지원합니다. private 서브넷의 외부 통신은 NAT Gateway 대신 NAT Instance를 사용해 비용을 최적화했습니다.
 
 ### Motion & Interaction
 
-Motion for React를 활용해 추천 결과 카드, 채널 상세 탭과 결과 저장 상태에 필요한 전환과 피드백을 적용했습니다. 사용자의 reduced-motion 설정에서는 이동 효과를 줄입니다.
+Motion을 활용해 추천 결과 카드, 채널 상세 탭과 결과 저장 상태에 필요한 전환과 피드백을 적용했습니다. 사용자의 reduced-motion 설정에서는 이동 효과를 줄입니다.
 
 자세한 구조와 규칙은 [아키텍처 문서](./docs/architecture.md), 디자인 토큰 흐름은 [디자인 토큰 문서](./design-tokens/README.md)에서 확인할 수 있습니다.
 
@@ -87,7 +87,7 @@ Motion for React를 활용해 추천 결과 카드, 채널 상세 탭과 결과 
 | Core       | Next.js 16, React 19, TypeScript 6                                    |
 | UI         | Tailwind CSS 4, Base UI, Style Dictionary, Motion                     |
 | Data / API | TanStack Query, Zustand, ky, zod, React Hook Form, Hey API OpenAPI TS |
-| Delivery   | Doppler, GitHub Actions, Amazon S3, ECR, ECS Fargate                  |
+| Delivery   | Doppler, GitHub Actions, Amazon S3, CloudFront, ECR, ECS Fargate      |
 
 ## 시작하기
 
