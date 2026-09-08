@@ -74,6 +74,7 @@ Conductor/비대화형 셸에서 기본 `node`가 `mise.toml`과 다르면 **`mi
 
 - UI 언어: 한국어 (`lang="ko"`).
 - `shared/ui` 프리미티브·`cn` 재사용. 도메인 UI는 `pages` / `features`에 둔다.
+- TSX 레이아웃은 [`shared/rules/ui-layout.md`](shared/rules/ui-layout.md)의 선택 기준·불변 속성·합성 규칙을 따른다.
 - 디자인·FSD 참고 링크는 [`docs/architecture.md`](docs/architecture.md) 참고 섹션.
 
 ## 5. 시크릿·환경 변수
@@ -101,6 +102,7 @@ Conductor/비대화형 셸에서 기본 `node`가 `mise.toml`과 다르면 **`mi
 | ------------------------------- | ----------------------------------------------------------------------------------------------- |
 | `create-fsd-slice`              | `src/pages` / `src/features` 슬라이스 추가. “FSD 슬라이스”, “새 페이지”, “피처 만들어”          |
 | `add-shared-ui-storybook`       | `shared/ui` + Storybook. “공유 컴포넌트”, “스토리 추가”, “디자인 시스템 UI”                      |
+| `use-layout-components`         | TSX의 flex/grid 레이아웃 작성·리팩터링. Layout 선택·불변 속성·semantic 합성                     |
 | `design-handoff`                | 구현 **전** 핸드오프 검수. “스펙 리뷰”, “디자인 빠진 거”, “핸드오프 체크”                        |
 | `figma-bridge`                  | Figma MCP로 구현·토큰 매핑. “Figma대로”, “이 노드 구현”, “토큰 매핑”                             |
 | `github-workflow`               | 이슈·브랜치·커밋·푸시·draft PR. “커밋할까?”, “PR 만들어”, “이슈 먼저”                           |

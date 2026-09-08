@@ -10,7 +10,7 @@ description: >-
 
 # shared UI + Storybook 추가
 
-[`docs/architecture.md`](../../docs/architecture.md) · `shared/rules/shared-ui.md`(sync → Cursor/Claude rules)를 따른다.
+[`docs/architecture.md`](../../docs/architecture.md) · [`shared/rules/shared-ui.md`](../../rules/shared-ui.md) · [`shared/rules/ui-layout.md`](../../rules/ui-layout.md)를 따른다.
 
 ## 필수 문서 (구현 전 읽기)
 
@@ -48,6 +48,7 @@ Base UI 주의 (Radix와 다름):
 - [ ] 스토리는 로컬 `src/stories` 패턴을 따름 (`Meta` / `StoryObj` / `tags: ['autodocs']` 등)
 - [ ] 필요 시 MDX 문서에 API·파트·사용 맥락을 설명함
 - [ ] `cn` / layout(`Flex`, `Stack`, `Box` 등) 재사용
+- [ ] TSX 레이아웃은 `use-layout-components`의 선택·불변 속성·합성 절차를 따름
 - [ ] 텍스트는 Text 또는 `typo-*` (+ 토큰 색)
 - [ ] `shared`에 비즈니스·엔티티 네이밍 없음
 - [ ] 스토리에 기본 상태(+ 필요 시 disabled 등)

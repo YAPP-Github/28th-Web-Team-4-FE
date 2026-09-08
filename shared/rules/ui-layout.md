@@ -1,0 +1,61 @@
+---
+description: TSX 레이아웃은 shared/ui/layout을 우선 사용하고 의미·불변 속성을 보존
+alwaysApply: false
+globs:
+  - src/**/*.tsx
+  - app/**/*.tsx
+claudeFile: 15-ui-layout.md
+---
+
+# UI Layout
+
+TSX에서 레이아웃을 만들거나 수정할 때 `src/shared/ui/layout`을 우선 사용한다.
+
+## 선택 기준
+
+| 의도 | 컴포넌트 | 불변 클래스 |
+| --- | --- | --- |
+| 일반 블록·positioning | `Box` | 없음 |
+| 임의의 flex 조합 | `Flex` | `flex` |
+| 세로 흐름 | `Stack` | `flex flex-col` |
+| 세로 흐름 + 가로 중앙 | `VStack` | `flex flex-col items-center` |
+| 가로 흐름 + 세로 중앙 | `HStack` | `flex items-center` |
+| 가로·세로 중앙 | `Center` | `flex items-center justify-center` |
+| 세로 흐름 + 가로·세로 중앙 | `CenterStack` | `flex flex-col items-center justify-center` |
+| 기본 가로축의 양끝 배치 | `JustifyBetween` | `flex justify-between` |
+| 기본 가로축의 끝 정렬 | `JustifyEnd` | `flex justify-end` |
+| grid 레이아웃 | `Grid` | `grid` |
+
+- 가장 구체적으로 의도를 표현하는 컴포넌트를 쓴다.
+- `flex-col justify-between`처럼 축이 핵심이면 `Stack`에 `justify-between`을 더한다.
+- `Box`에 `flex`·`grid`를 다시 조립하지 않는다. 전용 컴포넌트로 표현할 수 없는 사유가 있을 때만 예외로 두고 작업 결과에 이유를 남긴다.
+
+## 불변 속성
+
+- Layout의 불변 클래스는 호출부 `className`보다 우선한다. 구현은 `cn(className, invariantClasses)` 순서를 따른다.
+- 호출부에서 불변 클래스와 충돌하는 클래스를 넣지 않는다. breakpoint variant도 같다.
+- 축·정렬이 breakpoint에 따라 바뀌면 해당 불변 속성이 없는 `Flex`를 쓴다.
+
+```tsx
+// 금지: Stack의 축을 바꾼다.
+<Stack className="lg:flex-row" />
+
+// 권장: Flex에서 축 변화를 명시한다.
+<Flex className="flex-col lg:flex-row" />
+```
+
+## DOM 의미와 합성
+
+- Layout을 쓰기 위해 DOM 래퍼를 추가하지 않는다.
+- `main`, `section`, `form`, `label`, `ul`, `li`, `button` 등 기존 의미는 `as`로 보존한다.
+- Base UI는 접근성·상태 Root를 유지하고 지원되는 `render` 합성으로 Layout 책임을 분리한다.
+- `motion.*`은 props·ref·animation 전달이 보존되는지 확인한 뒤 `as`로 합성한다. 안전하지 않으면 기존 요소를 유지하고 이유를 보고한다.
+
+## 범위 밖
+
+- `Spacing`은 사용하지 않으며 기반 컴포넌트 정비 시 제거한다. `Box`와 구분되는 계약이 없으므로 일반 컨테이너에는 `Box`를 쓴다.
+- 간격은 부모의 `gap`, padding, margin으로 표현한다.
+- 구분선은 Layout이 아니다. 반복되는 요구가 확인되면 semantic `Separator`를 별도 shared UI로 설계한다.
+- UI 테스트는 class나 DOM 구조를 단언하지 않는다. 시각 차이는 Storybook 또는 실제 화면으로 확인한다.
+
+절차 스킬: `use-layout-components`.
