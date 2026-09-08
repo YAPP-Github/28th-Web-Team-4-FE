@@ -59,6 +59,7 @@ Conductor/비대화형 셸에서 기본 `node`가 `mise.toml`과 다르면 **`mi
 | `node --run dev`              | 개발 서버                                          |
 | `node --run build`            | 토큰 빌드 + Next build                             |
 | `node --run lint` / `fmt`     | oxlint / oxfmt                                     |
+| `node --run layout:check`     | Layout 사용 후보 보고 (`-- --changed`, `--strict`) |
 | `node --run test` / `test:ci` | Vitest                                             |
 | `node --run storybook`        | Storybook                                          |
 | `node --run tokens`           | 디자인 토큰 빌드·검증                              |
