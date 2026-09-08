@@ -91,13 +91,14 @@ export function SignupAgreementFields({
                 checked={agreements[agreement]}
                 onCheckedChange={(checked) => updateAgreement(agreement, checked)}
               />
-              <label
-                className="gap-004 flex min-w-0 flex-1 cursor-pointer items-center whitespace-nowrap"
+              <HStack
+                as="label"
+                className="gap-004 min-w-0 flex-1 cursor-pointer whitespace-nowrap"
                 htmlFor={id}
               >
                 <span className="typo-subtitle-xxl text-text-high">{label}</span>
                 <span className="typo-subtitle-xxs text-text-medium">({qualifier})</span>
-              </label>
+              </HStack>
               {href ? (
                 <a
                   className="typo-body-xl text-text-low focus-visible:outline-sys-primary-default rounded-xxs shrink-0 underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"

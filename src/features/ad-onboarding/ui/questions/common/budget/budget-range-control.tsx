@@ -10,6 +10,7 @@ import type { BudgetInputRange } from '@/features/ad-onboarding/model/budget-ran
 import type { BudgetRange } from '@/features/ad-onboarding/model/common-onboarding-options';
 import { Input } from '@/shared/ui/input';
 import { WarningErrorIcon } from '@/shared/ui/icon';
+import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
@@ -48,7 +49,7 @@ export function BudgetRangeControl({
   return (
     <Stack className="gap-016 w-full">
       <Stack className="gap-008">
-        <div className="gap-006 flex items-center">
+        <HStack className="gap-006">
           <Input
             id={minInputId}
             className="min-w-0 flex-1"
@@ -90,17 +91,17 @@ export function BudgetRangeControl({
             onChange={(event) => onMaxInputValueChange(readBudgetInputValue(event))}
             onKeyDown={blurBudgetInputOnEnter}
           />
-        </div>
+        </HStack>
 
         {error ? (
-          <div
+          <HStack
             id={errorMessageId}
             role="alert"
-            className="text-sys-error-default gap-006 pr-012 flex items-center pl-[2px]"
+            className="text-sys-error-default gap-006 pr-012 pl-[2px]"
           >
             <WarningErrorIcon />
             <Text variant="body-sm">예산을 입력해 주세요</Text>
-          </div>
+          </HStack>
         ) : null}
       </Stack>
 

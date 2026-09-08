@@ -10,7 +10,7 @@ import {
 } from '@/features/auth/signup-flow';
 import { Dropdown, type DropdownOption } from '@/shared/ui/dropdown';
 import { InputField } from '@/shared/ui/input-field';
-import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
 import { Stack } from '@/shared/ui/layout/stack';
 
 const OCCUPATION_OPTIONS = [
@@ -43,9 +43,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-lower flex min-h-[620px] w-full items-center justify-center p-8">
+      <Center className="bg-surface-lower min-h-[620px] w-full p-8">
         <Story />
-      </Box>
+      </Center>
     ),
   ],
 } satisfies Meta<typeof AuthForm>;

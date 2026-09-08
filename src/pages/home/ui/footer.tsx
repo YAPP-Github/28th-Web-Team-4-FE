@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Flex } from '@/shared/ui/layout/flex';
+import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Logo } from '@/shared/ui/logo';
 import { Text } from '@/shared/ui/text';
@@ -98,42 +99,42 @@ export function Footer({ className, ...rest }: FooterProps): JSX.Element {
     <Flex
       as="footer"
       className={cn(
-        'bg-surface-low px-016 py-040 sm:px-032 flex w-full items-start justify-center lg:px-120 lg:py-052',
+        'bg-surface-low px-016 py-040 sm:px-032 w-full items-start justify-center lg:px-120 lg:py-052',
         className,
       )}
       {...rest}
     >
       <Stack className="gap-026 w-full max-w-[1200px] min-w-0 items-start justify-center">
         <Stack className="gap-002 w-full min-w-0 items-start">
-          <Box className="gap-024 flex w-full min-w-0 flex-col items-start justify-between lg:flex-row lg:items-center">
+          <Flex className="gap-024 w-full min-w-0 flex-col items-start justify-between lg:flex-row lg:items-center">
             <Stack className="gap-030 w-full items-start lg:w-[450px] lg:shrink-0">
               <FooterLogo />
             </Stack>
 
-            <Box
+            <HStack
               as="ul"
               aria-label="푸터 메뉴"
-              className="gap-x-022 gap-y-008 flex min-w-0 flex-wrap items-center whitespace-nowrap lg:justify-end"
+              className="gap-x-022 gap-y-008 min-w-0 flex-wrap whitespace-nowrap lg:justify-end"
             >
               {intersperseFooterNavigationItems(
                 FOOTER_NAVIGATION_ITEMS.map((item) => (
                   <FooterNavigationItem key={item.label} label={item.label} href={item.href} />
                 )),
               )}
-            </Box>
-          </Box>
+            </HStack>
+          </Flex>
 
           <Text as="p" variant="body-lg" className="text-text-low whitespace-nowrap">
             © 2026 CHAESOZIP. ALL RIGHTS RESERVED
           </Text>
         </Stack>
 
-        <Box as="ul" aria-label="푸터 아이콘" className="gap-012 flex items-center">
+        <HStack as="ul" aria-label="푸터 아이콘" className="gap-012">
           {FOOTER_ICON_ITEMS.map((item) => (
             <Box as="li" key={item.label}>
-              <Box
+              <HStack
                 as="span"
-                className="bg-surface-default p-008 flex shrink-0 items-center rounded-[var(--radius-max)]"
+                className="bg-surface-default p-008 shrink-0 rounded-[var(--radius-max)]"
               >
                 <Box as="span" className="relative size-[22px] shrink-0 overflow-hidden">
                   <Image
@@ -144,10 +145,10 @@ export function Footer({ className, ...rest }: FooterProps): JSX.Element {
                     className={cn('absolute max-w-none shrink-0', item.className)}
                   />
                 </Box>
-              </Box>
+              </HStack>
             </Box>
           ))}
-        </Box>
+        </HStack>
       </Stack>
     </Flex>
   );

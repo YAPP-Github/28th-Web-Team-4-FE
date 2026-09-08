@@ -8,6 +8,7 @@ import { useId, type JSX, type ReactNode } from 'react';
 
 import { Checkbox, type CheckboxProps } from '@/shared/ui/checkbox';
 import { cn } from '@/shared/ui/cn';
+import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { RadioGroupItem, type RadioGroupItemProps } from '@/shared/ui/radio-group';
 import { Text } from '@/shared/ui/text';
@@ -46,11 +47,12 @@ function SelectCardLayout({
   selectionControl,
 }: SelectCardLayoutProps): JSX.Element {
   return (
-    <label
+    <HStack
+      as="label"
       htmlFor={controlId}
       className={cn(
         [
-          'group relative flex min-h-[58px] w-full cursor-pointer items-center gap-014',
+          'group relative min-h-[58px] w-full cursor-pointer gap-014',
           'rounded-[var(--radius-s)] border border-primitive-gray-250 px-014 py-010',
           'transition-colors hover:bg-surface-lower',
           'has-[[data-checked]]:border-outline-selected',
@@ -79,7 +81,7 @@ function SelectCardLayout({
           </Text>
         ) : null}
       </Stack>
-    </label>
+    </HStack>
   );
 }
 
