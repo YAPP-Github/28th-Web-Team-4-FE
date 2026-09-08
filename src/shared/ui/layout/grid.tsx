@@ -4,7 +4,7 @@ import { cn } from '@/shared/ui/cn';
 
 import { type BoxProps, Box } from './box';
 
-export const CenterStack: <C extends ElementType = 'div'>(
+export const Grid: <C extends ElementType = 'div'>(
   props: PropsWithChildren<BoxProps<C>>,
 ) => JSX.Element = <C extends ElementType = 'div'>({
   className,
@@ -12,7 +12,5 @@ export const CenterStack: <C extends ElementType = 'div'>(
 }: PropsWithChildren<BoxProps<C>>) => {
   const typesRest = rest as BoxProps<C>;
 
-  return (
-    <Box className={cn(className, 'flex flex-col items-center justify-center')} {...typesRest} />
-  );
+  return <Box className={cn(className, 'grid')} {...typesRest} />;
 };

@@ -11,7 +11,7 @@ import {
 import { Dropdown, type DropdownOption } from '@/shared/ui/dropdown';
 import { InputField } from '@/shared/ui/input-field';
 import { Box } from '@/shared/ui/layout/box';
-import { VStack } from '@/shared/ui/layout/v-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 
 const OCCUPATION_OPTIONS = [
   { value: 'development', label: '개발' },
@@ -62,14 +62,14 @@ export const PasswordCase: Story = {
   args: {
     title: '비밀번호 설정하기',
     children: (
-      <VStack className="gap-012 items-stretch">
+      <Stack className="gap-012">
         <InputField frame="password" aria-label="비밀번호" placeholder="비밀번호를 입력해 주세요" />
         <InputField
           frame="password"
           aria-label="비밀번호 확인"
           placeholder="비밀번호를 다시 입력해 주세요"
         />
-      </VStack>
+      </Stack>
     ),
   },
 };

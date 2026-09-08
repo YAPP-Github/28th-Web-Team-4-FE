@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
-import { HStack } from '@/shared/ui/layout/h-stack';
+import { Flex } from '@/shared/ui/layout/flex';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Logo } from '@/shared/ui/logo';
 import { Text } from '@/shared/ui/text';
@@ -95,7 +95,7 @@ function intersperseFooterNavigationItems(items: readonly JSX.Element[]): JSX.El
 
 export function Footer({ className, ...rest }: FooterProps): JSX.Element {
   return (
-    <HStack
+    <Flex
       as="footer"
       className={cn(
         'bg-surface-low px-016 py-040 sm:px-032 flex w-full items-start justify-center lg:px-120 lg:py-052',
@@ -149,6 +149,6 @@ export function Footer({ className, ...rest }: FooterProps): JSX.Element {
           ))}
         </Box>
       </Stack>
-    </HStack>
+    </Flex>
   );
 }

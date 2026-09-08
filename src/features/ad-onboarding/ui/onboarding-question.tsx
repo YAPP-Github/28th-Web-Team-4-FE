@@ -6,7 +6,7 @@ import type { JSX, ReactNode } from 'react';
 
 import { Bubble } from '@/shared/ui/bubble';
 import { cn } from '@/shared/ui/cn';
-import { VStack } from '@/shared/ui/layout/v-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 export type OnboardingQuestionProps = {
@@ -36,8 +36,8 @@ export function OnboardingQuestion({
         className,
       )}
     >
-      <VStack className={cn('gap-020 items-start', contentClassName)}>
-        <VStack className="gap-002 items-start">
+      <Stack className={cn('gap-020 items-start', contentClassName)}>
+        <Stack className="gap-002 items-start">
           <Text as="h2" variant="heading-lg" className="text-text-highest">
             {title}
           </Text>
@@ -46,9 +46,9 @@ export function OnboardingQuestion({
               {description}
             </Text>
           ) : null}
-        </VStack>
+        </Stack>
         {children}
-      </VStack>
+      </Stack>
     </Bubble>
   );
 }

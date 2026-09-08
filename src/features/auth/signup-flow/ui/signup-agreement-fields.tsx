@@ -2,7 +2,7 @@ import type { JSX } from 'react';
 
 import { Checkbox } from '@/shared/ui/checkbox';
 import { HStack } from '@/shared/ui/layout/h-stack';
-import { VStack } from '@/shared/ui/layout/v-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 
 export type SignupAgreements = {
   serviceTermsAgreed: boolean;
@@ -61,7 +61,7 @@ export function SignupAgreementFields({
   };
 
   return (
-    <VStack className="gap-020 items-stretch">
+    <Stack className="gap-020">
       <HStack className="gap-010">
         <Checkbox
           id={`${idPrefix}-all-agreements`}
@@ -79,7 +79,7 @@ export function SignupAgreementFields({
 
       <div className="border-outline-low border-t" />
 
-      <VStack className="gap-014 items-stretch">
+      <Stack className="gap-014">
         {AGREEMENT_ITEMS.map(({ agreement, label, qualifier, href }) => {
           const id = `${idPrefix}-${agreement}`;
 
@@ -119,7 +119,7 @@ export function SignupAgreementFields({
             </HStack>
           );
         })}
-      </VStack>
-    </VStack>
+      </Stack>
+    </Stack>
   );
 }

@@ -8,7 +8,7 @@ import { useId, type JSX, type ReactNode } from 'react';
 
 import { Checkbox, type CheckboxProps } from '@/shared/ui/checkbox';
 import { cn } from '@/shared/ui/cn';
-import { VStack } from '@/shared/ui/layout/v-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { RadioGroupItem, type RadioGroupItemProps } from '@/shared/ui/radio-group';
 import { Text } from '@/shared/ui/text';
 
@@ -63,7 +63,7 @@ function SelectCardLayout({
       )}
     >
       {selectionControl}
-      <VStack className="min-w-0 flex-1 items-start">
+      <Stack className="min-w-0 flex-1 items-start">
         <Text
           variant="subtitle-xs"
           className="text-text-high group-has-[[data-checked]]:text-text-primary"
@@ -78,7 +78,7 @@ function SelectCardLayout({
             {description}
           </Text>
         ) : null}
-      </VStack>
+      </Stack>
     </label>
   );
 }

@@ -10,7 +10,7 @@ import type { BudgetInputRange } from '@/features/ad-onboarding/model/budget-ran
 import type { BudgetRange } from '@/features/ad-onboarding/model/common-onboarding-options';
 import { Input } from '@/shared/ui/input';
 import { WarningErrorIcon } from '@/shared/ui/icon';
-import { VStack } from '@/shared/ui/layout/v-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 import { BudgetRangeSlider } from './budget-range-slider';
@@ -46,8 +46,8 @@ export function BudgetRangeControl({
   const errorMessageId = useId();
 
   return (
-    <VStack className="gap-016 w-full items-stretch">
-      <VStack className="gap-008 items-stretch">
+    <Stack className="gap-016 w-full">
+      <Stack className="gap-008">
         <div className="gap-006 flex items-center">
           <Input
             id={minInputId}
@@ -102,14 +102,14 @@ export function BudgetRangeControl({
             <Text variant="body-sm">예산을 입력해 주세요</Text>
           </div>
         ) : null}
-      </VStack>
+      </Stack>
 
       <BudgetRangeSlider
         range={range}
         onRangePreviewChange={onSliderRangePreviewChange}
         onRangeChange={onSliderRangeChange}
       />
-    </VStack>
+    </Stack>
   );
 }
 

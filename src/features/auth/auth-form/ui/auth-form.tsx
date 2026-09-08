@@ -1,6 +1,7 @@
 import type { ComponentProps, JSX, ReactNode } from 'react';
 
 import { cn } from '@/shared/ui/cn';
+import { Stack } from '@/shared/ui/layout/stack';
 import { VStack } from '@/shared/ui/layout/v-stack';
 import { BrandSymbol } from '@/shared/ui/symbol';
 
@@ -33,10 +34,10 @@ export function AuthForm({
           titleId={titleId}
         />
 
-        <VStack as="form" className={cn('gap-036 w-full items-stretch', className)} {...formProps}>
+        <Stack as="form" className={cn('gap-036 w-full', className)} {...formProps}>
           {children}
           {actions}
-        </VStack>
+        </Stack>
       </VStack>
     </section>
   );
