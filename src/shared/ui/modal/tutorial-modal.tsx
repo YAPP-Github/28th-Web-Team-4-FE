@@ -10,6 +10,7 @@ import useMeasure from 'react-use-measure';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { Flex } from '@/shared/ui/layout/flex';
+import { Center } from '@/shared/ui/layout/center';
 
 import { Modal } from './modal';
 import { useTutorialCarousel } from './use-tutorial-carousel';
@@ -85,13 +86,16 @@ function TutorialArrowButton({
         isPrevious ? 'left-008 sm:-left-[76px]' : 'right-008 sm:-right-[76px]',
       )}
     >
-      <span className="shadow-drop-shadow-02 bg-surface-lowest text-icon-default size-040 flex items-center justify-center rounded-full">
+      <Center
+        as="span"
+        className="shadow-drop-shadow-02 bg-surface-lowest text-icon-default size-040 rounded-full"
+      >
         {isPrevious ? (
           <ChevronLeft aria-hidden="true" className="size-020" strokeWidth={1.6} />
         ) : (
           <ChevronRight aria-hidden="true" className="size-020" strokeWidth={1.6} />
         )}
-      </span>
+      </Center>
     </BaseButton>
   );
 }
@@ -106,9 +110,9 @@ function TutorialPagination({
   return (
     <Flex aria-hidden="true" className="gap-006 relative mx-auto w-fit items-center">
       {slides.map((slide) => (
-        <span key={slide.id} className="flex h-1.5 w-3 items-center justify-center">
+        <Center as="span" key={slide.id} className="h-1.5 w-3">
           <span className="bg-surface-high size-1.5 rounded-full" />
-        </span>
+        </Center>
       ))}
       <span
         className="bg-surface-highest absolute top-0 left-0 h-1.5 w-3 rounded-full will-change-transform motion-safe:transition-transform motion-safe:duration-180 motion-safe:[transition-timing-function:cubic-bezier(0.645,0.045,0.355,1)] motion-reduce:transition-none"

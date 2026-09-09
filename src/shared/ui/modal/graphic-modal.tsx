@@ -4,6 +4,8 @@ import type { ComponentProps, JSX, ReactNode } from 'react';
 
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
+import { Stack } from '@/shared/ui/layout/stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 
 import { Modal } from './modal';
 
@@ -38,16 +40,16 @@ export const GraphicModal = ({
     <Modal.Portal>
       <Modal.Backdrop />
       <Modal.Popup className={className ?? 'px-030 pb-024 pt-040 items-center'}>
-        <Box className="gap-032 flex w-full flex-col items-center">
+        <VStack className="gap-032 w-full">
           {graphic}
-          <Box className="gap-036 flex w-full flex-col items-center">
-            <Box className="gap-012 flex w-[276px] flex-col items-center text-center">
+          <VStack className="gap-036 w-full">
+            <VStack className="gap-012 w-[276px] text-center">
               <Modal.Title>{title}</Modal.Title>
               <Modal.Description>{description}</Modal.Description>
-            </Box>
-            <Box className="gap-008 flex w-full flex-col">{actions}</Box>
-          </Box>
-        </Box>
+            </VStack>
+            <Stack className="gap-008 w-full">{actions}</Stack>
+          </VStack>
+        </VStack>
       </Modal.Popup>
     </Modal.Portal>
   );
