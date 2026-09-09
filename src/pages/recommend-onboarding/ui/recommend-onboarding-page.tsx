@@ -82,7 +82,7 @@ export function RecommendOnboardingPage({
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-clip">
+    <Stack className="min-h-0 flex-1 overflow-clip">
       <RecommendOnboardingSubHeader currentStep={currentStep} />
 
       <main
@@ -107,6 +107,6 @@ export function RecommendOnboardingPage({
           </Stack>
         </Box>
       </main>
-    </div>
+    </Stack>
   );
 }
