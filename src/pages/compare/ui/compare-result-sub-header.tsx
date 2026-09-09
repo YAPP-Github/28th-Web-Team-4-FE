@@ -1,6 +1,8 @@
 import type { JSX, ReactNode } from 'react';
 
 import { Box } from '@/shared/ui/layout/box';
+import { Flex } from '@/shared/ui/layout/flex';
+import { HStack } from '@/shared/ui/layout/h-stack';
 import { Text } from '@/shared/ui/text';
 
 import { CompareResultSubHeaderInfoPopover } from './compare-result-sub-header-info-popover';
@@ -16,8 +18,8 @@ export function CompareResultSubHeader({
 }: CompareResultSubHeaderProps): JSX.Element {
   return (
     <Box className="bg-surface-lowest border-outline-low min-h-072 px-016 py-016 sm:px-032 w-full shrink-0 border-y lg:px-120 lg:py-0">
-      <Box className="gap-016 lg:min-h-072 flex w-full max-w-[1200px] flex-col lg:mx-auto lg:flex-row lg:items-center lg:justify-between">
-        <Box className="gap-006 flex max-w-full min-w-0 items-center">
+      <Flex className="gap-016 lg:min-h-072 w-full max-w-[1200px] flex-col lg:mx-auto lg:flex-row lg:items-center lg:justify-between">
+        <HStack className="gap-006 max-w-full min-w-0">
           <Text
             as="h1"
             variant="heading-lg"
@@ -26,9 +28,9 @@ export function CompareResultSubHeader({
             {title}
           </Text>
           <CompareResultSubHeaderInfoPopover />
-        </Box>
+        </HStack>
         {action}
-      </Box>
+      </Flex>
     </Box>
   );
 }
