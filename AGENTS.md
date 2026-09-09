@@ -24,8 +24,8 @@ node -v && pnpm -v    # 24.x / 11.4.x 확인
 | 영역          | 선택                                                                                           |
 | ------------- | ---------------------------------------------------------------------------------------------- |
 | Runtime       | Node **24**, pnpm **11.4** (mise)                                                              |
-| Framework     | Next.js **16.2.6** (App Router), React **19.2.4**                                              |
-| Language      | TypeScript **6.0.x** (strict)                                                                  |
+| Framework     | Next.js (App Router, `package.json` 기준), React (`package.json` 기준)                         |
+| Language      | TypeScript (`package.json` 기준, strict)                                                       |
 | Styling       | Tailwind CSS **4.3**, Style Dictionary 토큰 (`design-tokens/`)                                 |
 | Data / form   | TanStack Query 5, Zustand 5, ky 2, zod 4, react-hook-form 7                                    |
 | Observability | Sentry, PostHog, GA (`@next/third-parties`) — 이미 연동됨. 신규 연동 스킬로 중복 설치하지 않음 |
