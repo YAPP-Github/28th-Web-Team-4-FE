@@ -3,6 +3,9 @@
 import { type JSX, useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'motion/react';
+import { Grid } from '@/shared/ui/layout/grid';
+import { Stack } from '@/shared/ui/layout/stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 
 type ProcessStepItem = {
   step: number;
@@ -59,9 +62,9 @@ export function HomeProcess(): JSX.Element {
       aria-labelledby="process-title"
       className="w-full bg-[var(--color-primitive-gray-900,#1D1D20)] py-[90px] sm:py-[120px] lg:py-[140px]"
     >
-      <div className="px-016 sm:px-032 mx-auto flex w-full max-w-[1200px] flex-col items-center gap-[56px] sm:gap-[72px] lg:gap-[110px]">
+      <VStack className="px-016 sm:px-032 mx-auto w-full max-w-[1200px] gap-[56px] sm:gap-[72px] lg:gap-[110px]">
         {/* 상단 헤더 (피그마 중앙 정렬 & gap: 6px) */}
-        <div className="flex flex-col items-center gap-[6px] text-center">
+        <VStack className="gap-[6px] text-center">
           <span className="text-surface-higher typo-heading-xl">The Process</span>
           <h2
             id="process-title"
@@ -69,10 +72,10 @@ export function HomeProcess(): JSX.Element {
           >
             이 모든 기능을 채소집 안에서 한 번에!
           </h2>
-        </div>
+        </VStack>
 
         {/* 4단계 카드 그리드 (284x286, px-30px py-24px) */}
-        <div className="grid w-full grid-cols-1 gap-[16px] sm:grid-cols-2 lg:grid-cols-4 lg:gap-[20px]">
+        <Grid className="w-full grid-cols-1 gap-[16px] sm:grid-cols-2 lg:grid-cols-4 lg:gap-[20px]">
           {PROCESS_STEPS.map((item, index) => {
             const isHovered = hoveredIndex === index;
 
@@ -89,7 +92,7 @@ export function HomeProcess(): JSX.Element {
               >
                 {/* 1) 호버 상태: 상단 타이틀 + 하단 3줄 상세 설명 */}
                 {isHovered ? (
-                  <div className="flex h-full flex-col justify-between">
+                  <Stack className="h-full justify-between">
                     <h3 className="font-pre text-[20px] leading-[32px] font-bold tracking-[-0.5px] break-keep whitespace-pre-line text-[var(--color-primitive-gray-900,#2E2E33)] sm:text-[22px]">
                       {item.title}
                     </h3>
@@ -104,7 +107,7 @@ export function HomeProcess(): JSX.Element {
                         {item.description}
                       </motion.p>
                     </AnimatePresence>
-                  </div>
+                  </Stack>
                 ) : (
                   /* 2) 기본(Non-hover) 상태: 상단 아이콘 + 하단 텍스트 묶음 (타이틀 + Step 레이블, gap: 6px) */
                   <>
@@ -119,19 +122,19 @@ export function HomeProcess(): JSX.Element {
                     </div>
 
                     {/* 하단 텍스트 그룹 (타이틀 + Step, gap: 6px) */}
-                    <div className="flex flex-col gap-[6px]">
+                    <Stack className="gap-[6px]">
                       <h3 className="font-pre text-[20px] leading-[32px] font-bold tracking-[-0.5px] break-keep whitespace-pre-line text-white sm:text-[22px]">
                         {item.title}
                       </h3>
                       <span className="text-text-low typo-subtitle-xxl">{item.stepLabel}</span>
-                    </div>
+                    </Stack>
                   </>
                 )}
               </div>
             );
           })}
-        </div>
-      </div>
+        </Grid>
+      </VStack>
     </section>
   );
 }

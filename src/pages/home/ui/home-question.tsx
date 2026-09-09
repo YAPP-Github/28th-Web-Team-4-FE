@@ -5,6 +5,9 @@ import Image from 'next/image';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'motion/react';
 import { useHeroHeaderToneStore } from '@/shared/lib/hero-header-tone';
 import { usePrefersReducedMotion } from '@/shared/lib/use-prefers-reduced-motion';
+import { Center } from '@/shared/ui/layout/center';
+import { CenterStack } from '@/shared/ui/layout/center-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import {
   resolveHomeQuestionHeaderTheme,
   resolveHomeQuestionState,
@@ -210,17 +213,18 @@ export function HomeQuestion(): JSX.Element {
 
   if (shouldReduceMotion) {
     return (
-      <section
+      <CenterStack
+        as="section"
         aria-label="서비스 핵심 질문 및 타이틀"
         data-reduced-motion="true"
-        className="gap-032 px-016 flex min-h-screen w-full flex-col items-center justify-center bg-[#262626] py-[120px] lg:px-120"
+        className="gap-032 px-016 min-h-screen w-full bg-[#262626] py-[120px] lg:px-120"
       >
         <h2 className="font-wanted text-center text-[32px] leading-[1.35] font-bold text-white sm:text-[42px] lg:text-[48px]">
           지금,
           <br />
           이런 고민을 하고 계시지 않나요?
         </h2>
-        <div className="flex flex-col gap-[20px] text-center">
+        <Stack className="gap-[20px] text-center">
           {WORRY_ITEMS.map((item) => (
             <p
               key={item.id}
@@ -229,8 +233,8 @@ export function HomeQuestion(): JSX.Element {
               {item.prefix} {item.suffix}
             </p>
           ))}
-        </div>
-      </section>
+        </Stack>
+      </CenterStack>
     );
   }
 
@@ -358,11 +362,11 @@ function HomeQuestionAnimated(): JSX.Element {
           }`}
         >
           {/* Line 1: 진짜 ( [1초마다 바뀌는 채널 로고] ) 채널을 (Pretendard ExtraBold) */}
-          <div className="font-pre flex items-center justify-center gap-[4px] text-center text-[24px] leading-[1.15] font-extrabold tracking-tight whitespace-nowrap sm:gap-[14px] sm:text-[64px] lg:gap-[20px] lg:text-[100px]">
+          <Center className="font-pre gap-[4px] text-center text-[24px] leading-[1.15] font-extrabold tracking-tight whitespace-nowrap sm:gap-[14px] sm:text-[64px] lg:gap-[20px] lg:text-[100px]">
             <span>진짜</span>
 
             {/* 괄호 및 내부 1초 회전 채널 로고 컨테이너 (모바일 / 데스크톱 분기) */}
-            <div className="flex items-center justify-center font-bold">
+            <Center className="font-bold">
               <span>(</span>
               {/* 1) 모바일 로고 (sm 미만: 컴팩트한 너비 105px) */}
               <motion.div
@@ -442,10 +446,10 @@ function HomeQuestionAnimated(): JSX.Element {
                 </AnimatePresence>
               </motion.div>
               <span>)</span>
-            </div>
+            </Center>
 
             <span>채널을</span>
-          </div>
+          </Center>
 
           {/* Line 2: 하나로 모아주는 (Pretendard ExtraBold) */}
           <div className="font-pre text-center text-[24px] leading-[1.15] font-extrabold tracking-tight whitespace-nowrap sm:text-[64px] lg:text-[100px]">
@@ -453,7 +457,7 @@ function HomeQuestionAnimated(): JSX.Element {
           </div>
 
           {/* Line 3: 채널소개모음.zip (Pretendard Bold 피그마 스펙 100% 매핑) */}
-          <div className="flex w-full items-center justify-center overflow-visible text-center">
+          <Center className="w-full overflow-visible text-center">
             <div
               aria-label="채널소개모음.zip"
               className="font-pre inline-flex items-center justify-center text-center text-[24px] leading-[1.15] font-bold tracking-tight whitespace-nowrap text-white sm:text-[64px] lg:text-[100px]"
@@ -477,7 +481,7 @@ function HomeQuestionAnimated(): JSX.Element {
                 ))}
               </span>
             </div>
-          </div>
+          </Center>
         </motion.div>
 
         {/* 앞을 덮고 있다가 위로 자동으로 열리는 상단 흰색 패널 */}

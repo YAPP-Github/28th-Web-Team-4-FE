@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 
+import { CenterStack } from '@/shared/ui/layout/center-stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Button } from '@/shared/ui/button';
 import { usePrefersReducedMotion } from '@/shared/lib/use-prefers-reduced-motion';
 
@@ -89,7 +91,7 @@ export function HomeFinalCta(): JSX.Element {
       aria-label="채소집 시작하기 안내 배너"
       className="bg-surface-lowest px-016 sm:px-032 w-full pt-[16px] pb-[60px] sm:pt-[24px] sm:pb-[80px] lg:px-120 lg:pt-[32px] lg:pb-[100px]"
     >
-      <div className="bg-sys-primary-default relative mx-auto flex min-h-[380px] w-full max-w-[1380px] flex-col items-center justify-center overflow-hidden rounded-[24px] px-[24px] py-[48px] text-center shadow-[inset_0_0_72px_rgba(255,255,255,0.4)] sm:min-h-[410px] sm:rounded-[32px] sm:px-[40px] sm:py-[60px] lg:px-[60px]">
+      <CenterStack className="bg-sys-primary-default relative mx-auto min-h-[380px] w-full max-w-[1380px] overflow-hidden rounded-[24px] px-[24px] py-[48px] text-center shadow-[inset_0_0_72px_rgba(255,255,255,0.4)] sm:min-h-[410px] sm:rounded-[32px] sm:px-[40px] sm:py-[60px] lg:px-[60px]">
         {/* ================= 피그마 순수 오렌지 캔버스 배경 ================= */}
         <div className="pointer-events-none absolute inset-0 size-full select-none">
           <Image
@@ -164,14 +166,14 @@ export function HomeFinalCta(): JSX.Element {
           className="relative z-10 flex max-w-[780px] flex-col items-center gap-[24px] sm:gap-[32px]"
         >
           {/* 타이틀 및 서브카피 */}
-          <div className="flex flex-col items-center gap-[10px] sm:gap-[14px]">
+          <VStack className="gap-[10px] sm:gap-[14px]">
             <h2 className="font-pre text-[24px] leading-[1.3] font-bold tracking-tight break-keep text-white sm:text-[32px] lg:text-[36px] lg:leading-[52px]">
               수많은 광고 채널, 더 이상 고민 말고 채소집에서 비교해요
             </h2>
             <p className="font-pre text-[15px] leading-[1.4] font-medium tracking-tight break-keep text-[#FFF4ED] sm:text-[18px] lg:text-[20px] lg:leading-[32px]">
               지금 바로 시작하고 조건에 맞는 최적의 채널과 예상 성과를 확인해 보세요
             </p>
-          </div>
+          </VStack>
 
           {/* CTA 버튼: 바로 채널 추천받기 (공통 Button 컴포넌트 사용 + 스트록 및 그림자 제거) */}
           <motion.div
@@ -195,7 +197,7 @@ export function HomeFinalCta(): JSX.Element {
             </Button>
           </motion.div>
         </motion.div>
-      </div>
+      </CenterStack>
     </section>
   );
 }
