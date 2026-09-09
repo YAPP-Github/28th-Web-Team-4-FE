@@ -19,7 +19,7 @@ description: >-
 4. Base UI는 지원되는 `render` 합성을 우선한다. `motion.*`은 props·ref·animation 전달이 안전할 때만 `as`로 합성한다.
 5. Layout이 제공하는 불변 클래스는 호출부에서 제거하고 크기·간격·색·반응형 비불변 클래스만 남긴다.
 6. 수정 전후에 `node --run layout:check -- --changed`를 실행한다. 스크립트는 후보 탐색을 돕는 도구이며 결과를 기계적으로 모두 치환하지 않는다.
-7. 남은 `Box + flex/grid`, 네이티브 레이아웃, Base UI·motion 예외는 사유와 함께 작업 결과에 보고한다.
+7. 남은 `Box + flex/grid`, 네이티브 레이아웃, Base UI·motion 예외는 사유와 함께 작업 결과에 보고한다. 특히 인라인 흐름과 breakpoint display 전환은 현재 Layout으로 대체해 동작을 바꾸지 않는다.
 
 ## 확인
 

@@ -55,4 +55,10 @@ TSX에서 레이아웃을 만들거나 수정할 때 `src/shared/ui/layout`을 �
 - 구분선은 Layout이 아니다. 반복되는 요구가 확인되면 semantic `Separator`를 별도 shared UI로 설계한다.
 - UI 테스트는 class나 DOM 구조를 단언하지 않는다. 시각 차이는 Storybook 또는 실제 화면으로 확인한다.
 
+## 의도된 예외
+
+- 현재 Layout은 block `flex`·`grid`만 제공한다. 인라인 흐름을 보존해야 하는 `inline-flex`·`inline-grid`는 네이티브 요소나 `Box`에 유지한다.
+- `hidden`에서 `flex`·`grid`로 바뀌거나 `flex`와 `grid` 사이를 전환하는 반응형 display는 Layout 불변 속성으로 표현하지 않는다. 네이티브 요소나 `Box`에 display 전환을 두고, 그 내부 레이아웃만 Layout으로 구성한다.
+- `layout:check`는 위 예외도 검토 후보로 보고한다. 후보 0건을 목표로 기계적으로 바꾸지 말고, 작업 결과에 남긴 이유를 확인한다.
+
 절차 스킬: `use-layout-components`.
