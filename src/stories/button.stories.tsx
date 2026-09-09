@@ -6,6 +6,9 @@ import { expect, within } from 'storybook/test';
 import { Badge } from '@/shared/ui/badge';
 import { Button, BUTTON_FRAMES, type ButtonFrame } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 const SAMPLE = '텍스트';
@@ -37,9 +40,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-high rounded-m flex min-h-40 w-full items-center justify-center p-6">
+      <Center className="bg-surface-high rounded-m min-h-40 w-full p-6">
         <Story />
-      </Box>
+      </Center>
     ),
   ],
 } satisfies Meta<ButtonStoryArgs>;
@@ -58,25 +61,25 @@ export const AllFrames: Story = {
     disabled: { control: false },
   },
   render: () => (
-    <Box className="flex w-full max-w-md flex-col gap-10">
-      <Box className="flex flex-col gap-3">
+    <Stack className="w-full max-w-md gap-10">
+      <Stack className="gap-3">
         <Box as="span" className="typo-caption-sm text-text-lowest">
           {BUTTON_FRAMES[0]}
         </Box>
-        <Box className="flex flex-wrap items-center gap-3">
+        <HStack className="flex-wrap gap-3">
           {(['primary', 'secondary'] as const).map((tone) =>
             (['s', 'm', 'l'] as const).map((size) => (
-              <Box key={`${tone}-${size}`} className="flex flex-col items-start gap-1">
+              <Stack key={`${tone}-${size}`} className="items-start gap-1">
                 <Box as="span" className="typo-caption-sm text-text-lowest">
                   {tone}/{size}
                 </Box>
                 <Button frame="button" tone={tone} size={size}>
                   {SAMPLE}
                 </Button>
-              </Box>
+              </Stack>
             )),
           )}
-          <Box className="flex flex-col items-start gap-1">
+          <Stack className="items-start gap-1">
             <Box as="span" className="typo-caption-sm text-text-lowest">
               stroke
             </Box>
@@ -93,8 +96,8 @@ export const AllFrames: Story = {
             >
               {SAMPLE}
             </Button>
-          </Box>
-          <Box className="flex w-full flex-col items-start gap-1">
+          </Stack>
+          <Stack className="w-full items-start gap-1">
             <Box as="span" className="typo-caption-sm text-text-lowest">
               social
             </Box>
@@ -105,15 +108,15 @@ export const AllFrames: Story = {
             >
               Google로 계속하기
             </Button>
-          </Box>
-        </Box>
-      </Box>
+          </Stack>
+        </HStack>
+      </Stack>
 
-      <Box className="flex flex-col gap-3">
+      <Stack className="gap-3">
         <Box as="span" className="typo-caption-sm text-text-lowest">
           {BUTTON_FRAMES[1]}
         </Box>
-        <Box className="flex flex-col gap-3">
+        <Stack className="gap-3">
           <Button frame="cta" tone="primary">
             다음
           </Button>
@@ -129,9 +132,9 @@ export const AllFrames: Story = {
           <Button frame="cta" tone="login">
             로그인
           </Button>
-        </Box>
-      </Box>
-    </Box>
+        </Stack>
+      </Stack>
+    </Stack>
   ),
 };
 
@@ -219,9 +222,9 @@ export const ButtonSocial: Story = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-high rounded-m flex min-h-40 w-full max-w-[440px] items-center justify-center p-6">
+      <Center className="bg-surface-high rounded-m min-h-40 w-full max-w-[440px] p-6">
         <Story />
-      </Box>
+      </Center>
     ),
   ],
   render: (args) => (
@@ -246,9 +249,9 @@ export const CtaPrimary: Story = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-high rounded-m flex min-h-40 w-full max-w-[458px] items-center justify-center p-6">
+      <Center className="bg-surface-high rounded-m min-h-40 w-full max-w-[458px] p-6">
         <Story />
-      </Box>
+      </Center>
     ),
   ],
 };
@@ -266,9 +269,9 @@ export const CtaSecondary: Story = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-high rounded-m flex min-h-40 w-full max-w-[458px] items-center justify-center p-6">
+      <Center className="bg-surface-high rounded-m min-h-40 w-full max-w-[458px] p-6">
         <Story />
-      </Box>
+      </Center>
     ),
   ],
 };
@@ -282,9 +285,9 @@ export const CtaThird: Story = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-high rounded-m flex min-h-40 w-full max-w-[224px] items-center justify-center p-6">
+      <Center className="bg-surface-high rounded-m min-h-40 w-full max-w-[224px] p-6">
         <Story />
-      </Box>
+      </Center>
     ),
   ],
 };
@@ -298,9 +301,9 @@ export const CtaLogin: Story = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-high rounded-m flex min-h-40 w-full max-w-[440px] items-center justify-center p-6">
+      <Center className="bg-surface-high rounded-m min-h-40 w-full max-w-[440px] p-6">
         <Story />
-      </Box>
+      </Center>
     ),
   ],
 };
