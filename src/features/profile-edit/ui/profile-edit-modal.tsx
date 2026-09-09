@@ -9,9 +9,12 @@ import {
   PROFILE_OCCUPATION_OPTIONS,
   type ProfileOccupation,
 } from '@/features/profile-edit/model/profile-edit-options';
+import { Flex } from '@/shared/ui/layout/flex';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Avatar } from '@/shared/ui/avatar';
 import { Button } from '@/shared/ui/button';
-import { Box } from '@/shared/ui/layout/box';
 import { Dropdown } from '@/shared/ui/dropdown';
 import { Input } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
@@ -37,12 +40,12 @@ function ProfileField({
   label: string;
 }): JSX.Element {
   return (
-    <Box className="gap-008 flex w-full flex-col items-start">
+    <Stack className="gap-008 w-full items-start">
       <Text as="label" htmlFor={htmlFor} variant="body-xl" className="text-text-medium">
         {label}
       </Text>
       {children}
-    </Box>
+    </Stack>
   );
 }
 
@@ -89,22 +92,22 @@ export function ProfileEditModal({ profile, onSaved }: ProfileEditModalProps): J
     <Modal.Portal>
       <Modal.Backdrop />
       <Modal.Popup className="gap-026 px-030 pb-024 pt-030 w-[568px] items-center">
-        <form className="gap-026 flex w-full flex-col" onSubmit={handleSubmit}>
-          <Box className="gap-020 flex w-full flex-col items-center">
+        <Stack as="form" className="gap-026 w-full" onSubmit={handleSubmit}>
+          <VStack className="gap-020 w-full">
             <Modal.Title render={<Text as="h2" variant="heading-xxl" />}>프로필 수정</Modal.Title>
-            <Box className="bg-surface-lower gap-012 rounded-m px-016 py-012 flex w-full items-center">
-              <Box className="gap-014 flex min-w-0 flex-1 items-center">
+            <HStack className="bg-surface-lower gap-012 rounded-m px-016 py-012 w-full">
+              <HStack className="gap-014 min-w-0 flex-1">
                 <Avatar className="size-048 hover:ring-0" alt={`${profile.nickname} 프로필`} />
-                <Box className="flex h-[46px] min-w-0 flex-1 flex-col">
+                <Stack className="h-[46px] min-w-0 flex-1">
                   <Text variant="heading-lg" className="text-text-highest">
                     {profile.nickname}
                   </Text>
                   <Text variant="body-xl" className="text-text-low">
                     {profile.email}
                   </Text>
-                </Box>
-              </Box>
-            </Box>
+                </Stack>
+              </HStack>
+            </HStack>
             <ProfileField htmlFor="profile-company" label="회사">
               <Input
                 frame="input"
@@ -130,8 +133,8 @@ export function ProfileEditModal({ profile, onSaved }: ProfileEditModalProps): J
                 }}
               />
             </ProfileField>
-          </Box>
-          <Box className="gap-010 flex h-12 w-full">
+          </VStack>
+          <Flex className="gap-010 h-12 w-full">
             <Modal.CloseButton
               frame="button"
               tone="stroke"
@@ -150,8 +153,8 @@ export function ProfileEditModal({ profile, onSaved }: ProfileEditModalProps): J
             >
               저장하기
             </Button>
-          </Box>
-        </form>
+          </Flex>
+        </Stack>
       </Modal.Popup>
     </Modal.Portal>
   );
