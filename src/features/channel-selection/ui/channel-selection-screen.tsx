@@ -20,6 +20,10 @@ import { useDebouncedValue } from '@/shared/lib/use-debounced-value';
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Grid } from '@/shared/ui/layout/grid';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Pagination } from '@/shared/ui/pagination';
 import { Select } from '@/shared/ui/select';
 import { Text } from '@/shared/ui/text';
@@ -99,9 +103,9 @@ function ChannelSearchInput({
   onChange: (value: string) => void;
 }): JSX.Element {
   return (
-    <Box
+    <HStack
       className={cn([
-        'bg-surface-lower flex h-036 w-full items-center gap-006 rounded-[var(--radius-s)] p-008',
+        'bg-surface-lower h-036 w-full gap-006 rounded-[var(--radius-s)] p-008',
         'focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-sys-primary-default',
         'sm:w-[300px]',
       ])}
@@ -116,7 +120,7 @@ function ChannelSearchInput({
         placeholder="검색"
         className="typo-subtitle-xxs text-text-highest placeholder:text-text-low min-w-0 flex-1 bg-transparent outline-none"
       />
-    </Box>
+    </HStack>
   );
 }
 
@@ -136,22 +140,22 @@ function ChannelSelectionSubHeader({
   onQueryChange: (query: string) => void;
 }): JSX.Element {
   return (
-    <Box className="border-outline-low bg-surface-lowest min-h-072 px-016 sm:px-032 flex w-full justify-center border-y lg:px-120">
-      <Box className="gap-016 py-016 flex w-full max-w-[1200px] flex-col md:flex-row md:items-center md:justify-between md:py-0">
-        <Box className="gap-006 flex min-w-0 flex-col sm:flex-row sm:items-center sm:gap-[52px]">
+    <Flex className="border-outline-low bg-surface-lowest min-h-072 px-016 sm:px-032 w-full justify-center border-y lg:px-120">
+      <Flex className="gap-016 py-016 w-full max-w-[1200px] flex-col md:flex-row md:items-center md:justify-between md:py-0">
+        <Flex className="gap-006 min-w-0 flex-col sm:flex-row sm:items-center sm:gap-[52px]">
           <Text as="h1" variant="heading-lg" className="text-text-highest">
             {title}
           </Text>
           <Text as="p" variant="subtitle-xxs" className="text-text-low">
             최대 {selectionLimit}개까지 선택할 수 있어요
           </Text>
-        </Box>
-        <Box className="gap-016 flex w-full flex-col sm:w-auto sm:flex-row sm:items-center">
+        </Flex>
+        <Flex className="gap-016 w-full flex-col sm:w-auto sm:flex-row sm:items-center">
           <ChannelCategoryMultiSelect value={category} onValueChange={onCategoryChange} />
           <ChannelSearchInput value={query} onChange={onQueryChange} />
-        </Box>
-      </Box>
-    </Box>
+        </Flex>
+      </Flex>
+    </Flex>
   );
 }
 
@@ -190,21 +194,21 @@ function ChannelSelectionContent({
 
   return (
     <BaseTooltip.Provider delay={150} timeout={400}>
-      <Box
+      <Grid
         as="ul"
-        className="gap-x-024 gap-y-016 grid w-full grid-cols-1 justify-items-center md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        className="gap-x-024 gap-y-016 w-full grid-cols-1 justify-items-center md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
       >
         {channels.map((channel) => (
-          <Box key={channel.id} as="li" className="flex w-full justify-center">
+          <Flex key={channel.id} as="li" className="w-full justify-center">
             <ChannelCard
               channel={channel}
               checked={selectedIds.includes(channel.id)}
               onToggle={onToggle}
               onViewDetail={onViewDetail}
             />
-          </Box>
+          </Flex>
         ))}
-      </Box>
+      </Grid>
     </BaseTooltip.Provider>
   );
 }
@@ -259,7 +263,7 @@ export function ChannelSelectionScreen({
   };
 
   return (
-    <Box className="flex min-h-0 flex-1 flex-col">
+    <Stack className="min-h-0 flex-1">
       {variant === 'comparison' ? (
         <ComparisonChannelSelectionSubHeader
           title={title}
@@ -280,9 +284,9 @@ export function ChannelSelectionScreen({
           onQueryChange={queryState.setSearchQuery}
         />
       )}
-      <Box
+      <Flex
         aria-busy={isFetching}
-        className="px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto lg:px-120"
+        className="px-016 sm:px-032 min-h-0 w-full flex-1 justify-center overflow-y-auto lg:px-120"
       >
         <Box className="w-full max-w-[1200px] self-start pt-[32px] pb-[38px]">
           {isFetching && !isInitialLoading ? (
@@ -301,11 +305,11 @@ export function ChannelSelectionScreen({
             selectedIds={channelSelection.selectedIds}
           />
         </Box>
-      </Box>
-      <Box className="border-outline-low bg-surface-lowest px-016 sm:px-032 flex w-full shrink-0 justify-center border-t md:h-[102px] lg:px-120">
-        <Box className="gap-016 py-020 md:py-000 grid w-full max-w-[1200px] grid-cols-1 items-center md:grid-cols-[1fr_auto_1fr]">
+      </Flex>
+      <Flex className="border-outline-low bg-surface-lowest px-016 sm:px-032 w-full shrink-0 justify-center border-t md:h-[102px] lg:px-120">
+        <Grid className="gap-016 py-020 md:py-000 w-full max-w-[1200px] grid-cols-1 items-center md:grid-cols-[1fr_auto_1fr]">
           <Box className="hidden md:block" />
-          <Box className="flex justify-center">
+          <Flex className="justify-center">
             {totalPages > 0 ? (
               <Pagination
                 currentPage={currentPage}
@@ -313,8 +317,8 @@ export function ChannelSelectionScreen({
                 onPageChange={queryState.setPage}
               />
             ) : null}
-          </Box>
-          <Box className="flex justify-center md:justify-end">
+          </Flex>
+          <Flex className="justify-center md:justify-end">
             <Button
               frame="button"
               tone="secondary"
@@ -323,9 +327,9 @@ export function ChannelSelectionScreen({
               onClick={handleComplete}
               className="h-[44px] w-full max-w-[320px]"
             >
-              <span className="inline-flex items-center">
+              <HStack as="span">
                 {submitLabel} (
-                <span className="inline-flex translate-y-px">
+                <Flex as="span" className="translate-y-px">
                   <NumberFlow
                     value={channelSelection.selectedCount}
                     trend={0}
@@ -334,13 +338,13 @@ export function ChannelSelectionScreen({
                     spinTiming={{ duration: 80, easing: 'ease-out' }}
                     opacityTiming={{ duration: 50, easing: 'ease-out' }}
                   />
-                </span>
+                </Flex>
                 /{selectionLimit})
-              </span>
+              </HStack>
             </Button>
-          </Box>
-        </Box>
-      </Box>
-    </Box>
+          </Flex>
+        </Grid>
+      </Flex>
+    </Stack>
   );
 }
