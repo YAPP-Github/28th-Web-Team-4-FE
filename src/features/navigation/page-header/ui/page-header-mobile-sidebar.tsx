@@ -8,6 +8,9 @@ import Link from 'next/link';
 import { Avatar } from '@/shared/ui/avatar';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { JustifyBetween } from '@/shared/ui/layout/justify-between';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Logo } from '@/shared/ui/logo';
 import { Text } from '@/shared/ui/text';
 
@@ -223,7 +226,7 @@ export function PageHeaderMobileSidebar({
             <Drawer.Title className="sr-only">전체 메뉴</Drawer.Title>
 
             <Drawer.Content className="flex h-full min-h-0 flex-col">
-              <Box className="bg-surface-lowest border-outline-low px-020 flex h-14 shrink-0 items-center justify-between border-b">
+              <JustifyBetween className="bg-surface-lowest border-outline-low px-020 h-14 shrink-0 items-center border-b">
                 <Link
                   href="/"
                   aria-label="chaesozip"
@@ -235,7 +238,7 @@ export function PageHeaderMobileSidebar({
                 <Drawer.Close aria-label="메뉴 닫기" className={`${iconButtonClassName} -mr-3`}>
                   <MenuMorphIcon open={sidebarOpen} />
                 </Drawer.Close>
-              </Box>
+              </JustifyBetween>
 
               <Box className="min-h-0 flex-1 [transform:translateY(var(--drawer-swipe-movement-y))] overflow-hidden">
                 <motion.div
@@ -256,11 +259,11 @@ export function PageHeaderMobileSidebar({
                       enterAnimationPlayStateClassName,
                     )}
                   >
-                    <Box className="gap-020 p-020 flex h-full min-h-0 flex-col overflow-y-auto">
-                      <Box
+                    <Stack className="gap-020 p-020 h-full min-h-0 overflow-y-auto">
+                      <Stack
                         as="nav"
                         aria-label="모바일 주요 메뉴"
-                        className="gap-026 flex min-h-0 flex-1 flex-col items-start"
+                        className="gap-026 min-h-0 flex-1 items-start"
                       >
                         {PAGE_HEADER_NAVIGATION_ITEMS.map((item, index) => (
                           <div
@@ -281,7 +284,7 @@ export function PageHeaderMobileSidebar({
                             </PageHeaderNavLink>
                           </div>
                         ))}
-                      </Box>
+                      </Stack>
 
                       <div
                         style={getSidebarItemAnimationStyle(PAGE_HEADER_NAVIGATION_ITEMS.length)}
@@ -291,7 +294,7 @@ export function PageHeaderMobileSidebar({
                         )}
                       >
                         {isLogin ? (
-                          <Box className="border-outline-lower gap-010 pt-020 flex w-full items-center border-t">
+                          <HStack className="border-outline-lower gap-010 pt-020 w-full border-t">
                             <Avatar
                               className="size-[30px]"
                               alt={userName ? `${userName} 프로필` : '내 프로필'}
@@ -301,22 +304,22 @@ export function PageHeaderMobileSidebar({
                                 {userName} 님
                               </Text>
                             ) : null}
-                          </Box>
+                          </HStack>
                         ) : (
-                          <Box className="border-outline-lower gap-016 pt-020 flex w-full flex-col items-start border-t">
-                            <Box as="p" className="flex flex-col">
+                          <Stack className="border-outline-lower gap-016 pt-020 w-full items-start border-t">
+                            <Stack as="p">
                               <Text variant="body-xl" className="text-text-medium">
                                 로그인하고 나에게 맞는 광고 채널을
                               </Text>
                               <Text variant="body-xl" className="text-text-medium">
                                 추천받아 보세요!
                               </Text>
-                            </Box>
+                            </Stack>
                             <HeaderLoginButton />
-                          </Box>
+                          </Stack>
                         )}
                       </div>
-                    </Box>
+                    </Stack>
                   </Box>
                 </motion.div>
               </Box>

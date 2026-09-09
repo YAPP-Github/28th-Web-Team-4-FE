@@ -9,6 +9,8 @@ import type { z } from 'zod';
 
 import { AuthForm } from '@/features/auth/auth-form';
 import { getApiErrorMessage } from '@/shared/api/api-error';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Button } from '@/shared/ui/button';
 import { GoogleLogo } from '@/shared/ui/google-logo';
 import { InputField } from '@/shared/ui/input-field';
@@ -56,7 +58,7 @@ function ExistingAccountForm({
   return (
     <AuthForm
       actions={
-        <div className="gap-012 flex w-full flex-col">
+        <Stack className="gap-012 w-full">
           {errorMessage ? (
             <p className="typo-body-lg text-sys-error-default text-center" role="alert">
               {errorMessage}
@@ -71,7 +73,7 @@ function ExistingAccountForm({
           <Button frame="cta" tone="login" type="submit" disabled={!password || isPending}>
             로그인하기
           </Button>
-        </div>
+        </Stack>
       }
       className="gap-12"
       title="로그인하기"
@@ -81,8 +83,8 @@ function ExistingAccountForm({
         void submit();
       }}
     >
-      <div className="gap-024 flex flex-col">
-        <label className="gap-008 flex flex-col">
+      <Stack className="gap-024">
+        <Stack as="label" className="gap-008">
           <Text variant="body-xl" className="text-text-medium">
             아이디
           </Text>
@@ -95,8 +97,8 @@ function ExistingAccountForm({
             className="cursor-pointer"
             onClick={onBack}
           />
-        </label>
-        <label className="gap-008 flex flex-col">
+        </Stack>
+        <Stack as="label" className="gap-008">
           <Text variant="body-xl" className="text-text-medium">
             비밀번호
           </Text>
@@ -112,8 +114,8 @@ function ExistingAccountForm({
               setErrorMessage(undefined);
             }}
           />
-        </label>
-      </div>
+        </Stack>
+      </Stack>
     </AuthForm>
   );
 }
@@ -203,7 +205,7 @@ export function AuthEntryForm({ returnTo = '/' }: { returnTo?: string }): JSX.El
       />
       <AuthForm
         actions={
-          <div className="gap-012 flex w-full flex-col">
+          <Stack className="gap-012 w-full">
             {googleErrorMessage ? (
               <p className="typo-body-lg text-sys-error-default text-center" role="alert">
                 {googleErrorMessage}
@@ -217,7 +219,7 @@ export function AuthEntryForm({ returnTo = '/' }: { returnTo?: string }): JSX.El
             >
               이메일로 시작하기
             </Button>
-            <div className="relative flex min-h-[50px] w-full justify-center">
+            <Flex className="relative min-h-[50px] w-full justify-center">
               <Button
                 frame="button"
                 tone="social"
@@ -234,7 +236,7 @@ export function AuthEntryForm({ returnTo = '/' }: { returnTo?: string }): JSX.El
                 }`}
                 aria-hidden="true"
               />
-            </div>
+            </Flex>
             <button
               type="button"
               className="typo-subtitle-xxs text-text-medium self-center underline underline-offset-2"
@@ -242,7 +244,7 @@ export function AuthEntryForm({ returnTo = '/' }: { returnTo?: string }): JSX.El
             >
               서비스로 돌아가기
             </button>
-          </div>
+          </Stack>
         }
         className="gap-12"
         title="이메일로 시작하기"
