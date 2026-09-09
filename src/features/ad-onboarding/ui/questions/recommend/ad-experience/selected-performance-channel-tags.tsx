@@ -9,6 +9,7 @@ import { type JSX } from 'react';
 
 import type { ManualPerformanceChannel } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import { Badge } from '@/shared/ui/badge';
+import { Center } from '@/shared/ui/layout/center';
 import { Flex } from '@/shared/ui/layout/flex';
 
 /**
@@ -38,17 +39,18 @@ export function SelectedPerformanceChannelTags({
         >
           <span className="gap-004 inline-flex items-center">
             <span>{channel.channelNameRaw}</span>
-            <button
+            <Center
+              as="button"
               type="button"
               className={[
-                'text-icon-primary-low flex size-014 shrink-0 items-center justify-center rounded-[var(--radius-xxs)]',
+                'text-icon-primary-low size-014 shrink-0 rounded-[var(--radius-xxs)]',
                 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-outline-high',
               ].join(' ')}
               aria-label={`${channel.channelNameRaw} 삭제`}
               onClick={() => onRemove(index)}
             >
               <X aria-hidden className="size-012" strokeWidth={2} />
-            </button>
+            </Center>
           </span>
         </Badge>
       ))}

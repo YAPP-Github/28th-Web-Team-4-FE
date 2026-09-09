@@ -11,6 +11,9 @@ import { type FieldPath } from 'react-hook-form';
 import type { RecommendOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
 import type { ManualPerformanceChannel } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import { Box } from '@/shared/ui/layout/box';
+import { Flex } from '@/shared/ui/layout/flex';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 
 import { MANUAL_PERFORMANCE_FIELD_LIST, NumericPerformanceInput } from './performance-manual-field';
 
@@ -35,11 +38,12 @@ export function PerformanceManualChannelPanel({
 }): JSX.Element {
   return (
     <Box className="border-outline-low overflow-hidden rounded-[var(--radius-s)] border">
-      <button
+      <HStack
+        as="button"
         type="button"
         aria-expanded={isOpen}
         className={[
-          'typo-subtitle-xs text-text-high flex min-h-[44px] w-full items-center gap-012 px-016 py-012 text-left',
+          'typo-subtitle-xs text-text-high min-h-[44px] w-full gap-012 px-016 py-012 text-left',
           'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-outline-high',
         ].join(' ')}
         onClick={onToggle}
@@ -50,11 +54,11 @@ export function PerformanceManualChannelPanel({
         ) : (
           <ChevronDown aria-hidden className="text-icon-default size-020 shrink-0" />
         )}
-      </button>
+      </HStack>
 
       {isOpen ? (
-        <Box className="gap-014 px-016 pb-012 flex flex-col">
-          <Box className="gap-010 flex">
+        <Stack className="gap-014 px-016 pb-012">
+          <Flex className="gap-010">
             {MANUAL_PERFORMANCE_FIELD_LIST.slice(0, 2).map((field) => (
               <NumericPerformanceInput
                 key={field.key}
@@ -67,8 +71,8 @@ export function PerformanceManualChannelPanel({
                 className={field.className}
               />
             ))}
-          </Box>
-          <Box className="gap-010 flex">
+          </Flex>
+          <Flex className="gap-010">
             {MANUAL_PERFORMANCE_FIELD_LIST.slice(2).map((field) => (
               <NumericPerformanceInput
                 key={field.key}
@@ -80,8 +84,8 @@ export function PerformanceManualChannelPanel({
                 className={field.className}
               />
             ))}
-          </Box>
-        </Box>
+          </Flex>
+        </Stack>
       ) : null}
     </Box>
   );
