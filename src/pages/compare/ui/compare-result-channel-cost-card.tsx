@@ -8,6 +8,9 @@ import type { JSX } from 'react';
 import type { CompareResultChannel } from '@/pages/compare/model/compare-result-channel';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
+import { Grid } from '@/shared/ui/layout/grid';
+import { Stack } from '@/shared/ui/layout/stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Text } from '@/shared/ui/text';
 
 import { CompareResultChannelCostBar } from './compare-result-channel-cost-bar';
@@ -61,7 +64,7 @@ function CompareResultChannelCostColumn({
   const recommended = value !== null && minimumValue !== null && value === minimumValue;
 
   return (
-    <Box className="gap-010 flex min-w-0 flex-col items-center">
+    <VStack className="gap-010 min-w-0">
       <CompareResultChannelCostBar
         value={value}
         maximumValue={maximumValue}
@@ -75,7 +78,7 @@ function CompareResultChannelCostColumn({
       >
         {channel.name}
       </Text>
-    </Box>
+    </VStack>
   );
 }
 
@@ -101,22 +104,22 @@ export function CompareResultChannelCostCard({
   const titleId = `compare-result-channel-${metric}-title`;
 
   return (
-    <Box
+    <Stack
       as="section"
       aria-labelledby={titleId}
-      className="bg-surface-lowest px-030 py-024 flex h-[244px] w-full flex-col rounded-[var(--radius-l)] lg:w-[386px]"
+      className="bg-surface-lowest px-030 py-024 h-[244px] w-full rounded-[var(--radius-l)] lg:w-[386px]"
     >
-      <Box className="gap-002 flex flex-col">
+      <Stack className="gap-002">
         <Text as="h2" id={titleId} variant="heading-lg" className="text-text-highest">
           {config.title}
         </Text>
         <Text variant="body-xs" className="text-text-low">
           {config.description}
         </Text>
-      </Box>
+      </Stack>
       <Box className="border-outline-low mt-012 pt-020 border-t">
-        <Box
-          className="gap-002 grid items-end"
+        <Grid
+          className="gap-002 items-end"
           style={{ gridTemplateColumns: `repeat(${channels.length}, minmax(0, 1fr))` }}
         >
           {channels.map((channel) => (
@@ -130,8 +133,8 @@ export function CompareResultChannelCostCard({
               recommendation={config.recommendation}
             />
           ))}
-        </Box>
+        </Grid>
       </Box>
-    </Box>
+    </Stack>
   );
 }

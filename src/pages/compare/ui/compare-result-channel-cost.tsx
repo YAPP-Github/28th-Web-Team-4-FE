@@ -7,7 +7,7 @@ import type { JSX } from 'react';
 
 import type { CompareResultChannel } from '@/pages/compare/model/compare-result-channel';
 import { keys } from '@/shared/lib/object';
-import { Box } from '@/shared/ui/layout/box';
+import { Flex } from '@/shared/ui/layout/flex';
 
 import {
   CompareResultChannelCostCard,
@@ -39,10 +39,10 @@ export type CompareResultChannelCostProps = {
 /** 채널별 CPC·CPM 카드를 하나의 반응형 섹션으로 표시한다. */
 export function CompareResultChannelCost({ channels }: CompareResultChannelCostProps): JSX.Element {
   return (
-    <Box
+    <Flex
       as="section"
       aria-label="채널별 CPC와 CPM"
-      className="gap-020 flex w-full flex-col lg:flex-row"
+      className="gap-020 w-full flex-col lg:flex-row"
     >
       {COST_METRIC_KEYS.map((metric) => (
         <CompareResultChannelCostCard
@@ -52,6 +52,6 @@ export function CompareResultChannelCost({ channels }: CompareResultChannelCostP
           config={COST_METRIC_CONFIG[metric]}
         />
       ))}
-    </Box>
+    </Flex>
   );
 }

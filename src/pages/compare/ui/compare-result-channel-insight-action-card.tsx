@@ -4,8 +4,9 @@ import type { JSX } from 'react';
 import { ChevronRight } from 'lucide-react';
 
 import type { CompareResultChannel } from '@/pages/compare/model/compare-result-channel';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Badge } from '@/shared/ui/badge';
-import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
 type CompareResultChannelInsightActionCardProps = {
@@ -19,17 +20,17 @@ export function CompareResultChannelInsightActionCard({
   const titleId = `compare-result-channel-${channel.id}-action-insight-title`;
 
   return (
-    <Box
+    <HStack
       as="article"
       aria-labelledby={titleId}
-      className="bg-surface-lowest border-outline-low px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border"
+      className="bg-surface-lowest border-outline-low px-016 py-014 w-full rounded-[var(--radius-s)] border"
     >
-      <Box className="gap-010 flex min-w-0 flex-1 flex-col items-start">
-        <Box className="gap-002 flex w-full flex-col items-start">
+      <Stack className="gap-010 min-w-0 flex-1 items-start">
+        <Stack className="gap-002 w-full items-start">
           <Text as="h3" id={titleId} variant="subtitle-md" className="text-text-high w-full">
             {channel.name}
           </Text>
-          <Box className="gap-002 flex w-full flex-col items-start">
+          <Stack className="gap-002 w-full items-start">
             {channel.insight.advantages.map((advantage) => (
               <Text
                 as="p"
@@ -40,21 +41,21 @@ export function CompareResultChannelInsightActionCard({
                 {advantage}
               </Text>
             ))}
-          </Box>
-        </Box>
-        <Box className="gap-006 flex items-center">
+          </Stack>
+        </Stack>
+        <HStack className="gap-006">
           {channel.insight.keyword.map((keyword) => (
             <Badge key={keyword} frame="badge" tone="deep-gray">
               {keyword}
             </Badge>
           ))}
-        </Box>
-      </Box>
+        </HStack>
+      </Stack>
       <ChevronRight
         aria-hidden="true"
         className="text-icon-default size-020 shrink-0"
         strokeWidth={1.6}
       />
-    </Box>
+    </HStack>
   );
 }
