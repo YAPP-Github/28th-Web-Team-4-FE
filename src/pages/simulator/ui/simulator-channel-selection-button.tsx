@@ -5,8 +5,8 @@ import { SlidersHorizontal } from 'lucide-react';
 import type { SimulationResponse } from '@/shared/api/generated';
 
 import { SimulatorFilterPanel } from '@/features/simulator-filter';
+import { Flex } from '@/shared/ui/layout/flex';
 import { Button } from '@/shared/ui/button';
-import { Box } from '@/shared/ui/layout/box';
 
 export function SimulatorChannelSelectionButton({
   selectedChannelIds,
@@ -23,7 +23,7 @@ export function SimulatorChannelSelectionButton({
 
   return (
     <>
-      <Box className="bottom-040 pointer-events-none fixed inset-x-0 z-20 flex justify-center">
+      <Flex className="bottom-040 pointer-events-none fixed inset-x-0 z-20 justify-center">
         <Button
           frame="button"
           tone="secondary"
@@ -35,7 +35,7 @@ export function SimulatorChannelSelectionButton({
         >
           필터 조정하기
         </Button>
-      </Box>
+      </Flex>
       <SimulatorFilterPanel
         key={selectedChannelIds.join(',')}
         open={isFilterOpen}
