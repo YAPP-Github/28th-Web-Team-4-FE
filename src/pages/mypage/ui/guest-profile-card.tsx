@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 import { Button } from '@/shared/ui/button';
-import { Box } from '@/shared/ui/layout/box';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 function LoginButton(): JSX.Element {
@@ -24,25 +25,25 @@ function LoginButton(): JSX.Element {
 
 export function GuestProfileCard(): JSX.Element {
   return (
-    <Box
+    <Stack
       as="section"
       aria-labelledby="profile-title"
-      className="bg-surface-lowest gap-018 px-030 py-024 flex w-full flex-col rounded-[var(--radius-l)]"
+      className="bg-surface-lowest gap-018 px-030 py-024 w-full rounded-[var(--radius-l)]"
     >
       <Text as="h2" id="profile-title" variant="heading-lg" className="text-text-highest">
         내 정보
       </Text>
-      <Box className="bg-surface-lower gap-012 rounded-m px-016 py-012 flex w-full items-center">
-        <Box className="gap-002 flex min-w-0 flex-1 flex-col">
+      <HStack className="bg-surface-lower gap-012 rounded-m px-016 py-012 w-full">
+        <Stack className="gap-002 min-w-0 flex-1">
           <Text variant="heading-md" className="text-text-highest">
             로그인이 필요해요
           </Text>
           <Text variant="body-xl" className="text-text-low">
             로그인하면 내 정보와 추천 결과를 한곳에서 관리할 수 있어요
           </Text>
-        </Box>
+        </Stack>
         <LoginButton />
-      </Box>
-    </Box>
+      </HStack>
+    </Stack>
   );
 }
