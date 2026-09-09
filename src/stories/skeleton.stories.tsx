@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Skeleton } from '@/shared/ui/skeleton';
@@ -19,9 +20,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-lowest rounded-m flex min-h-56 w-full items-center justify-center p-6">
+      <Center className="bg-surface-lowest rounded-m min-h-56 w-full p-6">
         <Story />
-      </Box>
+      </Center>
     ),
   ],
   parameters: {
@@ -59,7 +60,7 @@ export const Composition: Story = {
     <Box role="status" className="border-outline-low rounded-m w-full max-w-[320px] border p-6">
       <span className="sr-only">콘텐츠를 불러오는 중이에요</span>
       <Stack className="gap-020">
-        <HStack className="gap-012 items-center">
+        <HStack className="gap-012">
           <Skeleton className="size-040 shrink-0 rounded-full" />
           <Stack className="gap-008 min-w-0 flex-1">
             <Skeleton className="h-016 w-1/2 rounded-[var(--radius-xs)]" />

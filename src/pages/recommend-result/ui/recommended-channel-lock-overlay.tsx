@@ -21,7 +21,7 @@ export function RecommendedChannelLockOverlay(): JSX.Element {
         aria-hidden
         className="bg-sys-blur absolute inset-0 shadow-[inset_0_0_0_1px_var(--color-surface-lowest)] backdrop-blur-[6px]"
       />
-      <VStack className="gap-020 relative h-full w-full items-center justify-center">
+      <VStack className="gap-020 relative h-full w-full justify-center">
         <VStack className="gap-012 h-[78px] w-[175px]">
           <Box aria-hidden className="size-024 relative overflow-clip">
             <Image
