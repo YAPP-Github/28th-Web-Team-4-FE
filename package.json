@@ -27,8 +27,10 @@
     "skills:sync": "bash scripts/sync-skills.sh",
     "rules:sync": "node scripts/sync-rules.mjs",
     "openapi-ts": "openapi-ts",
-    "knip": "knip --no-config-hints",
-    "knip:ci": "knip --no-config-hints --reporter github-actions"
+    "knip": "knip --include nsExports,nsTypes --no-config-hints",
+    "knip:ci": "knip --include nsExports,nsTypes --no-config-hints --reporter github-actions",
+    "knip:cycles": "knip --cycles --no-config-hints",
+    "knip:cycles:ci": "knip --cycles --no-config-hints --reporter github-actions"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
