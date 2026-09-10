@@ -1,6 +1,5 @@
 export {
   GraphicModal,
-  GraphicModalGraphic,
   type GraphicModalGraphicProps,
   type GraphicModalProps,
 } from './graphic-modal';

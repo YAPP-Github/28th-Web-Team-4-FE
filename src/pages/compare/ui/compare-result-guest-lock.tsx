@@ -7,7 +7,7 @@ import { VStack } from '@/shared/ui/layout/v-stack';
 import { Text } from '@/shared/ui/text';
 
 /** 비로그인 비교 결과의 MOCK/맞춤 구간에 표시하는 Figma 기준 잠금 오버레이. */
-export function CompareResultGuestLockOverlay({ loginHref }: { loginHref: string }): JSX.Element {
+function CompareResultGuestLockOverlay({ loginHref }: { loginHref: string }): JSX.Element {
   return (
     <Box className="absolute inset-0 z-10 text-center">
       <Box

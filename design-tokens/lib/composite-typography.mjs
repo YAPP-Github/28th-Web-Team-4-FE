@@ -4,7 +4,7 @@ import { formatPx, getTokenValue } from './utils.mjs';
 const TYPOGRAPHY_PROPS = ['fontSize', 'lineHeight', 'fontWeight', 'letterSpacing', 'fontFamily'];
 
 /** @param {string} tokenName */
-export function primitiveUtilityClass(tokenName) {
+function primitiveUtilityClass(tokenName) {
   if (tokenName.startsWith('font-weight-')) {
     return `font-${tokenName.slice('font-weight-'.length)}`;
   }

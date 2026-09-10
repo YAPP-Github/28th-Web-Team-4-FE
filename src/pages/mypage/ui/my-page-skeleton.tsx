@@ -128,7 +128,7 @@ export function MyAdsConditionSkeletonCard(): JSX.Element {
   );
 }
 
-export function SavedResultSkeletonCard(): JSX.Element {
+function SavedResultSkeletonCard(): JSX.Element {
   return (
     <HStack className="bg-surface-lowest border-outline-low px-016 py-014 w-full rounded-[var(--radius-s)] border">
       <Stack className="gap-010 min-w-0 flex-1 items-start">

@@ -22,10 +22,7 @@ export type GraphicModalProps = {
 const graphicClassName =
   'min-h-[150px] w-[147px] shrink-0 rounded-[var(--radius-l)] bg-surface-low';
 
-export const GraphicModalGraphic = ({
-  className,
-  ...props
-}: GraphicModalGraphicProps): JSX.Element => {
+const GraphicModalGraphic = ({ className, ...props }: GraphicModalGraphicProps): JSX.Element => {
   return <Box className={cn(graphicClassName, className)} {...props} />;
 };
 

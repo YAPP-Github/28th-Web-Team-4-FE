@@ -51,7 +51,7 @@ export function isTypographyPrimitiveToken(token) {
   return TYPOGRAPHY_PRIMITIVE_CATEGORIES.has(category);
 }
 
-export function isShadowToken(token) {
+function isShadowToken(token) {
   const type = getTokenType(token);
   const originalType = token.$extensions?.['studio.tokens']?.originalType;
 
