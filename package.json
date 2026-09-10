@@ -27,8 +27,8 @@
     "skills:sync": "bash scripts/sync-skills.sh",
     "rules:sync": "node scripts/sync-rules.mjs",
     "openapi-ts": "openapi-ts",
-    "knip": "knip --include files,dependencies,unlisted,binaries,unresolved --no-config-hints",
-    "knip:ci": "knip --include files,dependencies,unlisted,binaries,unresolved --no-config-hints --reporter github-actions"
+    "knip": "knip --exclude exports,types --no-config-hints",
+    "knip:ci": "knip --exclude exports,types --no-config-hints --reporter github-actions"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
