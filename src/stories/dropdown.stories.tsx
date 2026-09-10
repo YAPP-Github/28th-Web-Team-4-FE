@@ -3,6 +3,7 @@ import { expect, userEvent, within } from 'storybook/test';
 
 import { Dropdown, type DropdownProps } from '@/shared/ui/dropdown';
 import { Box } from '@/shared/ui/layout/box';
+import { Flex } from '@/shared/ui/layout/flex';
 
 const OPTIONS = [
   { value: 'development', label: '개발' },
@@ -30,11 +31,11 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-lower flex min-h-[520px] w-full justify-center p-10">
+      <Flex className="bg-surface-lower min-h-[520px] w-full justify-center p-10">
         <Box className="w-full max-w-[440px]">
           <Story />
         </Box>
-      </Box>
+      </Flex>
     ),
   ],
 } satisfies Meta<DropdownProps>;

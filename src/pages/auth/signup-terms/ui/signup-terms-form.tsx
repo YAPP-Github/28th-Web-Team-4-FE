@@ -10,7 +10,7 @@ import {
   useSignupDraftStore,
   useSignupStepGuard,
 } from '@/features/auth/signup-flow';
-import { VStack } from '@/shared/ui/layout/v-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import {
   type SignupTermsDraft,
   useSignupTermsForm,
@@ -58,7 +58,7 @@ function HydratedSignupTermsForm({ signupDraft }: { signupDraft: SignupTermsDraf
   return (
     <AuthForm
       actions={
-        <VStack className="gap-012 items-stretch">
+        <Stack className="gap-012">
           {errorMessage ? (
             <p className="typo-body-lg text-sys-error-default text-center" role="alert">
               {errorMessage}
@@ -70,7 +70,7 @@ function HydratedSignupTermsForm({ signupDraft }: { signupDraft: SignupTermsDraf
             nextDisabled={!canSubmit || isPending}
             nextLabel="가입하기"
           />
-        </VStack>
+        </Stack>
       }
       title="약관 동의하기"
       titleId="signup-terms-title"

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { RecommendResultLoadingFallback } from './recommend-result-loading-fallback';
+import { Stack } from '@/shared/ui/layout/stack';
 
 const meta = {
   title: 'pages/recommend-result/LoadingFallback',
@@ -10,9 +11,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="flex h-[900px] flex-col">
+      <Stack className="h-[900px]">
         <Story />
-      </div>
+      </Stack>
     ),
   ],
 } satisfies Meta<typeof RecommendResultLoadingFallback>;

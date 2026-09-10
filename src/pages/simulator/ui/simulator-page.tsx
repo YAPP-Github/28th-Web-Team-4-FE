@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import type { SimulationResponse } from '@/shared/api/generated';
 
 import { Box } from '@/shared/ui/layout/box';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Stack } from '@/shared/ui/layout/stack';
 
 import { SimulatorCalculationNote } from './simulator-calculation-note';
 import { SimulatorChannelResults } from './simulator-channel-results';
@@ -67,15 +69,15 @@ export function SimulatorPage({
   };
 
   return (
-    <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-hidden">
+    <Stack as="main" className="bg-surface-background-default min-h-0 flex-1 overflow-hidden">
       {isSavedResult ? null : <SimulatorTutorialGate />}
       <SimulatorSubHeader
         simulationResult={simulationResult}
         showSaveAction={!isSavedResult}
         title={isSavedResult ? '저장된 시뮬레이션 결과예요' : undefined}
       />
-      <Box className="bg-surface-low px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto lg:px-120">
-        <Box className="gap-020 pt-040 flex w-full max-w-[792px] flex-col">
+      <Flex className="bg-surface-low px-016 sm:px-032 min-h-0 w-full flex-1 justify-center overflow-y-auto lg:px-120">
+        <Stack className="gap-020 pt-040 w-full max-w-[792px]">
           <SimulatorResultSummary simulationResult={simulationResult} />
           <SimulatorChannelResults
             isLogin={isLogin}
@@ -86,8 +88,8 @@ export function SimulatorPage({
           />
           <SimulatorCalculationNote />
           <Box aria-hidden className={`${contentBottomSpacerClassName} shrink-0`} />
-        </Box>
-      </Box>
+        </Stack>
+      </Flex>
       {!isSavedResult && isLogin && isChannelSelectionComplete ? (
         <SimulatorChannelSelectionButton
           selectedChannelIds={selectedChannelIds}
@@ -96,6 +98,6 @@ export function SimulatorPage({
           onChannelRemove={handleChannelRemove}
         />
       ) : null}
-    </main>
+    </Stack>
   );
 }

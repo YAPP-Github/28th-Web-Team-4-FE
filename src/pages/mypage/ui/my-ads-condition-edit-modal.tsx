@@ -37,7 +37,10 @@ import { createUpdateOnboardingTagRequest } from '@/pages/mypage/lib/create-upda
 import { useUpdateMyOnboardingTag } from '@/pages/mypage/api/use-update-my-onboarding-tag';
 import { Button } from '@/shared/ui/button';
 import { Dropdown, type DropdownOption } from '@/shared/ui/dropdown';
-import { Box } from '@/shared/ui/layout/box';
+import { Flex } from '@/shared/ui/layout/flex';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Modal } from '@/shared/ui/modal';
 import { Select } from '@/shared/ui/select';
 import { Text } from '@/shared/ui/text';
@@ -160,8 +163,8 @@ export function MyAdsConditionEditModal({
     <Modal.Portal>
       <Modal.Backdrop className="backdrop-blur-[2px]" />
       <Modal.Popup className="gap-026 px-030 pb-024 pt-030 w-[568px] items-center">
-        <Box className="gap-020 flex w-full flex-col items-center">
-          <Box className="gap-018 flex w-full items-center">
+        <VStack className="gap-020 w-full">
+          <HStack className="gap-018 w-full">
             <Modal.Title
               render={<Text as="h2" variant="heading-xl" className="typo-heading-xxl" />}
               className="text-text-high flex-1 text-left"
@@ -177,13 +180,9 @@ export function MyAdsConditionEditModal({
               <RotateCcw aria-hidden className="size-014" strokeWidth={1.5} />
               새로 설정하기
             </button>
-          </Box>
+          </HStack>
 
-          <Box
-            as="form"
-            className="gap-020 flex w-full flex-col"
-            onSubmit={(event) => event.preventDefault()}
-          >
+          <Stack as="form" className="gap-020 w-full" onSubmit={(event) => event.preventDefault()}>
             <ConditionDropdownField
               label="업종"
               value={values.category}
@@ -220,8 +219,8 @@ export function MyAdsConditionEditModal({
               options={CAMPAIGN_PERIOD_OPTIONS}
               onValueChange={(value) => updateValue('campaignPeriod', value)}
             />
-          </Box>
-        </Box>
+          </Stack>
+        </VStack>
 
         {updateMutation.error ? (
           <Text as="p" variant="body-sm" className="text-sys-error-default w-full" role="alert">
@@ -232,7 +231,7 @@ export function MyAdsConditionEditModal({
           </Text>
         ) : null}
 
-        <Box className="gap-010 flex h-12 w-full">
+        <Flex className="gap-010 h-12 w-full">
           <Modal.CloseButton
             frame="button"
             tone="stroke"
@@ -252,7 +251,7 @@ export function MyAdsConditionEditModal({
           >
             {updateMutation.isPending ? '저장 중...' : '저장하기'}
           </Button>
-        </Box>
+        </Flex>
       </Modal.Popup>
     </Modal.Portal>
   );
@@ -274,7 +273,7 @@ function AgeRangeField({
   }));
 
   return (
-    <Box className="gap-008 flex w-full flex-col items-start">
+    <Stack className="gap-008 w-full items-start">
       <Text variant="body-xl" className="text-text-medium">
         {label}
       </Text>
@@ -289,7 +288,7 @@ function AgeRangeField({
         listClassName="!py-0"
         optionClassName="!h-[42px] !min-h-0 !py-010 border-b border-outline-default last:border-b-0"
       />
-    </Box>
+    </Stack>
   );
 }
 
@@ -307,7 +306,7 @@ function ConditionDropdownField({
   onValueChange: (value: string) => void;
 }): JSX.Element {
   return (
-    <Box className="gap-008 flex w-full flex-col items-start">
+    <Stack className="gap-008 w-full items-start">
       <Text variant="body-xl" className="text-text-medium">
         {label}
       </Text>
@@ -323,7 +322,7 @@ function ConditionDropdownField({
         triggerAriaLabel={label}
         renderValue={renderValue}
       />
-    </Box>
+    </Stack>
   );
 }
 
@@ -401,7 +400,7 @@ function BudgetField({
   };
 
   return (
-    <Box className="gap-008 flex w-full flex-col items-start">
+    <Stack className="gap-008 w-full items-start">
       <Text variant="body-xl" className="text-text-medium">
         총 예산
       </Text>
@@ -438,7 +437,7 @@ function BudgetField({
         }
         onSliderRangeChange={commitRange}
       />
-    </Box>
+    </Stack>
   );
 }
 

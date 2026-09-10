@@ -4,7 +4,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { formatSimulatorBudget } from '@/features/simulator-filter/lib/simulator-filter-format';
 import { SimulatorFilterSlider } from '@/features/simulator-filter/ui/simulator-filter-slider';
-import { VStack } from '@/shared/ui/layout/v-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 const meta = {
@@ -50,7 +50,7 @@ function SimulatorFilterSliderExample({
   const valueText = formatSimulatorBudget(value);
 
   return (
-    <VStack className="gap-012 w-[380px] items-stretch">
+    <Stack className="gap-012 w-[380px]">
       <SimulatorFilterSlider
         compact={compact}
         disabled={disabled}
@@ -65,7 +65,7 @@ function SimulatorFilterSliderExample({
       <Text variant="body-md" aria-live="polite">
         현재 값: {valueText}
       </Text>
-    </VStack>
+    </Stack>
   );
 }
 

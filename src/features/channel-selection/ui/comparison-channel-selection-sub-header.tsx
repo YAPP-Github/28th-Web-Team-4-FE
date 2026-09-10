@@ -15,6 +15,8 @@ import { useSelectedChannelsEdit } from '@/features/channel-selection/model/use-
 import { Checkbox } from '@/shared/ui/checkbox';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { Flex } from '@/shared/ui/layout/flex';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
@@ -199,9 +201,10 @@ function CategoryPopover({
 
                 return (
                   <Box as="li" key={option.value}>
-                    <label
+                    <HStack
+                      as="label"
                       htmlFor={checkboxId}
-                      className="gap-010 px-018 py-006 hover:bg-surface-low flex min-h-[34px] w-full cursor-pointer items-center select-none"
+                      className="gap-010 px-018 py-006 hover:bg-surface-low min-h-[34px] w-full cursor-pointer select-none"
                     >
                       <Checkbox
                         id={checkboxId}
@@ -214,7 +217,7 @@ function CategoryPopover({
                       <Text variant="subtitle-xxs" className="text-text-high">
                         {option.label}
                       </Text>
-                    </label>
+                    </HStack>
                   </Box>
                 );
               })}
@@ -320,14 +323,15 @@ function SelectedChannelsPopover({
               {displayedChannels.map((channel) => (
                 <HStack as="li" key={channel.id} className="gap-010 px-018 py-008">
                   {isEditing ? (
-                    <button
+                    <Center
+                      as="button"
                       type="button"
                       aria-label={`${channel.name} 선택 해제`}
                       onClick={() => removeDisplayedChannel(channel.id)}
-                      className="bg-sys-error-default size-020 focus-visible:outline-sys-primary-default flex shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-max)] text-white outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+                      className="bg-sys-error-default size-020 focus-visible:outline-sys-primary-default shrink-0 cursor-pointer rounded-[var(--radius-max)] text-white outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
                     >
                       <Minus aria-hidden className="size-012" strokeWidth={2.5} />
-                    </button>
+                    </Center>
                   ) : null}
                   <ChannelLogo channel={channel} variant="selected" />
                   <Text variant="subtitle-xxs" className="text-text-high min-w-0 truncate">
@@ -356,11 +360,11 @@ export function ComparisonChannelSelectionSubHeader({
 
   return (
     <HStack className="border-outline-low bg-surface-lowest min-h-072 px-016 py-016 sm:px-032 w-full shrink-0 justify-center border-y lg:px-120 lg:py-0">
-      <Stack className="gap-016 lg:h-072 w-full max-w-[1200px] lg:flex-row lg:items-center lg:justify-between">
+      <Flex className="gap-016 lg:h-072 w-full max-w-[1200px] flex-col lg:flex-row lg:items-center lg:justify-between">
         <Text as="h1" variant="heading-lg" className="text-text-highest shrink-0">
           {title}
         </Text>
-        <Stack className="gap-016 sm:gap-018 w-full min-w-0 sm:flex-row sm:items-center lg:w-auto">
+        <Flex className="gap-016 sm:gap-018 w-full min-w-0 flex-col sm:flex-row sm:items-center lg:w-auto">
           <HStack className="gap-018 w-full min-w-0 sm:w-auto sm:shrink-0">
             <CategoryPopover
               category={category}
@@ -396,8 +400,8 @@ export function ComparisonChannelSelectionSubHeader({
               className="typo-subtitle-xxs text-text-highest placeholder:text-text-low min-w-0 flex-1 bg-transparent outline-none"
             />
           </HStack>
-        </Stack>
-      </Stack>
+        </Flex>
+      </Flex>
     </HStack>
   );
 }

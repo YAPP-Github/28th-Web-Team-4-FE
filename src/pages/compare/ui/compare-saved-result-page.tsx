@@ -4,7 +4,9 @@ import type { JSX } from 'react';
 
 import { useSavedChannelComparison } from '@/pages/compare/api/use-saved-channel-comparison';
 import { mapChannelComparisonItemsToChannels } from '@/pages/compare/model/channel-comparison-adapter';
-import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Placeholder } from '@/shared/ui/placeholder';
 
 import { CompareResultChannelCards } from './compare-result-channel-cards';
@@ -22,9 +24,9 @@ function SavedComparisonState({
   subtitle: string;
 }): JSX.Element {
   return (
-    <main className="bg-surface-background-default px-016 py-040 flex min-h-0 flex-1 items-center justify-center">
+    <Center as="main" className="bg-surface-background-default px-016 py-040 min-h-0 flex-1">
       <Placeholder title={title} subtitle={subtitle} />
-    </main>
+    </Center>
   );
 }
 
@@ -53,10 +55,10 @@ export function CompareSavedResultPage({ comparisonId }: { comparisonId: string 
   const channels = mapChannelComparisonItemsToChannels(comparisonQuery.data.data.items);
 
   return (
-    <main className="bg-surface-low flex min-h-0 flex-1 flex-col overflow-hidden">
+    <Stack as="main" className="bg-surface-low min-h-0 flex-1 overflow-hidden">
       <CompareResultSubHeader title="저장된 채널 비교 결과예요" action={null} />
-      <Box className="px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto overscroll-y-contain lg:px-120">
-        <Box className="gap-020 pt-040 pb-072 flex w-full max-w-[792px] flex-col self-start">
+      <Flex className="px-016 sm:px-032 min-h-0 w-full flex-1 justify-center overflow-y-auto overscroll-y-contain lg:px-120">
+        <Stack className="gap-020 pt-040 pb-072 w-full max-w-[792px] self-start">
           <CompareResultChannelCards
             channels={channels}
             readOnly
@@ -67,8 +69,8 @@ export function CompareSavedResultPage({ comparisonId }: { comparisonId: string 
           <CompareResultChannelDetailsTable channels={channels} />
           <CompareResultChannelCost channels={channels} />
           <CompareResultChannelInsightsDqa channels={channels} />
-        </Box>
-      </Box>
-    </main>
+        </Stack>
+      </Flex>
+    </Stack>
   );
 }

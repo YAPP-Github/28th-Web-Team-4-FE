@@ -6,7 +6,9 @@ import Image from 'next/image';
 
 import type { ChannelDetail } from '@/features/channel-detail/model/channel-detail';
 import { cn } from '@/shared/ui/cn';
-import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { Grid } from '@/shared/ui/layout/grid';
+import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Text, type TextVariant } from '@/shared/ui/text';
 
@@ -48,10 +50,7 @@ function getAudienceMetricIconVariant(label: string): AudienceIconVariant {
 
 function AudienceIcon({ variant }: { variant: AudienceIconVariant }): JSX.Element {
   return (
-    <Box
-      aria-hidden="true"
-      className="flex size-[18px] shrink-0 items-center justify-center overflow-clip"
-    >
+    <Center aria-hidden="true" className="size-[18px] shrink-0 overflow-clip">
       <Image
         src={`${AUDIENCE_ICON_ASSET_PATH}/${AUDIENCE_ICON_FILENAME_MAP[variant]}`}
         alt=""
@@ -61,7 +60,7 @@ function AudienceIcon({ variant }: { variant: AudienceIconVariant }): JSX.Elemen
         unoptimized
         className="block size-[18px] shrink-0"
       />
-    </Box>
+    </Center>
   );
 }
 
@@ -87,12 +86,12 @@ function AudienceMetricCard({
         className,
       )}
     >
-      <Box className="gap-004 flex items-center">
+      <HStack className="gap-004">
         <AudienceIcon variant={icon} />
         <Text as="dt" variant="subtitle-sm" className="text-text-low m-0">
           {label}
         </Text>
-      </Box>
+      </HStack>
       <Text
         as="dd"
         variant={valueVariant}
@@ -119,7 +118,7 @@ export function ChannelDetailAudiencePanel({
   const { audience } = channel;
 
   return (
-    <Box as="dl" className="gap-010 m-0 grid w-full grid-cols-2">
+    <Grid as="dl" className="gap-010 m-0 w-full grid-cols-2">
       <AudienceMetricCard icon="age" label="주요 연령대" value={audience.primaryAgeBand} />
       <AudienceMetricCard
         icon={getPrimaryGenderIconVariant(audience.primaryGender)}
@@ -142,6 +141,6 @@ export function ChannelDetailAudiencePanel({
         className="col-span-2 h-auto min-h-[96px]"
         valueClassName="max-w-[70%]"
       />
-    </Box>
+    </Grid>
   );
 }

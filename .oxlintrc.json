@@ -167,7 +167,7 @@
   },
   "overrides": [
     {
-      "files": ["scripts/sync-rules.mjs"],
+      "files": ["scripts/sync-rules.mjs", "scripts/check-layout-usage.mjs"],
       "rules": {
         "typescript/no-unsafe-member-access": "off",
         "eslint/no-console": "off"

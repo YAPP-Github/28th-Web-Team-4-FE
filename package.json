@@ -13,6 +13,7 @@
     "start": "next start",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix-suggestions",
+    "layout:check": "node scripts/check-layout-usage.mjs",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "storybook": "storybook dev -p 6006",

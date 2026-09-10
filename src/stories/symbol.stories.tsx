@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, within } from 'storybook/test';
 
+import { Center } from '@/shared/ui/layout/center';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { BrandSymbol, SYMBOL_TYPES } from '@/shared/ui/symbol';
 
 const meta = {
@@ -17,9 +20,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="bg-surface-high rounded-m flex min-h-40 w-full items-center justify-center p-6">
+      <Center className="bg-surface-high rounded-m min-h-40 w-full p-6">
         <Story />
-      </div>
+      </Center>
     ),
   ],
 } satisfies Meta<typeof BrandSymbol>;
@@ -53,13 +56,13 @@ export const AllTypes: Story = {
     className: { control: false },
   },
   render: () => (
-    <div className="flex items-center gap-4">
+    <HStack className="gap-4">
       {SYMBOL_TYPES.map((type) => (
-        <div key={type} className="flex flex-col items-center gap-2">
+        <VStack key={type} className="gap-2">
           <span className="typo-caption-sm text-text-lowest">{type}</span>
           <BrandSymbol type={type} />
-        </div>
+        </VStack>
       ))}
-    </div>
+    </HStack>
   ),
 };

@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, within } from 'storybook/test';
 
+import { Center } from '@/shared/ui/layout/center';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Logo, LOGO_TONES, LOGO_TYPES } from '@/shared/ui/logo';
 
 const meta = {
@@ -25,9 +27,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="bg-surface-high rounded-m flex min-h-40 w-full items-center justify-center p-6">
+      <Center className="bg-surface-high rounded-m min-h-40 w-full p-6">
         <Story />
-      </div>
+      </Center>
     ),
   ],
 } satisfies Meta<typeof Logo>;
@@ -49,9 +51,9 @@ export const Muted: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="bg-surface-low rounded-m flex min-h-40 w-full items-center justify-center p-6">
+      <Center className="bg-surface-low rounded-m min-h-40 w-full p-6">
         <Story />
-      </div>
+      </Center>
     ),
   ],
   play: async ({ canvasElement }) => {
@@ -67,9 +69,9 @@ export const Inverse: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="bg-sys-primary-default rounded-m flex min-h-40 w-full items-center justify-center p-6">
+      <Center className="bg-sys-primary-default rounded-m min-h-40 w-full p-6">
         <Story />
-      </div>
+      </Center>
     ),
   ],
   play: async ({ canvasElement }) => {
@@ -96,9 +98,9 @@ export const CustomClassName: Story = {
     type: 'l',
   },
   render: () => (
-    <div className="flex flex-col items-start gap-8">
+    <Stack className="items-start gap-8">
       <Logo className="h-[112px] w-[330px]" />
-    </div>
+    </Stack>
   ),
 };
 
@@ -121,13 +123,13 @@ export const AllTypes: Story = {
     className: { control: false },
   },
   render: () => (
-    <div className="flex flex-col items-start gap-8">
+    <Stack className="items-start gap-8">
       {LOGO_TYPES.map((type) => (
-        <div key={type} className="flex flex-col items-start gap-2">
+        <Stack key={type} className="items-start gap-2">
           <span className="typo-caption-sm text-text-lowest">{type}</span>
           <Logo type={type} />
-        </div>
+        </Stack>
       ))}
-    </div>
+    </Stack>
   ),
 };

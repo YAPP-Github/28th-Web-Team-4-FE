@@ -5,6 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'motion/react';
+import { Grid } from '@/shared/ui/layout/grid';
+import { Stack } from '@/shared/ui/layout/stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Button } from '@/shared/ui/button';
 import { useHeroHeaderToneStore } from '@/shared/lib/hero-header-tone';
 import { usePrefersReducedMotion } from '@/shared/lib/use-prefers-reduced-motion';
@@ -387,19 +390,19 @@ export function HomeFolderFeatures(): JSX.Element {
           transition={shouldReduceMotion ? REDUCED_MOTION_TRANSITION : SCENE_TRANSITION}
           className="px-016 sm:px-032 absolute inset-0 flex flex-col items-center justify-center lg:px-120"
         >
-          <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center gap-[24px] sm:gap-[48px] lg:gap-[80px]">
+          <VStack className="mx-auto w-full max-w-[1200px] gap-[24px] sm:gap-[48px] lg:gap-[80px]">
             {/* 상단 헤더 (The Process & 서브타이틀) */}
-            <div className="flex flex-col items-center gap-[4px] text-center sm:gap-[6px]">
+            <VStack className="gap-[4px] text-center sm:gap-[6px]">
               <span className="text-surface-higher typo-subtitle-xxl sm:typo-heading-xl font-semibold">
                 The Process
               </span>
               <h2 className="font-pre text-[20px] leading-[1.3] font-bold tracking-tight break-keep text-white sm:text-[30px] sm:leading-[44px] lg:text-[36px] lg:leading-[52px]">
                 이 모든 기능을 채소집 안에서 한 번에!
               </h2>
-            </div>
+            </VStack>
 
             {/* 4단계 카드 그리드 (모바일 2x2 반응형 배치) */}
-            <div className="grid w-full grid-cols-2 gap-[10px] sm:grid-cols-2 sm:gap-[16px] lg:grid-cols-4 lg:gap-[20px]">
+            <Grid className="w-full grid-cols-2 gap-[10px] sm:grid-cols-2 sm:gap-[16px] lg:grid-cols-4 lg:gap-[20px]">
               {PROCESS_STEPS.map((item, index) => {
                 const isHovered = hoveredProcessIndex === index;
 
@@ -492,22 +495,22 @@ export function HomeFolderFeatures(): JSX.Element {
                             />
                           </div>
 
-                          <div className="flex flex-col gap-[2px] sm:gap-[6px]">
+                          <Stack className="gap-[2px] sm:gap-[6px]">
                             <h3 className="font-pre text-[13.5px] leading-[1.3] font-bold tracking-tight break-keep whitespace-pre-line text-white sm:text-[18px] sm:leading-[26px] lg:text-[20px] lg:leading-[32px]">
                               {item.title}
                             </h3>
                             <span className="text-text-low lg:typo-subtitle-xxl text-[11px] font-medium sm:text-[13px]">
                               {item.stepLabel}
                             </span>
-                          </div>
+                          </Stack>
                         </motion.div>
                       )}
                     </AnimatePresence>
                   </div>
                 );
               })}
-            </div>
-          </div>
+            </Grid>
+          </VStack>
         </motion.div>
       </motion.div>
     </section>

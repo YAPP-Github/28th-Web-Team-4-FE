@@ -8,7 +8,8 @@ import type {
   SavedResultTabKind,
   SavedSimulation,
 } from '@/pages/mypage/model/my-page-content';
-import { Box } from '@/shared/ui/layout/box';
+import { Stack } from '@/shared/ui/layout/stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Text } from '@/shared/ui/text';
 
 import { SavedResultsPagination } from './saved-results-pagination';
@@ -80,16 +81,19 @@ export function SavedResultsPage({
   const handlePageChange = onPageChange ?? setInternalCurrentPage;
 
   return (
-    <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-y-auto rounded-t-[var(--radius-l)]">
+    <Stack
+      as="main"
+      className="bg-surface-background-default min-h-0 flex-1 overflow-y-auto rounded-t-[var(--radius-l)]"
+    >
       <SavedResultsSubHeader />
-      <Box className="bg-surface-background-default px-016 sm:px-032 lg:px-064 flex min-h-0 flex-1 flex-col items-center overflow-clip xl:px-[324px]">
-        <Box className="py-024 flex w-full max-w-[996px] flex-1 flex-col">
-          <Box
+      <VStack className="bg-surface-background-default px-016 sm:px-032 lg:px-064 min-h-0 flex-1 overflow-clip xl:px-[324px]">
+        <Stack className="py-024 w-full max-w-[996px] flex-1">
+          <Stack
             as="section"
             aria-labelledby="saved-results-page-title"
-            className="bg-surface-lowest gap-018 px-030 py-024 flex w-full flex-col rounded-[var(--radius-l)]"
+            className="bg-surface-lowest gap-018 px-030 py-024 w-full rounded-[var(--radius-l)]"
           >
-            <Box className="gap-010 flex w-full flex-col">
+            <Stack className="gap-010 w-full">
               <Text
                 as="h2"
                 id="saved-results-page-title"
@@ -113,15 +117,15 @@ export function SavedResultsPage({
                 value={activeTab}
                 onValueChange={onTabChange}
               />
-            </Box>
+            </Stack>
             <SavedResultsPagination
               currentPage={safeCurrentPage}
               totalPages={resolvedTotalPages}
               onPageChange={handlePageChange}
             />
-          </Box>
-        </Box>
-      </Box>
-    </main>
+          </Stack>
+        </Stack>
+      </VStack>
+    </Stack>
   );
 }

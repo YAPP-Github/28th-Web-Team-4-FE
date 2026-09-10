@@ -6,6 +6,10 @@ import Link from 'next/link';
 
 import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { CenterStack } from '@/shared/ui/layout/center-stack';
+import { Flex } from '@/shared/ui/layout/flex';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Modal, TextModal } from '@/shared/ui/modal';
 import { Text } from '@/shared/ui/text';
 import type { SimulationResponse } from '@/shared/api/generated';
@@ -22,24 +26,24 @@ import { SimulatorChannelResultsSkeleton } from './simulator-channel-results-ske
 function SimulatorDummyIcon(): JSX.Element {
   return (
     <Box aria-hidden className="relative h-[50px] w-[60px] shrink-0 overflow-clip">
-      <Box className="top-010 gap-002 absolute left-[18.15px] flex h-[29px] items-end">
+      <Flex className="top-010 gap-002 absolute left-[18.15px] h-[29px] items-end">
         <Box className="h-[15px] w-[7px] rounded-[1.34px] bg-[#ececec]" />
         <Box className="h-[23px] w-[7px] rounded-[1.34px] bg-[#dedede]" />
         <Box className="h-[29px] w-[7px] rounded-[1.34px] bg-[#d7d7d7]" />
-      </Box>
+      </Flex>
     </Box>
   );
 }
 
 function LoggedInEmptyState(): JSX.Element {
   return (
-    <Box className="border-outline-default gap-020 py-030 flex min-h-[188px] w-full flex-col items-center justify-center rounded-[var(--radius-s)] border border-dashed">
-      <Box className="gap-002 flex w-full flex-col items-center">
+    <CenterStack className="border-outline-default gap-020 py-030 min-h-[188px] w-full rounded-[var(--radius-s)] border border-dashed">
+      <VStack className="gap-002 w-full">
         <SimulatorDummyIcon />
         <Text variant="body-xl" className="text-text-low mt-1 text-center">
           최대 3개 채널을 추가하고 성과를 비교해 보세요
         </Text>
-      </Box>
+      </VStack>
       <Modal.Root>
         <Modal.Trigger
           render={
@@ -57,15 +61,16 @@ function LoggedInEmptyState(): JSX.Element {
           backdropClassName="backdrop-blur-[2px]"
           className="gap-024 px-030 pb-024 pt-030 items-center"
           title={
-            <span className="flex flex-col items-center gap-[18px]">
-              <span
+            <VStack as="span" className="gap-[18px]">
+              <Center
+                as="span"
                 aria-hidden
-                className="bg-surface-high text-text-lowest text-24 flex size-9 items-center justify-center rounded-full leading-[34px] font-semibold"
+                className="bg-surface-high text-text-lowest text-24 size-9 rounded-full leading-[34px] font-semibold"
               >
                 ?
-              </span>
+              </Center>
               <span>어떤 방식으로 추가할까요?</span>
-            </span>
+            </VStack>
           }
           description={
             <>
@@ -99,7 +104,7 @@ function LoggedInEmptyState(): JSX.Element {
           }
         />
       </Modal.Root>
-    </Box>
+    </CenterStack>
   );
 }
 

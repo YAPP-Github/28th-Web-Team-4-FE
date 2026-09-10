@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { useLogout } from '@/features/auth/session/model/use-logout';
 import { Button } from '@/shared/ui/button';
+import { Stack } from '@/shared/ui/layout/stack';
 
 export function LogoutButton(): JSX.Element {
   const router = useRouter();
@@ -20,7 +21,7 @@ export function LogoutButton(): JSX.Element {
   };
 
   return (
-    <div className="gap-004 flex flex-col items-end">
+    <Stack className="gap-004 items-end">
       <Button frame="button" tone="stroke" disabled={isPending} onClick={handleLogout}>
         로그아웃
       </Button>
@@ -29,6 +30,6 @@ export function LogoutButton(): JSX.Element {
           {errorMessage}
         </p>
       ) : null}
-    </div>
+    </Stack>
   );
 }

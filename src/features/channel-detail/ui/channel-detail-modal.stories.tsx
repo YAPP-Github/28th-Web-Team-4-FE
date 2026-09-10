@@ -10,6 +10,7 @@ import { ChannelDetailContent } from '@/features/channel-detail/ui/channel-detai
 import { ChannelDetailContentSkeleton } from '@/features/channel-detail/ui/channel-detail-content-skeleton';
 import { ChannelDetailModalHeader } from '@/features/channel-detail/ui/channel-detail-modal-header';
 import { Button } from '@/shared/ui/button';
+import { Center } from '@/shared/ui/layout/center';
 
 import { ChannelDetailModal } from './channel-detail-modal';
 
@@ -26,9 +27,9 @@ const meta = {
   tags: ['autodocs'],
   decorators: [
     (Story) => (
-      <div className="bg-surface-high flex min-h-80 w-full items-center justify-center p-8">
+      <Center className="bg-surface-high min-h-80 w-full p-8">
         <Story />
-      </div>
+      </Center>
     ),
   ],
 } satisfies Meta<typeof ChannelDetailModal>;

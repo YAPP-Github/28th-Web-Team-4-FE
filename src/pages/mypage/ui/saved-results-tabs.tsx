@@ -11,7 +11,9 @@ import type {
 } from '@/pages/mypage/model/my-page-content';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
-import { Box } from '@/shared/ui/layout/box';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Tabs } from '@/shared/ui/tabs';
 import { Text } from '@/shared/ui/text';
 
@@ -73,30 +75,30 @@ function SavedRecommendationCard({
   linkToDetail: boolean;
 }): JSX.Element {
   const content = (
-    <Box className="bg-surface-lowest border-outline-low px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border">
-      <Box className="gap-010 flex min-w-0 flex-1 flex-col items-start">
-        <Box className="gap-002 flex w-full flex-col">
+    <HStack className="bg-surface-lowest border-outline-low px-016 py-014 w-full rounded-[var(--radius-s)] border">
+      <Stack className="gap-010 min-w-0 flex-1 items-start">
+        <Stack className="gap-002 w-full">
           <Text as="h3" variant="subtitle-md" className="text-text-high">
             {recommendation.title}
           </Text>
           <Text as="p" variant="body-sm" className="text-text-low">
             마지막 추천 : {recommendation.lastRecommendedAt}
           </Text>
-        </Box>
-        <Box className="gap-006 flex max-w-full items-center overflow-hidden">
+        </Stack>
+        <HStack className="gap-006 max-w-full overflow-hidden">
           {recommendation.channelNames.map((channelName) => (
             <Badge key={channelName} frame="badge" tone="deep-gray">
               {channelName}
             </Badge>
           ))}
-        </Box>
-      </Box>
+        </HStack>
+      </Stack>
       <ChevronRight
         aria-hidden="true"
         className="text-icon-low size-020 shrink-0"
         strokeWidth={1.5}
       />
-    </Box>
+    </HStack>
   );
 
   if (!linkToDetail) {
@@ -123,23 +125,23 @@ function SavedResultCard({
 }): JSX.Element {
   const content = (
     <>
-      <Box className="gap-010 flex min-w-0 flex-1 flex-col items-start">
-        <Box className="gap-002 flex w-full flex-col">
+      <Stack className="gap-010 min-w-0 flex-1 items-start">
+        <Stack className="gap-002 w-full">
           <Text as="h3" variant="subtitle-md" className="text-text-high">
             {result.title}
           </Text>
           <Text as="p" variant="body-sm" className="text-text-low">
             {kind === 'comparison' ? '마지막 비교' : '마지막 시뮬레이션'} : {result.savedAt}
           </Text>
-        </Box>
-        <Box className="gap-006 flex max-w-full items-center overflow-hidden">
+        </Stack>
+        <HStack className="gap-006 max-w-full overflow-hidden">
           {result.channelNames.map((channelName) => (
             <Badge key={channelName} frame="badge" tone="deep-gray">
               {channelName}
             </Badge>
           ))}
-        </Box>
-      </Box>
+        </HStack>
+      </Stack>
       <ChevronRight
         aria-hidden="true"
         className="text-icon-low size-020 shrink-0"
@@ -217,7 +219,7 @@ function SavedResultPanel({
       previewLimit === undefined ? recommendations : recommendations.slice(0, previewLimit);
 
     return (
-      <Box className="gap-010 mt-018 flex w-full flex-col">
+      <Stack className="gap-010 mt-018 w-full">
         {visibleRecommendations.map((recommendation) => (
           <SavedRecommendationCard
             key={recommendation.id}
@@ -225,7 +227,7 @@ function SavedResultPanel({
             linkToDetail={linkRecommendations}
           />
         ))}
-      </Box>
+      </Stack>
     );
   }
 
@@ -233,16 +235,16 @@ function SavedResultPanel({
     const visibleResults = previewLimit === undefined ? results : results.slice(0, previewLimit);
 
     return (
-      <Box className="gap-010 mt-018 flex w-full flex-col">
+      <Stack className="gap-010 mt-018 w-full">
         {visibleResults.map((result) => (
           <SavedResultCard key={result.id} result={result} kind={kind} />
         ))}
-      </Box>
+      </Stack>
     );
   }
 
   return (
-    <Box className="gap-014 py-020 mt-018 flex w-full flex-col items-center justify-end">
+    <VStack className="gap-014 py-020 mt-018 w-full justify-end">
       <Text as="p" variant="body-xl" className="text-text-low text-center">
         {emptyState.description}
       </Text>
@@ -257,7 +259,7 @@ function SavedResultPanel({
       >
         {emptyState.actionLabel}
       </Button>
-    </Box>
+    </VStack>
   );
 }
 

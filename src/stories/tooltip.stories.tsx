@@ -2,8 +2,10 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { Placement } from '@floating-ui/react-dom';
 import { expect, within } from 'storybook/test';
 
+import { Center } from '@/shared/ui/layout/center';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Grid } from '@/shared/ui/layout/grid';
 import { Button } from '@/shared/ui/button';
-import { Box } from '@/shared/ui/layout/box';
 import { Tooltip } from '@/shared/ui/tooltip';
 
 const SAMPLE = '광고비 대비 매출을 뜻해요';
@@ -100,9 +102,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-background-default flex min-h-[320px] w-full items-center justify-center p-10">
+      <Center className="bg-surface-background-default min-h-[320px] w-full p-10">
         <Story />
-      </Box>
+      </Center>
     ),
   ],
 } satisfies Meta<TooltipStoryArgs>;
@@ -149,9 +151,9 @@ export const AllPlacements: Story = {
     className: { control: false },
   },
   render: () => (
-    <Box className="grid w-full max-w-[560px] grid-cols-2 gap-x-20 gap-y-24">
+    <Grid className="w-full max-w-[560px] grid-cols-2 gap-x-20 gap-y-24">
       {TOOLTIP_PLACEMENTS.map((placement) => (
-        <Box key={placement} className="flex min-h-28 items-center justify-center">
+        <Center key={placement} className="min-h-28">
           <Tooltip.Root placement={placement}>
             <Tooltip.Anchor>
               <Button frame="button" tone="stroke">
@@ -160,9 +162,9 @@ export const AllPlacements: Story = {
             </Tooltip.Anchor>
             <Tooltip.Content>{SAMPLE}</Tooltip.Content>
           </Tooltip.Root>
-        </Box>
+        </Center>
       ))}
-    </Box>
+    </Grid>
   ),
 };
 
@@ -211,9 +213,9 @@ export const EdgeCollision: Story = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-background-default flex min-h-[320px] w-full items-start justify-start p-4">
+      <Flex className="bg-surface-background-default min-h-[320px] w-full items-start justify-start p-4">
         <Story />
-      </Box>
+      </Flex>
     ),
   ],
   render: () => (

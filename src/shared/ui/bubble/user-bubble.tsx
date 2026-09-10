@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react';
 
 import { VStack } from '@/shared/ui/layout/v-stack';
+import { JustifyEnd } from '@/shared/ui/layout/justify-end';
 import { cn } from '@/shared/ui/cn';
 import { Text } from '@/shared/ui/text';
 
@@ -42,7 +43,7 @@ export const UserBubble = (props: UserBubbleProps): JSX.Element => {
     <VStack className={cn('gap-006', className)}>
       <BubbleShell frame="user">{children}</BubbleShell>
       {canEdit && (
-        <div className="flex w-full justify-end">
+        <JustifyEnd className="w-full">
           <button
             type="button"
             onClick={props.onEdit}
@@ -55,7 +56,7 @@ export const UserBubble = (props: UserBubbleProps): JSX.Element => {
               {editLabel}
             </Text>
           </button>
-        </div>
+        </JustifyEnd>
       )}
     </VStack>
   );

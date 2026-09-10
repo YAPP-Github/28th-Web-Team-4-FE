@@ -7,6 +7,7 @@ import { Collapsible } from '@base-ui/react/collapsible';
 import { ChevronDown } from 'lucide-react';
 
 import type { CompareResultChannel } from '@/pages/compare/model/compare-result-channel';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 import {
@@ -80,13 +81,7 @@ export function CompareResultChannelInsights({
 
       <Collapsible.Panel className="ease-in-out-quart h-[var(--collapsible-panel-height)] overflow-hidden transition-[height] duration-200 data-ending-style:h-0 data-starting-style:h-0 motion-reduce:transition-none [&[hidden]:not([hidden='until-found'])]:hidden">
         {collapsibleChannels.length > 0 ? (
-          <div
-            className={
-              collapsedView === 'first'
-                ? 'gap-008 pt-008 flex flex-col'
-                : 'gap-008 pt-024 flex flex-col'
-            }
-          >
+          <Stack className={collapsedView === 'first' ? 'gap-008 pt-008' : 'gap-008 pt-024'}>
             {collapsibleChannels.map((channel) => (
               <CompareResultChannelInsightCard
                 key={channel.id}
@@ -94,7 +89,7 @@ export function CompareResultChannelInsights({
                 variant={variant}
               />
             ))}
-          </div>
+          </Stack>
         ) : null}
       </Collapsible.Panel>
     </Collapsible.Root>

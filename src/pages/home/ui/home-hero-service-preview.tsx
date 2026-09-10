@@ -4,6 +4,13 @@ import { useEffect, useRef, useState, type JSX } from 'react';
 import Image from 'next/image';
 import { Download, Info, SlidersHorizontal } from 'lucide-react';
 
+import { Center } from '@/shared/ui/layout/center';
+import { CenterStack } from '@/shared/ui/layout/center-stack';
+import { Flex } from '@/shared/ui/layout/flex';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { JustifyBetween } from '@/shared/ui/layout/justify-between';
+import { Stack } from '@/shared/ui/layout/stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { AvatarPlaceholder } from '@/shared/ui/avatar/avatar-placeholder';
 import { HERO_RESULT_CHANNELS, HERO_TOTAL_SUMMARY } from '@/pages/home/model/home-hero-content';
 
@@ -28,7 +35,7 @@ function MockChannelBar({
   isDimmed?: boolean;
 }): JSX.Element {
   return (
-    <div className="flex w-full items-center gap-[11.4px]">
+    <HStack className="w-full gap-[11.4px]">
       <div className="bg-surface-default h-[7.5px] w-full min-w-0 flex-1 overflow-hidden rounded-full">
         <div
           style={{
@@ -50,7 +57,7 @@ function MockChannelBar({
       >
         {value}
       </span>
-    </div>
+    </HStack>
   );
 }
 
@@ -87,9 +94,9 @@ export function HomeHeroServicePreview(): JSX.Element {
   }, [TOTAL_WIDTH]);
 
   return (
-    <div
+    <Flex
       ref={containerRef}
-      className="relative flex w-full justify-center overflow-visible"
+      className="relative w-full justify-center overflow-visible"
       style={{ height: TOTAL_HEIGHT * scale }}
     >
       <div
@@ -104,16 +111,16 @@ export function HomeHeroServicePreview(): JSX.Element {
         className="bg-surface-default shadow-drop-shadow-01 pointer-events-none relative shrink-0 rounded-[51.5px] p-[23.4px] select-none"
       >
         {/* 내부 콘텐츠 컨테이너 (Figma: cornerRadius 28.1px, size: 1123.2px x 743.2px) */}
-        <div className="bg-surface-low flex size-full flex-col overflow-hidden rounded-[28.1px]">
+        <Stack className="bg-surface-low size-full overflow-hidden rounded-[28.1px]">
           {/* 1. 메인 헤더 (Figma node 3766:110433 | h: 58.5px, px: 97.5px, 로고 옆 메뉴 탭 좌측 정렬) */}
-          <div className="border-outline-lower bg-surface-lowest flex h-[58.5px] shrink-0 items-center justify-between border-b px-[97.5px]">
+          <JustifyBetween className="border-outline-lower bg-surface-lowest h-[58.5px] shrink-0 items-center border-b px-[97.5px]">
             {/* 좌측 그룹: 로고 + 네비게이션 탭 (gap: 43.9px) */}
-            <div className="flex items-center gap-[43.9px]">
+            <HStack className="gap-[43.9px]">
               <span className="text-sys-primary-default font-wanted shrink-0 text-[16px] font-bold tracking-tight">
                 Chaeso.zip
               </span>
 
-              <div className="flex items-center gap-[21.1px]">
+              <HStack className="gap-[21.1px]">
                 {MOCK_NAV_ITEMS.map((item) => (
                   <span
                     key={item.label}
@@ -129,11 +136,11 @@ export function HomeHeroServicePreview(): JSX.Element {
                     {item.label}
                   </span>
                 ))}
-              </div>
-            </div>
+              </HStack>
+            </HStack>
 
             {/* 우측 그룹: 프로필 (실제 헤더의 AvatarPlaceholder와 동일) */}
-            <div className="flex shrink-0 items-center gap-[14.6px]">
+            <HStack className="shrink-0 gap-[14.6px]">
               <span
                 style={{
                   color: 'var(--color-text-medium, #6E6E76)',
@@ -146,42 +153,42 @@ export function HomeHeroServicePreview(): JSX.Element {
               <div className="size-[29.25px] shrink-0 overflow-hidden rounded-full">
                 <AvatarPlaceholder className="size-full" />
               </div>
-            </div>
-          </div>
+            </HStack>
+          </JustifyBetween>
 
           {/* 2. 서브 헤더 (Figma node 3766:110434 | h: 58.5px, px: 97.5px) */}
-          <div className="border-outline-lower bg-surface-lowest flex h-[58.5px] shrink-0 items-center justify-between border-b px-[97.5px]">
+          <JustifyBetween className="border-outline-lower bg-surface-lowest h-[58.5px] shrink-0 items-center border-b px-[97.5px]">
             <span className="text-text-highest text-[14.6px] font-bold">
               설정한 예산으로 얻을 수 있는 예상 성과예요
             </span>
 
             {/* 우측 결과 저장 버튼 (Figma: h: 35.8px, px: 13px, rounded: 6px) */}
-            <div className="border-outline-low text-text-high bg-surface-lowest flex h-[35.8px] shrink-0 items-center gap-[6.5px] rounded-[6px] border px-[13px] shadow-2xs">
+            <HStack className="border-outline-low text-text-high bg-surface-lowest h-[35.8px] shrink-0 gap-[6.5px] rounded-[6px] border px-[13px] shadow-2xs">
               <Download aria-hidden className="text-text-medium size-[13px]" />
               <span className="text-text-high text-[11.4px] font-semibold">결과 저장하기</span>
-            </div>
-          </div>
+            </HStack>
+          </JustifyBetween>
 
           {/* 3. 본문 영역 (Figma: Area padding [32.5px, 263.25px] -> 가운데 644px 카드 컨테이너) */}
-          <div className="flex flex-1 flex-col items-center px-[263px] py-[32.5px]">
-            <div className="flex w-[644px] flex-col gap-[16.2px]">
+          <VStack className="flex-1 px-[263px] py-[32.5px]">
+            <Stack className="w-[644px] gap-[16.2px]">
               {/* 카드 1: 총 예상 성과 (Figma node 3766:110437 | pad [19.5px, 24.4px], gap 14.6px, radius 13px) */}
-              <div className="bg-surface-lowest flex flex-col gap-[14.6px] rounded-[13px] p-[24.4px] shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
+              <Stack className="bg-surface-lowest gap-[14.6px] rounded-[13px] p-[24.4px] shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
                 <span className="text-text-highest text-[14.6px] leading-tight font-bold">
                   총 예상 성과
                 </span>
-                <div className="flex w-full items-center justify-between">
+                <JustifyBetween className="w-full items-center">
                   {/* 항목 1: 집행 가능 채널 */}
-                  <div className="flex w-[178.75px] items-center justify-between">
-                    <div className="flex flex-col items-start gap-[1.6px]">
+                  <JustifyBetween className="w-[178.75px] items-center">
+                    <Stack className="items-start gap-[1.6px]">
                       <strong className="text-text-high text-[19.5px] leading-tight font-bold">
                         {HERO_TOTAL_SUMMARY.channelCount.value}
                       </strong>
                       <span className="text-text-low text-[11.4px] font-medium whitespace-nowrap">
                         {HERO_TOTAL_SUMMARY.channelCount.label}
                       </span>
-                    </div>
-                    <div className="flex size-[32.5px] shrink-0 items-center justify-center">
+                    </Stack>
+                    <Center className="size-[32.5px] shrink-0">
                       <Image
                         src="/simulator-assets/channels.svg"
                         alt=""
@@ -189,22 +196,22 @@ export function HomeHeroServicePreview(): JSX.Element {
                         height={30}
                         className="size-full object-contain"
                       />
-                    </div>
-                  </div>
+                    </Center>
+                  </JustifyBetween>
 
                   <div className="bg-surface-default h-[40.6px] w-[1px] shrink-0" />
 
                   {/* 항목 2: 예상 총 노출 */}
-                  <div className="flex w-[178.75px] items-center justify-between">
-                    <div className="flex flex-col items-start gap-[1.6px]">
+                  <JustifyBetween className="w-[178.75px] items-center">
+                    <Stack className="items-start gap-[1.6px]">
                       <strong className="text-text-high text-[19.5px] leading-tight font-bold">
                         {HERO_TOTAL_SUMMARY.impressions.value}
                       </strong>
                       <span className="text-text-low text-[11.4px] font-medium whitespace-nowrap">
                         {HERO_TOTAL_SUMMARY.impressions.label}
                       </span>
-                    </div>
-                    <div className="flex size-[32.5px] shrink-0 items-center justify-center">
+                    </Stack>
+                    <Center className="size-[32.5px] shrink-0">
                       <Image
                         src="/simulator-assets/impressions.svg"
                         alt=""
@@ -212,22 +219,22 @@ export function HomeHeroServicePreview(): JSX.Element {
                         height={32.5}
                         className="size-full object-contain"
                       />
-                    </div>
-                  </div>
+                    </Center>
+                  </JustifyBetween>
 
                   <div className="bg-surface-default h-[40.6px] w-[1px] shrink-0" />
 
                   {/* 항목 3: 예상 총 클릭 */}
-                  <div className="flex w-[178.75px] items-center justify-between">
-                    <div className="flex flex-col items-start gap-[1.6px]">
+                  <JustifyBetween className="w-[178.75px] items-center">
+                    <Stack className="items-start gap-[1.6px]">
                       <strong className="text-text-high text-[19.5px] leading-tight font-bold">
                         {HERO_TOTAL_SUMMARY.clicks.value}
                       </strong>
                       <span className="text-text-low text-[11.4px] font-medium whitespace-nowrap">
                         {HERO_TOTAL_SUMMARY.clicks.label}
                       </span>
-                    </div>
-                    <div className="flex size-[32.5px] shrink-0 items-center justify-center">
+                    </Stack>
+                    <Center className="size-[32.5px] shrink-0">
                       <Image
                         src="/simulator-assets/clicks.svg"
                         alt=""
@@ -235,23 +242,23 @@ export function HomeHeroServicePreview(): JSX.Element {
                         height={32.5}
                         className="size-full object-contain"
                       />
-                    </div>
-                  </div>
-                </div>
-              </div>
+                    </Center>
+                  </JustifyBetween>
+                </JustifyBetween>
+              </Stack>
 
               {/* 카드 2: 채널별 예상 노출 · 클릭 수 (Figma node 3766:110457 | pad [19.5px, 24.4px], gap 21.1px, radius 13px) */}
-              <div className="bg-surface-lowest flex flex-col gap-[21.1px] rounded-[13px] p-[24.4px] shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-[4.9px]">
+              <Stack className="bg-surface-lowest gap-[21.1px] rounded-[13px] p-[24.4px] shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
+                <JustifyBetween className="items-center">
+                  <HStack className="gap-[4.9px]">
                     <span className="text-text-highest text-[14.6px] leading-tight font-bold">
                       채널별 예상 노출 · 클릭 수
                     </span>
                     <Info aria-hidden className="text-icon-low size-[14px]" />
-                  </div>
+                  </HStack>
                   {/* 뷰 토글 미니 아이콘 버튼 (Figma node 3766:110462 / 3766:110464 스트로크 없는 사각형) */}
-                  <div className="flex items-center gap-[1.6px]">
-                    <div className="flex size-[21.1px] items-center justify-center rounded-[3px]">
+                  <HStack className="gap-[1.6px]">
+                    <Center className="size-[21.1px] rounded-[3px]">
                       <Image
                         src="/simulator-assets/graph.svg"
                         alt=""
@@ -259,9 +266,9 @@ export function HomeHeroServicePreview(): JSX.Element {
                         height={9}
                         className="size-[10px]"
                       />
-                    </div>
+                    </Center>
                     {/* table 아이콘: 스트로크 없이 깔끔한 흰색 박스 */}
-                    <div className="bg-surface-lowest flex size-[21.1px] items-center justify-center rounded-[3px] shadow-2xs">
+                    <Center className="bg-surface-lowest size-[21.1px] rounded-[3px] shadow-2xs">
                       <Image
                         src="/simulator-assets/table.svg"
                         alt=""
@@ -269,14 +276,14 @@ export function HomeHeroServicePreview(): JSX.Element {
                         height={10}
                         className="size-[10px]"
                       />
-                    </div>
-                  </div>
-                </div>
+                    </Center>
+                  </HStack>
+                </JustifyBetween>
 
                 {/* 채널 항목 리스트 (Figma node 3766:110467 / 3766:110469 | gap: 17.9px) */}
-                <div className="flex flex-col gap-[17.9px]">
+                <Stack className="gap-[17.9px]">
                   {HERO_RESULT_CHANNELS.map((channel) => (
-                    <div key={channel.id} className="flex w-full items-start gap-[11.4px]">
+                    <Flex key={channel.id} className="w-full items-start gap-[11.4px]">
                       <div
                         className={`border-outline-low bg-surface-lowest relative size-[29.25px] shrink-0 overflow-hidden rounded-[5px] border ${channel.isEstimated ? '' : 'opacity-40'}`}
                       >
@@ -290,14 +297,14 @@ export function HomeHeroServicePreview(): JSX.Element {
                           unoptimized
                         />
                       </div>
-                      <div className="flex min-w-0 flex-1 flex-col items-start gap-[4.9px]">
+                      <Stack className="min-w-0 flex-1 items-start gap-[4.9px]">
                         <span
                           className={`text-[13px] leading-tight font-semibold ${channel.isEstimated ? 'text-text-high' : 'text-text-low'}`}
                         >
                           {channel.name}
                         </span>
                         {/* 막대그래프 두 개 사이의 간격: gap-[1.5px] */}
-                        <div className="flex w-full flex-col gap-[1.5px]">
+                        <Stack className="w-full gap-[1.5px]">
                           <MockChannelBar
                             value={channel.impressions.value}
                             fillPercentage={channel.impressions.fillPercentage}
@@ -312,15 +319,15 @@ export function HomeHeroServicePreview(): JSX.Element {
                             textColor="var(--chart-sub, #FFB217)"
                             isDimmed={!channel.isEstimated}
                           />
-                        </div>
-                      </div>
-                    </div>
+                        </Stack>
+                      </Stack>
+                    </Flex>
                   ))}
-                </div>
+                </Stack>
 
                 {/* 범례 (Figma node 3766:110513 스펙 완벽 일치) */}
-                <div className="border-outline-lower flex items-center gap-[14.6px] border-t pt-[14.6px]">
-                  <div className="flex items-center gap-[4.9px]">
+                <HStack className="border-outline-lower gap-[14.6px] border-t pt-[14.6px]">
+                  <HStack className="gap-[4.9px]">
                     <div className="bg-sys-primary-default size-[8px] rounded-full" />
                     <span
                       style={{
@@ -334,8 +341,8 @@ export function HomeHeroServicePreview(): JSX.Element {
                     >
                       예상 노출 수
                     </span>
-                  </div>
-                  <div className="flex items-center gap-[4.9px]">
+                  </HStack>
+                  <HStack className="gap-[4.9px]">
                     <div className="size-[8px] rounded-full bg-[#FFB217]" />
                     <span
                       style={{
@@ -349,16 +356,16 @@ export function HomeHeroServicePreview(): JSX.Element {
                     >
                       예상 클릭 수
                     </span>
-                  </div>
-                </div>
-              </div>
+                  </HStack>
+                </HStack>
+              </Stack>
 
               {/* 카드 3: 결과 산정 안내 (Figma node 3766:110517 | pad [21.1px, 24.4px], background #ECECEE, radius 13px, h: 120px) */}
-              <div className="bg-surface-default flex h-[120.1px] flex-col items-center justify-center gap-[6.5px] rounded-[13px] px-[24.4px] py-[21.1px] text-center">
+              <CenterStack className="bg-surface-default h-[120.1px] gap-[6.5px] rounded-[13px] px-[24.4px] py-[21.1px] text-center">
                 {/* 물음표 원형 아이콘 (Figma: w:17.875px h:17.875px, bg:#D4D4D8, text:#ECECEE) */}
-                <div className="text-surface-default flex size-[17.9px] items-center justify-center rounded-full bg-[#D4D4D8] text-[12.2px] leading-none font-semibold">
+                <Center className="text-surface-default size-[17.9px] rounded-full bg-[#D4D4D8] text-[12.2px] leading-none font-semibold">
                   ?
-                </div>
+                </Center>
                 <span
                   style={{
                     color: 'var(--color-text-default, #52525A)',
@@ -383,19 +390,19 @@ export function HomeHeroServicePreview(): JSX.Element {
                 >
                   {`각 채널 매체소개서 기준 업계 평균 데이터 기반 추정치예요.\n실제 성과는 소재·타깃 설정에 따라 달라질 수 있어요.`}
                 </span>
-              </div>
-            </div>
-          </div>
+              </CenterStack>
+            </Stack>
+          </VStack>
 
           {/* 4. 플로팅 필터 토스트 (Figma node 3766:110525 | w: 129px, h: 36.25px, bottom: 32.5px, radius 80px) */}
-          <div className="absolute bottom-[32.5px] left-1/2 flex h-[36.25px] w-[129px] -translate-x-1/2 items-center justify-center gap-[8.1px] rounded-[80px] bg-[#3F3F45] px-[19.5px] py-[8.1px] shadow-[0_16px_32px_rgba(0,0,0,0.15)] backdrop-blur-sm">
+          <Center className="absolute bottom-[32.5px] left-1/2 h-[36.25px] w-[129px] -translate-x-1/2 gap-[8.1px] rounded-[80px] bg-[#3F3F45] px-[19.5px] py-[8.1px] shadow-[0_16px_32px_rgba(0,0,0,0.15)] backdrop-blur-sm">
             <SlidersHorizontal aria-hidden className="size-[13px] text-white" />
             <span className="text-[13px] font-semibold whitespace-nowrap text-white">
               필터 조정하기
             </span>
-          </div>
-        </div>
+          </Center>
+        </Stack>
       </div>
-    </div>
+    </Flex>
   );
 }

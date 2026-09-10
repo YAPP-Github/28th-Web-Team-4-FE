@@ -5,6 +5,7 @@ import Image from 'next/image';
 
 import type { ChannelDetail } from '@/features/channel-detail/model/channel-detail';
 import { Badge } from '@/shared/ui/badge';
+import { Flex } from '@/shared/ui/layout/flex';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
@@ -48,7 +49,7 @@ function RecommendationReason({
 }): JSX.Element {
   return (
     <Stack as="section" className="gap-008 w-full items-start">
-      <HStack className="gap-006 h-024 items-center">
+      <HStack className="gap-006 h-024">
         <RecommendationIcon />
         <Text as="h3" variant="subtitle-sm" className="text-text-default m-0">
           이런 이유로 추천해요
@@ -88,13 +89,13 @@ function ThumbsUpIcon(): JSX.Element {
 function Keywords({ keywords }: { keywords: readonly string[] }): JSX.Element {
   return (
     <Stack as="section" className="gap-008 w-full items-start">
-      <HStack className="gap-006 h-024 items-center">
+      <HStack className="gap-006 h-024">
         <ThumbsUpIcon />
         <Text as="h3" variant="subtitle-sm" className="text-text-default m-0">
           이런 점이 좋아요
         </Text>
       </HStack>
-      <HStack className="gap-006 flex-wrap items-start">
+      <Flex className="gap-006 flex-wrap items-start">
         {keywords.map((keyword) => (
           <Badge
             key={keyword}
@@ -106,7 +107,7 @@ function Keywords({ keywords }: { keywords: readonly string[] }): JSX.Element {
             {keyword}
           </Badge>
         ))}
-      </HStack>
+      </Flex>
     </Stack>
   );
 }

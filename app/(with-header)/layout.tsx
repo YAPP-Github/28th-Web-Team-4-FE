@@ -5,6 +5,7 @@ import { SessionPageHeader } from '@/app/layouts/session-page-header';
 import { getQueryClient } from '@/app/providers/query-client';
 import { authSessionQueryKey } from '@/features/auth/session/model/auth-session-query';
 import { readAuthSession } from '@/shared/lib/auth/session-cookie';
+import { Stack } from '@/shared/ui/layout/stack';
 
 export default async function WithHeaderLayout({ children }: { children: ReactNode }) {
   const session = await readAuthSession();
@@ -19,11 +20,11 @@ export default async function WithHeaderLayout({ children }: { children: ReactNo
   queryClient.setQueryData(authSessionQueryKey, sessionState);
 
   return (
-    <div className="flex h-dvh min-h-0 flex-none flex-col">
+    <Stack className="h-dvh min-h-0 flex-none">
       <HydrationBoundary state={dehydrate(queryClient)}>
         <SessionPageHeader />
       </HydrationBoundary>
-      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
-    </div>
+      <Stack className="min-h-0 flex-1">{children}</Stack>
+    </Stack>
   );
 }

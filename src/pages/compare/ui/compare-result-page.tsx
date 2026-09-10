@@ -10,7 +10,6 @@ import {
 } from '@/features/channel-comparison';
 
 import { useChannelComparison } from '@/pages/compare/api/use-channel-comparison';
-import { Box } from '@/shared/ui/layout/box';
 
 import { CompareResultChannelCards } from './compare-result-channel-cards';
 import { CompareResultChannelCost } from './compare-result-channel-cost';
@@ -22,6 +21,8 @@ import { CompareResultGuestLock } from './compare-result-guest-lock';
 import { CompareResultErrorState, CompareResultLoadingState } from './compare-result-query-states';
 import { CompareResultSaveButton } from './compare-result-save-button';
 import { CompareResultSubHeader } from './compare-result-sub-header';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Stack } from '@/shared/ui/layout/stack';
 
 function CompareResultPageContent(): JSX.Element | null {
   const { channelIds, onboardingId, isValid, setChannelIds } =
@@ -93,9 +94,10 @@ function CompareResultWithQuery({
   )}`;
 
   return (
-    <main
+    <Stack
+      as="main"
       aria-busy={comparisonQuery.isPlaceholderData}
-      className="bg-surface-low flex min-h-0 flex-1 flex-col overflow-hidden"
+      className="bg-surface-low min-h-0 flex-1 overflow-hidden"
     >
       <CompareResultSubHeader
         action={
@@ -106,8 +108,8 @@ function CompareResultWithQuery({
           />
         }
       />
-      <Box className="px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto overscroll-y-contain lg:px-120">
-        <Box className="gap-020 pt-040 pb-072 flex w-full max-w-[792px] flex-col self-start">
+      <Flex className="px-016 sm:px-032 min-h-0 w-full flex-1 justify-center overflow-y-auto overscroll-y-contain lg:px-120">
+        <Stack className="gap-020 pt-040 pb-072 w-full max-w-[792px] self-start">
           {comparisonQuery.isPlaceholderData ? (
             <span role="status" className="sr-only">
               변경된 채널의 비교 결과를 불러오는 중이에요
@@ -137,9 +139,9 @@ function CompareResultWithQuery({
           </CompareResultGuestLock>
           <CompareResultChannelCost channels={displayedChannels} />
           <CompareResultChannelInsightsDqa channels={displayedChannels} />
-        </Box>
-      </Box>
-    </main>
+        </Stack>
+      </Flex>
+    </Stack>
   );
 }
 

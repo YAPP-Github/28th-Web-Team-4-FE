@@ -10,6 +10,10 @@ import { Button } from '@/shared/ui/button';
 import { Checkbox } from '@/shared/ui/checkbox';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
+import { Flex } from '@/shared/ui/layout/flex';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { Text } from '@/shared/ui/text';
 
@@ -35,32 +39,32 @@ function PickerStatus({
 }: Pick<CompareResultChannelPickerProps, 'isError' | 'isPending' | 'onRetry'>): JSX.Element | null {
   if (isPending) {
     return (
-      <Box role="status" className="flex flex-col">
+      <Stack role="status">
         <Text as="span" variant="body-xl" className="sr-only">
           채널을 불러오고 있어요
         </Text>
         {PICKER_SKELETON_ROW_IDS.map((rowId) => (
-          <Box key={rowId} className="bg-surface-lowest px-016 py-010 flex h-[42px] items-center">
+          <HStack key={rowId} className="bg-surface-lowest px-016 py-010 h-[42px]">
             <Skeleton
               data-testid="channel-picker-skeleton"
               className="h-012 w-[100px] rounded-[var(--radius-xxs)]"
             />
-          </Box>
+          </HStack>
         ))}
-      </Box>
+      </Stack>
     );
   }
 
   if (isError) {
     return (
-      <Box role="alert" className="gap-012 px-016 py-020 flex flex-col items-center">
+      <VStack role="alert" className="gap-012 px-016 py-020">
         <Text variant="body-xl" className="text-text-medium text-center">
           채널 목록을 불러오지 못했어요
         </Text>
         <Button frame="button" tone="stroke" className="h-036 px-012" onClick={onRetry}>
           다시 시도
         </Button>
-      </Box>
+      </VStack>
     );
   }
 
@@ -83,7 +87,7 @@ export function CompareResultChannelPicker({
   const showList = !isPending && !isError;
 
   return (
-    <Box className="flex h-full w-full lg:w-[256px]">
+    <Flex className="h-full w-full lg:w-[256px]">
       <Combobox.Root<ComparisonChannelOption>
         items={options}
         filter={null}
@@ -167,11 +171,11 @@ export function CompareResultChannelPicker({
               <>
                 {showList && hasSearchKeyword ? (
                   <Combobox.Empty>
-                    <Box className="px-016 py-020 flex justify-center">
+                    <Flex className="px-016 py-020 justify-center">
                       <Text variant="body-xl" className="text-text-low text-center">
                         검색 결과가 없어요
                       </Text>
-                    </Box>
+                    </Flex>
                   </Combobox.Empty>
                 ) : null}
                 <Combobox.List
@@ -186,10 +190,10 @@ export function CompareResultChannelPicker({
                       value={option}
                       disabled={option.isDisabled}
                       render={({ className, ...itemProps }) => (
-                        <Box
+                        <HStack
                           className={cn(
                             [
-                              'flex min-h-[34px] w-full cursor-pointer items-center gap-010 px-016 py-006 outline-none select-none',
+                              'min-h-[34px] w-full cursor-pointer gap-010 px-016 py-006 outline-none select-none',
                               'hover:not-data-disabled:bg-surface-low data-highlighted:bg-surface-low data-disabled:cursor-not-allowed',
                             ],
                             className,
@@ -224,7 +228,7 @@ export function CompareResultChannelPicker({
                               추천
                             </Badge>
                           ) : null}
-                        </Box>
+                        </HStack>
                       )}
                     />
                   )}
@@ -240,6 +244,6 @@ export function CompareResultChannelPicker({
           </Combobox.Positioner>
         </Combobox.Portal>
       </Combobox.Root>
-    </Box>
+    </Flex>
   );
 }

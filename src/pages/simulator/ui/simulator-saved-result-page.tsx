@@ -3,7 +3,8 @@
 import type { JSX } from 'react';
 
 import { useSavedSimulation } from '@/pages/simulator/api/use-saved-simulation';
-import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Placeholder } from '@/shared/ui/placeholder';
 
 import { SimulatorPage } from './simulator-page';
@@ -17,12 +18,12 @@ function SavedSimulationState({
   subtitle: string;
 }): JSX.Element {
   return (
-    <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-hidden">
+    <Stack as="main" className="bg-surface-background-default min-h-0 flex-1 overflow-hidden">
       <SimulatorSubHeader title="저장된 시뮬레이션 결과" showSaveAction={false} />
-      <Box className="bg-surface-background-default px-016 py-040 flex min-h-0 flex-1 items-center justify-center">
+      <Center className="bg-surface-background-default px-016 py-040 min-h-0 flex-1">
         <Placeholder title={title} subtitle={subtitle} />
-      </Box>
-    </main>
+      </Center>
+    </Stack>
   );
 }
 

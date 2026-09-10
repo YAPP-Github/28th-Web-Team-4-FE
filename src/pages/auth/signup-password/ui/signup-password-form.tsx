@@ -10,7 +10,7 @@ import {
   useSignupStepGuard,
 } from '@/features/auth/signup-flow';
 import { InputField, type InputFieldFeedback } from '@/shared/ui/input-field';
-import { VStack } from '@/shared/ui/layout/v-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { useSignupPasswordForm } from '@/pages/auth/signup-password/model/use-signup-password-form';
 
 const PASSWORD_GUIDE = '비밀번호는 8자 이상으로, 영어·숫자·특수문자를 포함해야 해요';
@@ -56,13 +56,13 @@ function HydratedSignupPasswordForm({
       titleId="signup-password-title"
       onSubmit={submit}
     >
-      <VStack className="gap-024 items-stretch">
-        <VStack className="gap-004 items-stretch">
+      <Stack className="gap-024">
+        <Stack className="gap-004">
           <strong className="typo-heading-lg text-text-high break-all">{email}</strong>
           <p className="typo-subtitle-xxs text-text-default">로그인에 사용할 비밀번호를 설정해요</p>
-        </VStack>
+        </Stack>
 
-        <VStack className="gap-012 items-stretch">
+        <Stack className="gap-012">
           <InputField
             frame="password"
             autoComplete="new-password"
@@ -79,8 +79,8 @@ function HydratedSignupPasswordForm({
             feedback={passwordConfirmationFeedback}
             {...register('passwordConfirmation')}
           />
-        </VStack>
-      </VStack>
+        </Stack>
+      </Stack>
     </AuthForm>
   );
 }

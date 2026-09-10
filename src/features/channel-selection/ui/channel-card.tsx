@@ -12,6 +12,9 @@ import { Button } from '@/shared/ui/button';
 import { Checkbox } from '@/shared/ui/checkbox';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { JustifyBetween } from '@/shared/ui/layout/justify-between';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 import { ChannelDescriptionTooltip } from './channel-description-tooltip';
@@ -33,12 +36,12 @@ function ChannelCardHeader({
   checked: boolean;
 }): JSX.Element {
   return (
-    <Box as="header" className="flex w-full items-start justify-between">
+    <JustifyBetween as="header" className="w-full items-start">
       <ChannelLogo channel={channel} />
-      <Box
+      <Center
         aria-hidden
         className={cn(
-          'size-016 motion-safe:ease-out-cubic motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none flex shrink-0 items-center justify-center rounded-[999px]',
+          'size-016 motion-safe:ease-out-cubic motion-safe:transition-colors motion-safe:duration-150 motion-reduce:transition-none shrink-0 rounded-[999px]',
           checked ? 'bg-btn-primary' : 'bg-outline-low',
         )}
       >
@@ -49,8 +52,8 @@ function ChannelCardHeader({
           height={7}
           className="h-[7px] w-[9px]"
         />
-      </Box>
-    </Box>
+      </Center>
+    </JustifyBetween>
   );
 }
 
@@ -58,12 +61,12 @@ function ChannelCardBody({ channel }: { channel: ChannelListItem }): JSX.Element
   const description = channel.description ?? '채널 설명이 아직 없어요.';
 
   return (
-    <Box className="gap-002 flex w-full flex-col items-start">
+    <Stack className="gap-002 w-full items-start">
       <Text as="h2" variant="subtitle-lg" className="text-text-high line-clamp-1 w-full">
         {channel.name}
       </Text>
       <ChannelDescriptionTooltip description={description} />
-    </Box>
+    </Stack>
   );
 }
 
@@ -97,10 +100,11 @@ export function ChannelCard({
   const checkboxLabel = `${channel.name} 선택`;
 
   return (
-    <label
+    <Stack
+      as="label"
       className={cn(
         [
-          'bg-surface-lowest relative flex min-h-[184px] w-full max-w-[282px] cursor-pointer flex-col justify-between gap-012 rounded-[var(--radius-m)] p-020 outline outline-2 outline-transparent',
+          'bg-surface-lowest relative min-h-[184px] w-full max-w-[282px] cursor-pointer justify-between gap-012 rounded-[var(--radius-m)] p-020 outline outline-2 outline-transparent',
           'transition-[outline-color,box-shadow] duration-150 ease-out',
           'has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-sys-primary-default',
         ],
@@ -120,11 +124,11 @@ export function ChannelCard({
 
       <ChannelCardHeader channel={channel} checked={checked} />
 
-      <Box className="gap-010 flex w-full flex-col items-start">
-        <Box className="gap-008 flex w-full flex-col items-start">
+      <Stack className="gap-010 w-full items-start">
+        <Stack className="gap-008 w-full items-start">
           <ChannelCardBody channel={channel} />
           <ChannelCardFooter channel={channel} checked={checked} />
-        </Box>
+        </Stack>
 
         {onViewDetail ? (
           <Button
@@ -145,7 +149,7 @@ export function ChannelCard({
             </Text>
           </Button>
         ) : null}
-      </Box>
-    </label>
+      </Stack>
+    </Stack>
   );
 }
