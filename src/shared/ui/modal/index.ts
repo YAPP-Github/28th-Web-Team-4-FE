@@ -1,8 +1,4 @@
-export {
-  GraphicModal,
-  type GraphicModalGraphicProps,
-  type GraphicModalProps,
-} from './graphic-modal';
-export { Modal, type ModalCloseButtonProps, type ModalCloseTextProps } from './modal';
-export { TextModal, type TextModalProps } from './text-modal';
+export { GraphicModal } from './graphic-modal';
+export { Modal } from './modal';
+export { TextModal } from './text-modal';
 export { TutorialModal, type TutorialModalProps, type TutorialSlide } from './tutorial-modal';

@@ -1,1 +1,1 @@
-export { StepBar, type StepBarProps } from './step-bar';
+export { StepBar } from './step-bar';

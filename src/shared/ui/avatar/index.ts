@@ -1,2 +1,1 @@
-export { Avatar, type AvatarProps } from './avatar';
-export { type AvatarPlaceholderProps } from './avatar-placeholder';
+export { Avatar } from './avatar';

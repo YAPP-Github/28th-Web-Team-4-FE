@@ -12,7 +12,7 @@ export type ChannelAudienceMetric = {
   value: string;
 };
 
-export type ChannelAudience = {
+type ChannelAudience = {
   primaryAgeBand: string;
   primaryGender: string;
   metrics: ChannelAudienceMetric[];

@@ -18,8 +18,8 @@ const TONE_MAP = {
   muted: 'muted',
 } as const;
 
-export type LogoType = LogoMarkType;
-export type LogoTone = keyof typeof TONE_MAP;
+type LogoType = LogoMarkType;
+type LogoTone = keyof typeof TONE_MAP;
 
 export const LOGO_TYPES = keys(TYPE_MAP);
 export const LOGO_TONES = keys(TONE_MAP);

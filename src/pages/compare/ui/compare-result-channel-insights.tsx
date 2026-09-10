@@ -27,7 +27,7 @@ type CompareResultChannelInsightsProps = {
 export const COMPARE_RESULT_CHANNEL_INSIGHTS_COLLAPSED_VIEWS = ['first', 'title'] as const;
 
 /** 인사이트 섹션을 접었을 때 남겨둘 콘텐츠 범위. */
-export type CompareResultChannelInsightsCollapsedView =
+type CompareResultChannelInsightsCollapsedView =
   (typeof COMPARE_RESULT_CHANNEL_INSIGHTS_COLLAPSED_VIEWS)[number];
 
 /** 선택한 채널의 인사이트 목록을 하나의 Collapsible 영역으로 표시한다. */

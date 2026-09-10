@@ -9,7 +9,7 @@ import { VStack } from '@/shared/ui/layout/v-stack';
 
 import { Modal } from './modal';
 
-export type GraphicModalGraphicProps = ComponentProps<typeof Box<'div'>>;
+type GraphicModalGraphicProps = ComponentProps<typeof Box<'div'>>;
 
 export type GraphicModalProps = {
   title: ReactNode;

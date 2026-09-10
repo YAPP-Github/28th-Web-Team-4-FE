@@ -4,7 +4,4 @@
  */
 
 export type { RecommendOnboardingAnswer } from './model/onboarding-answer';
-export {
-  useRecommendOnboardingStore,
-  type RecommendOnboardingStore,
-} from './model/recommend-onboarding-store';
+export { useRecommendOnboardingStore } from './model/recommend-onboarding-store';

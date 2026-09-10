@@ -1,1 +1,1 @@
-export { BottomNavigation, type BottomNavigationProps } from './bottom-navigation';
+export { BottomNavigation } from './bottom-navigation';
