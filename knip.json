@@ -1,0 +1,5 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreFiles": [".storybook/next.config.ts"],
+  "ignore": ["src/shared/api/generated/**"]
+}
