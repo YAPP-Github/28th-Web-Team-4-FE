@@ -12,12 +12,12 @@ import type {
 } from './recommend-onboarding-options';
 
 /** 입력 중 비어 있을 수 있는 공통 단일 선택 답변. */
-export type OptionalCommonDraftAnswer = Partial<
+type OptionalCommonDraftAnswer = Partial<
   Pick<CommonOnboardingAnswer, 'category' | 'serviceType' | 'campaignPeriod'>
 >;
 
 /** 입력 시작부터 안전한 초기값을 갖는 공통 답변. */
-export type InitializedCommonDraftAnswer = Pick<CommonOnboardingAnswer, 'serviceName' | 'budget'>;
+type InitializedCommonDraftAnswer = Pick<CommonOnboardingAnswer, 'serviceName' | 'budget'>;
 
 /** 추천 온보딩 공통 질문 입력 중 상태. */
 export type CommonOnboardingDraft = OptionalCommonDraftAnswer &
@@ -30,10 +30,10 @@ export type CommonOnboardingDraft = OptionalCommonDraftAnswer &
   };
 
 /** 추천에서만 입력 중 비어 있을 수 있는 단일 선택 답변. */
-export type OptionalRecommendDraftAnswer = Partial<Pick<RecommendOnboardingAnswer, 'adGoal'>>;
+type OptionalRecommendDraftAnswer = Partial<Pick<RecommendOnboardingAnswer, 'adGoal'>>;
 
 /** 추천 입력 시작부터 안전한 초기값을 갖는 답변. */
-export type InitializedRecommendDraftAnswer = Pick<RecommendOnboardingAnswer, 'ageRangeList'>;
+type InitializedRecommendDraftAnswer = Pick<RecommendOnboardingAnswer, 'ageRangeList'>;
 
 /** 추천 8단계 입력 중 사용하는 상태. */
 export type RecommendOnboardingDraft = CommonOnboardingDraft &

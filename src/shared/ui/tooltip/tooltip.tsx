@@ -34,7 +34,7 @@ const ARROW_STATIC_OFFSET = `-${ARROW_DEPTH_PX}px`;
 const ARROW_MIDDLEWARE_PADDING = 6;
 const SHIFT_PADDING = 8;
 
-export type TooltipRootProps = PropsWithChildren<{
+type TooltipRootProps = PropsWithChildren<{
   placement?: Placement;
   offset?: OffsetOptions;
   strategy?: 'absolute' | 'fixed';
@@ -42,9 +42,9 @@ export type TooltipRootProps = PropsWithChildren<{
   allowShift?: boolean;
 }>;
 
-export type TooltipAnchorProps = ComponentPropsWithoutRef<'span'>;
+type TooltipAnchorProps = ComponentPropsWithoutRef<'span'>;
 
-export type TooltipContentProps = ComponentPropsWithoutRef<'div'> & {
+type TooltipContentProps = ComponentPropsWithoutRef<'div'> & {
   arrowClassName?: string;
   showArrow?: boolean;
 };

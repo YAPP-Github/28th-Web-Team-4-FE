@@ -57,7 +57,7 @@ export type ChannelSelectionScreenProps = {
   onViewDetail?: (channel: ChannelListItem) => void;
 };
 
-export type ChannelSelectionScreenVariant = 'default' | 'comparison';
+type ChannelSelectionScreenVariant = 'default' | 'comparison';
 
 function getCategoryLabel(category: string): string {
   return CHANNEL_CATEGORY_OPTION_LIST.find((option) => option.value === category)?.label ?? '전체';

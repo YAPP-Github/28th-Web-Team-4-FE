@@ -1,5 +1,1 @@
-export {
-  ChannelSelectionScreen,
-  type ChannelSelectionScreenProps,
-  type ChannelSelectionScreenVariant,
-} from './ui/channel-selection-screen';
+export { ChannelSelectionScreen } from './ui/channel-selection-screen';

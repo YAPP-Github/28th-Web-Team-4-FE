@@ -10,7 +10,7 @@ import { useMyRecommendations } from '@/shared/api/use-my-recommendations';
 
 import type { SavedResultTabKind } from '@/pages/mypage/model/my-page-content';
 
-export const SAVED_RESULTS_PAGE_SIZE = 5;
+const SAVED_RESULTS_PAGE_SIZE = 5;
 
 export type SavedResultsPageNumbers = Record<SavedResultTabKind, number>;
 

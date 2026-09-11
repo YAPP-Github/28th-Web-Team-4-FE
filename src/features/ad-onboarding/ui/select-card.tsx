@@ -19,12 +19,12 @@ type SelectCardBaseProps = {
   className?: string;
 };
 
-export type RadioSelectCardProps = SelectCardBaseProps &
+type RadioSelectCardProps = SelectCardBaseProps &
   Pick<RadioGroupItemProps, 'disabled' | 'value'> & {
     control: 'radio';
   };
 
-export type CheckboxSelectCardProps = SelectCardBaseProps &
+type CheckboxSelectCardProps = SelectCardBaseProps &
   Pick<
     CheckboxProps,
     'checked' | 'defaultChecked' | 'disabled' | 'name' | 'onCheckedChange' | 'required' | 'value'

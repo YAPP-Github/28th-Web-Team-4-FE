@@ -10,8 +10,6 @@ const FRAME_MAP = {
   user: 'user',
 } as const;
 
-export type BubbleFrame = keyof typeof FRAME_MAP;
-
 export const BUBBLE_FRAMES = keys(FRAME_MAP);
 
 export type BubbleProps =

@@ -7,12 +7,6 @@
 
 export const HERO_TAGLINE_WORDS = ['Find', 'your', 'channel,', 'Fuel', 'your', 'growth'] as const;
 
-// 스크롤로 넘어간 뒤 나타나는 실제 페이지 제목(Figma node 3766:110383) — 영어 태그라인은
-// 오토플레이 인트로용 장식 카피이고, 이 두 줄이 홈의 진짜(semantic) h1이다.
-export const HERO_REVEAL_TITLE_LINES = [
-  '내게 맞는 광고 채널을 한눈에!',
-  '광고 채널 고민, 여기서 끝내 보세요',
-] as const;
 export const HERO_SUBTEXT = '내 서비스에 딱 맞는 채널을 한눈에 찾아주는 채널 소개 모음집';
 export const HERO_REVEAL_CTA_LABEL = '3초 만에 시작하기';
 

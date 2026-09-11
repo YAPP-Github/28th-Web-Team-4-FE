@@ -3,8 +3,6 @@ import { redirect } from 'next/navigation';
 import { SimulatorChannelSelectionPage } from '@/pages/simulator-channel-selection';
 import { hasActiveAuthSession } from '@/shared/lib/auth/session-cookie';
 
-export { metadata } from '@/pages/simulator';
-
 type SimulatorChannelSelectionRouteProps = {
   searchParams: Promise<{
     channelIds?: string | string[];

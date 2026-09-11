@@ -13,7 +13,7 @@ const DEFAULT_EDIT_LABEL = '수정';
  * user frame 수정 버튼 기본 노출 여부.
  * 생략 시 수정 UI는 숨기고, `canEdit: true`일 때만 `onEdit`가 필수다.
  */
-export const DEFAULT_CAN_EDIT = false as const;
+const DEFAULT_CAN_EDIT = false as const;
 
 type UserBubbleBaseProps = {
   children: ReactNode;
