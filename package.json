@@ -28,7 +28,9 @@
     "rules:sync": "node scripts/sync-rules.mjs",
     "openapi-ts": "openapi-ts",
     "knip": "knip --include nsExports,nsTypes --no-config-hints && knip --cycles --no-config-hints",
-    "knip:ci": "knip --include nsExports,nsTypes --no-config-hints --reporter github-actions && knip --cycles --no-config-hints --reporter github-actions"
+    "knip:ci": "knip --include nsExports,nsTypes --no-config-hints --reporter github-actions && knip --cycles --no-config-hints --reporter github-actions",
+    "desktop:dev": "node scripts/desktop-dev.mts",
+    "desktop:build": "tauri build --target aarch64-apple-darwin"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -71,6 +73,7 @@
     "@storybook/addon-vitest": "^10.4.1",
     "@storybook/nextjs-vite": "^10.4.1",
     "@tailwindcss/postcss": "^4.3.0",
+    "@tauri-apps/cli": "^2.11.4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
