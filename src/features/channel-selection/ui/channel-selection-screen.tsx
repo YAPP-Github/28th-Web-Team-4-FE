@@ -329,7 +329,7 @@ export function ChannelSelectionScreen({
             >
               <HStack as="span">
                 {submitLabel} (
-                <Flex as="span" className="translate-y-px">
+                <Flex as="span">
                   <NumberFlow
                     value={channelSelection.selectedCount}
                     trend={0}
