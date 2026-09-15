@@ -20,38 +20,76 @@
 
 ## 주요 기능
 
-### 1. 맞춤 광고 채널 추천
+썸네일이나 **MP4 보기**를 눌러 데모 영상을 열 수 있습니다. [전체 영상 목록](./docs/demo/README.md)
 
-![서비스 정보 입력과 광고 데이터 업로드를 거쳐 맞춤 채널을 추천받는 과정](./.github/assets/readme/02-recommendation.png)
+### 1. 온보딩 + 채널 추천 + 비교 결과 보기
 
-- 서비스 정보와 광고 데이터를 입력해 추천 조건을 구성합니다.
-- 입력한 조건에 적합한 채널과 추천 이유를 함께 확인합니다.
-- 채널별 주요 정보를 살펴보고 다음 광고 계획에 활용합니다.
+서비스 정보와 광고 조건을 입력하면 적합한 채널을 추천받고, 추천 이유와 예상 성과를 비교할 수 있습니다.
 
-### 2. 광고 채널 비교
+[![온보딩 8단계 입력부터 추천 카드 등장까지 보여주는 데모 영상 열기](./docs/demo/posters/1a-onboarding-complete.png)](./docs/demo/1a-onboarding-complete.mp4)
 
-![필터를 적용해 비교할 광고 채널을 선택하는 화면](./.github/assets/readme/03-comparison.png)
+**온보딩 전체 입력과 추천 결과 · 18초** — [MP4 보기](./docs/demo/1a-onboarding-complete.mp4)
 
-- 조건별 필터로 필요한 채널을 탐색하고 최대 3개까지 선택합니다.
-- 최소 광고비, 주요 오디언스, 광고 형태와 과금 방식을 확인합니다.
+<details>
+<summary>추천 상세와 채널 비교 더 보기</summary>
 
-![광고 채널별 예상 성과와 주요 지표를 비교하는 결과 화면](./.github/assets/readme/04-comparison-result.png)
+- [추천 채널 상세 · 12초](./docs/demo/1d-recommend-detail.mp4): 11번가 광고의 핵심 요약, 광고 상품, 타깃층과 실제 광고 예시 7개를 확인합니다.
+- [추천 채널로 비교하기 · 8초](./docs/demo/1e-recommend-compare.mp4): 추천받은 채널 3개를 선택해 비교 결과를 확인합니다.
 
-- 예상 노출, 예상 클릭, CPC와 CPM을 나란히 비교합니다.
-- 지표별 인사이트를 참고해 서비스에 맞는 채널을 선택합니다.
+</details>
 
-### 3. 예산별 성과 시뮬레이션
+### 2. 채널 비교 및 결과 보기
 
-![광고 예산을 조정하고 채널별 예상 성과를 확인하는 시뮬레이터](./.github/assets/readme/05-simulator.png)
+검색과 카테고리 필터로 광고 채널을 찾고, 최대 3개 채널의 주요 지표와 예상 성과를 나란히 비교합니다.
 
-- 채널마다 예산을 배분하며 예상 노출과 클릭의 변화를 확인합니다.
-- 시뮬레이션 결과를 그래프와 표로 전환해 살펴봅니다.
+[![카테고리 필터와 검색으로 광고 채널을 찾는 데모 영상 열기](./docs/demo/posters/search-filter-zoom.png)](./docs/demo/search-filter-zoom.mp4)
 
-### 저장한 결과 활용
+**검색과 카테고리 필터 · 12초** — [MP4 보기](./docs/demo/search-filter-zoom.mp4)
 
-- 로그인 사용자는 추천, 비교, 시뮬레이션 결과를 각각 저장할 수 있습니다.
-- 저장한 결과는 마이페이지에서 다시 확인할 수 있습니다.
-- 저장한 추천 결과의 채널을 불러와 예산 시뮬레이션을 이어서 진행할 수 있습니다.
+[![직접 선택한 세 광고 채널의 예상 노출과 클릭을 비교하는 데모 영상 열기](./docs/demo/posters/2b-channel-compare.png)](./docs/demo/2b-channel-compare.mp4)
+
+**직접 선택한 채널 비교 · 9초** — [MP4 보기](./docs/demo/2b-channel-compare.mp4)
+
+<details>
+<summary>필터 조합과 비교 후보 선택 더 보기</summary>
+
+- [여러 카테고리 선택과 초기화 · 12초](./docs/demo/2c-multi-filter.mp4): 여러 카테고리를 함께 선택하고 필터를 초기화합니다.
+- [비교 후보 교체 · 12초](./docs/demo/2d-replace-candidate.mp4): 선택한 채널을 해제하고 다른 후보를 추가합니다.
+- [검색 결과가 없을 때 · 7초](./docs/demo/2e-empty-recovery.mp4): 검색어와 필터를 조정해 채널 목록을 다시 확인합니다.
+
+</details>
+
+### 3. 시뮬레이터
+
+총예산과 집행 기간을 설정하고, 채널별 예산 배분에 따라 예상 노출과 클릭이 어떻게 달라지는지 확인합니다.
+
+[![같은 총예산에서 채널별 배분을 바꾸고 예상 성과를 다시 계산하는 데모 영상 열기](./docs/demo/posters/3b-budget-reallocation.png)](./docs/demo/3b-budget-reallocation.mp4)
+
+**예산 재배분과 성과 변화 · 9초** — [MP4 보기](./docs/demo/3b-budget-reallocation.mp4)
+
+<details>
+<summary>초기 조건 설정과 결과 저장 더 보기</summary>
+
+- [조건 설정과 첫 계산 · 10초](./docs/demo/3a-simulator-setup.mp4): 총 200만원과 1개월을 설정하고 채널별 예산을 배분합니다.
+- [표로 확인하고 결과 저장 · 11초](./docs/demo/3c-table-save.mp4): 그래프를 표로 전환하고 결과에 이름을 붙여 저장합니다.
+
+</details>
+
+### 4. 저장된 결과 다시 보기
+
+마이페이지에서 저장한 추천, 비교, 시뮬레이션 결과를 다시 열어 이전 광고 계획을 이어서 검토합니다.
+
+[![마이페이지에서 저장한 시뮬레이션의 예산과 예상 성과를 다시 여는 데모 영상 열기](./docs/demo/posters/4c-saved-simulation.png)](./docs/demo/4c-saved-simulation.mp4)
+
+**저장된 시뮬레이션 다시 보기 · 9초** — [MP4 보기](./docs/demo/4c-saved-simulation.mp4)
+
+<details>
+<summary>저장한 추천과 비교 결과 더 보기</summary>
+
+- [저장된 추천 다시 보기 · 8초](./docs/demo/4a-saved-recommend.mp4): 저장 목록에서 추천 결과를 열고 추천 채널을 살펴봅니다.
+- [저장된 비교 다시 보기 · 7초](./docs/demo/4b-saved-compare.mp4): 저장한 채널 비교 결과를 확인합니다.
+
+</details>
 
 > [!NOTE]
 > 예상 성과는 매체 정보와 입력 조건을 바탕으로 계산한 참고값이며 실제 광고 성과를 보장하지 않습니다.
