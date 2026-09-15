@@ -28,13 +28,20 @@
 
 ![서비스 정보 입력과 광고 데이터 업로드를 거쳐 맞춤 채널을 추천받는 과정](./.github/assets/readme/02-recommendation.png)
 
-![온보딩 8단계 입력부터 추천 카드 등장까지 보여주는 데모 영상](./docs/demo/gifs/1a-onboarding-complete.gif)
-
-**온보딩 전체 입력과 추천 결과 · 18초** — [MP4 보기](./docs/demo/1a-onboarding-complete.mp4)
-
-![추천 채널의 핵심 요약, 광고 상품, 타깃층과 광고 예시를 확인하는 데모 영상](./docs/demo/gifs/1d-recommend-detail.gif)
-
-**추천 상세의 네 탭과 광고 예시 · 12초** — [MP4 보기](./docs/demo/1d-recommend-detail.mp4)
+<table>
+<tr>
+<td width="50%" valign="top">
+<p><strong>온보딩 전체 입력과 추천 결과 · 18초</strong></p>
+<img src="./docs/demo/gifs/1a-onboarding-complete.gif" alt="온보딩 8단계 입력부터 추천 카드 등장까지 보여주는 데모 영상" width="100%">
+<p><a href="./docs/demo/1a-onboarding-complete.mp4">MP4 원본 보기</a></p>
+</td>
+<td width="50%" valign="top">
+<p><strong>추천 상세의 네 탭과 광고 예시 · 12초</strong></p>
+<img src="./docs/demo/gifs/1d-recommend-detail.gif" alt="추천 채널의 핵심 요약, 광고 상품, 타깃층과 광고 예시를 확인하는 데모 영상" width="100%">
+<p><a href="./docs/demo/1d-recommend-detail.mp4">MP4 원본 보기</a></p>
+</td>
+</tr>
+</table>
 
 <details>
 <summary>추천 채널 비교 더 보기</summary>
@@ -49,16 +56,26 @@
 
 ![필터를 적용해 비교할 광고 채널을 선택하는 화면](./.github/assets/readme/03-comparison.png)
 
-![카테고리 필터와 검색으로 광고 채널을 찾는 데모 영상](./docs/demo/gifs/search-filter-zoom.gif)
-
-**검색과 카테고리 필터 · 12초** — [MP4 보기](./docs/demo/search-filter-zoom.mp4)
+<table>
+<tr>
+<td width="50%" valign="top">
+<p><strong>검색과 카테고리 필터 · 12초</strong></p>
+<img src="./docs/demo/gifs/search-filter-zoom.gif" alt="카테고리 필터와 검색으로 광고 채널을 찾는 데모 영상" width="100%">
+<p><a href="./docs/demo/search-filter-zoom.mp4">MP4 원본 보기</a></p>
+</td>
+<td width="50%" valign="top">
+<p><strong>직접 선택한 채널 비교 · 9초</strong></p>
+<img src="./docs/demo/gifs/2b-channel-compare.gif" alt="직접 선택한 세 광고 채널의 예상 노출과 클릭을 비교하는 데모 영상" width="100%">
+<p><a href="./docs/demo/2b-channel-compare.mp4">MP4 원본 보기</a></p>
+</td>
+</tr>
+</table>
 
 ![광고 채널별 예상 성과와 주요 지표를 비교하는 결과 화면](./.github/assets/readme/04-comparison-result.png)
 
 <details>
 <summary>필터 조합과 비교 후보 선택 더 보기</summary>
 
-- [직접 선택한 채널 비교 · 9초](./docs/demo/2b-channel-compare.mp4): 세 광고 채널을 선택해 예상 노출과 클릭을 비교합니다.
 - [여러 카테고리 선택과 초기화 · 12초](./docs/demo/2c-multi-filter.mp4): 여러 카테고리를 함께 선택하고 필터를 초기화합니다.
 - [비교 후보 교체 · 12초](./docs/demo/2d-replace-candidate.mp4): 선택한 채널을 해제하고 다른 후보를 추가합니다.
 - [검색 결과가 없을 때 · 7초](./docs/demo/2e-empty-recovery.mp4): 검색어와 필터를 조정해 채널 목록을 다시 확인합니다.
@@ -71,9 +88,15 @@
 
 ![광고 예산을 조정하고 채널별 예상 성과를 확인하는 시뮬레이터](./.github/assets/readme/05-simulator.png)
 
-![같은 총예산에서 채널별 배분을 바꾸고 예상 성과를 다시 계산하는 데모 영상](./docs/demo/gifs/3b-budget-reallocation.gif)
-
-**예산 재배분과 성과 변화 · 9초** — [MP4 보기](./docs/demo/3b-budget-reallocation.mp4)
+<table>
+<tr>
+<td width="50%" valign="top">
+<p><strong>예산 재배분과 성과 변화 · 9초</strong></p>
+<img src="./docs/demo/gifs/3b-budget-reallocation.gif" alt="같은 총예산에서 채널별 배분을 바꾸고 예상 성과를 다시 계산하는 데모 영상" width="100%">
+<p><a href="./docs/demo/3b-budget-reallocation.mp4">MP4 원본 보기</a></p>
+</td>
+</tr>
+</table>
 
 <details>
 <summary>초기 조건 설정과 결과 저장 더 보기</summary>
@@ -87,9 +110,15 @@
 
 마이페이지에서 저장한 추천, 비교, 시뮬레이션 결과를 다시 열어 이전 광고 계획을 이어서 검토합니다.
 
-![마이페이지에서 저장한 시뮬레이션의 예산과 예상 성과를 다시 여는 데모 영상](./docs/demo/gifs/4c-saved-simulation.gif)
-
-**저장된 시뮬레이션 다시 보기 · 9초** — [MP4 보기](./docs/demo/4c-saved-simulation.mp4)
+<table>
+<tr>
+<td width="50%" valign="top">
+<p><strong>저장된 시뮬레이션 다시 보기 · 9초</strong></p>
+<img src="./docs/demo/gifs/4c-saved-simulation.gif" alt="마이페이지에서 저장한 시뮬레이션의 예산과 예상 성과를 다시 여는 데모 영상" width="100%">
+<p><a href="./docs/demo/4c-saved-simulation.mp4">MP4 원본 보기</a></p>
+</td>
+</tr>
+</table>
 
 <details>
 <summary>저장한 추천과 비교 결과 더 보기</summary>
