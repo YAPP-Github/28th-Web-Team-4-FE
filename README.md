@@ -26,6 +26,8 @@
 
 서비스 정보와 광고 조건을 입력하면 적합한 채널을 추천받고, 추천 이유와 예상 성과를 비교할 수 있습니다.
 
+![서비스 정보 입력과 광고 데이터 업로드를 거쳐 맞춤 채널을 추천받는 과정](./.github/assets/readme/02-recommendation.png)
+
 ![온보딩 8단계 입력부터 추천 카드 등장까지 보여주는 데모 영상](./docs/demo/gifs/1a-onboarding-complete.gif)
 
 **온보딩 전체 입력과 추천 결과 · 18초** — [MP4 보기](./docs/demo/1a-onboarding-complete.mp4)
@@ -45,9 +47,13 @@
 
 검색과 카테고리 필터로 광고 채널을 찾고, 최대 3개 채널의 주요 지표와 예상 성과를 나란히 비교합니다.
 
+![필터를 적용해 비교할 광고 채널을 선택하는 화면](./.github/assets/readme/03-comparison.png)
+
 ![카테고리 필터와 검색으로 광고 채널을 찾는 데모 영상](./docs/demo/gifs/search-filter-zoom.gif)
 
 **검색과 카테고리 필터 · 12초** — [MP4 보기](./docs/demo/search-filter-zoom.mp4)
+
+![광고 채널별 예상 성과와 주요 지표를 비교하는 결과 화면](./.github/assets/readme/04-comparison-result.png)
 
 <details>
 <summary>필터 조합과 비교 후보 선택 더 보기</summary>
@@ -62,6 +68,8 @@
 ### 3. 시뮬레이터
 
 총예산과 집행 기간을 설정하고, 채널별 예산 배분에 따라 예상 노출과 클릭이 어떻게 달라지는지 확인합니다.
+
+![광고 예산을 조정하고 채널별 예상 성과를 확인하는 시뮬레이터](./.github/assets/readme/05-simulator.png)
 
 ![같은 총예산에서 채널별 배분을 바꾸고 예상 성과를 다시 계산하는 데모 영상](./docs/demo/gifs/3b-budget-reallocation.gif)
 
