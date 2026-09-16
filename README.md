@@ -34,15 +34,21 @@
 - 입력한 조건에 적합한 채널과 추천 이유를 함께 확인합니다.
 - 채널별 주요 정보를 살펴보고 다음 광고 계획에 활용합니다.
 
-<div>
-<div><strong>온보딩 전체 입력과 추천 결과</strong>
-<video src="https://github.com/user-attachments/assets/41a8f4ab-b1da-41dc-9256-a7bf920a88f4" controls width="100%"></video>
-<p>서비스 정보와 광고 조건을 입력하고 맞춤 추천 결과를 확인합니다.</p>
-</div>
-<div><strong>추천 상세의 네 탭과 광고 예시</strong>
-<video src="https://github.com/user-attachments/assets/119dd4b4-8e66-4953-b111-416ea74f7871" controls width="100%"></video>
-<p>추천 채널의 핵심 요약·광고 상품·타깃층·광고 예시를 살펴봅니다.</p></div>
-</div>
+#### 온보딩 전체 입력과 추천 결과
+
+서비스 정보와 광고 조건을 입력하고 맞춤 추천 결과를 확인합니다.
+
+https://github.com/user-attachments/assets/41a8f4ab-b1da-41dc-9256-a7bf920a88f4
+
+---
+
+#### 추천 상세의 네 탭과 광고 예시
+
+추천 채널의 핵심 요약·광고 상품·타깃층·광고 예시를 살펴봅니다.
+
+https://github.com/user-attachments/assets/119dd4b4-8e66-4953-b111-416ea74f7871
+
+---
 
 ### 2. 채널 비교 및 결과 보기
 
@@ -58,14 +64,21 @@
 - 예상 노출, 예상 클릭, CPC와 CPM을 나란히 비교합니다.
 - 지표별 인사이트를 참고해 서비스에 맞는 채널을 선택합니다.
 
-<div>
-<div><strong>검색과 카테고리 필터</strong>
-<video src="https://github.com/user-attachments/assets/ffe9262e-d768-41f6-be15-e8b62d8f0455" controls width="100%"></video>
-<p>카테고리와 검색어로 원하는 광고 채널을 찾습니다.</p></div>
-<div><strong>직접 선택한 채널 비교</strong>
-<video src="https://github.com/user-attachments/assets/cd20e90b-98f9-4767-857c-cfc5a668a862" controls width="100%"></video>
-<p>세 채널을 선택해 예상 노출과 클릭을 나란히 비교합니다.</p></div>
-</div>
+#### 검색과 카테고리 필터
+
+카테고리와 검색어로 원하는 광고 채널을 찾습니다.
+
+https://github.com/user-attachments/assets/ffe9262e-d768-41f6-be15-e8b62d8f0455
+
+---
+
+#### 직접 선택한 채널 비교
+
+세 채널을 선택해 예상 노출과 클릭을 나란히 비교합니다.
+
+https://github.com/user-attachments/assets/cd20e90b-98f9-4767-857c-cfc5a668a862
+
+---
 
 ### 3. 시뮬레이터
 
@@ -76,14 +89,21 @@
 - 채널마다 예산을 배분하며 예상 노출과 클릭의 변화를 확인합니다.
 - 시뮬레이션 결과를 그래프와 표로 전환해 살펴봅니다.
 
-<div>
-<div><strong>예산 재배분과 성과 변화</strong>
-<video src="https://github.com/user-attachments/assets/fd7944bb-907f-4410-8e42-c32d5705e806" controls width="100%"></video>
-<p>채널별 예산 배분을 바꾸며 예상 노출과 클릭의 변화를 확인합니다.</p></div>
-<div><strong>표로 확인하고 결과 저장</strong>
-<video src="https://github.com/user-attachments/assets/d499d58c-eac1-4808-80a5-3a41cd2f11f5" controls width="100%"></video>
-<p>계산 결과를 표로 살펴보고 이름을 붙여 저장합니다.</p></div>
-</div>
+#### 예산 재배분과 성과 변화
+
+채널별 예산 배분을 바꾸며 예상 노출과 클릭의 변화를 확인합니다.
+
+https://github.com/user-attachments/assets/fd7944bb-907f-4410-8e42-c32d5705e806
+
+---
+
+#### 표로 확인하고 결과 저장
+
+계산 결과를 표로 살펴보고 이름을 붙여 저장합니다.
+
+https://github.com/user-attachments/assets/d499d58c-eac1-4808-80a5-3a41cd2f11f5
+
+---
 
 ### 4. 저장된 결과 다시 보기
 
@@ -93,14 +113,19 @@
 - 저장한 결과는 마이페이지에서 다시 확인할 수 있습니다.
 - 저장한 추천 결과의 채널을 불러와 예산 시뮬레이션을 이어서 진행할 수 있습니다.
 
-<div>
-<div><strong>저장된 추천 다시 보기</strong>
-<video src="https://github.com/user-attachments/assets/0ec28c9a-819e-4b4e-97a3-8bebb4219900" controls width="100%"></video>
-<p>마이페이지에서 저장한 추천 결과와 채널 정보를 다시 확인합니다.</p></div>
-<div><strong>저장된 시뮬레이션 다시 보기</strong>
-<video src="https://github.com/user-attachments/assets/6252a494-d045-4a9f-9c21-4c4435b26b15" controls width="100%"></video>
-<p>저장한 시뮬레이션을 열어 예산 배분과 예상 성과를 확인합니다.</p></div>
-</div>
+#### 저장된 추천 다시 보기
+
+마이페이지에서 저장한 추천 결과와 채널 정보를 다시 확인합니다.
+
+https://github.com/user-attachments/assets/0ec28c9a-819e-4b4e-97a3-8bebb4219900
+
+---
+
+#### 저장된 시뮬레이션 다시 보기
+
+저장한 시뮬레이션을 열어 예산 배분과 예상 성과를 확인합니다.
+
+https://github.com/user-attachments/assets/6252a494-d045-4a9f-9c21-4c4435b26b15
 
 > [!NOTE]
 > 예상 성과는 매체 정보와 입력 조건을 바탕으로 계산한 참고값이며 실제 광고 성과를 보장하지 않습니다.
