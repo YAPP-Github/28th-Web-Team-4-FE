@@ -20,6 +20,8 @@
 
 ## 주요 기능
 
+[전체 데모 영상 보기](https://yapp-github.github.io/adlib/demo/)
+
 ### 1. 온보딩 + 채널 추천 + 비교 결과 보기
 
 서비스 정보와 광고 조건을 입력하면 적합한 채널을 추천받고, 추천 이유와 예상 성과를 비교할 수 있습니다.
@@ -43,7 +45,7 @@
 <details>
 <summary>추천 채널 비교 더 보기</summary>
 
-- [추천 채널로 비교하기](./docs/demo/1e-recommend-compare.mp4): 추천받은 채널 3개를 선택해 비교 결과를 확인합니다.
+- [추천 채널로 비교하기](https://yapp-github.github.io/adlib/demo/#1e-recommend-compare): 추천받은 채널 3개를 선택해 비교 결과를 확인합니다.
 
 </details>
 
@@ -73,9 +75,9 @@
 <details>
 <summary>필터 조합과 비교 후보 선택 더 보기</summary>
 
-- [여러 카테고리 선택과 초기화](./docs/demo/2c-multi-filter.mp4): 여러 카테고리를 함께 선택하고 필터를 초기화합니다.
-- [비교 후보 교체](./docs/demo/2d-replace-candidate.mp4): 선택한 채널을 해제하고 다른 후보를 추가합니다.
-- [검색 결과가 없을 때](./docs/demo/2e-empty-recovery.mp4): 검색어와 필터를 조정해 채널 목록을 다시 확인합니다.
+- [여러 카테고리 선택과 초기화](https://yapp-github.github.io/adlib/demo/#2c-multi-filter): 여러 카테고리를 함께 선택하고 필터를 초기화합니다.
+- [비교 후보 교체](https://yapp-github.github.io/adlib/demo/#2d-replace-candidate): 선택한 채널을 해제하고 다른 후보를 추가합니다.
+- [검색 결과가 없을 때](https://yapp-github.github.io/adlib/demo/#2e-empty-recovery): 검색어와 필터를 조정해 채널 목록을 다시 확인합니다.
 
 </details>
 
@@ -100,7 +102,7 @@
 <details>
 <summary>초기 조건 설정 더 보기</summary>
 
-- [조건 설정과 첫 계산](./docs/demo/3a-simulator-setup.mp4): 총 200만원과 1개월을 설정하고 채널별 예산을 배분합니다.
+- [조건 설정과 첫 계산](https://yapp-github.github.io/adlib/demo/#3a-simulator-setup): 총 200만원과 1개월을 설정하고 채널별 예산을 배분합니다.
 
 </details>
 
@@ -124,7 +126,7 @@
 <details>
 <summary>저장한 비교 결과 더 보기</summary>
 
-- [저장된 비교 다시 보기](./docs/demo/4b-saved-compare.mp4): 저장한 채널 비교 결과를 확인합니다.
+- [저장된 비교 다시 보기](https://yapp-github.github.io/adlib/demo/#4b-saved-compare): 저장한 채널 비교 결과를 확인합니다.
 
 </details>
 
