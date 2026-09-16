@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
 import { HStack } from '@/shared/ui/layout/h-stack';
+import { JustifyBetween } from '@/shared/ui/layout/justify-between';
 import { Logo } from '@/shared/ui/logo';
 
 import { HeaderLoginButton } from './header-login-button';
@@ -48,6 +49,7 @@ export function PageHeader(props: PageHeaderProps): JSX.Element {
     logoutError,
     ...rest
   } = props;
+  const logoTone = appearance === 'default' ? 'brand' : 'inverse';
 
   return (
     <HStack
@@ -58,27 +60,14 @@ export function PageHeader(props: PageHeaderProps): JSX.Element {
       )}
       {...rest}
     >
-      <Box
-        className={cn(
-          'flex h-full w-full max-w-[1200px] items-center justify-between',
-          innerClassName,
-        )}
-      >
+      <JustifyBetween className={cn('h-full w-full max-w-[1200px] items-center', innerClassName)}>
         <Link
           href="/"
           aria-label="chaesozip"
           className="focus-visible:outline-sys-primary-default shrink-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
         >
-          <Logo
-            type="s"
-            alt=""
-            className={cn('lg:hidden', appearance !== 'default' && 'text-white')}
-          />
-          <Logo
-            type="m"
-            alt=""
-            className={cn('hidden lg:inline-flex', appearance !== 'default' && 'text-white')}
-          />
+          <Logo type="s" tone={logoTone} alt="" className="lg:hidden" />
+          <Logo type="m" tone={logoTone} alt="" className="hidden lg:inline-flex" />
         </Link>
 
         <Box
@@ -89,7 +78,7 @@ export function PageHeader(props: PageHeaderProps): JSX.Element {
 
         <Box className="ml-[54px] hidden min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-[50px] lg:grid">
           <Box as="nav" aria-label="주요 메뉴" className="min-w-0">
-            <Box className="flex h-full min-w-0 items-center gap-[26px]">
+            <HStack className="h-full min-w-0 gap-[26px]">
               {PAGE_HEADER_NAVIGATION_ITEMS.map((item) => (
                 <PageHeaderNavLink
                   key={item.label}
@@ -101,7 +90,7 @@ export function PageHeader(props: PageHeaderProps): JSX.Element {
                   {item.label}
                 </PageHeaderNavLink>
               ))}
-            </Box>
+            </HStack>
           </Box>
 
           {props.isLogin ? (
@@ -118,7 +107,7 @@ export function PageHeader(props: PageHeaderProps): JSX.Element {
             </Box>
           )}
         </Box>
-      </Box>
+      </JustifyBetween>
     </HStack>
   );
 }

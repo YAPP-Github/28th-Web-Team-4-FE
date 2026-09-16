@@ -40,10 +40,18 @@ export function trackClientEvent<
   };
 
   if ('posthogEventName' in definition) {
-    posthog.capture(definition.posthogEventName, propertiesWithMetadata);
+    try {
+      posthog.capture(definition.posthogEventName, propertiesWithMetadata);
+    } catch {
+      // 분석 실패가 GA 전송과 사용자 동작을 막지 않도록 격리한다.
+    }
   }
 
   if ('ga4EventName' in definition) {
-    sendGAEvent('event', definition.ga4EventName, propertiesWithMetadata);
+    try {
+      sendGAEvent('event', definition.ga4EventName, propertiesWithMetadata);
+    } catch {
+      // 분석 실패가 이후 화면 이동과 저장 완료 처리를 막지 않도록 격리한다.
+    }
   }
 }

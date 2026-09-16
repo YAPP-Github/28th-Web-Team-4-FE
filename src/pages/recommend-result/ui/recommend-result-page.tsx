@@ -21,8 +21,10 @@ import {
   recommendedChannels,
   type RecommendedChannel,
 } from '@/pages/recommend-result/model/recommended-channels';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Stack } from '@/shared/ui/layout/stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Button } from '@/shared/ui/button';
-import { Box } from '@/shared/ui/layout/box';
 import { showWarningToast } from '@/shared/ui/toast';
 
 import { RecommendedChannelCarousel } from './recommended-channel-carousel';
@@ -92,15 +94,15 @@ export function RecommendResultPage({
   };
 
   return (
-    <main className="bg-surface-background-default flex flex-1 flex-col items-center">
+    <VStack as="main" className="bg-surface-background-default flex-1">
       <RecommendResultSubHeader
         serviceName={serviceName}
         title={headerTitle}
         description={headerDescription}
         action={headerAction}
       />
-      <Box className="px-016 pb-040 sm:px-032 lg:px-064 flex w-full justify-center pt-[60px] xl:px-0">
-        <Box className="gap-040 flex w-full max-w-[1200px] flex-col">
+      <Flex className="px-016 pb-040 sm:px-032 lg:px-064 w-full justify-center pt-[60px] xl:px-0">
+        <Stack className="gap-040 w-full max-w-[1200px]">
           <RecommendedChannelCarousel
             channels={channels}
             startDelay={0.14}
@@ -127,9 +129,9 @@ export function RecommendResultPage({
             />
             /{MAX_COMPARISON_CHANNELS})
           </Button>
-        </Box>
-      </Box>
-    </main>
+        </Stack>
+      </Flex>
+    </VStack>
   );
 }
 
@@ -140,9 +142,10 @@ export function RecommendResultWithRecommendations({
   const router = useRouter();
   const serviceName = useRecommendOnboardingStore((state) => state.answer?.serviceName ?? '채소집');
   const recommendationsQuery = useRecommendations(onboardingId);
+  const [activeOnboardingId, setActiveOnboardingId] = useState(onboardingId);
 
   const handleCompare = (channelIds: readonly string[]): void => {
-    router.push(createChannelComparisonHref(channelIds, { onboardingId }));
+    router.push(createChannelComparisonHref(channelIds, { onboardingId: activeOnboardingId }));
   };
 
   return (
@@ -151,10 +154,14 @@ export function RecommendResultWithRecommendations({
       <RecommendResultPage
         channels={recommendationsQuery.data}
         headerAction={
-          <RecommendResultSaveAction onboardingId={onboardingId} serviceName={serviceName} />
+          <RecommendResultSaveAction
+            onboardingId={activeOnboardingId}
+            onOnboardingIdChange={setActiveOnboardingId}
+            serviceName={serviceName}
+          />
         }
         isGuest={isGuest}
-        onboardingId={onboardingId}
+        onboardingId={activeOnboardingId}
         onCompare={handleCompare}
       />
     </>

@@ -3,7 +3,8 @@
 import type { JSX } from 'react';
 
 import { Button } from '@/shared/ui/button';
-import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Modal, TextModal } from '@/shared/ui/modal';
 
 type LogoutModalProps = {
@@ -16,21 +17,21 @@ const modalClassName = 'gap-024 px-030 pb-024 pt-030 items-center';
 
 function QuestionMark(): JSX.Element {
   return (
-    <Box
+    <Center
       aria-hidden="true"
-      className="bg-surface-high text-text-lowest font-pre text-24 size-036 flex items-center justify-center rounded-full leading-[34px] font-semibold"
+      className="bg-surface-high text-text-lowest font-pre text-24 size-036 rounded-full leading-[34px] font-semibold"
     >
       ?
-    </Box>
+    </Center>
   );
 }
 
 function ModalTitle({ children }: { children: string }): JSX.Element {
   return (
-    <span className="flex w-full flex-col items-center gap-[18px]">
+    <VStack as="span" className="w-full gap-[18px]">
       <QuestionMark />
       <span>{children}</span>
-    </span>
+    </VStack>
   );
 }
 

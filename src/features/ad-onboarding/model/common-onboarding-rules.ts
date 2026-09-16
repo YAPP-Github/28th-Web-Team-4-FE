@@ -7,6 +7,7 @@ import { formatBudgetRange, isBudgetRangeEmpty } from '@/features/ad-onboarding/
 import {
   CAMPAIGN_PERIOD_OPTION_BY_VALUE,
   CATEGORY_OPTION_BY_VALUE,
+  MAX_ONBOARDING_SERVICE_NAME_LENGTH,
   SERVICE_TYPE_OPTION_BY_VALUE,
   type OnboardingOptionByValue,
 } from './common-onboarding-options';
@@ -26,7 +27,7 @@ export function isCommonOnboardingStepComplete(
 ): boolean {
   switch (stepId) {
     case 'service-name':
-      return draft.serviceName.trim().length > 0;
+      return isServiceNameComplete(draft.serviceName);
     case 'category':
       return Boolean(draft.category);
     case 'service-type':
@@ -36,6 +37,18 @@ export function isCommonOnboardingStepComplete(
     case 'campaign-period':
       return Boolean(draft.campaignPeriod);
   }
+}
+
+/**
+ * 서비스 이름이 첫 단계 제출 가능한 길이인지 확인한다.
+ *
+ * @param serviceName 사용자가 입력한 서비스 이름
+ * @returns trim 후 1자 이상 50자 이하면 true
+ */
+export function isServiceNameComplete(serviceName: string): boolean {
+  const trimmedLength = serviceName.trim().length;
+
+  return trimmedLength > 0 && trimmedLength <= MAX_ONBOARDING_SERVICE_NAME_LENGTH;
 }
 
 /**

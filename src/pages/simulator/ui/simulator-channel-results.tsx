@@ -7,7 +7,10 @@ import type { SimulationResponse } from '@/shared/api/generated';
 
 import { useSimulatorFilterChannels } from '@/features/simulator-filter/api/use-simulator-filter-channels';
 import type { SimulatorFilterChannel } from '@/features/simulator-filter/model/simulator-filter-options';
-import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { JustifyBetween } from '@/shared/ui/layout/justify-between';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 import { AuthenticatedChannelResults } from './simulator-authenticated-results';
@@ -20,6 +23,7 @@ import {
 type SimulatorChannelResultsProps = {
   isLogin: boolean;
   isChannelSelectionComplete?: boolean;
+  loginHref: string;
   selectedChannelIds?: readonly string[];
   simulationResult?: SimulationResponse | null;
 };
@@ -58,9 +62,9 @@ function ChannelCostInfo({
 
   if (!isEnabled) {
     return (
-      <Box aria-hidden className="text-icon-default size-018 flex items-center justify-center">
+      <Center aria-hidden className="text-icon-default size-018">
         {infoIcon}
-      </Box>
+      </Center>
     );
   }
 
@@ -87,16 +91,19 @@ function ChannelCostInfo({
               role="tooltip"
               className="bg-surface-lowest p-016 shadow-drop-shadow-02 w-max max-w-[calc(100vw-32px)] rounded-[var(--radius-m)] rounded-tl-none"
             >
-              <Box className="gap-008 flex flex-col items-start">
+              <Stack className="gap-008 items-start">
                 <span className="typo-subtitle-sm text-text-high">채널별 클릭당 비용</span>
-                <span className="typo-body-xs text-text-medium gap-002 flex flex-col items-start whitespace-nowrap">
+                <Stack
+                  as="span"
+                  className="typo-body-xs text-text-medium gap-002 items-start whitespace-nowrap"
+                >
                   {costLines.length > 0 ? (
                     costLines.map(({ id, text }) => <span key={id}>{text}</span>)
                   ) : (
                     <span>등록된 비용 정보가 없어요.</span>
                   )}
-                </span>
-              </Box>
+                </Stack>
+              </Stack>
             </BaseTooltip.Popup>
           </BaseTooltip.Positioner>
         </BaseTooltip.Portal>
@@ -108,6 +115,7 @@ function ChannelCostInfo({
 export function SimulatorChannelResults({
   isLogin,
   isChannelSelectionComplete = false,
+  loginHref,
   selectedChannelIds = [],
   simulationResult = null,
 }: SimulatorChannelResultsProps): JSX.Element {
@@ -125,15 +133,15 @@ export function SimulatorChannelResults({
     selectedChannelIds.length > 0;
 
   return (
-    <Box
+    <Stack
       as="section"
       aria-labelledby="simulator-channel-results-title"
       data-selected-channel-ids={selectedChannelIds.join(',') || undefined}
       data-simulation-result-state={simulationResult ? 'ready' : 'initial'}
-      className="bg-surface-lowest gap-026 px-030 py-024 relative flex w-full shrink-0 flex-col overflow-hidden rounded-[var(--radius-l)]"
+      className="bg-surface-lowest gap-026 px-030 py-024 relative w-full shrink-0 overflow-hidden rounded-[var(--radius-l)]"
     >
-      <Box className="flex w-full items-center justify-between">
-        <Box className="gap-006 group flex items-center">
+      <JustifyBetween className="w-full items-center">
+        <HStack className="gap-006 group">
           <Text
             as="h2"
             id="simulator-channel-results-title"
@@ -143,9 +151,9 @@ export function SimulatorChannelResults({
             {resultsTitle}
           </Text>
           <ChannelCostInfo channels={channels} isEnabled={isChannelCostInfoEnabled} />
-        </Box>
+        </HStack>
         <SimulatorResultsViewToggle view={view} onViewChange={setView} />
-      </Box>
+      </JustifyBetween>
       {isLogin ? (
         <AuthenticatedChannelResults
           isChannelSelectionComplete={isChannelSelectionComplete}
@@ -154,8 +162,8 @@ export function SimulatorChannelResults({
           view={view}
         />
       ) : (
-        <GuestChannelResults view={view} />
+        <GuestChannelResults loginHref={loginHref} view={view} />
       )}
-    </Box>
+    </Stack>
   );
 }

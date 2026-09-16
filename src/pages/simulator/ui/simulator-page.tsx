@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import type { SimulationResponse } from '@/shared/api/generated';
 
 import { Box } from '@/shared/ui/layout/box';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Stack } from '@/shared/ui/layout/stack';
 
 import { SimulatorCalculationNote } from './simulator-calculation-note';
 import { SimulatorChannelResults } from './simulator-channel-results';
@@ -51,6 +53,13 @@ export function SimulatorPage({
   const [simulationResult, setSimulationResult] = useState<SimulationResponse | null>(
     initialSimulationResult,
   );
+  const loginHref = `/login?returnTo=${encodeURIComponent(
+    createSimulatorResultHref(selectedChannelIds, initialFilterOpen),
+  )}`;
+  const contentBottomSpacerClassName =
+    !isSavedResult && isLogin && isChannelSelectionComplete
+      ? 'h-[calc(120px+env(safe-area-inset-bottom))]'
+      : 'h-[calc(40px+env(safe-area-inset-bottom))]';
 
   const handleChannelRemove = (channelId: string): void => {
     const nextChannelIds = selectedChannelIds.filter((selectedId) => selectedId !== channelId);
@@ -60,34 +69,27 @@ export function SimulatorPage({
   };
 
   return (
-    <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-hidden">
+    <Stack as="main" className="bg-surface-background-default min-h-0 flex-1 overflow-hidden">
       {isSavedResult ? null : <SimulatorTutorialGate />}
       <SimulatorSubHeader
         simulationResult={simulationResult}
         showSaveAction={!isSavedResult}
         title={isSavedResult ? '저장된 시뮬레이션 결과예요' : undefined}
       />
-      <Box className="bg-surface-low px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto lg:px-120">
-        <Box
-          className={
-            isLogin && isChannelSelectionComplete
-              ? 'gap-020 pt-040 flex w-full max-w-[792px] flex-col'
-              : 'gap-020 py-040 flex w-full max-w-[792px] flex-col'
-          }
-        >
+      <Flex className="bg-surface-low px-016 sm:px-032 min-h-0 w-full flex-1 justify-center overflow-y-auto lg:px-120">
+        <Stack className="gap-020 pt-040 w-full max-w-[792px]">
           <SimulatorResultSummary simulationResult={simulationResult} />
           <SimulatorChannelResults
             isLogin={isLogin}
             isChannelSelectionComplete={isChannelSelectionComplete}
+            loginHref={loginHref}
             selectedChannelIds={selectedChannelIds}
             simulationResult={simulationResult}
           />
           <SimulatorCalculationNote />
-          {!isSavedResult && isLogin && isChannelSelectionComplete ? (
-            <Box aria-hidden className="h-120 shrink-0" />
-          ) : null}
-        </Box>
-      </Box>
+          <Box aria-hidden className={`${contentBottomSpacerClassName} shrink-0`} />
+        </Stack>
+      </Flex>
       {!isSavedResult && isLogin && isChannelSelectionComplete ? (
         <SimulatorChannelSelectionButton
           selectedChannelIds={selectedChannelIds}
@@ -96,6 +98,6 @@ export function SimulatorPage({
           onChannelRemove={handleChannelRemove}
         />
       ) : null}
-    </main>
+    </Stack>
   );
 }

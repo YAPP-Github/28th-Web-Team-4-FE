@@ -1,3 +1,4 @@
+/** 채널 상세 타깃층 패널의 지표 순서와 콘텐츠를 검증한다. */
 import { render, screen } from '@testing-library/react';
 
 import { CHANNEL_DETAIL_FIXTURE } from '@/features/channel-detail/model/channel-detail-fixture';

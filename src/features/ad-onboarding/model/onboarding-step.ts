@@ -12,7 +12,7 @@ export type CommonOnboardingStepId =
   | 'campaign-period';
 
 /** 추천에만 존재하는 단계 ID. */
-export type RecommendOnlyOnboardingStepId = 'age-ranges' | 'ad-goal' | 'ad-experience';
+type RecommendOnlyOnboardingStepId = 'age-ranges' | 'ad-goal' | 'ad-experience';
 
 /** 추천 8단계에서 사용하는 단계 ID. */
 export type RecommendOnboardingStepId = CommonOnboardingStepId | RecommendOnlyOnboardingStepId;

@@ -4,9 +4,12 @@ import { type JSX } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
-import { motion, useReducedMotion } from 'motion/react';
+import { motion } from 'motion/react';
 
+import { CenterStack } from '@/shared/ui/layout/center-stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Button } from '@/shared/ui/button';
+import { usePrefersReducedMotion } from '@/shared/lib/use-prefers-reduced-motion';
 
 // 피그마 노드 4281:35289 1:1 정밀 스펙 (사용자 커스텀 배치 100% 유지)
 const FOLDER_3D_ITEMS = [
@@ -20,7 +23,6 @@ const FOLDER_3D_ITEMS = [
     opacity: 0.2, // 20%
     blur: '1px',
     delay: 0.04,
-    floatDuration: 5.2,
   },
   {
     id: 'folder-2',
@@ -32,7 +34,6 @@ const FOLDER_3D_ITEMS = [
     opacity: 0.16, // 16%
     blur: '1.8px',
     delay: 0.1,
-    floatDuration: 6.8,
   },
   {
     id: 'folder-3',
@@ -44,7 +45,6 @@ const FOLDER_3D_ITEMS = [
     opacity: 0.12, // 12%
     blur: '2.0px',
     delay: 0.16,
-    floatDuration: 4.6,
   },
   {
     id: 'folder-4',
@@ -56,7 +56,6 @@ const FOLDER_3D_ITEMS = [
     opacity: 0.1, // 10%
     blur: '2px',
     delay: 0.07,
-    floatDuration: 5.8,
   },
   {
     id: 'folder-5',
@@ -68,7 +67,6 @@ const FOLDER_3D_ITEMS = [
     opacity: 0.13, // 13%
     blur: '2px',
     delay: 0.2,
-    floatDuration: 4.9,
   },
   {
     id: 'folder-6',
@@ -80,21 +78,20 @@ const FOLDER_3D_ITEMS = [
     opacity: 0.2, // 20%
     blur: '2px',
     delay: 0.13,
-    floatDuration: 7.2,
   },
 ] as const;
 
 const RECOMMEND_HREF = '/recommend';
 
 export function HomeFinalCta(): JSX.Element {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = usePrefersReducedMotion();
 
   return (
     <section
       aria-label="채소집 시작하기 안내 배너"
       className="bg-surface-lowest px-016 sm:px-032 w-full pt-[16px] pb-[60px] sm:pt-[24px] sm:pb-[80px] lg:px-120 lg:pt-[32px] lg:pb-[100px]"
     >
-      <div className="bg-sys-primary-default relative mx-auto flex min-h-[380px] w-full max-w-[1380px] flex-col items-center justify-center overflow-hidden rounded-[24px] px-[24px] py-[48px] text-center shadow-[inset_0_0_72px_rgba(255,255,255,0.4)] sm:min-h-[410px] sm:rounded-[32px] sm:px-[40px] sm:py-[60px] lg:px-[60px]">
+      <CenterStack className="bg-sys-primary-default relative mx-auto min-h-[380px] w-full max-w-[1380px] overflow-hidden rounded-[24px] px-[24px] py-[48px] text-center shadow-[inset_0_0_72px_rgba(255,255,255,0.4)] sm:min-h-[410px] sm:rounded-[32px] sm:px-[40px] sm:py-[60px] lg:px-[60px]">
         {/* ================= 피그마 순수 오렌지 캔버스 배경 ================= */}
         <div className="pointer-events-none absolute inset-0 size-full select-none">
           <Image
@@ -115,18 +112,17 @@ export function HomeFinalCta(): JSX.Element {
               initial={
                 shouldReduceMotion
                   ? { opacity: item.opacity, scale: 1 }
-                  : { opacity: 0, scale: 0.05 }
+                  : { opacity: 0, scale: 0.95 }
               }
               whileInView={{
                 opacity: item.opacity,
                 scale: 1,
               }}
-              viewport={{ once: false, amount: 0.15 }}
+              viewport={{ once: true, amount: 0.15 }}
               transition={{
                 type: 'spring',
-                stiffness: 120,
-                damping: 13,
-                mass: 0.8,
+                duration: 0.5,
+                bounce: 0.1,
                 delay: item.delay,
               }}
               style={{
@@ -137,23 +133,7 @@ export function HomeFinalCta(): JSX.Element {
                 height: `clamp(${item.height * 0.6}px, ${(item.height / 1380) * 100}vw, ${item.height}px)`,
               }}
             >
-              {/* 1. 수직(Y축) 글로벌 부유 래퍼: 회전축과 분리되어 모든 폴더가 위아래로만 은은하게 유영 */}
-              <motion.div
-                animate={
-                  shouldReduceMotion
-                    ? undefined
-                    : {
-                        y: [-6, 6, -6],
-                      }
-                }
-                transition={{
-                  duration: item.floatDuration,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                  delay: item.delay + 0.6,
-                }}
-                className="size-full"
-              >
+              <div className="size-full">
                 {/* 2. 그래픽 렌더링 래퍼: 고유 회전각 및 블러 적용 */}
                 <div
                   style={{
@@ -172,31 +152,34 @@ export function HomeFinalCta(): JSX.Element {
                     sizes="(max-width: 768px) 200px, 513px"
                   />
                 </div>
-              </motion.div>
+              </div>
             </motion.div>
           ))}
         </div>
 
         {/* ================= 텍스트 & CTA 버튼 (중앙 정렬) ================= */}
         <motion.div
-          initial={shouldReduceMotion ? undefined : { opacity: 0, y: 30, scale: 0.94 }}
+          initial={shouldReduceMotion ? undefined : { opacity: 0, y: 24, scale: 0.97 }}
           whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: false, amount: 0.2 }}
-          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay: 0.25 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1], delay: 0.2 }}
           className="relative z-10 flex max-w-[780px] flex-col items-center gap-[24px] sm:gap-[32px]"
         >
           {/* 타이틀 및 서브카피 */}
-          <div className="flex flex-col items-center gap-[10px] sm:gap-[14px]">
+          <VStack className="gap-[10px] sm:gap-[14px]">
             <h2 className="font-pre text-[24px] leading-[1.3] font-bold tracking-tight break-keep text-white sm:text-[32px] lg:text-[36px] lg:leading-[52px]">
               수많은 광고 채널, 더 이상 고민 말고 채소집에서 비교해요
             </h2>
             <p className="font-pre text-[15px] leading-[1.4] font-medium tracking-tight break-keep text-[#FFF4ED] sm:text-[18px] lg:text-[20px] lg:leading-[32px]">
               지금 바로 시작하고 조건에 맞는 최적의 채널과 예상 성과를 확인해 보세요
             </p>
-          </div>
+          </VStack>
 
           {/* CTA 버튼: 바로 채널 추천받기 (공통 Button 컴포넌트 사용 + 스트록 및 그림자 제거) */}
-          <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+          <motion.div
+            whileHover={shouldReduceMotion ? undefined : { scale: 1.02 }}
+            whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
+          >
             <Button
               frame="button"
               tone="stroke"
@@ -214,7 +197,7 @@ export function HomeFinalCta(): JSX.Element {
             </Button>
           </motion.div>
         </motion.div>
-      </div>
+      </CenterStack>
     </section>
   );
 }

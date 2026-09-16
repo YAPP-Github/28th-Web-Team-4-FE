@@ -1,6 +1,7 @@
 import type { ComponentProps, JSX, ReactNode } from 'react';
 
 import { cn } from '@/shared/ui/cn';
+import { Stack } from '@/shared/ui/layout/stack';
 import { VStack } from '@/shared/ui/layout/v-stack';
 import { BrandSymbol } from '@/shared/ui/symbol';
 
@@ -22,9 +23,10 @@ export function AuthForm({
   ...formProps
 }: AuthFormProps): JSX.Element {
   return (
-    <section
+    <VStack
+      as="section"
       aria-labelledby={titleId}
-      className="bg-surface-lowest shadow-drop-shadow-01 p-032 sm:p-072 flex w-full max-w-[584px] flex-col items-center rounded-[var(--radius-l)]"
+      className="bg-surface-lowest shadow-drop-shadow-01 p-032 sm:p-072 w-full max-w-[584px] rounded-[var(--radius-l)]"
     >
       <VStack className="gap-036 w-full max-w-[440px]">
         <AuthFormHeader
@@ -33,11 +35,11 @@ export function AuthForm({
           titleId={titleId}
         />
 
-        <VStack as="form" className={cn('gap-036 w-full items-stretch', className)} {...formProps}>
+        <Stack as="form" className={cn('gap-036 w-full', className)} {...formProps}>
           {children}
           {actions}
-        </VStack>
+        </Stack>
       </VStack>
-    </section>
+    </VStack>
   );
 }

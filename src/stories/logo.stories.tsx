@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, within } from 'storybook/test';
 
-import { Logo, LOGO_TYPES } from '@/shared/ui/logo';
+import { Center } from '@/shared/ui/layout/center';
+import { Stack } from '@/shared/ui/layout/stack';
+import { Logo, LOGO_TONES, LOGO_TYPES } from '@/shared/ui/logo';
 
 const meta = {
   title: 'components/Logo',
@@ -9,20 +11,25 @@ const meta = {
   tags: ['autodocs'],
   args: {
     type: 'm',
+    tone: 'brand',
   },
   argTypes: {
     type: {
       control: 'select',
       options: LOGO_TYPES,
     },
+    tone: {
+      control: 'select',
+      options: LOGO_TONES,
+    },
     alt: { control: 'text' },
     className: { control: 'text' },
   },
   decorators: [
     (Story) => (
-      <div className="bg-surface-high rounded-m flex min-h-40 w-full items-center justify-center p-6">
+      <Center className="bg-surface-high rounded-m min-h-40 w-full p-6">
         <Story />
-      </div>
+      </Center>
     ),
   ],
 } satisfies Meta<typeof Logo>;
@@ -31,6 +38,42 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByRole('img', { name: 'chaesozip' })).toBeVisible();
+  },
+};
+
+export const Muted: Story = {
+  args: {
+    tone: 'muted',
+  },
+  decorators: [
+    (Story) => (
+      <Center className="bg-surface-low rounded-m min-h-40 w-full p-6">
+        <Story />
+      </Center>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByRole('img', { name: 'chaesozip' })).toBeVisible();
+  },
+};
+
+export const Inverse: Story = {
+  args: {
+    tone: 'inverse',
+  },
+  decorators: [
+    (Story) => (
+      <Center className="bg-sys-primary-default rounded-m min-h-40 w-full p-6">
+        <Story />
+      </Center>
+    ),
+  ],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
@@ -55,9 +98,9 @@ export const CustomClassName: Story = {
     type: 'l',
   },
   render: () => (
-    <div className="flex flex-col items-start gap-8">
+    <Stack className="items-start gap-8">
       <Logo className="h-[112px] w-[330px]" />
-    </div>
+    </Stack>
   ),
 };
 
@@ -75,17 +118,18 @@ export const Decorative: Story = {
 export const AllTypes: Story = {
   argTypes: {
     type: { control: false },
+    tone: { control: false },
     alt: { control: false },
     className: { control: false },
   },
   render: () => (
-    <div className="flex flex-col items-start gap-8">
+    <Stack className="items-start gap-8">
       {LOGO_TYPES.map((type) => (
-        <div key={type} className="flex flex-col items-start gap-2">
+        <Stack key={type} className="items-start gap-2">
           <span className="typo-caption-sm text-text-lowest">{type}</span>
           <Logo type={type} />
-        </div>
+        </Stack>
       ))}
-    </div>
+    </Stack>
   ),
 };

@@ -3,7 +3,8 @@
 import { useState, type JSX } from 'react';
 
 import { Badge } from '@/shared/ui/badge';
-import { Box } from '@/shared/ui/layout/box';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Modal } from '@/shared/ui/modal';
 import { Text } from '@/shared/ui/text';
 
@@ -28,12 +29,12 @@ export function MyAdsConditionCard({ tags }: MyAdsConditionCardProps): JSX.Eleme
   const initialValues = createMyAdsConditionEditValues(conditionTags);
 
   return (
-    <Box
+    <Stack
       as="section"
       aria-labelledby="my-ads-condition-title"
-      className="bg-surface-lowest gap-020 px-030 py-024 flex w-full flex-col rounded-[var(--radius-l)]"
+      className="bg-surface-lowest gap-020 px-030 py-024 w-full rounded-[var(--radius-l)]"
     >
-      <Box className="gap-002 h-048 flex w-full flex-col">
+      <Stack className="gap-002 h-048 w-full">
         <Text
           as="h2"
           id="my-ads-condition-title"
@@ -45,14 +46,14 @@ export function MyAdsConditionCard({ tags }: MyAdsConditionCardProps): JSX.Eleme
         <Text as="p" variant="body-xl" className="text-text-low">
           온보딩에서 입력한 조건이에요
         </Text>
-      </Box>
-      <Box className="gap-008 flex w-full flex-wrap items-start">
+      </Stack>
+      <Flex className="gap-008 w-full flex-wrap items-start">
         {conditionTags.map((tag) => (
           <Badge key={tag} frame="indicator" tone="orange" size="m">
             {formatTag(tag)}
           </Badge>
         ))}
-      </Box>
+      </Flex>
       <Modal.Root
         open={activeModal === 'edit'}
         onOpenChange={(open) => setActiveModal(open ? 'edit' : null)}
@@ -82,6 +83,6 @@ export function MyAdsConditionCard({ tags }: MyAdsConditionCardProps): JSX.Eleme
       >
         <MyAdsConditionResetModal />
       </Modal.Root>
-    </Box>
+    </Stack>
   );
 }

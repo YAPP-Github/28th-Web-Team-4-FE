@@ -5,6 +5,7 @@ import { Input as BaseInput } from '@base-ui/react/input';
 
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
+import { HStack } from '@/shared/ui/layout/h-stack';
 
 type BaseInputProps = BaseInput.Props;
 
@@ -21,10 +22,10 @@ export function FilterInput({
   ...props
 }: FilterInputProps): JSX.Element {
   return (
-    <Box
+    <HStack
       className={cn(
         [
-          'flex h-8 w-[136px] items-center rounded-[var(--radius-s)] bg-surface-low px-014',
+          'h-8 w-[136px] rounded-[var(--radius-s)] bg-surface-low px-014',
           'has-disabled:cursor-not-allowed has-disabled:opacity-50',
         ],
         className,
@@ -44,6 +45,6 @@ export function FilterInput({
           {rightAddon}
         </Box>
       ) : null}
-    </Box>
+    </HStack>
   );
 }

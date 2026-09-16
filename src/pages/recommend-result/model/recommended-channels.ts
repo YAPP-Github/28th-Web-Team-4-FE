@@ -4,7 +4,7 @@ import type {
 } from '@/shared/api/generated/types.gen';
 import { formatCountRange, formatKoreanNumber } from '@/shared/lib/number-format';
 
-export type RecommendedChannelMetric = {
+type RecommendedChannelMetric = {
   label: string;
   value: string;
 };

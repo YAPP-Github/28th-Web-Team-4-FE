@@ -9,7 +9,10 @@ import type { z } from 'zod';
 
 import { AuthForm } from '@/features/auth/auth-form';
 import { getApiErrorMessage } from '@/shared/api/api-error';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Button } from '@/shared/ui/button';
+import { GoogleLogo } from '@/shared/ui/google-logo';
 import { InputField } from '@/shared/ui/input-field';
 import { Text } from '@/shared/ui/text';
 import { authEntrySchema } from '@/pages/auth/auth-entry/model/auth-entry-schema';
@@ -24,9 +27,11 @@ type AuthEntryOutput = z.output<typeof authEntrySchema>;
 function ExistingAccountForm({
   email,
   onBack,
+  returnTo,
 }: {
   email: string;
   onBack: () => void;
+  returnTo: string;
 }): JSX.Element {
   const router = useRouter();
   const [password, setPassword] = useState('');
@@ -43,7 +48,7 @@ function ExistingAccountForm({
 
     try {
       await authenticateLocal(email, password);
-      router.replace('/');
+      router.replace(returnTo);
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error, '로그인 중 문제가 발생했습니다.'));
       setIsPending(false);
@@ -53,7 +58,7 @@ function ExistingAccountForm({
   return (
     <AuthForm
       actions={
-        <div className="gap-012 flex w-full flex-col">
+        <Stack className="gap-012 w-full">
           {errorMessage ? (
             <p className="typo-body-lg text-sys-error-default text-center" role="alert">
               {errorMessage}
@@ -68,7 +73,7 @@ function ExistingAccountForm({
           <Button frame="cta" tone="login" type="submit" disabled={!password || isPending}>
             로그인하기
           </Button>
-        </div>
+        </Stack>
       }
       className="gap-12"
       title="로그인하기"
@@ -78,8 +83,8 @@ function ExistingAccountForm({
         void submit();
       }}
     >
-      <div className="gap-024 flex flex-col">
-        <label className="gap-008 flex flex-col">
+      <Stack className="gap-024">
+        <Stack as="label" className="gap-008">
           <Text variant="body-xl" className="text-text-medium">
             아이디
           </Text>
@@ -92,8 +97,8 @@ function ExistingAccountForm({
             className="cursor-pointer"
             onClick={onBack}
           />
-        </label>
-        <label className="gap-008 flex flex-col">
+        </Stack>
+        <Stack as="label" className="gap-008">
           <Text variant="body-xl" className="text-text-medium">
             비밀번호
           </Text>
@@ -109,13 +114,13 @@ function ExistingAccountForm({
               setErrorMessage(undefined);
             }}
           />
-        </label>
-      </div>
+        </Stack>
+      </Stack>
     </AuthForm>
   );
 }
 
-export function AuthEntryForm(): JSX.Element {
+export function AuthEntryForm({ returnTo = '/' }: { returnTo?: string }): JSX.Element {
   const router = useRouter();
   const [existingAccountEmail, setExistingAccountEmail] = useState<string>();
   const resolveEmailMutation = useResolveAuthEmail();
@@ -132,8 +137,11 @@ export function AuthEntryForm(): JSX.Element {
     isGoogleReady,
   } = useGoogleAuthFlow({
     onDeferLink: (email) => setExistingAccountEmail(email),
+    returnTo,
   });
   const googleButtonContainerRef = useRef<HTMLDivElement>(null);
+  const isGoogleButtonDisabled =
+    resolveEmailMutation.isPending || isGoogleAuthPending || !isGoogleReady;
   const {
     clearErrors,
     formState: { errors },
@@ -165,6 +173,9 @@ export function AuthEntryForm(): JSX.Element {
         }
 
         const searchParams = new URLSearchParams({ email: resolution.email });
+        if (returnTo !== '/') {
+          searchParams.set('returnTo', returnTo);
+        }
         router.push(`/signup?${searchParams.toString()}`);
       },
       onError: (error: unknown) => {
@@ -180,6 +191,7 @@ export function AuthEntryForm(): JSX.Element {
       <ExistingAccountForm
         email={existingAccountEmail}
         onBack={() => setExistingAccountEmail(undefined)}
+        returnTo={returnTo}
       />
     );
   }
@@ -193,7 +205,7 @@ export function AuthEntryForm(): JSX.Element {
       />
       <AuthForm
         actions={
-          <div className="gap-012 flex w-full flex-col">
+          <Stack className="gap-012 w-full">
             {googleErrorMessage ? (
               <p className="typo-body-lg text-sys-error-default text-center" role="alert">
                 {googleErrorMessage}
@@ -207,26 +219,24 @@ export function AuthEntryForm(): JSX.Element {
             >
               이메일로 시작하기
             </Button>
-            <div className="relative flex min-h-[50px] w-full justify-center">
-              {isGoogleReady ? null : (
-                <Button frame="button" tone="social" type="button" disabled>
-                  Google로 시작하기
-                </Button>
-              )}
+            <Flex className="relative min-h-[50px] w-full justify-center">
+              <Button
+                frame="button"
+                tone="social"
+                type="button"
+                disabled={isGoogleButtonDisabled}
+                leftIcon={<GoogleLogo alt="" />}
+              >
+                Google로 시작하기
+              </Button>
               <div
                 ref={googleButtonContainerRef}
-                className={
-                  isGoogleReady
-                    ? `flex w-full justify-center ${
-                        resolveEmailMutation.isPending || isGoogleAuthPending
-                          ? 'pointer-events-none opacity-60'
-                          : ''
-                      }`
-                    : 'hidden'
-                }
-                aria-disabled={resolveEmailMutation.isPending || isGoogleAuthPending}
+                className={`absolute inset-0 z-10 flex w-full justify-center opacity-0 ${
+                  isGoogleButtonDisabled ? 'pointer-events-none' : 'pointer-events-auto'
+                }`}
+                aria-hidden="true"
               />
-            </div>
+            </Flex>
             <button
               type="button"
               className="typo-subtitle-xxs text-text-medium self-center underline underline-offset-2"
@@ -234,7 +244,7 @@ export function AuthEntryForm(): JSX.Element {
             >
               서비스로 돌아가기
             </button>
-          </div>
+          </Stack>
         }
         className="gap-12"
         title="이메일로 시작하기"

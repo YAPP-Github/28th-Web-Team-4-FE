@@ -3,7 +3,8 @@
 import type { JSX } from 'react';
 
 import type { CompareResultChannel } from '@/pages/compare/model/compare-result-channel';
-import { Box } from '@/shared/ui/layout/box';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 type CompareResultChannelInsightStackedCardProps = {
@@ -17,32 +18,32 @@ export function CompareResultChannelInsightStackedCard({
   const titleId = `compare-result-channel-${channel.id}-stacked-insight-title`;
 
   return (
-    <Box
+    <Stack
       as="article"
       aria-labelledby={titleId}
-      className="border-outline-low p-020 flex w-full flex-col items-start rounded-[var(--radius-m)] border"
+      className="border-outline-low p-020 w-full items-start rounded-[var(--radius-m)] border"
     >
-      <Box className="gap-008 flex w-full flex-col items-start">
-        <Box className="gap-002 flex w-full flex-col items-start">
+      <Stack className="gap-008 w-full items-start">
+        <Stack className="gap-002 w-full items-start">
           <Text as="h3" id={titleId} variant="subtitle-lg" className="text-text-default w-full">
             {channel.name}
           </Text>
-          <Box className="gap-004 flex items-start">
+          <Flex className="gap-004 items-start">
             {channel.insight.keyword.map((keyword) => (
               <Text key={keyword} variant="body-sm" className="text-text-low">
                 # {keyword}
               </Text>
             ))}
-          </Box>
-        </Box>
-        <Box className="gap-002 flex w-full flex-col items-start">
+          </Flex>
+        </Stack>
+        <Stack className="gap-002 w-full items-start">
           {channel.insight.advantages.map((advantage) => (
             <Text as="p" key={advantage} variant="subtitle-xxs" className="text-text-medium w-full">
               {advantage}
             </Text>
           ))}
-        </Box>
-      </Box>
-    </Box>
+        </Stack>
+      </Stack>
+    </Stack>
   );
 }

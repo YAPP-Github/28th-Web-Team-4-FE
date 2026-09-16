@@ -3,11 +3,27 @@
  * 도메인 레이어 타입을 가져오지 않고 분석 전용 primitive만 노출한다.
  */
 
+/** 기존 화면 호출부와 운영 이벤트 이름을 유지하는 상수. 모든 값은 event map에 등록한다. */
+export const ANALYTICS_EVENTS = {
+  /** 채널 비교 결과 저장 API가 성공한 시점 */
+  channelComparisonResultSaved: 'channel_comparison_result_saved',
+  /** 유효한 채널 선택을 마치고 비교 결과로 진입하는 시점 */
+  channelComparisonStarted: 'channel_comparison_started',
+  /** 추천 온보딩 제출 API가 성공한 시점 */
+  recommendOnboardingCompleted: 'recommend_onboarding_completed',
+  /** 추천 결과 저장 API가 성공한 시점 */
+  recommendationResultSaved: 'recommendation_result_saved',
+  /** 시뮬레이션 결과 저장 API가 성공한 시점 */
+  simulationResultSaved: 'simulation_result_saved',
+  /** 유효한 채널 선택을 마치고 시뮬레이션 결과로 진입하는 시점 */
+  simulatorRunStarted: 'simulator_run_started',
+} as const satisfies Record<string, AnalyticsEventKey>;
+
 /** 분석 이벤트를 전송할 제품 환경. */
 export type AnalyticsEnvironment = 'production' | 'staging' | 'development';
 
 /** 이벤트가 속한 제품 기능 영역. */
-export type AnalyticsFeatureArea =
+type AnalyticsFeatureArea =
   | 'auth'
   | 'onboarding'
   | 'recommendation'
@@ -16,7 +32,7 @@ export type AnalyticsFeatureArea =
   | 'mypage';
 
 /** 제품 흐름으로 진입한 위치를 원문 URL 대신 표현하는 안전한 값. */
-export type AnalyticsEntryPoint =
+type AnalyticsEntryPoint =
   | 'home'
   | 'auth'
   | 'onboarding'
@@ -36,13 +52,13 @@ export type AnalyticsScopeProperties = {
 };
 
 /** 명령형 tracker에서 선택적으로 덧붙일 수 있는 공통 흐름 속성. */
-export type AnalyticsCommonEventProperties = Partial<AnalyticsScopeProperties>;
+type AnalyticsCommonEventProperties = Partial<AnalyticsScopeProperties>;
 
 /** 인증 수단. */
-export type AnalyticsAuthMethod = 'email' | 'google';
+type AnalyticsAuthMethod = 'email' | 'google';
 
 /** 추천 온보딩 단계 ID의 분석 전용 복제본. */
-export type AnalyticsOnboardingStepName =
+type AnalyticsOnboardingStepName =
   | 'service-name'
   | 'category'
   | 'service-type'
@@ -53,7 +69,7 @@ export type AnalyticsOnboardingStepName =
   | 'ad-experience';
 
 /** API 계약과 동일한 업종 allowlist. */
-export type AnalyticsIndustry =
+type AnalyticsIndustry =
   | 'GAME'
   | 'ENTERTAINMENT'
   | 'EDUCATION'
@@ -73,10 +89,10 @@ export type AnalyticsIndustry =
   | 'OTHERS';
 
 /** API 계약과 동일한 서비스 형태 allowlist. */
-export type AnalyticsServiceType = 'MOBILE_APP' | 'WEB' | 'WEB_AND_APP' | 'OTHER';
+type AnalyticsServiceType = 'MOBILE_APP' | 'WEB' | 'WEB_AND_APP' | 'OTHER';
 
 /** API 계약과 동일한 광고 목표 allowlist. */
-export type AnalyticsAdGoal =
+type AnalyticsAdGoal =
   | 'AWARENESS'
   | 'VIDEO_VIEW'
   | 'TRAFFIC'
@@ -86,13 +102,13 @@ export type AnalyticsAdGoal =
   | 'IN_APP_ACTION';
 
 /** 온보딩과 시뮬레이터가 공통으로 사용하는 집행 기간 allowlist. */
-export type AnalyticsCampaignPeriod = 'LE_1W' | 'W2_3' | 'M1' | 'M2_3' | 'GE_3M';
+type AnalyticsCampaignPeriod = 'LE_1W' | 'W2_3' | 'M1' | 'M2_3' | 'GE_3M';
 
 /** 광고 운영 경험 여부. */
-export type AnalyticsAdExperience = 'NONE' | 'EXPERIENCED';
+type AnalyticsAdExperience = 'NONE' | 'EXPERIENCED';
 
 /** 원 단위 예산을 직접 전송하지 않기 위한 분석 구간. */
-export type AnalyticsBudgetBucket =
+type AnalyticsBudgetBucket =
   | 'zero'
   | 'under_500k'
   | '500k_to_under_2m'
@@ -102,7 +118,7 @@ export type AnalyticsBudgetBucket =
   | 'unknown';
 
 /** 원문 오류 대신 전송하는 공통 오류 범주. */
-export type AnalyticsErrorCode =
+type AnalyticsErrorCode =
   | 'network_error'
   | 'timeout'
   | 'unauthorized'
@@ -113,13 +129,13 @@ export type AnalyticsErrorCode =
   | 'unknown';
 
 /** 업로드 파일명을 대신하는 확장자 allowlist. */
-export type AnalyticsFileExtension = 'csv' | 'xlsx' | 'unknown';
+type AnalyticsFileExtension = 'csv' | 'xlsx' | 'unknown';
 
 /** 온보딩 제출 실패 구간. */
-export type AnalyticsOnboardingFailureStage = 'file_read' | 'presign' | 'upload' | 'submit';
+type AnalyticsOnboardingFailureStage = 'file_read' | 'presign' | 'upload' | 'submit';
 
 /** 파일 검증 실패 범주. */
-export type AnalyticsFileValidationErrorType =
+type AnalyticsFileValidationErrorType =
   | 'file_type_not_allowed'
   | 'file_too_large'
   | 'file_count_exceeded'
@@ -127,22 +143,22 @@ export type AnalyticsFileValidationErrorType =
   | 'unknown';
 
 /** 저장 결과 종류. */
-export type AnalyticsResultType = 'recommendation' | 'comparison' | 'simulation';
+type AnalyticsResultType = 'recommendation' | 'comparison' | 'simulation';
 
 /** 현재 채널 상세 UI와 동일한 탭 allowlist. */
-export type AnalyticsChannelDetailTab = 'summary' | 'products' | 'audience' | 'cases';
+type AnalyticsChannelDetailTab = 'summary' | 'products' | 'audience' | 'cases';
 
 /** 비교 결과 지표. */
-export type AnalyticsComparisonMetric = 'impressions' | 'clicks';
+type AnalyticsComparisonMetric = 'impressions' | 'clicks';
 
 /** 시뮬레이션 예산 변경 범위. */
-export type AnalyticsBudgetScope = 'total' | 'channel';
+type AnalyticsBudgetScope = 'total' | 'channel';
 
 /** 시뮬레이션 결과 표시 방식. */
-export type AnalyticsSimulationViewMode = 'graph' | 'table';
+type AnalyticsSimulationViewMode = 'graph' | 'table';
 
 /** 광고 조건 수정 시 허용하는 필드 이름. */
-export type AnalyticsAdConditionField =
+type AnalyticsAdConditionField =
   | 'industry'
   | 'service_type'
   | 'age_ranges'
@@ -150,8 +166,8 @@ export type AnalyticsAdConditionField =
   | 'budget'
   | 'campaign_period';
 
-/** 별도 이벤트 속성을 받지 않는 이벤트의 빈 객체 계약. */
-type NoAnalyticsProperties = Record<string, never>;
+/** 이벤트 고유 속성이 없는 계약. 추가 key는 Exact 타입에서 거부하고 공통 Scope 속성은 허용한다. */
+type NoAnalyticsProperties = Record<never, never>;
 
 /** 온보딩 단계 조회·완료·수정 이벤트가 공유하는 단계 정보. */
 type OnboardingStepProperties = {
@@ -185,7 +201,18 @@ type SimulationProperties = {
  * 내부 이벤트 key와 호출부가 전달해야 하는 속성의 정적 계약.
  * 공통 속성인 event_version, environment, feature_area는 tracker가 추가한다.
  */
-export type AnalyticsEventMap = {
+type AnalyticsEventMap = {
+  /** 기존 운영 이벤트는 이름·필수 속성과 성공/검증 완료 시점을 유지한다. */
+  recommend_onboarding_completed: { service_name_prefilled: boolean };
+  simulator_run_started: { selected_channel_count: number };
+  channel_comparison_started: { selected_channel_count: number };
+  recommendation_result_saved: { onboarding_migrated: boolean };
+  simulation_result_saved: { channel_count: number };
+  channel_comparison_result_saved: {
+    channel_count: number;
+    save_source: 'service_name' | 'onboarding';
+  };
+
   login: { method: AnalyticsAuthMethod };
   sign_up: { method: AnalyticsAuthMethod };
   tutorial_begin: {
@@ -341,9 +368,6 @@ export type ExactAnalyticsEventProperties<
   Properties extends AnalyticsEventProperties<EventKey>,
 > = Properties & Record<Exclude<keyof Properties, keyof AnalyticsEventProperties<EventKey>>, never>;
 
-/** 이벤트를 전송할 분석 도구 조합. */
-export type AnalyticsDestination = 'posthog' | 'ga4' | 'both';
-
 /** 모든 registry 항목에 공통으로 포함되는 제품 영역과 스키마 버전. */
 type AnalyticsEventRegistryBase = {
   featureArea: AnalyticsFeatureArea;
@@ -404,6 +428,13 @@ const createPostHogEvent = (
  * GA4 alias는 해당 항목에서만 PostHog 이름과 다르게 선언한다.
  */
 export const ANALYTICS_EVENT_REGISTRY = {
+  recommend_onboarding_completed: createBothEvent('recommend_onboarding_completed', 'onboarding'),
+  simulator_run_started: createBothEvent('simulator_run_started', 'simulation'),
+  channel_comparison_started: createBothEvent('channel_comparison_started', 'comparison'),
+  recommendation_result_saved: createBothEvent('recommendation_result_saved', 'recommendation'),
+  simulation_result_saved: createBothEvent('simulation_result_saved', 'simulation'),
+  channel_comparison_result_saved: createBothEvent('channel_comparison_result_saved', 'comparison'),
+
   login: createBothEvent('login', 'auth'),
   sign_up: createBothEvent('sign_up', 'auth'),
   tutorial_begin: createBothEvent('tutorial_begin', 'onboarding'),

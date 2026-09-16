@@ -21,12 +21,12 @@ export function ChannelDetailHeader({
   description,
 }: ChannelDetailHeaderProps): JSX.Element {
   return (
-    <HStack className="gap-012 min-w-0 flex-1 items-center">
+    <HStack className="gap-012 min-w-0 flex-1">
       <Avatar
         src={channel.iconUrl?.trim()}
         alt={`${channel.name} 로고`}
         fallback={<Skeleton className="size-full" />}
-        className="border-outline-low size-040 rounded-[var(--radius-m)] border hover:ring-0"
+        className="border-outline-low size-[56px] rounded-[var(--radius-m)] border hover:ring-0"
       />
       <Stack className="gap-004 min-w-0 flex-1 items-start">
         {title ?? (

@@ -1,6 +1,6 @@
 export const MAX_COMPARISON_CHANNELS = 3 as const;
 
-export type ComparisonSelectionResult = 'added' | 'removed' | 'max-reached';
+type ComparisonSelectionResult = 'added' | 'removed' | 'max-reached';
 
 export type ComparisonSelectionChange = {
   ids: readonly string[];

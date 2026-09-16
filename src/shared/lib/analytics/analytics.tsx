@@ -24,7 +24,7 @@ type AnalyticsScopeContextValue = AnalyticsScopeProperties;
 const AnalyticsScopeContext = createContext<AnalyticsScopeContextValue | null>(null);
 
 /** Analytics.Scope에 필요한 명시적 공통 흐름 속성. */
-export type AnalyticsScopeProps = {
+type AnalyticsScopeProps = {
   entryPoint: AnalyticsScopeProperties['entry_point'];
   isLoggedIn: boolean;
   children: ReactNode;
@@ -36,7 +36,7 @@ export type AnalyticsScopeProps = {
  * @param props 공통 분석 속성과 하위 React 트리
  * @returns 공통 분석 Context provider
  */
-export function AnalyticsScope({ entryPoint, isLoggedIn, children }: AnalyticsScopeProps) {
+function AnalyticsScope({ entryPoint, isLoggedIn, children }: AnalyticsScopeProps) {
   return (
     <AnalyticsScopeContext value={{ entry_point: entryPoint, is_logged_in: isLoggedIn }}>
       {children}
@@ -73,7 +73,7 @@ type ExactAnalyticsClickEventProperties<
   Record<Exclude<keyof Properties, keyof AnalyticsClickEventProperties<EventKey>>, never>;
 
 /** renderless 클릭 로깅 컴포넌트의 typed props. */
-export type AnalyticsClickProps<
+type AnalyticsClickProps<
   EventKey extends AnalyticsEventKey,
   Properties extends AnalyticsClickEventProperties<EventKey>,
 > = {
@@ -89,7 +89,7 @@ export type AnalyticsClickProps<
  * @param props 이벤트 key, 명시적 이벤트 속성과 단일 clickable 자식
  * @returns onClick이 합성된 기존 자식 element
  */
-export function AnalyticsClick<
+function AnalyticsClick<
   EventKey extends AnalyticsEventKey,
   Properties extends AnalyticsClickEventProperties<NoInfer<EventKey>>,
 >({ event, properties, children }: AnalyticsClickProps<EventKey, Properties>) {
@@ -98,10 +98,12 @@ export function AnalyticsClick<
   const handleClick: MouseEventHandler<HTMLElement> = (clickEvent) => {
     children.props.onClick?.(clickEvent);
 
+    // Omit으로 분리한 이벤트 속성과 필수 Scope 값을 재결합한다.
+    // TS는 generic indexed access의 재결합을 증명하지 못하므로 이 경계에서만 단언한다.
     trackClientEvent<EventKey, AnalyticsEventProperties<EventKey>>(event, {
       ...scopeProperties,
       ...properties,
-    } as AnalyticsEventProperties<EventKey>);
+    } as unknown as AnalyticsEventProperties<EventKey>);
   };
 
   return cloneElement(children, { onClick: handleClick });

@@ -11,6 +11,7 @@ import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Tooltip } from '@/shared/ui/tooltip';
@@ -99,12 +100,10 @@ export function RecommendedChannelCard({
         />
       )}
 
-      <Stack className="relative h-full">
-        <Box
-          aria-hidden={locked || undefined}
-          inert={locked || undefined}
-          className="flex h-full flex-col"
-        >
+      <Stack
+        className={cn('relative h-full', locked && '[clip-path:inset(0_round_var(--radius-l))]')}
+      >
+        <Stack aria-hidden={locked || undefined} inert={locked || undefined} className="h-full">
           <Box className="pointer-events-none relative h-[124px] w-full overflow-hidden rounded-t-[var(--radius-l)]">
             <Image
               src={thumbnailSrc}
@@ -122,19 +121,24 @@ export function RecommendedChannelCard({
             <Badge frame="indicator" tone={matchBadgeTone} className="left-020 top-018 absolute">
               적합도 {channel.matchRate}%
             </Badge>
-            <Box
+            <Center
               aria-hidden
               data-testid="recommend-channel-select-indicator"
               className={cn(
-                'top-018 right-020 absolute flex size-020 items-center justify-center rounded-full motion-safe:transition-colors motion-safe:duration-150 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none',
+                'top-018 right-020 absolute size-020 rounded-full motion-safe:transition-colors motion-safe:duration-150 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none',
                 selected ? 'bg-sys-primary-default' : 'bg-icon-low',
               )}
             >
               <Check className="text-text-lowest size-014" strokeWidth={2.4} />
-            </Box>
+            </Center>
           </Box>
 
-          <VStack className="shadow-drop-shadow-02 bg-surface-lowest pointer-events-none relative min-h-[416px] w-full flex-1 rounded-b-[var(--radius-l)] p-[28px]">
+          <VStack
+            className={cn(
+              'bg-surface-lowest pointer-events-none relative min-h-[416px] w-full flex-1 rounded-b-[var(--radius-l)] p-[28px]',
+              !locked && 'shadow-drop-shadow-02',
+            )}
+          >
             <VStack className="gap-022 w-full flex-1">
               <VStack className="gap-022 w-full">
                 <VStack className="gap-010 w-full max-w-[175px] text-center">
@@ -192,7 +196,7 @@ export function RecommendedChannelCard({
               </Button>
             </VStack>
           </VStack>
-        </Box>
+        </Stack>
 
         <Box
           aria-hidden

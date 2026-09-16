@@ -13,6 +13,7 @@ import { HomeFolderFeatures } from './home-folder-features';
 import { HomeHero } from './home-hero';
 import { HomeQuestion } from './home-question';
 import { HomeServiceFinder } from './home-service-finder';
+import { Stack } from '@/shared/ui/layout/stack';
 
 function PublicHomeContent() {
   // 뒤로가기(BFCache 등)로 진입하거나 새로고침/재진입 시 스크롤 위치가 애매하게 남아
@@ -70,12 +71,12 @@ export function HomePage() {
   const { isAuthenticated } = useAuthSession();
 
   return (
-    <div className="bg-surface-lowest flex flex-1 flex-col font-sans">
+    <Stack className="bg-surface-lowest flex-1 font-sans">
       <GoogleLinkSuccessToast />
-      <main className="flex flex-col">
+      <Stack as="main">
         {isAuthenticated ? <AuthenticatedHomeContent /> : <PublicHomeContent />}
-      </main>
+      </Stack>
       <Footer />
-    </div>
+    </Stack>
   );
 }

@@ -8,11 +8,20 @@ import {
   formatSimulatorCpc,
   formatSimulatorTableCountRange,
   getSimulatorBasisTooltip,
+  getSimulatorExecutionStatus,
 } from './simulator-channel';
 
 const CHANNELS = [
-  { id: 'channel-a', name: '채널 A' },
-  { id: 'channel-b', name: '채널 B' },
+  {
+    id: 'channel-a',
+    name: '채널 A',
+    iconUrl: 'https://assets.chaeso-zip.com/icons/channel-a-default.png',
+  },
+  {
+    id: 'channel-b',
+    name: '채널 B',
+    iconUrl: 'https://assets.chaeso-zip.com/icons/channel-b.png',
+  },
 ] as const;
 
 const SIMULATION_RESULT: SimulationResponse = {
@@ -87,7 +96,7 @@ describe('simulator-channel', () => {
       },
       {
         name: '채널 B',
-        iconUrl: null,
+        iconUrl: 'https://assets.chaeso-zip.com/icons/channel-b.png',
         impressions: { value: '1.5~2.5만 회', fillPercentage: 100 },
         clicks: { value: '200회' },
       },
@@ -103,20 +112,22 @@ describe('simulator-channel', () => {
 
     expect(results).toMatchObject([
       {
+        iconUrl: 'https://assets.chaeso-zip.com/icons/channel-a-default.png',
         impressions: { fillPercentage: 0 },
         clicks: { fillPercentage: 0 },
       },
       {
+        iconUrl: 'https://assets.chaeso-zip.com/icons/channel-b.png',
         impressions: { fillPercentage: 0 },
         clicks: { fillPercentage: 0 },
       },
     ]);
   });
 
-  it('basisNote의 첫 문구를 기준으로 피그마 툴팁을 분기한다', () => {
-    expect(getSimulatorBasisTooltip('미집행 (배분 예산 0원)/다른 산출 근거')).toEqual({
+  it('집행 예산 부족 basisNote와 부족 금액으로 피그마 툴팁을 만든다', () => {
+    expect(getSimulatorBasisTooltip('집행 예산 부족', 123_456)).toEqual({
       title: '예산이 부족해요',
-      description: ['예산을 10만 원 더 추가하면', '광고할 수 있어요'],
+      description: ['예산을 123,456원 더 추가하면', '광고할 수 있어요'],
     });
 
     expect(
@@ -126,6 +137,45 @@ describe('simulator-channel', () => {
       description: ['매체 특성상 상세 데이터를', '제공하지 않아요.'],
     });
 
+    expect(getSimulatorBasisTooltip('집행 예산 부족', undefined, false)).toEqual({
+      title: '정보 확인이 어려워요',
+      description: ['매체 특성상 상세 데이터를', '제공하지 않아요.'],
+    });
+
+    expect(getSimulatorBasisTooltip('기타 미집행 사유', undefined, false)).toEqual({
+      title: '정보 확인이 어려워요',
+      description: ['매체 특성상 상세 데이터를', '제공하지 않아요.'],
+    });
+
     expect(getSimulatorBasisTooltip('기준 데이터')).toBeUndefined();
+  });
+
+  it('백엔드 응답의 집행 사유로 운영 가능 상태를 구분한다', () => {
+    expect(getSimulatorExecutionStatus('기준 데이터', true)).toBe('executable');
+    expect(getSimulatorExecutionStatus('집행 예산 부족', false)).toBe('budget-insufficient');
+    expect(
+      getSimulatorExecutionStatus(
+        '노출 정보 미제공 상품 (집행 가능 여부만 판단) / 추가 안내',
+        false,
+      ),
+    ).toBe('information-unavailable');
+    expect(getSimulatorExecutionStatus(undefined, undefined)).toBeUndefined();
+  });
+
+  it('최소 집행 예산과 배분 예산의 차액을 결과에 저장한다', () => {
+    const results = createChannelResults(CHANNELS, {
+      ...SIMULATION_RESULT,
+      items: [
+        {
+          ...SIMULATION_RESULT.items[0],
+          allocatedBudgetWon: 500_000,
+          minBudgetWon: 650_000,
+          basisNote: '집행 예산 부족',
+        },
+        SIMULATION_RESULT.items[1],
+      ],
+    });
+
+    expect(results[0]?.additionalBudgetWon).toBe(150_000);
   });
 });

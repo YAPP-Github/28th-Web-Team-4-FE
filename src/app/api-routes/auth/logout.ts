@@ -1,6 +1,7 @@
 import { logout, refresh } from '@/shared/api/generated';
 import type { TokenResponse } from '@/shared/api/generated/types.gen';
 import { extractTokenResponse, type AuthSession } from '@/shared/lib/auth/session';
+import { captureException } from '@/shared/lib/sentry/error-reporting';
 import { clearAuthSession, readAuthSession } from '@/app/api-routes/auth/session-cookie';
 import { forbiddenMutationResponse, isTrustedMutation } from '@/app/api-routes/auth/route-utils';
 
@@ -16,6 +17,13 @@ function reportLogoutFailure(
   status: number | undefined,
   error: unknown,
 ): void {
+  captureException(error, {
+    feature: 'auth',
+    operation: 'logout-backend-session',
+    phase,
+    ...(status === undefined ? {} : { 'http.status_code': status }),
+  });
+
   // 서버 관측용 로그이며 토큰 값은 포함하지 않는다.
   // eslint-disable-next-line no-console
   console.error('[auth] Failed to revoke the backend session during logout.', {

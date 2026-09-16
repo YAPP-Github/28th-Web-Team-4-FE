@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react';
 
 import { VStack } from '@/shared/ui/layout/v-stack';
+import { JustifyEnd } from '@/shared/ui/layout/justify-end';
 import { cn } from '@/shared/ui/cn';
 import { Text } from '@/shared/ui/text';
 
@@ -12,7 +13,7 @@ const DEFAULT_EDIT_LABEL = '수정';
  * user frame 수정 버튼 기본 노출 여부.
  * 생략 시 수정 UI는 숨기고, `canEdit: true`일 때만 `onEdit`가 필수다.
  */
-export const DEFAULT_CAN_EDIT = false as const;
+const DEFAULT_CAN_EDIT = false as const;
 
 type UserBubbleBaseProps = {
   children: ReactNode;
@@ -42,7 +43,7 @@ export const UserBubble = (props: UserBubbleProps): JSX.Element => {
     <VStack className={cn('gap-006', className)}>
       <BubbleShell frame="user">{children}</BubbleShell>
       {canEdit && (
-        <div className="flex w-full justify-end">
+        <JustifyEnd className="w-full">
           <button
             type="button"
             onClick={props.onEdit}
@@ -55,7 +56,7 @@ export const UserBubble = (props: UserBubbleProps): JSX.Element => {
               {editLabel}
             </Text>
           </button>
-        </div>
+        </JustifyEnd>
       )}
     </VStack>
   );

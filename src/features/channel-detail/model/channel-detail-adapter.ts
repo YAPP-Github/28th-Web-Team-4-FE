@@ -28,6 +28,10 @@ function getNonEmptyTextList(values: readonly string[]): string[] {
   });
 }
 
+function getUniqueNonEmptyTextList(values: readonly string[]): string[] {
+  return [...new Set(getNonEmptyTextList(values))];
+}
+
 function formatNumber(value: number): string {
   return new Intl.NumberFormat('ko-KR').format(value);
 }
@@ -126,6 +130,7 @@ export function toChannelDetailViewModel(channel: ChannelDetailResponseForAdapte
     name: channel.name,
     iconUrl: channel.iconUrl?.trim() ?? '',
     tagline: tagline ?? '',
+    previewImageUrls: getUniqueNonEmptyTextList(channel.previewImageUrls),
     summary: {
       keywords: getNonEmptyTextList(channel.tags),
       paragraphs: description ? [description] : [],

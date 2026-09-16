@@ -7,7 +7,12 @@ import Link from 'next/link';
 
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/shared/ui/cn';
-import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Grid } from '@/shared/ui/layout/grid';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { JustifyBetween } from '@/shared/ui/layout/justify-between';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Modal } from '@/shared/ui/modal';
 import { Text } from '@/shared/ui/text';
 import { estimateSimulationMutation } from '@/shared/api/generated/@tanstack/react-query.gen';
@@ -40,12 +45,8 @@ function FilterBudgetSection({
   const totalBudgetText = formatSimulatorBudget(totalBudget);
 
   return (
-    <Box
-      as="section"
-      aria-labelledby="simulator-filter-budget-title"
-      className="gap-016 flex w-full flex-col"
-    >
-      <Box className="gap-010 flex w-full flex-col">
+    <Stack as="section" aria-labelledby="simulator-filter-budget-title" className="gap-016 w-full">
+      <Stack className="gap-010 w-full">
         <Text
           as="h2"
           id="simulator-filter-budget-title"
@@ -57,8 +58,8 @@ function FilterBudgetSection({
         <Text variant="display-lg" className="text-text-high">
           {totalBudgetText}
         </Text>
-      </Box>
-      <Box className="gap-008 flex w-full flex-col">
+      </Stack>
+      <Stack className="gap-008 w-full">
         <SimulatorFilterSlider
           label="총 광고 예산 슬라이더"
           min={totalBudgetMin}
@@ -68,16 +69,16 @@ function FilterBudgetSection({
           valueText={totalBudgetText}
           onValueChange={onTotalBudgetChange}
         />
-        <Box aria-hidden className="flex w-full items-start justify-between">
+        <JustifyBetween aria-hidden className="w-full items-start">
           <Text variant="body-lg" className="text-text-low">
             10만 원
           </Text>
           <Text variant="body-lg" className="text-text-low">
             1,000만 원
           </Text>
-        </Box>
-      </Box>
-    </Box>
+        </JustifyBetween>
+      </Stack>
+    </Stack>
   );
 }
 
@@ -93,11 +94,7 @@ function FilterPeriodSection({
   const selectedOption = FILTER_PERIOD_OPTIONS.find((option) => option.value === selectedPeriod);
 
   return (
-    <Box
-      as="section"
-      aria-labelledby="simulator-filter-period-title"
-      className="gap-014 flex w-full flex-col"
-    >
+    <Stack as="section" aria-labelledby="simulator-filter-period-title" className="gap-014 w-full">
       <Text
         as="h2"
         id="simulator-filter-period-title"
@@ -106,19 +103,19 @@ function FilterPeriodSection({
       >
         광고 집행 기간
       </Text>
-      <Box className="gap-010 grid w-full grid-cols-2">
+      <Grid className="gap-010 w-full grid-cols-2">
         {FILTER_PERIOD_OPTIONS.map((option, index) => {
           const isSelected = option.value === selectedPeriod;
 
           return (
-            <Box
+            <Center
               as="button"
               key={option.value}
               type="button"
               aria-pressed={isSelected}
               onClick={() => onPeriodChange(option.value)}
               className={cn(
-                'border-outline-low flex h-[46px] cursor-pointer items-center justify-center rounded-[var(--radius-s)] border bg-transparent',
+                'border-outline-low h-[46px] cursor-pointer rounded-[var(--radius-s)] border bg-transparent',
                 'focus-visible:outline-sys-primary-default focus-visible:outline-2 focus-visible:outline-offset-2',
                 index === FILTER_PERIOD_OPTIONS.length - 1 && 'col-span-2',
                 isSelected && 'border-outline-higher',
@@ -130,18 +127,18 @@ function FilterPeriodSection({
               >
                 {option.label}
               </Text>
-            </Box>
+            </Center>
           );
         })}
-      </Box>
-      <Box className="bg-sys-primary-lowest h-040 px-014 py-010 flex w-full items-center rounded-[var(--radius-s)]">
-        <Box className="gap-008 flex min-w-0 items-center">
-          <Box
+      </Grid>
+      <HStack className="bg-sys-primary-lowest h-040 px-014 py-010 w-full rounded-[var(--radius-s)]">
+        <HStack className="gap-008 min-w-0">
+          <Center
             aria-hidden
-            className="bg-sys-primary-lower size-014 p-002 flex shrink-0 items-center justify-center rounded-[var(--radius-max)]"
+            className="bg-sys-primary-lower size-014 p-002 shrink-0 rounded-[var(--radius-max)]"
           >
             <Check className="text-sys-primary-low size-010" strokeWidth={2} />
-          </Box>
+          </Center>
           {selectedOption ? (
             <>
               <Text variant="body-sm" className="text-text-high whitespace-nowrap">
@@ -159,9 +156,9 @@ function FilterPeriodSection({
               광고 집행 기간을 선택해주세요
             </Text>
           )}
-        </Box>
-      </Box>
-    </Box>
+        </HStack>
+      </HStack>
+    </Stack>
   );
 }
 
@@ -186,38 +183,38 @@ function FilterChannelBudgetCard({
   const budgetText = formatSimulatorBudget(budget);
 
   return (
-    <Box
+    <Stack
       className={cn(
-        'bg-surface-lowest border-outline-low gap-012 px-014 pt-012 pb-014 flex h-[64px] w-full flex-col justify-center rounded-[var(--radius-s)] border',
+        'bg-surface-lowest border-outline-low gap-012 px-014 pt-012 pb-014 h-[64px] w-full justify-center rounded-[var(--radius-s)] border',
         isDisabled && 'border-outline-lower',
       )}
     >
-      <Box className="flex w-full items-center justify-between">
+      <JustifyBetween className="w-full items-center">
         <Text variant="body-xl" className={isDisabled ? 'text-text-lower' : 'text-text-default'}>
           {channelName}
         </Text>
-        <Box className="gap-008 flex items-center justify-center">
-          <Box
+        <Center className="gap-008">
+          <Center
             className={cn(
-              'flex items-center justify-center bg-surface-default px-006 py-002 rounded-[var(--radius-xxs)]',
+              'bg-surface-default px-006 py-002 rounded-[var(--radius-xxs)]',
               isDisabled && 'opacity-40',
             )}
           >
             <Text variant="caption-md" className="text-text-default">
               {budgetText}
             </Text>
-          </Box>
-          <Box
+          </Center>
+          <Center
             as="button"
             type="button"
             aria-label={`${channelName} 채널 삭제`}
             onClick={() => onRemove?.(channelId)}
-            className="text-icon-default focus-visible:outline-sys-primary-default size-012 flex cursor-pointer items-center justify-center rounded-[var(--radius-xxs)] outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="text-icon-default focus-visible:outline-sys-primary-default size-012 cursor-pointer rounded-[var(--radius-xxs)] outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             <X aria-hidden className="size-012" strokeWidth={1.5} />
-          </Box>
-        </Box>
-      </Box>
+          </Center>
+        </Center>
+      </JustifyBetween>
       <SimulatorFilterSlider
         compact
         label={`${channelName} 예산 슬라이더`}
@@ -228,7 +225,7 @@ function FilterChannelBudgetCard({
         disabled={isDisabled}
         onValueChange={(value) => onBudgetChange(channelId, value)}
       />
-    </Box>
+    </Stack>
   );
 }
 
@@ -307,12 +304,8 @@ function FilterChannelSection({
   onRemove?: (channelId: string) => void;
 }): JSX.Element {
   return (
-    <Box
-      as="section"
-      aria-labelledby="simulator-filter-channel-title"
-      className="gap-014 flex w-full flex-col"
-    >
-      <Box className="flex h-[44px] w-full flex-col">
+    <Stack as="section" aria-labelledby="simulator-filter-channel-title" className="gap-014 w-full">
+      <Stack className="h-[44px] w-full">
         <Text
           as="h2"
           id="simulator-filter-channel-title"
@@ -324,8 +317,8 @@ function FilterChannelSection({
         <Text variant="body-lg" className="text-text-low">
           슬라이더로 채널별 예산을 조정하세요
         </Text>
-      </Box>
-      <Box className="gap-010 flex w-full flex-col">
+      </Stack>
+      <Stack className="gap-010 w-full">
         <FilterChannelContent
           channels={channels}
           channelBudgets={channelBudgets}
@@ -347,8 +340,8 @@ function FilterChannelSection({
             </Text>
           </Link>
         ) : null}
-      </Box>
-    </Box>
+      </Stack>
+    </Stack>
   );
 }
 
@@ -376,7 +369,7 @@ function FilterLoadRecommendationButton({
   onReset: () => void;
 }): JSX.Element {
   return (
-    <Box className="gap-008 mt-auto flex w-full items-start">
+    <Flex className="gap-008 mt-auto w-full items-start">
       <Button frame="cta" tone="third" type="button" className="w-[70px]" onClick={onReset}>
         초기화
       </Button>
@@ -391,7 +384,7 @@ function FilterLoadRecommendationButton({
       >
         {isApplying ? '적용 중...' : '적용하기'}
       </Button>
-    </Box>
+    </Flex>
   );
 }
 
@@ -462,7 +455,7 @@ export function SimulatorFilterPanel({
         <Modal.Backdrop className="backdrop-blur-[4px]" />
         <Modal.Popup
           className={[
-            'right-0 left-auto top-0 translate-x-0 translate-y-0 h-dvh w-[448px] max-w-[100vw] items-stretch justify-start rounded-tl-[var(--radius-l)] rounded-tr-none rounded-br-none rounded-bl-[var(--radius-l)] p-0',
+            'right-0 left-auto top-0 translate-x-0 translate-y-0 h-dvh w-[448px] max-w-[100vw] items-stretch justify-start rounded-none p-0 lg:rounded-tl-[var(--radius-l)] lg:rounded-bl-[var(--radius-l)]',
             'max-h-dvh overflow-y-auto overscroll-contain',
             'transition-[translate,opacity] duration-300 ease-out',
             'data-starting-style:translate-x-full data-ending-style:translate-x-full',
@@ -471,8 +464,8 @@ export function SimulatorFilterPanel({
             'motion-reduce:transition-none',
           ].join(' ')}
         >
-          <Box className="gap-032 p-040 box-border flex min-h-dvh w-full shrink-0 flex-col">
-            <Box className="flex w-full items-start justify-between">
+          <Stack className="gap-032 p-040 box-border min-h-dvh w-full shrink-0">
+            <JustifyBetween className="w-full items-start">
               <Modal.Title
                 render={
                   <Text as="h1" variant="heading-xl" className="text-text-highest font-bold" />
@@ -487,7 +480,7 @@ export function SimulatorFilterPanel({
               >
                 <X aria-hidden className="size-020" strokeWidth={1.5} />
               </Modal.Close>
-            </Box>
+            </JustifyBetween>
             <FilterBudgetSection
               totalBudget={totalBudget}
               totalBudgetMin={totalBudgetMin}
@@ -521,7 +514,7 @@ export function SimulatorFilterPanel({
                 {applyError}
               </Text>
             ) : null}
-          </Box>
+          </Stack>
         </Modal.Popup>
       </Modal.Portal>
     </Modal.Root>

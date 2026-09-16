@@ -3,9 +3,9 @@
 import { useEffect, type JSX } from 'react';
 import { Menu } from '@base-ui/react/menu';
 
+import { HStack } from '@/shared/ui/layout/h-stack';
 import { Avatar } from '@/shared/ui/avatar';
 import { Button } from '@/shared/ui/button';
-import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 import { showWarningToast } from '@/shared/ui/toast';
 
@@ -37,7 +37,7 @@ export function PageHeaderAccountMenu({
   }, [logoutError]);
 
   return (
-    <Box className="gap-018 flex shrink-0 items-center">
+    <HStack className="gap-018 shrink-0">
       {userName ? (
         <Text
           variant="subtitle-xs"
@@ -77,6 +77,6 @@ export function PageHeaderAccountMenu({
           </Menu.Positioner>
         </Menu.Portal>
       </Menu.Root>
-    </Box>
+    </HStack>
   );
 }

@@ -6,6 +6,7 @@ on:
 
 jobs:
   auto-assign:
+    if: ${{ !startsWith(github.head_ref, 'renovate/') && !startsWith(github.head_ref, 'dependabot/') }}
     permissions:
       contents: read
       pull-requests: write

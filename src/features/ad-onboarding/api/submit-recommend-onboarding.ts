@@ -11,6 +11,7 @@ import type {
   PresignedFileUploadResult,
   SubmitOnboardingRequest,
 } from '@/shared/api/generated/types.gen';
+import { captureException } from '@/shared/lib/sentry/error-reporting';
 import type { RecommendOnboardingAnswer } from '@/features/ad-onboarding/model/onboarding-answer';
 import {
   type AgeRangeId,
@@ -229,7 +230,11 @@ async function uploadPerformanceFiles(
           },
           body: uploadedFile.file,
         });
-      } catch {
+      } catch (error) {
+        captureException(error, {
+          feature: 'recommend-onboarding',
+          operation: 'performance-file-upload',
+        });
         throw new Error('성과 파일 업로드에 실패했어요. 다시 시도해 주세요.');
       }
     }),

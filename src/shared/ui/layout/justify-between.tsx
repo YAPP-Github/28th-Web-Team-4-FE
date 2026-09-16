@@ -1,5 +1,7 @@
 import type { JSX, ElementType, PropsWithChildren } from 'react';
 
+import { cn } from '@/shared/ui/cn';
+
 import { type BoxProps, Box } from './box';
 
 export const JustifyBetween: <C extends ElementType = 'div'>(
@@ -11,5 +13,5 @@ export const JustifyBetween: <C extends ElementType = 'div'>(
 }: PropsWithChildren<BoxProps<C>>) => {
   const typesRest = rest as BoxProps<C>;
 
-  return <Box className={`flex justify-between ${className ?? ''}`} as={as} {...typesRest} />;
+  return <Box className={cn(className, 'flex justify-between')} as={as} {...typesRest} />;
 };

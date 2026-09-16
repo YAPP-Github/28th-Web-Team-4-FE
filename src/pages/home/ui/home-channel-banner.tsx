@@ -2,7 +2,14 @@
 
 import { useEffect, useRef, useState, type JSX } from 'react';
 import Image from 'next/image';
-import { useInView, animate, useReducedMotion } from 'motion/react';
+import { useInView, animate } from 'motion/react';
+
+import { usePrefersReducedMotion } from '@/shared/lib/use-prefers-reduced-motion';
+import { Center } from '@/shared/ui/layout/center';
+import { CenterStack } from '@/shared/ui/layout/center-stack';
+import { Flex } from '@/shared/ui/layout/flex';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 
 const ROW_1_LOGOS = [
   {
@@ -105,7 +112,7 @@ function CountUp({ target, duration = 1.6 }: { target: number; duration?: number
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     if (!isInView) {
@@ -133,35 +140,36 @@ function CountUp({ target, duration = 1.6 }: { target: number; duration?: number
 
 export function HomeChannelBanner(): JSX.Element {
   return (
-    <section
+    <CenterStack
+      as="section"
       aria-label="국내외 주요 광고 매체 채널 소개"
-      className="bg-surface-lowest relative flex w-full flex-col items-center justify-center overflow-hidden py-[90px] sm:py-[120px] lg:py-[140px]"
+      className="bg-surface-lowest relative w-full overflow-hidden py-[90px] sm:py-[120px] lg:py-[140px]"
     >
       {/* 상단 텍스트 및 스탯 영역 (Figma 3722:34484) */}
-      <div className="gap-008 px-016 sm:px-032 flex w-full max-w-[1440px] flex-col text-left lg:px-120">
+      <Stack className="gap-008 px-016 sm:px-032 w-full max-w-[1440px] text-left lg:px-120">
         <h2 className="font-pre text-[24px] leading-[1.3] font-bold tracking-tight text-[var(--color-primitive-gray-900,#1d1d20)] sm:text-[32px] lg:text-[36px]">
           채소집에서 바로 비교하는 국내외 주요 광고 매체
         </h2>
 
-        <div className="mt-[16px] flex flex-col items-start gap-[6px] sm:mt-[24px] sm:gap-[8px]">
-          <div className="font-pre flex items-baseline text-[64px] leading-[1.05] font-extrabold tracking-tight text-[var(--color-primitive-gray-900,#1d1d20)] sm:text-[84px] lg:text-[100px]">
+        <Stack className="mt-[16px] items-start gap-[6px] sm:mt-[24px] sm:gap-[8px]">
+          <Flex className="font-pre items-baseline text-[64px] leading-[1.05] font-extrabold tracking-tight text-[var(--color-primitive-gray-900,#1d1d20)] sm:text-[84px] lg:text-[100px]">
             <CountUp target={100} />
             <span>+</span>
-          </div>
+          </Flex>
           <span className="font-pre text-[16px] font-semibold text-[var(--color-primitive-gray-500,#6e6e76)] sm:text-[20px] lg:text-[22px]">
             채소집 제공 채널 수
           </span>
-        </div>
-      </div>
+        </Stack>
+      </Stack>
 
       {/* 하단 무한 롤링 마키 배너 영역 (상단 간격 mt-96px로 시원하게 확대) */}
-      <div className="relative mt-[64px] flex w-full flex-col gap-[32px] overflow-hidden sm:mt-[80px] sm:gap-[44px] lg:mt-[96px] lg:gap-[56px]">
+      <Stack className="relative mt-[64px] w-full gap-[32px] overflow-hidden sm:mt-[80px] sm:gap-[44px] lg:mt-[96px] lg:gap-[56px]">
         {/* Row 1: 왼쪽으로 무한 롤링 (풀 컬러 상시 노출) */}
-        <div className="flex w-max animate-[marquee-left_35s_linear_infinite] items-center gap-[36px] sm:gap-[44px] lg:gap-[50px]">
+        <HStack className="w-max animate-[marquee-left_50s_linear_infinite] gap-[36px] motion-reduce:animate-none sm:gap-[44px] lg:gap-[50px]">
           {[...ROW_1_LOGOS, ...ROW_1_LOGOS, ...ROW_1_LOGOS].map((logo, idx) => (
-            <div
+            <Center
               key={`r1-${logo.id}-${idx}`}
-              className="relative flex h-[44px] shrink-0 items-center justify-center sm:h-[56px]"
+              className="relative h-[44px] shrink-0 sm:h-[56px]"
               style={{ width: logo.width }}
             >
               <Image
@@ -171,16 +179,16 @@ export function HomeChannelBanner(): JSX.Element {
                 className="object-contain"
                 sizes="(max-width: 768px) 160px, 300px"
               />
-            </div>
+            </Center>
           ))}
-        </div>
+        </HStack>
 
         {/* Row 2: 오른쪽/역방향으로 무한 롤링 (풀 컬러 상시 노출) */}
-        <div className="flex w-max animate-[marquee-right_40s_linear_infinite] items-center gap-[36px] sm:gap-[44px] lg:gap-[50px]">
+        <HStack className="w-max animate-[marquee-right_55s_linear_infinite] gap-[36px] motion-reduce:animate-none sm:gap-[44px] lg:gap-[50px]">
           {[...ROW_2_LOGOS, ...ROW_2_LOGOS, ...ROW_2_LOGOS].map((logo, idx) => (
-            <div
+            <Center
               key={`r2-${logo.id}-${idx}`}
-              className="relative flex h-[44px] shrink-0 items-center justify-center sm:h-[56px]"
+              className="relative h-[44px] shrink-0 sm:h-[56px]"
               style={{ width: logo.width }}
             >
               <Image
@@ -190,16 +198,16 @@ export function HomeChannelBanner(): JSX.Element {
                 className="object-contain"
                 sizes="(max-width: 768px) 160px, 300px"
               />
-            </div>
+            </Center>
           ))}
-        </div>
+        </HStack>
 
         {/* 좌측 페이드 그라데이션 오버레이 */}
         <div className="from-surface-lowest pointer-events-none absolute inset-y-0 left-0 z-10 w-[60px] bg-gradient-to-r to-transparent sm:w-[120px] lg:w-[180px]" />
 
         {/* 우측 페이드 그라데이션 오버레이 */}
         <div className="from-surface-lowest pointer-events-none absolute inset-y-0 right-0 z-10 w-[60px] bg-gradient-to-l to-transparent sm:w-[120px] lg:w-[180px]" />
-      </div>
-    </section>
+      </Stack>
+    </CenterStack>
   );
 }

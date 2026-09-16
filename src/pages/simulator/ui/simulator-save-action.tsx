@@ -5,6 +5,8 @@ import type { SaveSimulationRequest, SimulationResponse } from '@/shared/api/gen
 
 import { ResultSaveButton, type ResultSaveButtonStatus } from '@/features/result-save-action';
 import { getApiErrorMessage } from '@/shared/api/api-error';
+import { ANALYTICS_EVENTS } from '@/shared/lib/analytics/events';
+import { trackClientEvent } from '@/shared/lib/analytics/track-client';
 import { useSaveSimulation } from '@/pages/simulator/api/use-save-simulation';
 import { showToast, showWarningToast } from '@/shared/ui/toast';
 
@@ -92,6 +94,9 @@ export function SimulatorSaveAction({
       { body: createSimulationRequest(simulationResult, nextServiceName) },
       {
         onSuccess: () => {
+          trackClientEvent(ANALYTICS_EVENTS.simulationResultSaved, {
+            channel_count: simulationResult.items.length,
+          });
           showToast({
             id: SAVE_SIMULATION_SUCCESS_TOAST_ID,
             description: SAVE_SIMULATION_SUCCESS_MESSAGE,

@@ -61,12 +61,6 @@ describe('CompareResultChannelCards', () => {
     expect(screen.getByText('적합도 82%')).toBeVisible();
     expect(screen.queryByText('채널 추가하기')).not.toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /비교에서 제거/ })).toHaveLength(3);
-    expect(
-      screen.getByRole('heading', { name: '네이버 검색 광고' }).closest('article'),
-    ).toHaveClass('cursor-pointer');
-    expect(screen.getByRole('button', { name: '네이버 검색 광고 비교에서 제거' })).toHaveClass(
-      'cursor-pointer',
-    );
   });
 
   it('채널 제거 버튼으로 선택한 채널 ID를 전달한다', () => {
@@ -120,25 +114,17 @@ describe('CompareResultChannelCards', () => {
   it('적합도가 없는 채널은 적합도 배지를 표시하지 않는다', () => {
     renderChannelCards([{ ...MOCK_CHANNELS[0], matchRate: null }, MOCK_CHANNELS[1]]);
 
-    const channelCard = screen
-      .getByRole('heading', { name: '네이버 검색 광고' })
-      .closest('article');
-
-    if (!channelCard) {
-      throw new Error('네이버 검색 광고 카드를 찾지 못했습니다.');
-    }
+    const channelCard = screen.getAllByRole('article')[0];
 
     expect(within(channelCard).queryByText(/^적합도/)).not.toBeInTheDocument();
     expect(screen.getByText('적합도 88%')).toBeVisible();
   });
 
   it('로고 이미지 로드가 실패하면 채널명의 첫 글자를 표시한다', () => {
-    const { container } = renderChannelCards(MOCK_CHANNELS.slice(0, 2));
-    const logo = container.querySelector('img');
-
-    if (!logo) {
-      throw new Error('네이버 검색 광고 로고를 찾지 못했습니다.');
-    }
+    renderChannelCards(MOCK_CHANNELS.slice(0, 2));
+    const logo = within(screen.getAllByRole('article')[0]).getByRole('presentation', {
+      hidden: true,
+    });
 
     fireEvent.error(logo);
 

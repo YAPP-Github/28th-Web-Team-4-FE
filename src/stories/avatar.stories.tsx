@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, within } from 'storybook/test';
 
+import { Center } from '@/shared/ui/layout/center';
+import { Flex } from '@/shared/ui/layout/flex';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Avatar } from '@/shared/ui/avatar';
 import { Skeleton } from '@/shared/ui/skeleton';
 
@@ -14,9 +17,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="bg-surface-high rounded-m flex min-h-40 w-full items-center justify-center p-6">
+      <Center className="bg-surface-high rounded-m min-h-40 w-full p-6">
         <Story />
-      </div>
+      </Center>
     ),
   ],
 } satisfies Meta<typeof Avatar>;
@@ -65,7 +68,7 @@ export const AllSizes: Story = {
     className: { control: false },
   },
   render: () => (
-    <div className="flex flex-wrap items-end gap-6">
+    <Flex className="flex-wrap items-end gap-6">
       {(
         [
           { label: '36px (default)', className: 'size-9' },
@@ -73,11 +76,11 @@ export const AllSizes: Story = {
           { label: '64px', className: 'size-16' },
         ] as const
       ).map(({ label, className }) => (
-        <div key={label} className="flex flex-col items-center gap-2">
+        <VStack key={label} className="gap-2">
           <span className="typo-caption-sm text-text-lowest">{label}</span>
           <Avatar className={className} />
-        </div>
+        </VStack>
       ))}
-    </div>
+    </Flex>
   ),
 };

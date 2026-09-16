@@ -13,6 +13,7 @@ import { isRecommendOnboardingStepComplete } from '@/features/ad-onboarding/mode
 import { OnboardingQuestion } from '@/features/ad-onboarding/ui/onboarding-question';
 import { AdExperienceQuestion } from '@/features/ad-onboarding/ui/questions/recommend/ad-experience-question';
 import { PerformanceInputQuestion } from '@/features/ad-onboarding/ui/questions/recommend/ad-experience/performance-input-question';
+import { Stack } from '@/shared/ui/layout/stack';
 import {
   StepActionButton,
   type StepActionButtonProps,
@@ -54,10 +55,10 @@ export function AdExperienceStepContent({
 
   if (isPerformanceInputOpen) {
     return (
-      <div className="gap-012 flex w-full flex-col items-start">
+      <Stack className="gap-012 w-full items-start">
         <OnboardingQuestion title={AD_EXPERIENCE_STEP.question} className="max-w-[518px]" />
         <PerformanceInputQuestion actionLabel={actionLabel} onAction={onAction} onSkip={onAction} />
-      </div>
+      </Stack>
     );
   }
 

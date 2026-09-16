@@ -11,6 +11,7 @@ function createChannelDetail(overrides: Partial<ChannelDetailFixture> = {}): Cha
     name: '메타 광고',
     iconUrl: ' https://cdn.example.com/meta.png ',
     tagline: ' 퍼포먼스와 브랜딩을 모두 커버하는 채널 ',
+    previewImageUrls: [],
     description: ' 정교한 관심사 타기팅을 제공해요. ',
     primaryCategory: 'SHOPPING_COMMERCE',
     mediaType: 'SNS',
@@ -279,6 +280,25 @@ describe('toChannelDetailViewModel', () => {
     );
 
     expect(result.summary.keywords).toEqual(['KPI 최적', '입문자 추천']);
+  });
+
+  it('광고 예시 URL을 trim하고 빈 값과 중복을 제거하되 응답 순서를 유지한다', () => {
+    const result = toChannelDetailViewModel(
+      createChannelDetail({
+        previewImageUrls: [
+          ' https://assets.chaeso-zip.com/previews/meta-feed.png ',
+          '',
+          'https://assets.chaeso-zip.com/previews/meta-story.png',
+          'https://assets.chaeso-zip.com/previews/meta-feed.png',
+          '   ',
+        ],
+      }),
+    );
+
+    expect(result.previewImageUrls).toEqual([
+      'https://assets.chaeso-zip.com/previews/meta-feed.png',
+      'https://assets.chaeso-zip.com/previews/meta-story.png',
+    ]);
   });
 
   it('tags가 비어 있으면 핵심 요약 keyword도 빈 배열로 변환한다', () => {

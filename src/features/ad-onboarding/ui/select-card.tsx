@@ -8,7 +8,8 @@ import { useId, type JSX, type ReactNode } from 'react';
 
 import { Checkbox, type CheckboxProps } from '@/shared/ui/checkbox';
 import { cn } from '@/shared/ui/cn';
-import { VStack } from '@/shared/ui/layout/v-stack';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { RadioGroupItem, type RadioGroupItemProps } from '@/shared/ui/radio-group';
 import { Text } from '@/shared/ui/text';
 
@@ -18,12 +19,12 @@ type SelectCardBaseProps = {
   className?: string;
 };
 
-export type RadioSelectCardProps = SelectCardBaseProps &
+type RadioSelectCardProps = SelectCardBaseProps &
   Pick<RadioGroupItemProps, 'disabled' | 'value'> & {
     control: 'radio';
   };
 
-export type CheckboxSelectCardProps = SelectCardBaseProps &
+type CheckboxSelectCardProps = SelectCardBaseProps &
   Pick<
     CheckboxProps,
     'checked' | 'defaultChecked' | 'disabled' | 'name' | 'onCheckedChange' | 'required' | 'value'
@@ -46,11 +47,12 @@ function SelectCardLayout({
   selectionControl,
 }: SelectCardLayoutProps): JSX.Element {
   return (
-    <label
+    <HStack
+      as="label"
       htmlFor={controlId}
       className={cn(
         [
-          'group relative flex min-h-[58px] w-full cursor-pointer items-center gap-014',
+          'group relative min-h-[58px] w-full cursor-pointer gap-014',
           'rounded-[var(--radius-s)] border border-primitive-gray-250 px-014 py-010',
           'transition-colors hover:bg-surface-lower',
           'has-[[data-checked]]:border-outline-selected',
@@ -63,7 +65,7 @@ function SelectCardLayout({
       )}
     >
       {selectionControl}
-      <VStack className="min-w-0 flex-1 items-start">
+      <Stack className="min-w-0 flex-1 items-start">
         <Text
           variant="subtitle-xs"
           className="text-text-high group-has-[[data-checked]]:text-text-primary"
@@ -78,8 +80,8 @@ function SelectCardLayout({
             {description}
           </Text>
         ) : null}
-      </VStack>
-    </label>
+      </Stack>
+    </HStack>
   );
 }
 

@@ -34,6 +34,7 @@ function createDetailResponse(
     name: CHANNEL.name,
     iconUrl: null,
     tagline: '상세 API tagline',
+    previewImageUrls: [],
     description: '메타 광고 상세 설명',
     primaryCategory: CHANNEL.primaryCategory,
     mediaType: 'SNS',

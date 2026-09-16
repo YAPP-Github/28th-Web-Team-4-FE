@@ -18,6 +18,12 @@ describe('ANALYTICS_EVENT_REGISTRY', () => {
   it('binds each event key to its allowed property type', () => {
     expect(acceptEventProperties('login', { method: 'email' })).toBeUndefined();
     expect(acceptEventProperties('auth_verification_complete', {})).toBeUndefined();
+    expect(
+      acceptEventProperties('auth_verification_complete', {
+        entry_point: 'auth',
+        is_logged_in: false,
+      }),
+    ).toBeUndefined();
 
     // @ts-expect-error login은 정의되지 않은 속성을 허용하지 않는다.
     acceptEventProperties('login', { method: 'email', email: 'person@example.com' });
@@ -25,6 +31,9 @@ describe('ANALYTICS_EVENT_REGISTRY', () => {
     acceptEventProperties('login', { method: 'password' });
     // @ts-expect-error 속성이 없는 이벤트에는 임의 속성을 추가할 수 없다.
     acceptEventProperties('auth_verification_complete', { code: '123456' });
+    const verificationPropertiesWithCode = { is_logged_in: false, code: '123456' };
+    // @ts-expect-error 공통 속성이 있어도 미등록 속성은 허용하지 않는다.
+    acceptEventProperties('auth_verification_complete', verificationPropertiesWithCode);
 
     const loginPropertiesWithEmail = {
       method: 'email',

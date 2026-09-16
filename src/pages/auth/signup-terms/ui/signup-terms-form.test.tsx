@@ -36,9 +36,10 @@ function renderSignupTermsForm() {
   );
 }
 
-function setOccupationStepCompleted() {
+function setOccupationStepCompleted(returnTo = '/') {
   useSignupDraftStore.setState(
     {
+      returnTo,
       identity: {
         method: 'email',
         email: 'new@example.com',
@@ -110,7 +111,7 @@ describe('SignupTermsForm', () => {
   it('submits the signup draft and moves home after success', async () => {
     const user = userEvent.setup();
     setOccupationStepCompleted();
-    renderSignupTermsForm();
+    const view = renderSignupTermsForm();
 
     await user.click(screen.getByRole('checkbox', { name: '전체 동의하기' }));
     await user.click(screen.getByRole('button', { name: '가입하기' }));
@@ -129,7 +130,9 @@ describe('SignupTermsForm', () => {
     });
     await waitFor(() => {
       expect(replaceMock).toHaveBeenCalledWith('/');
+      expect(replaceMock).toHaveBeenCalledTimes(1);
     });
+    view.unmount();
     expect(useSignupDraftStore.getState()).toMatchObject({
       identity: undefined,
       nickname: '',
@@ -139,6 +142,21 @@ describe('SignupTermsForm', () => {
       privacyAgreed: false,
       marketingAgreed: false,
     });
+  });
+
+  it('returns to the page that prompted signup after success', async () => {
+    const user = userEvent.setup();
+    setOccupationStepCompleted('/recommend/onboarding-87');
+    const view = renderSignupTermsForm();
+
+    await user.click(screen.getByRole('checkbox', { name: '전체 동의하기' }));
+    await user.click(screen.getByRole('button', { name: '가입하기' }));
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/recommend/onboarding-87');
+      expect(replaceMock).toHaveBeenCalledTimes(1);
+    });
+    view.unmount();
   });
 
   it('prevents duplicate submission while signup is pending', async () => {
@@ -199,7 +217,7 @@ describe('SignupTermsForm', () => {
     expect(pushMock).toHaveBeenCalledWith('/signup/occupation');
   });
 
-  it('submits Google signup without an email password', async () => {
+  it('submits Google signup without an email password and moves home after success', async () => {
     const user = userEvent.setup();
     useSignupDraftStore.setState(
       {
@@ -230,6 +248,9 @@ describe('SignupTermsForm', () => {
         termsAgreed: true,
         marketingAgreed: true,
       },
+    });
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/');
     });
   });
 });

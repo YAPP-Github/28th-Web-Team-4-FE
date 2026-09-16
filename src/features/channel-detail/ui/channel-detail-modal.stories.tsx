@@ -10,6 +10,7 @@ import { ChannelDetailContent } from '@/features/channel-detail/ui/channel-detai
 import { ChannelDetailContentSkeleton } from '@/features/channel-detail/ui/channel-detail-content-skeleton';
 import { ChannelDetailModalHeader } from '@/features/channel-detail/ui/channel-detail-modal-header';
 import { Button } from '@/shared/ui/button';
+import { Center } from '@/shared/ui/layout/center';
 
 import { ChannelDetailModal } from './channel-detail-modal';
 
@@ -26,9 +27,9 @@ const meta = {
   tags: ['autodocs'],
   decorators: [
     (Story) => (
-      <div className="bg-surface-high flex min-h-80 w-full items-center justify-center p-8">
+      <Center className="bg-surface-high min-h-80 w-full p-8">
         <Story />
-      </div>
+      </Center>
     ),
   ],
 } satisfies Meta<typeof ChannelDetailModal>;
@@ -93,6 +94,113 @@ export const EmptyProducts: Story = {
     // 탭 패널 높이·슬라이드 애니가 끝난 뒤 visible 상태가 된다
     await waitFor(async () => {
       await expect(body.getByText('등록된 광고 상품이 없습니다.')).toBeVisible();
+    });
+  },
+};
+
+export const PreviewImages: Story = {
+  args: {
+    children: (
+      <>
+        <ChannelDetailModalHeader
+          channel={CHANNEL_HEADER}
+          description={CHANNEL_DETAIL_FIXTURE.tagline}
+        />
+        <ChannelDetailContent channel={CHANNEL_DETAIL_FIXTURE} />
+      </>
+    ),
+    open: true,
+    onOpenChange: () => undefined,
+  },
+  play: async () => {
+    const body = within(document.body);
+
+    await userEvent.click(body.getByRole('tab', { name: '광고 예시' }));
+    await waitFor(async () => {
+      await expect(body.getByText('내셔널지오그래픽')).toBeVisible();
+      await expect(body.getAllByRole('img')).toHaveLength(
+        CHANNEL_DETAIL_FIXTURE.previewImageUrls.length + 1,
+      );
+    });
+  },
+};
+
+export const SinglePreviewImage: Story = {
+  args: {
+    children: (
+      <>
+        <ChannelDetailModalHeader
+          channel={CHANNEL_HEADER}
+          description={CHANNEL_DETAIL_FIXTURE.tagline}
+        />
+        <ChannelDetailContent
+          channel={{
+            ...CHANNEL_DETAIL_FIXTURE,
+            previewImageUrls: ['/recommend-assets/meta-ad.png'],
+            similarCases: [],
+          }}
+        />
+      </>
+    ),
+    open: true,
+    onOpenChange: () => undefined,
+  },
+  play: async () => {
+    const body = within(document.body);
+
+    await userEvent.click(body.getByRole('tab', { name: '광고 예시' }));
+    await waitFor(async () => {
+      await expect(body.getAllByRole('img')).toHaveLength(2);
+    });
+  },
+};
+
+export const SimilarCasesOnly: Story = {
+  args: {
+    children: (
+      <>
+        <ChannelDetailModalHeader
+          channel={CHANNEL_HEADER}
+          description={CHANNEL_DETAIL_FIXTURE.tagline}
+        />
+        <ChannelDetailContent channel={{ ...CHANNEL_DETAIL_FIXTURE, previewImageUrls: [] }} />
+      </>
+    ),
+    open: true,
+    onOpenChange: () => undefined,
+  },
+  play: async () => {
+    const body = within(document.body);
+
+    await userEvent.click(body.getByRole('tab', { name: '광고 예시' }));
+    await waitFor(async () => {
+      await expect(body.getByText('내셔널지오그래픽')).toBeVisible();
+    });
+  },
+};
+
+export const EmptyPreviewImages: Story = {
+  args: {
+    children: (
+      <>
+        <ChannelDetailModalHeader
+          channel={CHANNEL_HEADER}
+          description={CHANNEL_DETAIL_FIXTURE.tagline}
+        />
+        <ChannelDetailContent
+          channel={{ ...CHANNEL_DETAIL_FIXTURE, previewImageUrls: [], similarCases: [] }}
+        />
+      </>
+    ),
+    open: true,
+    onOpenChange: () => undefined,
+  },
+  play: async () => {
+    const body = within(document.body);
+
+    await userEvent.click(body.getByRole('tab', { name: '광고 예시' }));
+    await waitFor(async () => {
+      await expect(body.getByText('등록된 광고 예시가 없습니다.')).toBeVisible();
     });
   },
 };

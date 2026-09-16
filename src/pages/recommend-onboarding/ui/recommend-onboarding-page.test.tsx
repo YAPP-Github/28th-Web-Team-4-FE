@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { createElement } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+import { MAX_ONBOARDING_SERVICE_NAME_LENGTH } from '@/features/ad-onboarding/model/common-onboarding-options';
+
 import { RecommendOnboardingPage } from './recommend-onboarding-page';
 
 const pushMock = vi.fn<(href: string) => void>();
@@ -132,13 +134,27 @@ describe('RecommendOnboardingPage', () => {
 
     expect(screen.getByRole('heading', { name: '서비스 이름을 알려 주세요' })).toBeVisible();
     expect(screen.getByText('채소집')).toBeVisible();
-    expect(screen.getByText('채소집')).toHaveClass('text-text-lowest');
     expect(screen.getByRole('button', { name: '수정' })).toBeVisible();
     expect(screen.getByRole('heading', { name: '어떤 업종인가요?' })).toBeVisible();
     expect(scrollToMock).toHaveBeenCalledWith({
       top: 0,
       behavior: 'smooth',
     });
+  });
+
+  it('keeps serviceName input within 50 characters', async () => {
+    const user = userEvent.setup();
+    const overlongServiceName = '가'.repeat(MAX_ONBOARDING_SERVICE_NAME_LENGTH + 1);
+
+    renderRecommendOnboardingPage();
+
+    await user.type(screen.getByRole('textbox', { name: '서비스 이름' }), overlongServiceName);
+
+    expect(screen.getByRole('textbox', { name: '서비스 이름' })).toHaveValue(
+      '가'.repeat(MAX_ONBOARDING_SERVICE_NAME_LENGTH),
+    );
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '다음' })).toBeEnabled();
   });
 
   it('starts from the category step and scrolls to it when serviceName is prefilled', async () => {

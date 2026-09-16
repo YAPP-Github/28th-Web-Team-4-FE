@@ -1,6 +1,7 @@
 /** 클라이언트 instrumentation의 PostHog 환경 guard와 초기화 옵션을 검증한다. */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { PostHog, PostHogConfig } from 'posthog-js';
 
 import type { ClientAnalyticsConfig } from '@/shared/lib/analytics/analytics-config';
 
@@ -14,9 +15,10 @@ const {
   sentryConsoleLoggingIntegrationMock,
   sentryInitMock,
   sentryReplayIntegrationMock,
+  registerSentryApiErrorInterceptorMock,
 } = vi.hoisted(() => ({
   getClientAnalyticsConfigMock: vi.fn<() => ClientAnalyticsConfig>(),
-  posthogInitMock: vi.fn<(token: string, options: Record<string, unknown>) => void>(),
+  posthogInitMock: vi.fn<(token: string, options: Partial<PostHogConfig>) => void>(),
   posthogRegisterMock: vi.fn<(properties: Record<string, unknown>) => void>(),
   sentryAddIntegrationMock: vi.fn<(integration: unknown) => void>(),
   sentryBrowserTracingIntegrationMock: vi.fn<() => unknown>(),
@@ -24,6 +26,7 @@ const {
   sentryConsoleLoggingIntegrationMock: vi.fn<(options: unknown) => unknown>(),
   sentryInitMock: vi.fn<(options: unknown) => void>(),
   sentryReplayIntegrationMock: vi.fn<() => unknown>(),
+  registerSentryApiErrorInterceptorMock: vi.fn<() => void>(),
 }));
 
 vi.mock('posthog-js', () => ({
@@ -46,15 +49,35 @@ vi.mock('@/shared/lib/analytics/analytics-config', () => ({
   getClientAnalyticsConfig: getClientAnalyticsConfigMock,
 }));
 
+vi.mock('@/shared/api/sentry-api-error-interceptor', () => ({
+  registerSentryApiErrorInterceptor: registerSentryApiErrorInterceptorMock,
+}));
+
 describe('instrumentation-client', () => {
   beforeEach(() => {
     vi.resetModules();
+    posthogInitMock.mockReset();
+    posthogInitMock.mockImplementation((_token, options) => {
+      options.loaded?.({ register: posthogRegisterMock } as unknown as PostHog);
+    });
     vi.stubEnv('NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN', 'ph_test');
     getClientAnalyticsConfigMock.mockReturnValue({
       enabled: true,
       debug: true,
       environment: 'staging',
     });
+  });
+
+  it('PostHog 초기화가 실패해도 Sentry와 API 오류 감시는 초기화한다', async () => {
+    posthogInitMock.mockImplementation(() => {
+      throw new Error('PostHog init failed');
+    });
+
+    await expect(import('./instrumentation-client')).resolves.toBeDefined();
+
+    expect(posthogRegisterMock).not.toHaveBeenCalled();
+    expect(sentryInitMock).toHaveBeenCalledOnce();
+    expect(registerSentryApiErrorInterceptorMock).toHaveBeenCalledOnce();
   });
 
   afterEach(() => {
@@ -71,6 +94,7 @@ describe('instrumentation-client', () => {
       defaults: '2026-01-30',
       capture_exceptions: true,
       debug: true,
+      loaded: expect.any(Function),
     });
     expect(posthogRegisterMock).toHaveBeenCalledWith({ environment: 'staging' });
     expect(posthogInitMock.mock.invocationCallOrder[0]).toBeLessThan(
@@ -89,6 +113,8 @@ describe('instrumentation-client', () => {
 
     expect(posthogInitMock).not.toHaveBeenCalled();
     expect(posthogRegisterMock).not.toHaveBeenCalled();
+    expect(sentryInitMock).toHaveBeenCalledOnce();
+    expect(registerSentryApiErrorInterceptorMock).toHaveBeenCalledOnce();
   });
 
   it('project token이 없으면 활성 환경에서도 PostHog를 초기화하지 않는다', async () => {

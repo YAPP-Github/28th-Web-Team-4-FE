@@ -4,7 +4,12 @@ import type { JSX, ReactNode } from 'react';
 import { Pencil } from 'lucide-react';
 
 import { Avatar } from '@/shared/ui/avatar';
-import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { Flex } from '@/shared/ui/layout/flex';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { JustifyBetween } from '@/shared/ui/layout/justify-between';
+import { Stack } from '@/shared/ui/layout/stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { Tabs } from '@/shared/ui/tabs';
 import { Text } from '@/shared/ui/text';
@@ -21,21 +26,21 @@ function SkeletonCardFrame({
   testId?: string;
 }): JSX.Element {
   return (
-    <Box
+    <Stack
       as="section"
       aria-labelledby={labelledBy}
       data-testid={testId}
-      className="bg-surface-lowest gap-018 px-030 py-024 flex w-full flex-col rounded-[var(--radius-l)]"
+      className="bg-surface-lowest gap-018 px-030 py-024 w-full rounded-[var(--radius-l)]"
     >
       {children}
-    </Box>
+    </Stack>
   );
 }
 
 function ProfileSkeletonCard(): JSX.Element {
   return (
     <SkeletonCardFrame labelledBy="profile-skeleton-title">
-      <Box className="flex w-full items-center justify-between">
+      <JustifyBetween className="w-full items-center">
         <Text
           as="h2"
           id="profile-skeleton-title"
@@ -44,47 +49,48 @@ function ProfileSkeletonCard(): JSX.Element {
         >
           내 정보
         </Text>
-        <button
+        <Center
+          as="button"
           type="button"
           aria-label="내 정보 수정"
-          className="focus-visible:outline-sys-primary-default size-018 rounded-xxs flex cursor-pointer items-center justify-center outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="focus-visible:outline-sys-primary-default size-018 rounded-xxs cursor-pointer outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           <Pencil aria-hidden="true" className="text-icon-low size-018" strokeWidth={1.6} />
-        </button>
-      </Box>
-      <Box className="gap-018 flex w-full flex-col" data-testid="my-profile-skeleton">
-        <Box className="bg-surface-lower rounded-m px-016 py-012 h-072 flex w-full items-center">
-          <Box className="gap-014 h-048 flex w-full items-center">
+        </Center>
+      </JustifyBetween>
+      <Stack className="gap-018 w-full" data-testid="my-profile-skeleton">
+        <HStack className="bg-surface-lower rounded-m px-016 py-012 h-072 w-full">
+          <HStack className="gap-014 h-048 w-full">
             <Avatar className="size-048 hover:ring-0" alt="" />
-            <Box className="flex h-[46px] min-w-0 flex-1 flex-col">
-              <Box className="h-026 flex w-full items-center">
+            <Stack className="h-[46px] min-w-0 flex-1">
+              <HStack className="h-026 w-full">
                 <Skeleton className="h-020 w-[76px] rounded-[var(--radius-xxs)]" />
-              </Box>
-              <Box className="h-020 flex w-full items-center">
+              </HStack>
+              <HStack className="h-020 w-full">
                 <Skeleton className="h-010 w-[130px] rounded-full" />
-              </Box>
-            </Box>
-          </Box>
-        </Box>
-        <Box className="gap-010 flex w-full flex-col">
+              </HStack>
+            </Stack>
+          </HStack>
+        </HStack>
+        <Stack className="gap-010 w-full">
           <ProfileFieldSkeleton />
           <ProfileFieldSkeleton />
-        </Box>
-      </Box>
+        </Stack>
+      </Stack>
     </SkeletonCardFrame>
   );
 }
 
 function ProfileFieldSkeleton(): JSX.Element {
   return (
-    <Box className="gap-012 h-022 flex w-full items-center">
-      <Box className="h-022 w-036 flex shrink-0 items-center">
+    <HStack className="gap-012 h-022 w-full">
+      <HStack className="h-022 w-036 shrink-0">
         <Skeleton className="h-010 w-[24px] rounded-full" />
-      </Box>
-      <Box className="h-022 flex min-w-0 flex-1 items-center">
+      </HStack>
+      <HStack className="h-022 min-w-0 flex-1">
         <Skeleton className="h-010 w-[50px] rounded-full" />
-      </Box>
-    </Box>
+      </HStack>
+    </HStack>
   );
 }
 
@@ -94,7 +100,7 @@ export function MyAdsConditionSkeletonCard(): JSX.Element {
       labelledBy="my-ads-condition-skeleton-title"
       testId="my-ads-condition-skeleton"
     >
-      <Box className="gap-002 h-048 flex w-full flex-col">
+      <Stack className="gap-002 h-048 w-full">
         <Text
           as="h2"
           id="my-ads-condition-skeleton-title"
@@ -106,12 +112,12 @@ export function MyAdsConditionSkeletonCard(): JSX.Element {
         <Text as="p" variant="body-xl" className="text-text-low">
           온보딩에서 입력한 조건이에요
         </Text>
-      </Box>
-      <Box className="gap-008 flex w-full flex-wrap items-start">
+      </Stack>
+      <Flex className="gap-008 w-full flex-wrap items-start">
         {Array.from({ length: 6 }, (_, index) => (
           <Skeleton key={index} className="h-032 w-[74px] rounded-[var(--radius-xxs)]" />
         ))}
-      </Box>
+      </Flex>
       <button
         type="button"
         className="typo-body-xl bg-btn-sub-low text-text-default border-btn-sub-selected focus-visible:outline-sys-primary-default h-036 px-020 py-008 w-full cursor-pointer rounded-[var(--radius-s)] border transition-opacity outline-none hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 active:opacity-100"
@@ -122,25 +128,25 @@ export function MyAdsConditionSkeletonCard(): JSX.Element {
   );
 }
 
-export function SavedResultSkeletonCard(): JSX.Element {
+function SavedResultSkeletonCard(): JSX.Element {
   return (
-    <Box className="bg-surface-lowest border-outline-low px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border">
-      <Box className="gap-010 flex min-w-0 flex-1 flex-col items-start">
-        <Box className="gap-002 h-042 flex w-full flex-col">
-          <Box className="h-022 flex w-full items-center">
+    <HStack className="bg-surface-lowest border-outline-low px-016 py-014 w-full rounded-[var(--radius-s)] border">
+      <Stack className="gap-010 min-w-0 flex-1 items-start">
+        <Stack className="gap-002 h-042 w-full">
+          <HStack className="h-022 w-full">
             <Skeleton className="h-010 w-[70px] rounded-full" />
-          </Box>
-          <Box className="h-018 flex w-full items-center">
+          </HStack>
+          <HStack className="h-018 w-full">
             <Skeleton className="h-010 w-[82px] rounded-full" />
-          </Box>
-        </Box>
-        <Box className="gap-006 flex items-center">
+          </HStack>
+        </Stack>
+        <HStack className="gap-006">
           {Array.from({ length: 3 }, (_, index) => (
             <Skeleton key={index} className="h-022 w-[76px] rounded-[var(--radius-xxs)]" />
           ))}
-        </Box>
-      </Box>
-    </Box>
+        </HStack>
+      </Stack>
+    </HStack>
   );
 }
 
@@ -152,24 +158,24 @@ export function SavedResultSkeletonList({
   announceLoading?: boolean;
 }): JSX.Element {
   return (
-    <Box
+    <Stack
       {...(announceLoading
         ? { role: 'status', 'aria-label': '저장된 결과를 불러오고 있어요' }
         : {})}
       data-testid={testId}
-      className="gap-010 mt-018 flex w-full flex-col"
+      className="gap-010 mt-018 w-full"
     >
       {Array.from({ length: 3 }, (_, index) => (
         <SavedResultSkeletonCard key={index} />
       ))}
-    </Box>
+    </Stack>
   );
 }
 
 function SavedResultsSkeletonCard(): JSX.Element {
   return (
     <SkeletonCardFrame labelledBy="saved-results-skeleton-title">
-      <Box className="gap-010 flex w-full flex-col">
+      <Stack className="gap-010 w-full">
         <Text
           as="h2"
           id="saved-results-skeleton-title"
@@ -204,14 +210,14 @@ function SavedResultsSkeletonCard(): JSX.Element {
             <SavedResultSkeletonList />
           </Tabs.Panel>
         </Tabs.Root>
-      </Box>
+      </Stack>
     </SkeletonCardFrame>
   );
 }
 
 function AccountActionsSkeleton(): JSX.Element {
   return (
-    <Box className="gap-026 py-020 flex w-full items-center justify-center">
+    <Center className="gap-026 py-020 w-full">
       <button
         type="button"
         className="typo-subtitle-xs text-text-low focus-visible:outline-sys-primary-default rounded-xxs cursor-pointer underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
@@ -224,29 +230,30 @@ function AccountActionsSkeleton(): JSX.Element {
       >
         탈퇴하기
       </button>
-    </Box>
+    </Center>
   );
 }
 
 export function MyPageSkeleton(): JSX.Element {
   return (
-    <main
+    <Stack
+      as="main"
       aria-busy="true"
-      className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-y-auto rounded-t-[var(--radius-l)]"
+      className="bg-surface-background-default min-h-0 flex-1 overflow-hidden rounded-t-[var(--radius-l)]"
     >
       <MyPageSubHeader />
-      <Box
+      <VStack
         role="status"
         aria-label="마이페이지를 불러오고 있어요"
-        className="bg-surface-background-default px-016 sm:px-032 lg:px-064 flex min-h-0 flex-1 flex-col items-center overflow-clip xl:px-[324px]"
+        className="bg-surface-background-default px-016 sm:px-032 lg:px-064 min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-y-contain xl:px-[324px]"
       >
-        <Box className="gap-016 py-024 flex w-full max-w-[792px] flex-1 flex-col">
+        <Stack className="gap-016 py-024 w-full max-w-[792px] flex-1">
           <ProfileSkeletonCard />
           <MyAdsConditionSkeletonCard />
           <SavedResultsSkeletonCard />
           <AccountActionsSkeleton />
-        </Box>
-      </Box>
-    </main>
+        </Stack>
+      </VStack>
+    </Stack>
   );
 }

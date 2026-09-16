@@ -8,6 +8,7 @@ import type {
   CompareResultChannelDetails,
 } from '@/pages/compare/model/compare-result-channel';
 import { Box } from '@/shared/ui/layout/box';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 import { CompareResultChannelDetailValue } from './compare-result-channel-detail-value';
@@ -47,10 +48,10 @@ export function CompareResultChannelDetailsTable({
   channels,
 }: CompareResultChannelDetailsProps): JSX.Element {
   return (
-    <Box
+    <Stack
       as="section"
       aria-labelledby="compare-result-channel-details-title"
-      className="bg-surface-lowest gap-024 px-030 py-024 flex w-full flex-col rounded-[var(--radius-l)]"
+      className="bg-surface-lowest gap-024 px-030 py-024 w-full rounded-[var(--radius-l)]"
     >
       <Text
         as="h2"
@@ -91,14 +92,14 @@ export function CompareResultChannelDetailsTable({
               {DETAIL_ROWS.map((row) => (
                 <tr key={row.key} className="border-outline-low border-b last:border-b-0">
                   <th scope="row" className="px-012 py-014 text-left align-top">
-                    <Box className="gap-002 flex flex-col items-start whitespace-nowrap">
+                    <Stack className="gap-002 items-start whitespace-nowrap">
                       <Text as="span" variant="subtitle-lg" className="text-text-high">
                         {row.label}
                       </Text>
                       <Text as="span" variant="body-xs" className="text-text-low">
                         {row.description}
                       </Text>
-                    </Box>
+                    </Stack>
                   </th>
                   {channels.map((channel) => (
                     <Box
@@ -117,6 +118,6 @@ export function CompareResultChannelDetailsTable({
           </table>
         </BaseTooltip.Provider>
       </Box>
-    </Box>
+    </Stack>
   );
 }

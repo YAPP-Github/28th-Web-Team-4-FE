@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, userEvent, within } from 'storybook/test';
 
-import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
 import { Text } from '@/shared/ui/text';
 
 import { Tabs } from './tabs';
@@ -41,9 +41,9 @@ const meta = {
   tags: ['autodocs'],
   decorators: [
     (Story) => (
-      <Box className="bg-surface-background-low rounded-m flex min-h-56 w-full items-center justify-center p-6">
+      <Center className="bg-surface-background-low rounded-m min-h-56 w-full p-6">
         <Story />
-      </Box>
+      </Center>
     ),
   ],
 } satisfies Meta;

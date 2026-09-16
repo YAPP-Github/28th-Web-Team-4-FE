@@ -6,12 +6,21 @@ const isProd = process.env.NODE_ENV === 'production';
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
+  experimental: {
+    turbopackRustReactCompiler: true,
+  },
   output: 'standalone',
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'assets.chaeso-zip.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.chaeso.zip',
         port: '',
         pathname: '/**',
       },

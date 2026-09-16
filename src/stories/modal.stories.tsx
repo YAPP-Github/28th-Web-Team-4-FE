@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 
+import { Center } from '@/shared/ui/layout/center';
 import { Button } from '@/shared/ui/button';
 import { GraphicModal, Modal, TextModal } from '@/shared/ui/modal';
 
@@ -13,9 +14,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="bg-surface-high flex min-h-80 w-full items-center justify-center p-8">
+      <Center className="bg-surface-high min-h-80 w-full p-8">
         <Story />
-      </div>
+      </Center>
     ),
   ],
 } satisfies Meta<{ onPrimaryClick: () => void }>;

@@ -5,13 +5,21 @@ import {
   formatSimulatorBudget,
   formatSimulatorCpc,
   formatSimulatorTableCountRange,
+  getSimulatorExecutionStatus,
   type ChannelResult,
+  type SimulatorExecutionStatus,
 } from '@/pages/simulator/model/simulator-channel';
 import { Box } from '@/shared/ui/layout/box';
 import { Text } from '@/shared/ui/text';
 
-function ExecutionStatus({ unavailable }: { unavailable?: boolean }): JSX.Element {
-  if (unavailable === undefined) {
+const EXECUTION_STATUS_LABELS: Record<SimulatorExecutionStatus, string> = {
+  executable: '운영 가능',
+  'budget-insufficient': '예산 미달',
+  'information-unavailable': '정보 미제공',
+};
+
+function ExecutionStatus({ status }: { status?: SimulatorExecutionStatus }): JSX.Element {
+  if (status === undefined) {
     return (
       <Text as="span" variant="body-xs" className="text-text-low">
         -
@@ -19,7 +27,8 @@ function ExecutionStatus({ unavailable }: { unavailable?: boolean }): JSX.Elemen
     );
   }
 
-  const isExecutable = !unavailable;
+  const isExecutable = status === 'executable';
+  const statusLabel = EXECUTION_STATUS_LABELS[status];
 
   return (
     <Box
@@ -36,7 +45,7 @@ function ExecutionStatus({ unavailable }: { unavailable?: boolean }): JSX.Elemen
         <X aria-hidden className="size-012" strokeWidth={2.4} />
       )}
       <Text as="span" variant="caption-md">
-        {isExecutable ? '운영 가능' : '예산 미달'}
+        {statusLabel}
       </Text>
     </Box>
   );
@@ -124,7 +133,9 @@ export function SimulatorChannelTable({
                 {formatSimulatorTableCountRange(channel.impressions.range)}
               </Text>
               <td className="px-014 py-008 text-center align-middle">
-                <ExecutionStatus unavailable={channel.unavailable} />
+                <ExecutionStatus
+                  status={getSimulatorExecutionStatus(channel.basisNote, channel.isExecutable)}
+                />
               </td>
             </tr>
           ))}

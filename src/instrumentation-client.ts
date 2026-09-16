@@ -3,19 +3,27 @@ import * as Sentry from '@sentry/nextjs';
 
 import { isProduction } from '@/lib/is-production';
 import { getClientAnalyticsConfig } from '@/shared/lib/analytics/analytics-config';
+import { registerSentryApiErrorInterceptor } from '@/shared/api/sentry-api-error-interceptor';
 
 const analyticsConfig = getClientAnalyticsConfig();
 const posthogProjectToken = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
 
 if (analyticsConfig.enabled && posthogProjectToken) {
-  posthog.init(posthogProjectToken, {
-    api_host: '/ingest',
-    ui_host: 'https://us.posthog.com',
-    defaults: '2026-01-30',
-    capture_exceptions: true,
-    debug: analyticsConfig.debug,
-  });
-  posthog.register({ environment: analyticsConfig.environment });
+  try {
+    posthog.init(posthogProjectToken, {
+      api_host: '/ingest',
+      ui_host: 'https://us.posthog.com',
+      defaults: '2026-01-30',
+      capture_exceptions: true,
+      debug: analyticsConfig.debug,
+      loaded: (client) => {
+        // SDK 초기화 이후 첫 자동 pageview 전에 환경을 등록한다.
+        client.register({ environment: analyticsConfig.environment });
+      },
+    });
+  } catch {
+    // PostHog 초기화 실패가 Sentry 초기화와 제품 시작을 막지 않도록 격리한다.
+  }
 }
 
 Sentry.init({
@@ -36,6 +44,8 @@ Sentry.init({
     Sentry.browserTracingIntegration(),
   ],
 });
+
+registerSentryApiErrorInterceptor();
 
 if (isProduction) {
   void import('@sentry/nextjs').then((lazyLoadedSentry) => {

@@ -6,6 +6,14 @@ export const CHANNEL_DETAIL_FIXTURE: ChannelDetail = {
   name: '메타 광고',
   iconUrl: 'https://cdn.chaeso.zip/channels/meta-logo.png',
   tagline: '퍼포먼스와 브랜딩을 모두 커버하는 국내 최다 사용 채널',
+  previewImageUrls: [
+    '/recommend-assets/meta-ad.png',
+    '/recommend-assets/naver-search-ad.png',
+    '/recommend-assets/youtube-ad.png',
+    '/recommend-assets/kakao-ad.png',
+    '/simulator-assets/recommendation-empty-state.png',
+    '/home-assets/feature-folders/folder-recommend.png',
+  ],
   summary: {
     keywords: ['KPI 최적', '입문자 추천'],
     paragraphs: [

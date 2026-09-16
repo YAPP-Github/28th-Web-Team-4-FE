@@ -1,6 +1,8 @@
 import type { ComponentProps, JSX, ReactNode } from 'react';
 
 import { cn } from '@/shared/ui/cn';
+import { Center } from '@/shared/ui/layout/center';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Text } from '@/shared/ui/text';
 
 type AuthFormHeaderProps = ComponentProps<'header'> & {
@@ -17,13 +19,10 @@ export function AuthFormHeader({
   ...props
 }: AuthFormHeaderProps): JSX.Element {
   return (
-    <header
-      className={cn('gap-012 flex w-full flex-col items-center text-center', className)}
-      {...props}
-    >
-      <span className="flex size-[44px] items-center justify-center" aria-hidden>
+    <VStack as="header" className={cn('gap-012 w-full text-center', className)} {...props}>
+      <Center as="span" className="size-[44px]" aria-hidden>
         {graphic}
-      </span>
+      </Center>
       <Text
         as="h1"
         id={titleId}
@@ -31,6 +30,6 @@ export function AuthFormHeader({
       >
         {title}
       </Text>
-    </header>
+    </VStack>
   );
 }

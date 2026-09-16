@@ -2,9 +2,8 @@ import { useState, type JSX } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, userEvent, within } from 'storybook/test';
 
-import { Box } from '@/shared/ui/layout/box';
-
 import { Pagination, type PaginationProps } from './pagination';
+import { Center } from '@/shared/ui/layout/center';
 
 const meta = {
   title: 'components/Pagination',
@@ -15,9 +14,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-lower flex min-h-[160px] w-full items-center justify-center p-10">
+      <Center className="bg-surface-lower min-h-[160px] w-full p-10">
         <Story />
-      </Box>
+      </Center>
     ),
   ],
 } satisfies Meta<PaginationProps>;

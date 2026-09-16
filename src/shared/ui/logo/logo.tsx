@@ -12,35 +12,47 @@ const TYPE_MAP = {
   l: 'l',
 } as const;
 
-export type LogoType = LogoMarkType;
+const TONE_MAP = {
+  brand: 'brand',
+  inverse: 'inverse',
+  muted: 'muted',
+} as const;
+
+type LogoType = LogoMarkType;
+type LogoTone = keyof typeof TONE_MAP;
 
 export const LOGO_TYPES = keys(TYPE_MAP);
+export const LOGO_TONES = keys(TONE_MAP);
 
 const DEFAULT_ALT = 'chaesozip';
 
 export type LogoProps = {
   type?: LogoType;
+  tone?: LogoTone;
   className?: string;
   /** 접근성 대체 텍스트. 기본 'chaesozip'. 빈 문자열이면 decorative */
   alt?: string;
 };
 
 /** Figma 프레임 비율 — width만 바뀌어도 패딩 포함해 함께 스케일 */
-const logoVariants = cva(
-  'inline-flex shrink-0 items-center justify-center text-text-primary h-auto',
-  {
-    variants: {
-      type: {
-        s: 'aspect-[110/30] w-[110px]',
-        m: 'aspect-[136/36] w-[136px]',
-        l: 'aspect-[440/149] w-[440px]',
-      },
+const logoVariants = cva('inline-flex h-auto shrink-0 items-center justify-center', {
+  variants: {
+    type: {
+      s: 'aspect-[110/30] w-[110px]',
+      m: 'aspect-[136/36] w-[136px]',
+      l: 'aspect-[440/149] w-[440px]',
     },
-    defaultVariants: {
-      type: 'm',
+    tone: {
+      brand: 'text-text-primary',
+      inverse: 'text-icon-lower',
+      muted: 'text-icon-default',
     },
   },
-);
+  defaultVariants: {
+    type: 'm',
+    tone: 'brand',
+  },
+});
 
 /** 프레임 대비 그래픽 폭 비율 (Figma: s 104/110, m 130/136) */
 const markVariants = cva('h-auto max-w-none', {
@@ -56,12 +68,17 @@ const markVariants = cva('h-auto max-w-none', {
   },
 });
 
-export const Logo = ({ type = 'm', className, alt = DEFAULT_ALT }: LogoProps): JSX.Element => {
+export const Logo = ({
+  type = 'm',
+  tone = 'brand',
+  className,
+  alt = DEFAULT_ALT,
+}: LogoProps): JSX.Element => {
   const isDecorative = alt === '';
 
   return (
     <span
-      className={cn(logoVariants({ type }), className)}
+      className={cn(logoVariants({ type, tone }), className)}
       {...(isDecorative ? { 'aria-hidden': true } : { role: 'img', 'aria-label': alt })}
     >
       <LogoMark type={type} className={markVariants({ type })} />

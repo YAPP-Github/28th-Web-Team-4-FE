@@ -5,7 +5,7 @@ import type { JSX } from 'react';
 import { AuthForm } from '@/features/auth/auth-form';
 import { SignupStepActions } from '@/features/auth/signup-flow';
 import { InputField, type InputFieldFeedback } from '@/shared/ui/input-field';
-import { VStack } from '@/shared/ui/layout/v-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { useSignupEmailVerificationForm } from '@/pages/auth/signup-email-verification/model/use-signup-email-verification-form';
 
 function getVerificationFeedback(
@@ -23,7 +23,13 @@ function getVerificationFeedback(
   return undefined;
 }
 
-export function SignupEmailVerificationForm({ email }: { email: string }): JSX.Element {
+export function SignupEmailVerificationForm({
+  email,
+  returnTo = '/',
+}: {
+  email: string;
+  returnTo?: string;
+}): JSX.Element {
   const {
     changeCode,
     code,
@@ -35,13 +41,13 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
     resendCode,
     status,
     submit,
-  } = useSignupEmailVerificationForm(email);
+  } = useSignupEmailVerificationForm(email, returnTo);
   const feedback = getVerificationFeedback(status, errorMessage);
 
   return (
     <AuthForm
       actions={
-        <VStack className="gap-012 items-stretch">
+        <Stack className="gap-012">
           <button
             type="button"
             className="typo-subtitle-xxs text-text-medium self-center underline underline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -55,7 +61,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
             previousDisabled={isSendingCode || isVerifying}
             nextDisabled={(!isVerified && code.length === 0) || isVerifying}
           />
-        </VStack>
+        </Stack>
       }
       onSubmit={(event) => {
         event.preventDefault();
@@ -64,13 +70,13 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
       title="이메일 인증하기"
       titleId="signup-email-verification-title"
     >
-      <VStack className="gap-024 items-stretch">
-        <VStack className="gap-004 items-stretch">
+      <Stack className="gap-024">
+        <Stack className="gap-004">
           <strong className="typo-heading-lg text-text-high break-all">{email}</strong>
           <p className="typo-subtitle-xxs text-text-default">
             본인 확인을 위해 위 이메일로 전달된 인증 코드를 입력해 주세요.
           </p>
-        </VStack>
+        </Stack>
 
         <InputField
           name="verificationCode"
@@ -86,7 +92,7 @@ export function SignupEmailVerificationForm({ email }: { email: string }): JSX.E
           onChange={(event) => changeCode(event.currentTarget.value)}
           feedback={feedback}
         />
-      </VStack>
+      </Stack>
     </AuthForm>
   );
 }

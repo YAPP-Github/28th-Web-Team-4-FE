@@ -5,7 +5,9 @@
 import {
   getCommonOnboardingAnswerLabel,
   isCommonOnboardingStepComplete,
+  isServiceNameComplete,
 } from './common-onboarding-rules';
+import { MAX_ONBOARDING_SERVICE_NAME_LENGTH } from './common-onboarding-options';
 import { createCommonOnboardingDraft, type CommonOnboardingDraft } from './onboarding-draft';
 
 function createCompleteCommonDraft(
@@ -38,6 +40,24 @@ describe('common onboarding rules', () => {
       ).toBe(true);
     });
 
+    it('서비스 이름은 trim 후 50자까지만 완료로 본다', () => {
+      const validServiceName = '가'.repeat(MAX_ONBOARDING_SERVICE_NAME_LENGTH);
+      const invalidServiceName = '가'.repeat(MAX_ONBOARDING_SERVICE_NAME_LENGTH + 1);
+
+      expect(
+        isCommonOnboardingStepComplete(
+          'service-name',
+          createCompleteCommonDraft({ serviceName: validServiceName }),
+        ),
+      ).toBe(true);
+      expect(
+        isCommonOnboardingStepComplete(
+          'service-name',
+          createCompleteCommonDraft({ serviceName: invalidServiceName }),
+        ),
+      ).toBe(false);
+    });
+
     it('예산 범위는 최소값이 최대값보다 크면 완료되지 않는다', () => {
       expect(
         isCommonOnboardingStepComplete(
@@ -64,6 +84,19 @@ describe('common onboarding rules', () => {
           }),
         ),
       ).toBe(false);
+    });
+  });
+
+  describe('isServiceNameComplete', () => {
+    it('trim 후 1자 이상 50자 이하만 유효하다', () => {
+      expect(isServiceNameComplete(' 채소집 ')).toBe(true);
+      expect(isServiceNameComplete(' '.repeat(3))).toBe(false);
+      expect(isServiceNameComplete(` ${'가'.repeat(MAX_ONBOARDING_SERVICE_NAME_LENGTH)} `)).toBe(
+        true,
+      );
+      expect(isServiceNameComplete('가'.repeat(MAX_ONBOARDING_SERVICE_NAME_LENGTH + 1))).toBe(
+        false,
+      );
     });
   });
 

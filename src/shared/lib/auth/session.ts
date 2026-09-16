@@ -18,7 +18,7 @@ const sessionPayloadSchema = z.object({
 
 export type AuthSession = z.infer<typeof sessionPayloadSchema>;
 
-export const tokenResponseSchema = z.object({
+const tokenResponseSchema = z.object({
   accessToken: z.string().min(1),
   refreshToken: z.string().min(1),
   accessTokenExpiresIn: z.number().int().positive(),

@@ -1,6 +1,8 @@
 import type { JSX } from 'react';
 
-import { Box } from '@/shared/ui/layout/box';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { Tabs } from '@/shared/ui/tabs';
 import { Text } from '@/shared/ui/text';
@@ -13,51 +15,52 @@ const SKELETON_TOTAL_PAGES = 5;
 
 function SavedRecommendationSkeleton(): JSX.Element {
   return (
-    <Box
+    <HStack
       data-testid="saved-results-skeleton-card"
-      className="bg-surface-lowest border-outline-low px-016 py-014 flex w-full items-center rounded-[var(--radius-s)] border"
+      className="bg-surface-lowest border-outline-low px-016 py-014 w-full rounded-[var(--radius-s)] border"
     >
-      <Box className="gap-010 flex min-w-0 flex-1 flex-col items-start">
-        <Box className="gap-002 h-042 flex w-full flex-col">
-          <Box className="h-022 flex w-full items-center">
+      <Stack className="gap-010 min-w-0 flex-1 items-start">
+        <Stack className="gap-002 h-042 w-full">
+          <HStack className="h-022 w-full">
             <Skeleton className="h-010 w-[70px] rounded-full [animation-duration:2s]" />
-          </Box>
-          <Box className="h-018 flex w-full items-center">
+          </HStack>
+          <HStack className="h-018 w-full">
             <Skeleton className="h-010 w-[82px] rounded-full [animation-duration:2s]" />
-          </Box>
-        </Box>
-        <Box className="gap-006 flex items-center">
+          </HStack>
+        </Stack>
+        <HStack className="gap-006">
           {Array.from({ length: 3 }, (_, index) => (
             <Skeleton
               key={index}
               className="h-022 w-[76px] rounded-[var(--radius-xxs)] [animation-duration:2s]"
             />
           ))}
-        </Box>
-      </Box>
-    </Box>
+        </HStack>
+      </Stack>
+    </HStack>
   );
 }
 
 export function SavedResultsSkeletonPage(): JSX.Element {
   return (
-    <main
+    <Stack
+      as="main"
       aria-busy="true"
-      className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-y-auto rounded-t-[var(--radius-l)]"
+      className="bg-surface-background-default min-h-0 flex-1 overflow-y-auto rounded-t-[var(--radius-l)]"
     >
       <SavedResultsSubHeader />
-      <Box
+      <VStack
         role="status"
         aria-label="저장된 추천 결과를 불러오고 있어요"
-        className="bg-surface-background-default px-016 sm:px-032 lg:px-064 flex min-h-0 flex-1 flex-col items-center overflow-clip xl:px-[324px]"
+        className="bg-surface-background-default px-016 sm:px-032 lg:px-064 min-h-0 flex-1 overflow-clip xl:px-[324px]"
       >
-        <Box className="py-024 flex w-full max-w-[996px] flex-1 flex-col">
-          <Box
+        <Stack className="py-024 w-full max-w-[996px] flex-1">
+          <Stack
             as="section"
             aria-labelledby="saved-results-skeleton-title"
-            className="bg-surface-lowest gap-018 px-030 py-024 flex w-full flex-col rounded-[var(--radius-l)]"
+            className="bg-surface-lowest gap-018 px-030 py-024 w-full rounded-[var(--radius-l)]"
           >
-            <Box className="gap-010 flex w-full flex-col">
+            <Stack className="gap-010 w-full">
               <Text
                 as="h2"
                 id="saved-results-skeleton-title"
@@ -69,22 +72,22 @@ export function SavedResultsSkeletonPage(): JSX.Element {
               <Tabs.Root defaultValue="recommendation" className="w-full">
                 <SavedResultsTabList />
                 <Tabs.Panel value="recommendation">
-                  <Box className="gap-010 mt-018 flex w-full flex-col">
+                  <Stack className="gap-010 mt-018 w-full">
                     {Array.from({ length: 5 }, (_, index) => (
                       <SavedRecommendationSkeleton key={index} />
                     ))}
-                  </Box>
+                  </Stack>
                 </Tabs.Panel>
               </Tabs.Root>
-            </Box>
+            </Stack>
             <SavedResultsPagination
               currentPage={1}
               totalPages={SKELETON_TOTAL_PAGES}
               onPageChange={() => undefined}
             />
-          </Box>
-        </Box>
-      </Box>
-    </main>
+          </Stack>
+        </Stack>
+      </VStack>
+    </Stack>
   );
 }

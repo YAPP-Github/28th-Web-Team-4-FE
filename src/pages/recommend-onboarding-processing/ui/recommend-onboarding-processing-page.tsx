@@ -3,6 +3,7 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
 import { getRecommendationsOptions } from '@/shared/api/generated/@tanstack/react-query.gen';
 import { getQueryClient } from '@/shared/lib/query-client';
+import { Center } from '@/shared/ui/layout/center';
 import { Placeholder } from '@/shared/ui/placeholder';
 
 import { RecommendOnboardingProcessingClient } from './recommend-onboarding-processing-client';
@@ -36,11 +37,11 @@ export async function RecommendOnboardingProcessingPage({
 
 function RecommendOnboardingProcessingFallback(): JSX.Element {
   return (
-    <main className="bg-surface-background-default px-016 py-040 flex min-h-0 flex-1 items-center justify-center">
+    <Center as="main" className="bg-surface-background-default px-016 py-040 min-h-0 flex-1">
       <Placeholder
         title="추천 채널을 찾고 있어요"
         subtitle="입력한 온보딩을 바탕으로 채널을 조회하고 있습니다"
       />
-    </main>
+    </Center>
   );
 }

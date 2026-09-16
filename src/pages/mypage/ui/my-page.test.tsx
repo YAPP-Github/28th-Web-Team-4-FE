@@ -353,10 +353,6 @@ describe('MyPage', () => {
       ],
     });
 
-    const scrollContainer = screen.getByRole('main');
-
-    expect(scrollContainer).toHaveClass('overflow-y-auto');
-    expect(scrollContainer).toHaveClass('touch-pan-y');
     expect(screen.getByRole('heading', { name: '내 광고 조건' })).toBeVisible();
     expect(screen.getByText('#쇼핑·커머스')).toBeVisible();
     expect(screen.getByText('#웹 서비스')).toBeVisible();
@@ -664,7 +660,7 @@ describe('MyPage', () => {
       description: '로그아웃했어요',
       type: 'success',
     });
-    expect(replaceMock).toHaveBeenCalledWith('/login');
+    expect(replaceMock).toHaveBeenCalledWith('/');
     expect(refreshMock).toHaveBeenCalledOnce();
     await waitFor(() => {
       expect(

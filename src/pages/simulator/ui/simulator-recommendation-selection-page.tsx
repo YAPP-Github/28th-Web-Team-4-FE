@@ -5,10 +5,19 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import { ANALYTICS_EVENTS } from '@/shared/lib/analytics/events';
+import { trackClientEvent } from '@/shared/lib/analytics/track-client';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Grid } from '@/shared/ui/layout/grid';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { JustifyBetween } from '@/shared/ui/layout/justify-between';
+import { Stack } from '@/shared/ui/layout/stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Pagination } from '@/shared/ui/pagination';
 import { Text } from '@/shared/ui/text';
 
@@ -31,15 +40,15 @@ type RecommendationSelectionScreenProps = {
 
 function SelectionIndicator({ selected }: { selected: boolean }): JSX.Element {
   return (
-    <Box
+    <Center
       aria-hidden
       className={cn(
-        'flex size-016 shrink-0 items-center justify-center rounded-full transition-colors motion-reduce:transition-none',
+        'size-016 shrink-0 rounded-full transition-colors motion-reduce:transition-none',
         selected ? 'bg-sys-primary-default' : 'bg-icon-low',
       )}
     >
       <Image src={CHECK_ICON_SRC} alt="" width={9} height={7} className="h-[7px] w-[9px]" />
-    </Box>
+    </Center>
   );
 }
 
@@ -53,32 +62,33 @@ function RecommendationSummary({
   onToggle: () => void;
 }): JSX.Element {
   return (
-    <button
+    <JustifyBetween
+      as="button"
       type="button"
       aria-expanded={expanded}
       aria-label={`추천 결과 ${recommendation.title} ${expanded ? '접기' : '펼치기'}`}
       onClick={onToggle}
-      className="gap-012 focus-visible:outline-sys-primary-default flex w-full items-start justify-between text-left outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+      className="gap-012 focus-visible:outline-sys-primary-default w-full items-start text-left outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
     >
-      <Box className="gap-012 flex min-w-0 flex-1 flex-col items-start">
-        <Box className="gap-002 flex w-full flex-col items-start">
+      <Stack className="gap-012 min-w-0 flex-1 items-start">
+        <Stack className="gap-002 w-full items-start">
           <Text as="p" variant="body-sm" className="text-text-low">
             {recommendation.date}
           </Text>
           <Text as="h2" variant="subtitle-xxl" className="text-text-high">
             {recommendation.title}
           </Text>
-        </Box>
-        <Box className="gap-006 flex w-full flex-wrap items-center">
+        </Stack>
+        <HStack className="gap-006 w-full flex-wrap">
           {recommendation.channels.map((channel) => (
             <Badge key={channel.id} frame="badge" tone="deep-gray">
               {channel.name}
             </Badge>
           ))}
-        </Box>
-      </Box>
+        </HStack>
+      </Stack>
       <SelectionIndicator selected={expanded} />
-    </button>
+    </JustifyBetween>
   );
 }
 
@@ -92,13 +102,14 @@ function RecommendationChannelButton({
   onToggle: () => void;
 }): JSX.Element {
   return (
-    <button
+    <HStack
+      as="button"
       type="button"
       aria-pressed={selected}
       aria-label={`${channel.name} 선택`}
       onClick={onToggle}
       className={cn(
-        'typo-subtitle-xxs flex min-h-[44px] min-w-0 flex-1 items-center rounded-[var(--radius-s)] border px-014 py-010 text-left outline-none transition-colors motion-reduce:transition-none',
+        'typo-subtitle-xxs min-h-[44px] min-w-0 flex-1 rounded-[var(--radius-s)] border px-014 py-010 text-left outline-none transition-colors motion-reduce:transition-none',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sys-primary-default',
         selected
           ? 'border-outline-selected bg-sys-primary-lowest text-text-primary'
@@ -106,7 +117,7 @@ function RecommendationChannelButton({
       )}
     >
       {channel.name}
-    </button>
+    </HStack>
   );
 }
 
@@ -120,11 +131,11 @@ function RecommendationChannelSelection({
   onToggle: (channelId: string) => void;
 }): JSX.Element {
   return (
-    <Box className="gap-008 mt-010 flex w-full flex-col items-start">
+    <Stack className="gap-008 mt-010 w-full items-start">
       <Text as="p" variant="body-sm" className="text-text-medium w-full">
         * 비교할 채널을 3개 선택해 주세요
       </Text>
-      <Box className="gap-008 grid w-full grid-cols-1 sm:grid-cols-2">
+      <Grid className="gap-008 w-full grid-cols-1 sm:grid-cols-2">
         {channels.map((channel) => (
           <RecommendationChannelButton
             key={channel.id}
@@ -133,8 +144,8 @@ function RecommendationChannelSelection({
             onToggle={() => onToggle(channel.id)}
           />
         ))}
-      </Box>
-    </Box>
+      </Grid>
+    </Stack>
   );
 }
 
@@ -178,8 +189,8 @@ function RecommendationCard({
 
 function RecommendationSelectionEmptyState(): JSX.Element {
   return (
-    <Box className="bg-surface-background-default flex min-h-0 flex-1 justify-center overflow-y-auto">
-      <Box className="gap-016 pb-024 flex w-full max-w-[996px] flex-col items-center pt-[180px]">
+    <Flex className="bg-surface-background-default min-h-0 flex-1 justify-center overflow-y-auto">
+      <VStack className="gap-016 pb-024 w-full max-w-[996px] pt-[180px]">
         <Image
           src="/simulator-assets/recommendation-empty-state.png"
           alt=""
@@ -187,15 +198,15 @@ function RecommendationSelectionEmptyState(): JSX.Element {
           height={191}
           className="h-[191px] w-[235px] shrink-0"
         />
-        <Box className="gap-022 flex flex-col items-center">
-          <Box className="gap-004 flex flex-col items-center text-center">
+        <VStack className="gap-022">
+          <VStack className="gap-004 text-center">
             <Text as="p" variant="heading-lg" className="text-text-default">
               저장된 추천 결과가 없어요
             </Text>
             <Text as="p" variant="body-xl" className="text-text-medium">
               맞춤 추천을 받아 결과를 저장해 보세요.
             </Text>
-          </Box>
+          </VStack>
           <Button
             frame="button"
             tone="secondary"
@@ -206,9 +217,9 @@ function RecommendationSelectionEmptyState(): JSX.Element {
           >
             채널 추천받기
           </Button>
-        </Box>
-      </Box>
-    </Box>
+        </VStack>
+      </VStack>
+    </Flex>
   );
 }
 
@@ -226,17 +237,17 @@ function RecommendationSelectionBottomNavigation({
   onComplete: () => void;
 }): JSX.Element {
   return (
-    <Box className="border-outline-low bg-surface-lowest px-016 sm:px-032 flex h-[102px] w-full shrink-0 justify-center border-t lg:px-120">
-      <Box className="gap-016 py-020 md:py-000 grid w-full max-w-[1200px] grid-cols-1 items-center md:grid-cols-[1fr_auto_1fr]">
+    <Flex className="border-outline-low bg-surface-lowest px-016 sm:px-032 h-[102px] w-full shrink-0 justify-center border-t lg:px-120">
+      <Grid className="gap-016 py-020 md:py-000 w-full max-w-[1200px] grid-cols-1 items-center md:grid-cols-[1fr_auto_1fr]">
         <Box aria-hidden className="hidden md:block" />
-        <Box className="flex justify-center">
+        <Flex className="justify-center">
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={onPageChange}
           />
-        </Box>
-        <Box className="flex justify-center md:justify-end">
+        </Flex>
+        <Flex className="justify-center md:justify-end">
           <Button
             frame="button"
             tone="secondary"
@@ -247,9 +258,9 @@ function RecommendationSelectionBottomNavigation({
           >
             선택하기
           </Button>
-        </Box>
-      </Box>
-    </Box>
+        </Flex>
+      </Grid>
+    </Flex>
   );
 }
 
@@ -314,8 +325,8 @@ export function SimulatorRecommendationSelectionScreen({
 
   return (
     <>
-      <Box className="bg-surface-background-default px-016 sm:px-032 flex min-h-0 w-full flex-1 justify-center overflow-y-auto lg:px-120">
-        <Box className="gap-014 py-024 flex w-full max-w-[792px] flex-col items-center">
+      <Flex className="bg-surface-background-default px-016 sm:px-032 min-h-0 w-full flex-1 justify-center overflow-y-auto lg:px-120">
+        <VStack className="gap-014 py-024 w-full max-w-[792px]">
           {visibleRecommendations.map((recommendation) => (
             <RecommendationCard
               key={recommendation.id}
@@ -326,8 +337,8 @@ export function SimulatorRecommendationSelectionScreen({
               onToggleChannel={handleChannelToggle}
             />
           ))}
-        </Box>
-      </Box>
+        </VStack>
+      </Flex>
       <RecommendationSelectionBottomNavigation
         currentPage={currentPage}
         totalPages={totalPages}
@@ -355,16 +366,19 @@ export function SimulatorRecommendationSelectionPage({
       searchParams.append('channelIds', channelId);
     }
 
+    trackClientEvent(ANALYTICS_EVENTS.simulatorRunStarted, {
+      selected_channel_count: channelIds.length,
+    });
     router.push(`/simulator?${searchParams.toString()}`);
   };
 
   return (
-    <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-hidden">
+    <Stack as="main" className="bg-surface-background-default min-h-0 flex-1 overflow-hidden">
       <SimulatorSubHeader title="불러올 추천 결과를 선택해 주세요" showSaveAction={false} />
       <SimulatorRecommendationSelectionScreen
         recommendations={recommendations}
         onComplete={handleComplete}
       />
-    </main>
+    </Stack>
   );
 }

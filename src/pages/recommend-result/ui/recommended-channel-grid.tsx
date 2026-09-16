@@ -7,6 +7,8 @@ import type {
   RecommendedChannel,
   RecommendedChannelMatchBadgeTone,
 } from '@/pages/recommend-result/model/recommended-channels';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Grid } from '@/shared/ui/layout/grid';
 
 import { RecommendedChannelCard } from './recommended-channel-card';
 
@@ -70,12 +72,15 @@ export function RecommendedChannelGrid({
 
   if (shouldReduceMotion) {
     return (
-      <ul className="gap-024 grid w-full max-w-[1200px] grid-cols-1 justify-items-center sm:px-[56px] md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:px-0">
+      <Grid
+        as="ul"
+        className="gap-024 w-full max-w-[1200px] grid-cols-1 justify-items-center sm:px-[56px] md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:px-0"
+      >
         {channels.map((channel, index) => {
           const channelIndex = startIndex + index;
 
           return (
-            <li key={channel.id} className="flex w-full justify-center">
+            <Flex as="li" key={channel.id} className="w-full justify-center">
               <RecommendedChannelCard
                 channel={channel}
                 matchBadgeTone={matchBadgeToneByChannelId.get(channel.id) ?? 'gray'}
@@ -85,10 +90,10 @@ export function RecommendedChannelGrid({
                 onOpenDetail={onOpenDetail}
                 onToggleSelection={onToggleSelection}
               />
-            </li>
+            </Flex>
           );
         })}
-      </ul>
+      </Grid>
     );
   }
 

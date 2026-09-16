@@ -17,6 +17,7 @@ describe('useSignupDraftStore', () => {
     store.setPassword('Password1!');
 
     expect(useSignupDraftStore.getState()).toMatchObject({
+      returnTo: '/',
       identity: {
         method: 'email',
         email: 'new@example.com',
@@ -56,6 +57,7 @@ describe('useSignupDraftStore', () => {
     );
 
     expect(migrated).toMatchObject({
+      returnTo: '/',
       identity: {
         method: 'email',
         email: 'new@example.com',
@@ -83,6 +85,14 @@ describe('useSignupDraftStore', () => {
     });
   });
 
+  it('keeps the requested page when signup starts from a login prompt', () => {
+    useSignupDraftStore.getState().startEmailSignup('new@example.com', '/recommend/onboarding-87');
+
+    expect(useSignupDraftStore.getState()).toMatchObject({
+      returnTo: '/recommend/onboarding-87',
+    });
+  });
+
   it('clears sensitive values when the draft is reset', () => {
     const store = useSignupDraftStore.getState();
 
@@ -102,6 +112,7 @@ describe('useSignupDraftStore', () => {
       email: 'google@example.com',
       nickname: '구글 사용자',
       signupToken: 'one-time-token',
+      returnTo: '/recommend/onboarding-87',
     });
 
     expect(useSignupDraftStore.getState()).toMatchObject({
@@ -111,6 +122,7 @@ describe('useSignupDraftStore', () => {
         signupToken: 'one-time-token',
       },
       nickname: '구글 사용자',
+      returnTo: '/recommend/onboarding-87',
     });
 
     const persisted = JSON.parse(sessionStorage.getItem('signup-draft') ?? '{}') as {

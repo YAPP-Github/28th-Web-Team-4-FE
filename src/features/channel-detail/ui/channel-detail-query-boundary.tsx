@@ -4,6 +4,7 @@ import { Suspense, type JSX, type ReactNode } from 'react';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 
+import { captureBoundaryError } from '@/shared/lib/sentry/error-reporting';
 import { ChannelDetailError } from '@/features/channel-detail/ui/channel-detail-error';
 import { ChannelDetailQuery } from '@/features/channel-detail/ui/channel-detail-query';
 
@@ -12,6 +13,14 @@ export type ChannelDetailQueryBoundaryProps = {
   onboardingId?: string;
   fallback: ReactNode;
 };
+
+function captureChannelDetailError(error: unknown): void {
+  captureBoundaryError(error, {
+    boundary: 'react-error-boundary',
+    feature: 'channel-detail',
+    operation: 'query-render',
+  });
+}
 
 /**
  * 채널 상세 쿼리의 에러/서스펜스 경계를 캡슐화한다.
@@ -27,6 +36,7 @@ export function ChannelDetailQueryBoundary({
     <QueryErrorResetBoundary>
       {({ reset }) => (
         <ErrorBoundary
+          onError={captureChannelDetailError}
           onReset={reset}
           fallbackRender={({ resetErrorBoundary }) => (
             <ChannelDetailError onRetry={resetErrorBoundary} />

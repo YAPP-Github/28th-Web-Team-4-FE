@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/nextjs';
+
 import { logout, refresh } from '@/shared/api/generated';
 import type { AuthSession } from '@/shared/lib/auth/session';
 import { clearAuthSession, readAuthSession } from '@/app/api-routes/auth/session-cookie';
@@ -8,11 +10,15 @@ vi.mock('@/shared/api/generated', () => ({
   logout: vi.fn<typeof logout>(),
   refresh: vi.fn<typeof refresh>(),
 }));
+vi.mock('@sentry/nextjs', () => ({
+  captureException: vi.fn<typeof Sentry.captureException>(),
+}));
 vi.mock('@/app/api-routes/auth/session-cookie', () => ({
   clearAuthSession: vi.fn<typeof clearAuthSession>(),
   readAuthSession: vi.fn<typeof readAuthSession>(),
 }));
 
+const captureExceptionMock = vi.mocked(Sentry.captureException);
 const logoutMock = vi.mocked(logout);
 const refreshMock = vi.mocked(refresh);
 const clearAuthSessionMock = vi.mocked(clearAuthSession);
@@ -147,6 +153,33 @@ describe('logout BFF', () => {
         error: 'Refreshed access token was rejected',
       },
     );
+    expect(captureExceptionMock).toHaveBeenCalledWith(expect.any(Error), {
+      tags: {
+        feature: 'auth',
+        'http.status_code': 401,
+        operation: 'logout-backend-session',
+        phase: 'logout',
+      },
+    });
+    expect(clearAuthSessionMock).toHaveBeenCalledOnce();
+  });
+
+  it('reports an unexpected logout exception and still clears the local session', async () => {
+    const consoleErrorMock = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const error = new Error('logout transport failed');
+    logoutMock.mockRejectedValue(error);
+
+    const response = await postLogout(logoutRequest());
+
+    expect(response.status).toBe(204);
+    expect(captureExceptionMock).toHaveBeenCalledWith(error, {
+      tags: {
+        feature: 'auth',
+        operation: 'logout-backend-session',
+        phase: 'logout',
+      },
+    });
+    expect(consoleErrorMock).toHaveBeenCalledOnce();
     expect(clearAuthSessionMock).toHaveBeenCalledOnce();
   });
 

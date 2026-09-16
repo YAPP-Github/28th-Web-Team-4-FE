@@ -1,11 +1,11 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { SimulationResponse } from '@/shared/api/generated';
 
 import { AuthenticatedChannelResults } from './simulator-authenticated-results';
 
 type SimulatorFilterChannelsResult = {
-  channels: { id: string; name: string }[];
+  channels: { id: string; name: string; iconUrl?: string | null }[];
   isPending: boolean;
   isError: boolean;
 };
@@ -53,11 +53,11 @@ const SIMULATION_RESULT: SimulationResponse = {
       estClicks: { min: 300, max: 400 },
       cpcWon: null,
       cpmWon: null,
-      minBudgetWon: null,
+      minBudgetWon: 600_000,
       isExecutable: false,
       shortfallWon: null,
       basisNote:
-        '미집행 (배분 예산 0원) / 매체 소개서 기반 / VAT 별도 가정 / CTR 미제공 시 전체 평균 CTR 적용',
+        '집행 예산 부족 / 매체 소개서 기반 / VAT 별도 가정 / CTR 미제공 시 전체 평균 CTR 적용',
     },
     {
       channelId: 'channel-b',
@@ -74,7 +74,7 @@ const SIMULATION_RESULT: SimulationResponse = {
       isExecutable: false,
       shortfallWon: null,
       basisNote:
-        '노출 정보 미제공 상품 (집행 가능 여부만 판단) / 매체 소개서 기반 / VAT 별도 가정 / CTR 미제공 시 전체 평균 CTR 적용',
+        '집행 예산 부족 / 매체 소개서 기반 / VAT 별도 가정 / CTR 미제공 시 전체 평균 CTR 적용',
     },
   ],
 };
@@ -96,6 +96,30 @@ beforeEach(() => {
 });
 
 describe('AuthenticatedChannelResults', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('집행 불가 채널에 기준 정보를 확인할 수 있는 안내 버튼을 제공한다', () => {
+    const mixedSimulationResult: SimulationResponse = {
+      ...SIMULATION_RESULT,
+      items: SIMULATION_RESULT.items.map((item, index) =>
+        index === 1 ? { ...item, isExecutable: true } : item,
+      ),
+    };
+
+    render(
+      <AuthenticatedChannelResults
+        isChannelSelectionComplete
+        selectedChannelIds={SELECTED_CHANNEL_IDS}
+        simulationResult={mixedSimulationResult}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: '채널 A 기준 정보 안내' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: '채널 B 기준 정보 안내' })).not.toBeInTheDocument();
+  });
+
   it('채널 미선택 상태에서 채널 추가 방식을 선택하는 모달을 제공한다', async () => {
     const user = userEvent.setup();
     render(<AuthenticatedChannelResults isChannelSelectionComplete={false} />);
@@ -216,5 +240,55 @@ describe('AuthenticatedChannelResults', () => {
       expect(impressionTooltip).toHaveTextContent('매체 특성상 상세 데이터를');
       expect(impressionTooltip).toHaveTextContent('제공하지 않아요.');
     });
+  });
+
+  it('시뮬레이션 결과가 처음 표시되면 각 미집행 채널의 툴팁을 2초간 자동으로 보여준다', async () => {
+    vi.useFakeTimers();
+
+    render(
+      <AuthenticatedChannelResults
+        isChannelSelectionComplete
+        selectedChannelIds={SELECTED_CHANNEL_IDS}
+        simulationResult={SIMULATION_RESULT}
+      />,
+    );
+
+    const tooltips = screen.getAllByRole('tooltip');
+    expect(tooltips).toHaveLength(2);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_999);
+    });
+    expect(screen.getAllByRole('tooltip')).toHaveLength(2);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
+    expect(screen.queryAllByRole('tooltip')).toHaveLength(0);
+  });
+
+  it('모바일에서 정보 아이콘을 누르고 있는 동안 툴팁을 보여준다', async () => {
+    vi.useFakeTimers();
+
+    render(
+      <AuthenticatedChannelResults
+        isChannelSelectionComplete
+        selectedChannelIds={SELECTED_CHANNEL_IDS}
+        simulationResult={SIMULATION_RESULT}
+      />,
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(4_001);
+    });
+
+    const infoButton = screen.getByRole('button', { name: '채널 A 기준 정보 안내' });
+    fireEvent.pointerDown(infoButton, { pointerType: 'touch' });
+
+    expect(screen.getAllByRole('tooltip')).toHaveLength(1);
+
+    fireEvent.pointerUp(infoButton, { pointerType: 'touch' });
+
+    expect(screen.queryAllByRole('tooltip')).toHaveLength(0);
   });
 });

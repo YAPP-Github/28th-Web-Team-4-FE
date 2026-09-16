@@ -22,7 +22,7 @@ export type CompareResultChannelDetails = {
 };
 
 /** 비교 결과에서 채널의 특징과 강점을 설명하는 인사이트 정보다. */
-export type CompareResultChannelInsight = {
+type CompareResultChannelInsight = {
   keyword: readonly string[];
   advantages: readonly string[];
 };

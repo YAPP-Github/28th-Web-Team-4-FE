@@ -17,7 +17,7 @@ import {
 import type { BudgetInputRange } from '@/features/ad-onboarding/model/budget-range-input';
 import type { BudgetRange } from '@/features/ad-onboarding/model/common-onboarding-options';
 import { BudgetRangeControl } from '@/features/ad-onboarding/ui/questions/common/budget/budget-range-control';
-import { VStack } from '@/shared/ui/layout/v-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 const DEFAULT_BUDGET_RANGE = {
@@ -100,7 +100,7 @@ function BudgetRangeControlExample({ initialRange }: BudgetRangeControlExamplePr
   };
 
   return (
-    <VStack className="gap-012 items-stretch" style={{ width: 'min(640px, calc(100vw - 32px))' }}>
+    <Stack className="gap-012" style={{ width: 'min(640px, calc(100vw - 32px))' }}>
       <BudgetRangeControl
         range={range}
         inputRange={inputRange}
@@ -126,7 +126,7 @@ function BudgetRangeControlExample({ initialRange }: BudgetRangeControlExamplePr
       <Text variant="body-md" aria-live="polite">
         선택 예산: {formatBudgetRange(range)}
       </Text>
-    </VStack>
+    </Stack>
   );
 }
 
