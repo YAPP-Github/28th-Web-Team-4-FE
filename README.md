@@ -6,6 +6,8 @@
 
 내 서비스에 맞는 광고 채널을 추천받고, 비교하고, 예산별 예상 성과까지 확인해 보세요.
 
+[데모 갤러리에서 전체 영상 보기](https://yapp-github.github.io/adlib/demo)
+
 [![CI](https://github.com/YAPP-Github/28th-Web-Team-4-FE/actions/workflows/ci.yml/badge.svg)](https://github.com/YAPP-Github/28th-Web-Team-4-FE/actions/workflows/ci.yml)
 
 ## 내게 맞는 광고 채널을 한눈에
@@ -42,13 +44,6 @@
 <p>추천 채널의 핵심 요약·광고 상품·타깃층·광고 예시를 살펴봅니다.</p></div>
 </div>
 
-<details>
-<summary>추천 채널 비교 더 보기</summary>
-
-- [추천 채널로 비교하기](https://yapp-github.github.io/adlib/demo/#1e-recommend-compare): 추천받은 채널 3개를 선택해 비교 결과를 확인합니다.
-
-</details>
-
 ### 2. 채널 비교 및 결과 보기
 
 검색과 카테고리 필터로 광고 채널을 찾고, 최대 3개 채널의 주요 지표와 예상 성과를 나란히 비교합니다.
@@ -72,15 +67,6 @@
 <p>세 채널을 선택해 예상 노출과 클릭을 나란히 비교합니다.</p></div>
 </div>
 
-<details>
-<summary>필터 조합과 비교 후보 선택 더 보기</summary>
-
-- [여러 카테고리 선택과 초기화](https://yapp-github.github.io/adlib/demo/#2c-multi-filter): 여러 카테고리를 함께 선택하고 필터를 초기화합니다.
-- [비교 후보 교체](https://yapp-github.github.io/adlib/demo/#2d-replace-candidate): 선택한 채널을 해제하고 다른 후보를 추가합니다.
-- [검색 결과가 없을 때](https://yapp-github.github.io/adlib/demo/#2e-empty-recovery): 검색어와 필터를 조정해 채널 목록을 다시 확인합니다.
-
-</details>
-
 ### 3. 시뮬레이터
 
 총예산과 집행 기간을 설정하고, 채널별 예산 배분에 따라 예상 노출과 클릭이 어떻게 달라지는지 확인합니다.
@@ -99,13 +85,6 @@
 <p>계산 결과를 표로 살펴보고 이름을 붙여 저장합니다.</p></div>
 </div>
 
-<details>
-<summary>초기 조건 설정 더 보기</summary>
-
-- [조건 설정과 첫 계산](https://yapp-github.github.io/adlib/demo/#3a-simulator-setup): 총 200만원과 1개월을 설정하고 채널별 예산을 배분합니다.
-
-</details>
-
 ### 4. 저장된 결과 다시 보기
 
 마이페이지에서 저장한 추천, 비교, 시뮬레이션 결과를 다시 열어 이전 광고 계획을 이어서 검토합니다.
@@ -122,13 +101,6 @@
 <video src="https://github.com/user-attachments/assets/6252a494-d045-4a9f-9c21-4c4435b26b15" controls width="100%"></video>
 <p>저장한 시뮬레이션을 열어 예산 배분과 예상 성과를 확인합니다.</p></div>
 </div>
-
-<details>
-<summary>저장한 비교 결과 더 보기</summary>
-
-- [저장된 비교 다시 보기](https://yapp-github.github.io/adlib/demo/#4b-saved-compare): 저장한 채널 비교 결과를 확인합니다.
-
-</details>
 
 > [!NOTE]
 > 예상 성과는 매체 정보와 입력 조건을 바탕으로 계산한 참고값이며 실제 광고 성과를 보장하지 않습니다.
