@@ -20,8 +20,6 @@
 
 ## 주요 기능
 
-아래 GIF는 README에서 바로 재생되며, **MP4 보기**를 누르면 원본 화질로 열립니다. [전체 영상 목록](./docs/demo/README.md)
-
 ### 1. 온보딩 + 채널 추천 + 비교 결과 보기
 
 서비스 정보와 광고 조건을 입력하면 적합한 채널을 추천받고, 추천 이유와 예상 성과를 비교할 수 있습니다.
@@ -34,25 +32,27 @@
 
 <table>
 <tr>
-<td width="50%" valign="top">
-<p><strong>온보딩 전체 입력과 추천 결과 · 18초</strong></p>
-<p>서비스명부터 광고 경험까지 8단계를 입력하고, 실제 추천 카드가 등장하는 과정을 이어서 보여줍니다.</p>
-<img src="./docs/demo/gifs/1a-onboarding-complete.gif" alt="온보딩 8단계 입력부터 추천 카드 등장까지 보여주는 데모 영상" width="100%">
-<p><a href="./docs/demo/1a-onboarding-complete.mp4">MP4 원본 보기</a></p>
+<th width="50%">온보딩 전체 입력과 추천 결과</th>
+<th width="50%">추천 상세의 네 탭과 광고 예시</th>
+</tr>
+<tr>
+<td width="50%">
+<video src="https://github.com/user-attachments/assets/41a8f4ab-b1da-41dc-9256-a7bf920a88f4" controls width="100%"></video>
 </td>
-<td width="50%" valign="top">
-<p><strong>추천 상세의 네 탭과 광고 예시 · 12초</strong></p>
-<p>11번가 광고의 핵심 요약·광고 상품·타깃층·광고 예시 7개를 확인하고 이미지를 확대합니다.</p>
-<img src="./docs/demo/gifs/1d-recommend-detail.gif" alt="추천 채널의 핵심 요약, 광고 상품, 타깃층과 광고 예시를 확인하는 데모 영상" width="100%">
-<p><a href="./docs/demo/1d-recommend-detail.mp4">MP4 원본 보기</a></p>
+<td width="50%">
+<video src="https://github.com/user-attachments/assets/119dd4b4-8e66-4953-b111-416ea74f7871" controls width="100%"></video>
 </td>
+</tr>
+<tr>
+<td valign="top">서비스 정보와 광고 조건을 입력하고 맞춤 추천 결과를 확인합니다.</td>
+<td valign="top">추천 채널의 핵심 요약·광고 상품·타깃층·광고 예시를 살펴봅니다.</td>
 </tr>
 </table>
 
 <details>
 <summary>추천 채널 비교 더 보기</summary>
 
-- [추천 채널로 비교하기 · 8초](./docs/demo/1e-recommend-compare.mp4): 추천받은 채널 3개를 선택해 비교 결과를 확인합니다.
+- [추천 채널로 비교하기](./docs/demo/1e-recommend-compare.mp4): 추천받은 채널 3개를 선택해 비교 결과를 확인합니다.
 
 </details>
 
@@ -65,34 +65,36 @@
 - 조건별 필터로 필요한 채널을 탐색하고 최대 3개까지 선택합니다.
 - 최소 광고비, 주요 오디언스, 광고 형태와 과금 방식을 확인합니다.
 
-<table>
-<tr>
-<td width="50%" valign="top">
-<p><strong>검색과 카테고리 필터 · 12초</strong></p>
-<p>쇼핑·커머스 카테고리를 선택하고 검색어로 원하는 광고 채널을 좁혀갑니다.</p>
-<img src="./docs/demo/gifs/search-filter-zoom.gif" alt="카테고리 필터와 검색으로 광고 채널을 찾는 데모 영상" width="100%">
-<p><a href="./docs/demo/search-filter-zoom.mp4">MP4 원본 보기</a></p>
-</td>
-<td width="50%" valign="top">
-<p><strong>직접 선택한 채널 비교 · 9초</strong></p>
-<p>첫차·번개장터·11번가 광고를 선택하고 세 채널의 예상 노출과 클릭을 비교합니다.</p>
-<img src="./docs/demo/gifs/2b-channel-compare.gif" alt="직접 선택한 세 광고 채널의 예상 노출과 클릭을 비교하는 데모 영상" width="100%">
-<p><a href="./docs/demo/2b-channel-compare.mp4">MP4 원본 보기</a></p>
-</td>
-</tr>
-</table>
-
 ![광고 채널별 예상 성과와 주요 지표를 비교하는 결과 화면](./.github/assets/readme/04-comparison-result.png)
 
 - 예상 노출, 예상 클릭, CPC와 CPM을 나란히 비교합니다.
 - 지표별 인사이트를 참고해 서비스에 맞는 채널을 선택합니다.
 
+<table>
+<tr>
+<th width="50%">검색과 카테고리 필터</th>
+<th width="50%">직접 선택한 채널 비교</th>
+</tr>
+<tr>
+<td width="50%">
+<video src="https://github.com/user-attachments/assets/ffe9262e-d768-41f6-be15-e8b62d8f0455" controls width="100%"></video>
+</td>
+<td width="50%">
+<video src="https://github.com/user-attachments/assets/cd20e90b-98f9-4767-857c-cfc5a668a862" controls width="100%"></video>
+</td>
+</tr>
+<tr>
+<td valign="top">카테고리와 검색어로 원하는 광고 채널을 찾습니다.</td>
+<td valign="top">세 채널을 선택해 예상 노출과 클릭을 나란히 비교합니다.</td>
+</tr>
+</table>
+
 <details>
 <summary>필터 조합과 비교 후보 선택 더 보기</summary>
 
-- [여러 카테고리 선택과 초기화 · 12초](./docs/demo/2c-multi-filter.mp4): 여러 카테고리를 함께 선택하고 필터를 초기화합니다.
-- [비교 후보 교체 · 12초](./docs/demo/2d-replace-candidate.mp4): 선택한 채널을 해제하고 다른 후보를 추가합니다.
-- [검색 결과가 없을 때 · 7초](./docs/demo/2e-empty-recovery.mp4): 검색어와 필터를 조정해 채널 목록을 다시 확인합니다.
+- [여러 카테고리 선택과 초기화](./docs/demo/2c-multi-filter.mp4): 여러 카테고리를 함께 선택하고 필터를 초기화합니다.
+- [비교 후보 교체](./docs/demo/2d-replace-candidate.mp4): 선택한 채널을 해제하고 다른 후보를 추가합니다.
+- [검색 결과가 없을 때](./docs/demo/2e-empty-recovery.mp4): 검색어와 필터를 조정해 채널 목록을 다시 확인합니다.
 
 </details>
 
@@ -107,20 +109,27 @@
 
 <table>
 <tr>
-<td width="50%" valign="top">
-<p><strong>예산 재배분과 성과 변화 · 9초</strong></p>
-<p>총예산은 유지한 채 채널별 배분을 바꾸고 예상 노출·클릭 변화를 다시 계산합니다.</p>
-<img src="./docs/demo/gifs/3b-budget-reallocation.gif" alt="같은 총예산에서 채널별 배분을 바꾸고 예상 성과를 다시 계산하는 데모 영상" width="100%">
-<p><a href="./docs/demo/3b-budget-reallocation.mp4">MP4 원본 보기</a></p>
+<th width="50%">예산 재배분과 성과 변화</th>
+<th width="50%">표로 확인하고 결과 저장</th>
+</tr>
+<tr>
+<td width="50%">
+<video src="https://github.com/user-attachments/assets/fd7944bb-907f-4410-8e42-c32d5705e806" controls width="100%"></video>
 </td>
+<td width="50%">
+<video src="https://github.com/user-attachments/assets/d499d58c-eac1-4808-80a5-3a41cd2f11f5" controls width="100%"></video>
+</td>
+</tr>
+<tr>
+<td valign="top">채널별 예산 배분을 바꾸며 예상 노출과 클릭의 변화를 확인합니다.</td>
+<td valign="top">계산 결과를 표로 살펴보고 이름을 붙여 저장합니다.</td>
 </tr>
 </table>
 
 <details>
-<summary>초기 조건 설정과 결과 저장 더 보기</summary>
+<summary>초기 조건 설정 더 보기</summary>
 
-- [조건 설정과 첫 계산 · 10초](./docs/demo/3a-simulator-setup.mp4): 총 200만원과 1개월을 설정하고 채널별 예산을 배분합니다.
-- [표로 확인하고 결과 저장 · 11초](./docs/demo/3c-table-save.mp4): 그래프를 표로 전환하고 결과에 이름을 붙여 저장합니다.
+- [조건 설정과 첫 계산](./docs/demo/3a-simulator-setup.mp4): 총 200만원과 1개월을 설정하고 채널별 예산을 배분합니다.
 
 </details>
 
@@ -134,20 +143,27 @@
 
 <table>
 <tr>
-<td width="50%" valign="top">
-<p><strong>저장된 시뮬레이션 다시 보기 · 9초</strong></p>
-<p>마이페이지에서 저장한 시뮬레이션을 열어 예산 배분과 예상 성과를 다시 확인합니다.</p>
-<img src="./docs/demo/gifs/4c-saved-simulation.gif" alt="마이페이지에서 저장한 시뮬레이션의 예산과 예상 성과를 다시 여는 데모 영상" width="100%">
-<p><a href="./docs/demo/4c-saved-simulation.mp4">MP4 원본 보기</a></p>
+<th width="50%">저장된 추천 다시 보기</th>
+<th width="50%">저장된 시뮬레이션 다시 보기</th>
+</tr>
+<tr>
+<td width="50%">
+<video src="https://github.com/user-attachments/assets/0ec28c9a-819e-4b4e-97a3-8bebb4219900" controls width="100%"></video>
 </td>
+<td width="50%">
+<video src="https://github.com/user-attachments/assets/6252a494-d045-4a9f-9c21-4c4435b26b15" controls width="100%"></video>
+</td>
+</tr>
+<tr>
+<td valign="top">마이페이지에서 저장한 추천 결과와 채널 정보를 다시 확인합니다.</td>
+<td valign="top">저장한 시뮬레이션을 열어 예산 배분과 예상 성과를 확인합니다.</td>
 </tr>
 </table>
 
 <details>
-<summary>저장한 추천과 비교 결과 더 보기</summary>
+<summary>저장한 비교 결과 더 보기</summary>
 
-- [저장된 추천 다시 보기 · 8초](./docs/demo/4a-saved-recommend.mp4): 저장 목록에서 추천 결과를 열고 추천 채널을 살펴봅니다.
-- [저장된 비교 다시 보기 · 7초](./docs/demo/4b-saved-compare.mp4): 저장한 채널 비교 결과를 확인합니다.
+- [저장된 비교 다시 보기](./docs/demo/4b-saved-compare.mp4): 저장한 채널 비교 결과를 확인합니다.
 
 </details>
 
