@@ -2,15 +2,20 @@ import posthog from 'posthog-js';
 import * as Sentry from '@sentry/nextjs';
 
 import { isProduction } from '@/lib/is-production';
+import { getClientAnalyticsConfig } from '@/shared/lib/analytics/analytics-config';
 
-if (isProduction) {
-  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN ?? '', {
+const analyticsConfig = getClientAnalyticsConfig();
+const posthogProjectToken = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
+
+if (analyticsConfig.enabled && posthogProjectToken) {
+  posthog.init(posthogProjectToken, {
     api_host: '/ingest',
     ui_host: 'https://us.posthog.com',
     defaults: '2026-01-30',
     capture_exceptions: true,
-    debug: false,
+    debug: analyticsConfig.debug,
   });
+  posthog.register({ environment: analyticsConfig.environment });
 }
 
 Sentry.init({

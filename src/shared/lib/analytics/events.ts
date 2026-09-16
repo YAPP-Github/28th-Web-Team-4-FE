@@ -491,16 +491,3 @@ export const ANALYTICS_EVENT_REGISTRY = {
   profile_update: createPostHogEvent('profile_update', 'mypage'),
   ad_condition_update: createPostHogEvent('ad_condition_update', 'mypage'),
 } as const satisfies AnalyticsEventRegistry;
-
-/**
- * PR 1의 단계별 변경 중 기존 헬스체크 호출을 임시로 유지하는 호환 상수.
- * 헬스체크 분석 제거 단계에서 함께 삭제한다.
- */
-export const ANALYTICS_EVENTS = {
-  healthCheckRequested: 'health_check_requested',
-} as const;
-
-/** 기존 tracker가 받는 실제 이벤트 이름의 임시 호환 타입. */
-export type AnalyticsEventName =
-  | AnalyticsEventKey
-  | (typeof ANALYTICS_EVENTS)[keyof typeof ANALYTICS_EVENTS];
