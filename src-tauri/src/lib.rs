@@ -14,7 +14,8 @@ pub fn run() {
         )
         .setup(|app| {
             window::create(app)?;
-            app.set_menu(menu::build(app.handle())?)?;
+            let menu = menu::build(app.handle())?;
+            app.set_menu(menu)?;
             Ok(())
         })
         .on_menu_event(menu::handle)
