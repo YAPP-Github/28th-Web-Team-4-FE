@@ -1,20 +1,5 @@
-import { ANALYTICS_EVENTS } from '@/shared/lib/analytics/events';
-import { getPostHogClient } from '@/shared/lib/posthog-server';
-
-export async function getHealthCheck() {
-  // 개발/로컬에서는 posthog 호출을 하지 않습니다.
-  if (process.env.NODE_ENV === 'production') {
-    const posthog = getPostHogClient();
-    await posthog.captureImmediate({
-      distinctId: 'health-check',
-      event: ANALYTICS_EVENTS.healthCheckRequested,
-      properties: {
-        source: 'api',
-        $process_person_profile: false,
-      },
-    });
-  }
-
+/** 외부 서비스가 애플리케이션 생존 여부를 확인할 수 있는 최소 응답을 반환한다. */
+export function getHealthCheck() {
   return new Response('Hello, Next.js!', {
     status: 200,
   });
