@@ -1,5 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreBinaries": ["doppler"],
   "ignoreFiles": [".storybook/next.config.ts"],
-  "ignore": ["src/shared/api/generated/**"]
+  "ignore": ["src/shared/api/generated/**", ".context/**"]
 }
