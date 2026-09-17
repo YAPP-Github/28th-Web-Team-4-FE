@@ -1,14 +1,16 @@
-use tauri::{utils::config::FrontendDist, Config, Url};
+//! 서비스 origin 판정과 허용된 외부 HTTP(S) 링크 처리.
+
+use tauri::{AppHandle, Config, Url, utils::config::FrontendDist};
+use tauri_plugin_opener::OpenerExt;
 
 #[derive(Debug, PartialEq)]
-pub enum Destination {
+pub(crate) enum Destination {
     Service,
-    Shell,
     Browser,
     Blocked,
 }
 
-pub fn home(config: &Config) -> Url {
+pub(crate) fn home(config: &Config) -> Url {
     if cfg!(debug_assertions) {
         return config
             .build
@@ -22,12 +24,9 @@ pub fn home(config: &Config) -> Url {
     }
 }
 
-pub fn classify(url: &Url, home: &Url) -> Destination {
+pub(crate) fn classify(url: &Url, home: &Url) -> Destination {
     if !url.username().is_empty() || url.password().is_some() {
         return Destination::Blocked;
-    }
-    if url == &crate::recovery::loading_url() || url == &crate::recovery::error_url() {
-        return Destination::Shell;
     }
     if !matches!(url.scheme(), "https" | "http") {
         return Destination::Blocked;
@@ -39,18 +38,11 @@ pub fn classify(url: &Url, home: &Url) -> Destination {
     }
 }
 
-pub fn open_browser(url: Url) {
-    // URL은 위 정책을 통과한 HTTP(S)만 전달한다. 셸 문자열로 실행하지 않는다.
-    std::thread::spawn(move || {
-        match std::process::Command::new("/usr/bin/open")
-            .arg("--")
-            .arg(url.as_str())
-            .status()
-        {
-            Ok(status) if status.success() => {}
-            _ => eprintln!("기본 브라우저에서 링크를 열지 못했습니다"),
-        }
-    });
+pub(crate) fn open_browser(app: &AppHandle, url: &Url) {
+    // 호출자는 classify에서 Browser로 분류된 URL만 전달한다.
+    if let Err(error) = app.opener().open_url(url.as_str(), None::<&str>) {
+        eprintln!("기본 브라우저에서 링크를 열지 못했습니다: {error}");
+    }
 }
 
 #[cfg(test)]
@@ -81,7 +73,7 @@ mod tests {
     }
 
     #[test]
-    fn custom_schemes_credentials_and_unrecognized_shell_routes_are_blocked() {
+    fn custom_schemes_credentials_and_removed_shell_routes_are_blocked() {
         let home = Url::parse("https://chaeso-zip.com").unwrap();
         for url in [
             "file:///etc/passwd",
@@ -89,6 +81,9 @@ mod tests {
             "data:text/html,test",
             "mailto:test@example.com",
             "https://user@chaeso-zip.com/",
+            "https://user:password@chaeso-zip.com/",
+            "chaeso-shell://localhost/loading",
+            "chaeso-shell://localhost/error",
             "chaeso-shell://localhost/other",
             "chaeso-shell://evil/loading",
             "chaeso-shell://localhost/loading?redirect=https://evil.example",
@@ -98,14 +93,20 @@ mod tests {
                 Destination::Blocked
             );
         }
-        assert_eq!(
-            classify(&crate::recovery::loading_url(), &home),
-            Destination::Shell
-        );
-        assert_eq!(
-            classify(&crate::recovery::error_url(), &home),
-            Destination::Shell
-        );
+    }
+
+    #[test]
+    fn notion_agreements_open_in_the_browser() {
+        let home = Url::parse("https://chaeso-zip.com").unwrap();
+        for url in [
+            "https://extreme-moonstone-8ae.notion.site/3b2b0b17e916806c92cdec7eac6c0f7c",
+            "https://app.notion.com/p/3b2b0b17e91680dc9567c8db372aa63d?source=copy_link",
+        ] {
+            assert_eq!(
+                classify(&Url::parse(url).unwrap(), &home),
+                Destination::Browser
+            );
+        }
     }
 
     #[test]

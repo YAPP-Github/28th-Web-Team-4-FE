@@ -1,9 +1,9 @@
 use tauri::{
+    AppHandle,
     menu::{Menu, MenuEvent, MenuItem, PredefinedMenuItem as Item, Submenu},
-    AppHandle, Manager,
 };
 
-pub fn build(app: &AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
+pub(crate) fn build(app: &AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
     let application = Submenu::with_items(
         app,
         "채소ZIP",
@@ -51,30 +51,11 @@ pub fn build(app: &AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
     Menu::with_items(app, &[&application, &edit, &window])
 }
 
-pub fn show_window(app: &AppHandle) {
-    if let Some(window) = app.get_webview_window("main") {
-        let _ = window.show();
-        let _ = window.unminimize();
-        let _ = window.set_focus();
-    }
-}
-
-pub fn handle(app: &AppHandle, event: MenuEvent) {
-    if let Some(window) = app.get_webview_window("main") {
-        match event.id().as_ref() {
-            "show" => show_window(app),
-            "home" => {
-                show_window(app);
-                let _ = window.navigate(crate::recovery::loading_url());
-            }
-            "reload" => {
-                if window.url().is_ok_and(|url| url.scheme() == "chaeso-shell") {
-                    let _ = window.navigate(crate::recovery::loading_url());
-                } else {
-                    let _ = window.reload();
-                }
-            }
-            _ => {}
-        }
+pub(crate) fn handle(app: &AppHandle, event: MenuEvent) {
+    match event.id().as_ref() {
+        "show" => crate::window::show(app),
+        "home" => crate::window::go_home(app),
+        "reload" => crate::window::reload(app),
+        _ => {}
     }
 }
