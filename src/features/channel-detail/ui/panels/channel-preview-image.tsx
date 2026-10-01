@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import { useState, type JSX, type SyntheticEvent } from 'react';
-import { X } from 'lucide-react';
 
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
@@ -54,7 +53,14 @@ function ChannelPreviewImageViewer({
           'motion-reduce:data-ending-style:scale-100 motion-reduce:data-starting-style:scale-100',
         )}
       >
-        <Box className="relative min-h-0 w-full flex-1">
+        <Modal.Close
+          type="button"
+          aria-label={`${alt} 확대 보기 닫기`}
+          className={cn(
+            'relative min-h-0 w-full flex-1 cursor-zoom-out border-0 bg-transparent p-0',
+            'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-sys-primary-default',
+          )}
+        >
           <Image
             fill
             src={src}
@@ -81,17 +87,6 @@ function ChannelPreviewImageViewer({
               )}
             />
           ) : null}
-        </Box>
-        <Modal.Close
-          aria-label="이미지 닫기"
-          className={cn(
-            'absolute top-008 right-008 z-10 bg-transparent text-icon-lower',
-            'flex size-11 cursor-pointer items-center justify-center rounded-[var(--radius-s)]',
-            'transition-colors hover:bg-primitive-gray-950/60 motion-reduce:transition-none',
-            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sys-primary-default',
-          )}
-        >
-          <X aria-hidden className="size-020 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" />
         </Modal.Close>
       </Modal.Popup>
     </Modal.Portal>
