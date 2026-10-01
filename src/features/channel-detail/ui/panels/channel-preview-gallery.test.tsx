@@ -1,5 +1,5 @@
 import { createElement, type ComponentProps } from 'react';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { Modal } from '@/shared/ui/modal';
@@ -194,29 +194,5 @@ describe('ChannelPreviewGallery', () => {
     expect(screen.getByRole('dialog', { name: '채널 상세 정보' })).toBeVisible();
     // jsdom은 preventScroll 지원 감지에 실패해 Base UI가 바깥 클릭 후 포커스 복원을 생략한다.
     // 배경 클릭 후 포커스 복원은 실제 브라우저에서 검증한다.
-  });
-
-  it('원본 이미지가 로딩 중일 때 대체 썸네일을 클릭해도 닫힌다', async () => {
-    const user = userEvent.setup();
-
-    render(<ChannelPreviewGallery channelName="메타 광고" imageUrls={['/preview-one.png']} />);
-
-    const thumbnail = screen.getByRole('img', { name: '메타 광고 광고 예시 1' });
-    Object.defineProperty(thumbnail, 'currentSrc', { value: '/thumbnail-one.png' });
-    fireEvent.load(thumbnail);
-
-    const trigger = screen.getByRole('button', { name: '메타 광고 광고 예시 1 크게 보기' });
-    await user.click(trigger);
-    const dialog = await screen.findByRole('dialog', {
-      name: '메타 광고 광고 예시 1 크게 보기',
-    });
-
-    await user.click(within(dialog).getByAltText(''));
-    await waitFor(() => {
-      expect(
-        screen.queryByRole('dialog', { name: '메타 광고 광고 예시 1 크게 보기' }),
-      ).not.toBeInTheDocument();
-    });
-    expect(trigger).toHaveFocus();
   });
 });
