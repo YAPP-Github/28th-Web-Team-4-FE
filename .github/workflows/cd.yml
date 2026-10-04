@@ -82,13 +82,35 @@ jobs:
           docker push $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Fill in the new image ID in the task definition
-        id: task-def
+      - name: build Alloy image
+        id: build-alloy-image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          IMAGE_TAG: alloy-${{ github.sha }}
+        run: |
+          docker build --platform linux/arm64 \
+            -f docker/Dockerfile.alloy \
+            -t "$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
+            deploy
+          docker push "$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "image=$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Fill in the new Next.js image ID in the task definition
+        id: task-def-nextjs
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
           container-name: nextjs-ecs-container
           image: ${{ steps.build-image.outputs.image }}
+
+      - name: Fill in the new Alloy image ID in the task definition
+        id: task-def-alloy
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-nextjs.outputs.task-definition }}
+          container-name: alloy
+          image: ${{ steps.build-alloy-image.outputs.image }}
 
       - name: Check for newer commits
         env:
@@ -107,7 +129,7 @@ jobs:
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          task-definition: ${{ steps.task-def-alloy.outputs.task-definition }}
           service: nextjs-ecs-task-service
           cluster: nextjs-ecs-cluster
           wait-for-service-stability: true
