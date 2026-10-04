@@ -26,13 +26,3 @@ export function getObservabilityLabels(): { env: string; service: string } {
 export function isServerMetricsEnabled(): boolean {
   return process.env.OBSERVABILITY_METRICS_ENABLED === 'true';
 }
-
-/**
- * 서버 JSON 로그를 stdout/stderr에 쓸지 반환합니다.
- *
- * 배포 환경이 명시적으로 opt-in하기 전까지 CloudWatch/Loki 로그량이 늘지 않도록
- * 기본값은 비활성입니다.
- */
-export function isServerLoggingEnabled(): boolean {
-  return process.env.OBSERVABILITY_SERVER_LOGS_ENABLED === 'true';
-}
