@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { useLogout } from '@/features/auth/session/model/use-logout';
 import { useWithdraw } from '@/features/auth/session/model/use-withdraw';
-import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
 import { Modal } from '@/shared/ui/modal';
 import { showToast } from '@/shared/ui/toast';
 
@@ -57,7 +57,7 @@ export function AccountActions(): JSX.Element {
 
   return (
     <>
-      <Box className="gap-026 py-020 flex w-full items-center justify-center">
+      <Center className="gap-026 py-020 w-full">
         <button
           type="button"
           className="typo-subtitle-xs text-text-low focus-visible:outline-sys-primary-default rounded-xxs cursor-pointer underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
@@ -75,7 +75,7 @@ export function AccountActions(): JSX.Element {
         >
           탈퇴하기
         </button>
-      </Box>
+      </Center>
 
       {activeModal === 'withdraw' ? (
         <Modal.Root open onOpenChange={(open) => !open && closeModal()}>

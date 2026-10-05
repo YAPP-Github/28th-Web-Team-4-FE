@@ -10,8 +10,8 @@ import {
 } from '@/features/auth/signup-flow';
 import { Dropdown, type DropdownOption } from '@/shared/ui/dropdown';
 import { InputField } from '@/shared/ui/input-field';
-import { Box } from '@/shared/ui/layout/box';
-import { VStack } from '@/shared/ui/layout/v-stack';
+import { Center } from '@/shared/ui/layout/center';
+import { Stack } from '@/shared/ui/layout/stack';
 
 const OCCUPATION_OPTIONS = [
   { value: 'development', label: '개발' },
@@ -43,9 +43,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-lower flex min-h-[620px] w-full items-center justify-center p-8">
+      <Center className="bg-surface-lower min-h-[620px] w-full p-8">
         <Story />
-      </Box>
+      </Center>
     ),
   ],
 } satisfies Meta<typeof AuthForm>;
@@ -62,14 +62,14 @@ export const PasswordCase: Story = {
   args: {
     title: '비밀번호 설정하기',
     children: (
-      <VStack className="gap-012 items-stretch">
+      <Stack className="gap-012">
         <InputField frame="password" aria-label="비밀번호" placeholder="비밀번호를 입력해 주세요" />
         <InputField
           frame="password"
           aria-label="비밀번호 확인"
           placeholder="비밀번호를 다시 입력해 주세요"
         />
-      </VStack>
+      </Stack>
     ),
   },
 };

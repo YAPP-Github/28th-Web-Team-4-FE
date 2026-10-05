@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
 import { Pagination } from '@/shared/ui/pagination';
 
 type SavedResultsPaginationProps = {
@@ -15,8 +15,8 @@ export function SavedResultsPagination({
   onPageChange,
 }: SavedResultsPaginationProps): JSX.Element {
   return (
-    <Box className="py-008 flex w-full items-center justify-center">
+    <Center className="py-008 w-full">
       <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange} />
-    </Box>
+    </Center>
   );
 }

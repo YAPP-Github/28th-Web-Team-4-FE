@@ -5,7 +5,7 @@ import Image from 'next/image';
 
 import type { ChannelListItem } from '@/features/channel-selection/model/channel-page';
 import { cn } from '@/shared/ui/cn';
-import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
 import { Text } from '@/shared/ui/text';
 
 type ChannelLogoVariant = 'card' | 'selected';
@@ -32,9 +32,9 @@ export function ChannelLogo({ channel, variant = 'card' }: ChannelLogoProps): JS
   const logoSize = CHANNEL_LOGO_SIZE[variant];
 
   return (
-    <Box
+    <Center
       className={cn(
-        'bg-surface-low flex shrink-0 items-center justify-center overflow-hidden',
+        'bg-surface-low shrink-0 overflow-hidden',
         CHANNEL_LOGO_VARIANT_CLASSES[variant],
       )}
     >
@@ -54,6 +54,6 @@ export function ChannelLogo({ channel, variant = 'card' }: ChannelLogoProps): JS
           {Array.from(channel.name.trim())[0] ?? '?'}
         </Text>
       )}
-    </Box>
+    </Center>
   );
 }

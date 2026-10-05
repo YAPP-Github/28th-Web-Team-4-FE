@@ -1,7 +1,7 @@
 import { createSerializer, parseAsArrayOf, parseAsString } from 'nuqs/server';
 
-export const MAX_COMPARISON_CHANNELS = 3;
-export const MIN_COMPARISON_CHANNELS = 2;
+const MAX_COMPARISON_CHANNELS = 3;
+const MIN_COMPARISON_CHANNELS = 2;
 
 type ChannelComparisonHrefOptions = {
   onboardingId?: string;

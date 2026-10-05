@@ -2,6 +2,9 @@ import type { ComponentType } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, within } from 'storybook/test';
 
+import { Center } from '@/shared/ui/layout/center';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Badge, BADGE_FRAMES, type BadgeFrame as BadgeFrameType } from '@/shared/ui/badge';
 
 const SAMPLE = '텍스트';
@@ -36,9 +39,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="bg-surface-high rounded-m flex min-h-40 w-full items-center justify-center p-6">
+      <Center className="bg-surface-high rounded-m min-h-40 w-full p-6">
         <Story />
-      </div>
+      </Center>
     ),
   ],
 } satisfies Meta<BadgeStoryArgs>;
@@ -53,55 +56,55 @@ export const AllFrames: Story = {
     className: { control: false },
   },
   render: () => (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-3">
+    <Stack className="gap-8">
+      <Stack className="gap-3">
         <span className="typo-caption-sm text-text-lowest">{BADGE_FRAMES[0]}</span>
-        <div className="flex flex-wrap items-center gap-3">
+        <HStack className="flex-wrap gap-3">
           {(['gray', 'primary', 'deep-gray'] as const).map((tone) => (
-            <div key={tone} className="flex flex-col items-start gap-1">
+            <Stack key={tone} className="items-start gap-1">
               <span className="typo-caption-sm text-text-lowest">{tone}</span>
               <Badge frame="badge" tone={tone}>
                 Step.1
               </Badge>
-            </div>
+            </Stack>
           ))}
-        </div>
-      </div>
+        </HStack>
+      </Stack>
 
-      <div className="flex flex-col gap-3">
+      <Stack className="gap-3">
         <span className="typo-caption-sm text-text-lowest">{BADGE_FRAMES[1]}</span>
-        <div className="flex flex-wrap items-center gap-3">
+        <HStack className="flex-wrap gap-3">
           {(['gray', 'orange'] as const).map((tone) => (
-            <div key={tone} className="flex flex-col items-start gap-1">
+            <Stack key={tone} className="items-start gap-1">
               <span className="typo-caption-sm text-text-lowest">{tone}</span>
               <Badge frame="tag" tone={tone}>
                 {SAMPLE}
               </Badge>
-            </div>
+            </Stack>
           ))}
-        </div>
-      </div>
+        </HStack>
+      </Stack>
 
-      <div className="flex flex-col gap-3">
+      <Stack className="gap-3">
         <span className="typo-caption-sm text-text-lowest">{BADGE_FRAMES[2]}</span>
-        <div className="flex flex-col gap-3">
+        <Stack className="gap-3">
           {(['m', 's'] as const).map((size) => (
-            <div key={size} className="flex flex-wrap items-center gap-3">
+            <HStack key={size} className="flex-wrap gap-3">
               {(['orange', 'gray', 'primary'] as const).map((tone) => (
-                <div key={`${size}-${tone}`} className="flex flex-col items-start gap-1">
+                <Stack key={`${size}-${tone}`} className="items-start gap-1">
                   <span className="typo-caption-sm text-text-lowest">
                     {tone} / {size}
                   </span>
                   <Badge frame="indicator" tone={tone} size={size}>
                     {SAMPLE}
                   </Badge>
-                </div>
+                </Stack>
               ))}
-            </div>
+            </HStack>
           ))}
-        </div>
-      </div>
-    </div>
+        </Stack>
+      </Stack>
+    </Stack>
   ),
 };
 

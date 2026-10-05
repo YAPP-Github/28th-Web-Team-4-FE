@@ -6,6 +6,7 @@ import {
   type CompareResultChannelMetric,
 } from '@/pages/compare/model/compare-result-channel';
 import { Box } from '@/shared/ui/layout/box';
+import { Flex } from '@/shared/ui/layout/flex';
 
 import { CompareResultChannelPerformance } from './compare-result-channel-performance';
 
@@ -89,11 +90,11 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-low p-040 flex min-h-[360px] w-full justify-center">
+      <Flex className="bg-surface-low p-040 min-h-[360px] w-full justify-center">
         <Box className="w-full max-w-[792px]">
           <Story />
         </Box>
-      </Box>
+      </Flex>
     ),
   ],
 } satisfies Meta<typeof CompareResultChannelPerformance>;

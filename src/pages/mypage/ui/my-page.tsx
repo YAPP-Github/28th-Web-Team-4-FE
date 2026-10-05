@@ -10,7 +10,8 @@ import {
   type SavedRecommendation,
   type SavedSimulation,
 } from '@/pages/mypage/model/my-page-content';
-import { Box } from '@/shared/ui/layout/box';
+import { Stack } from '@/shared/ui/layout/stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 
 import { AuthenticatedProfileCard } from './authenticated-profile-card';
 import { AccountActions } from './account-actions';
@@ -68,10 +69,13 @@ export function MyPage({
   }
 
   return (
-    <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-hidden rounded-t-[var(--radius-l)]">
+    <Stack
+      as="main"
+      className="bg-surface-background-default min-h-0 flex-1 overflow-hidden rounded-t-[var(--radius-l)]"
+    >
       <MyPageSubHeader />
-      <Box className="bg-surface-background-default px-016 sm:px-032 lg:px-064 flex min-h-0 flex-1 touch-pan-y flex-col items-center overflow-y-auto overscroll-y-contain xl:px-[324px]">
-        <Box className="gap-016 py-024 flex w-full max-w-[792px] flex-1 flex-col">
+      <VStack className="bg-surface-background-default px-016 sm:px-032 lg:px-064 min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-y-contain xl:px-[324px]">
+        <Stack className="gap-016 py-024 w-full max-w-[792px] flex-1">
           {isLoggedIn ? <AuthenticatedProfileCard /> : <GuestProfileCard />}
           {adsConditionContent}
           <SavedResultsCard
@@ -87,8 +91,8 @@ export function MyPage({
             recommendationsError={savedRecommendationsError}
           />
           {isLoggedIn ? <AccountActions /> : null}
-        </Box>
-      </Box>
-    </main>
+        </Stack>
+      </VStack>
+    </Stack>
   );
 }

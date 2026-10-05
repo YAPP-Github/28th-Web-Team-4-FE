@@ -3,6 +3,8 @@
 import { type JSX, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { JustifyBetween } from '@/shared/ui/layout/justify-between';
+import { Stack } from '@/shared/ui/layout/stack';
 
 type FaqItem = {
   id: string;
@@ -55,7 +57,7 @@ export function HomeFaq(): JSX.Element {
       aria-labelledby="faq-title"
       className="w-full bg-[var(--color-surface-background-white,#FFFFFF)] pt-[80px] pb-[40px] sm:pt-[100px] sm:pb-[50px] lg:pt-[120px] lg:pb-[60px]"
     >
-      <div className="px-016 sm:px-032 mx-auto flex w-full max-w-[1440px] flex-col gap-[36px] sm:gap-[44px] lg:gap-[48px] lg:px-120">
+      <Stack className="px-016 sm:px-032 mx-auto w-full max-w-[1440px] gap-[36px] sm:gap-[44px] lg:gap-[48px] lg:px-120">
         {/* 섹션 타이틀 */}
         <h2
           id="faq-title"
@@ -65,22 +67,23 @@ export function HomeFaq(): JSX.Element {
         </h2>
 
         {/* FAQ 아코디언 리스트 */}
-        <div className="flex w-full flex-col border-t border-[var(--color-primitive-gray-200,#E4E4E7)]">
+        <Stack className="w-full border-t border-[var(--color-primitive-gray-200,#E4E4E7)]">
           {FAQ_LIST.map((item) => {
             const isOpen = openId === item.id;
 
             return (
-              <div
+              <Stack
                 key={item.id}
                 onClick={() => toggleFaq(item.id)}
-                className="group flex w-full cursor-pointer flex-col border-b border-[var(--color-primitive-gray-200,#E4E4E7)] transition-colors hover:bg-[var(--color-primitive-gray-50,#FAFAFA)]"
+                className="group w-full cursor-pointer border-b border-[var(--color-primitive-gray-200,#E4E4E7)] transition-colors hover:bg-[var(--color-primitive-gray-50,#FAFAFA)]"
               >
                 {/* 질문 트리거 버튼 */}
-                <button
+                <JustifyBetween
+                  as="button"
                   type="button"
                   aria-expanded={isOpen}
                   aria-controls={`faq-answer-${item.id}`}
-                  className="flex w-full cursor-pointer items-center justify-between gap-[16px] px-[6px] py-[22px] text-left sm:px-[10px] sm:py-[24px]"
+                  className="w-full cursor-pointer items-center gap-[16px] px-[6px] py-[22px] text-left sm:px-[10px] sm:py-[24px]"
                 >
                   <span className="font-pre text-[17px] leading-[1.4] font-bold tracking-[-0.5px] break-keep text-[var(--color-primitive-gray-900,#2E2E33)] sm:text-[19px] sm:leading-[32px] lg:text-[20px]">
                     {item.question}
@@ -92,7 +95,7 @@ export function HomeFaq(): JSX.Element {
                   >
                     <ChevronDown aria-hidden className="size-[22px] sm:size-[24px]" />
                   </motion.div>
-                </button>
+                </JustifyBetween>
 
                 {/* 답변 콘텐츠 (Framer Motion 아코디언 열림/닫힘) */}
                 <AnimatePresence initial={false}>
@@ -126,11 +129,11 @@ export function HomeFaq(): JSX.Element {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+              </Stack>
             );
           })}
-        </div>
-      </div>
+        </Stack>
+      </Stack>
     </section>
   );
 }

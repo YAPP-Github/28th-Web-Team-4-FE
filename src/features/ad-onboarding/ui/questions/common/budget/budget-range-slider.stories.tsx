@@ -9,7 +9,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import { formatBudgetRange } from '@/features/ad-onboarding/lib/budget-snap';
 import type { BudgetRange } from '@/features/ad-onboarding/model/common-onboarding-options';
 import { BudgetRangeSlider } from '@/features/ad-onboarding/ui/questions/common/budget/budget-range-slider';
-import { VStack } from '@/shared/ui/layout/v-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 const DEFAULT_BUDGET_RANGE = {
@@ -47,12 +47,12 @@ function BudgetRangeSliderExample({ initialRange }: BudgetRangeSliderExampleProp
   const [range, setRange] = useState(initialRange);
 
   return (
-    <VStack className="gap-012 items-stretch" style={{ width: 'min(640px, calc(100vw - 32px))' }}>
+    <Stack className="gap-012" style={{ width: 'min(640px, calc(100vw - 32px))' }}>
       <BudgetRangeSlider range={range} onRangePreviewChange={setRange} onRangeChange={setRange} />
       <Text variant="body-md" aria-live="polite">
         선택 예산: {formatBudgetRange(range)}
       </Text>
-    </VStack>
+    </Stack>
   );
 }
 

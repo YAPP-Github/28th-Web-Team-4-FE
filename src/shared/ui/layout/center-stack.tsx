@@ -1,5 +1,7 @@
 import type { JSX, ElementType, PropsWithChildren } from 'react';
 
+import { cn } from '@/shared/ui/cn';
+
 import { type BoxProps, Box } from './box';
 
 export const CenterStack: <C extends ElementType = 'div'>(
@@ -11,9 +13,6 @@ export const CenterStack: <C extends ElementType = 'div'>(
   const typesRest = rest as BoxProps<C>;
 
   return (
-    <Box
-      className={`flex flex-col items-center justify-center ${className ?? ''}`}
-      {...typesRest}
-    />
+    <Box className={cn(className, 'flex flex-col items-center justify-center')} {...typesRest} />
   );
 };

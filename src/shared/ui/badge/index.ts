@@ -1,7 +1,1 @@
-export {
-  Badge,
-  BADGE_FRAMES,
-  type BadgeFrame,
-  type BadgeIndicatorSize,
-  type BadgeProps,
-} from './badge';
+export { Badge, BADGE_FRAMES, type BadgeFrame } from './badge';

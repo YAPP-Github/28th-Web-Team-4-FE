@@ -4,8 +4,9 @@ import { useState, type JSX } from 'react';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 
+import { Flex } from '@/shared/ui/layout/flex';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Button } from '@/shared/ui/button';
-import { Box } from '@/shared/ui/layout/box';
 import { Input } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 
@@ -56,15 +57,15 @@ export function CompareResultSaveServiceNameModal({
             className="gap-024 flex w-full flex-col"
             onFormSubmit={handleSubmit}
           >
-            <Box className="gap-014 flex w-full flex-col items-start">
-              <Box className="gap-002 flex w-full flex-col items-start">
+            <Stack className="gap-014 w-full items-start">
+              <Stack className="gap-002 w-full items-start">
                 <Modal.Title className="text-text-high w-full text-left">
                   서비스명을 입력해 주세요
                 </Modal.Title>
                 <Modal.Description className="text-text-medium w-full text-left">
                   예: 채소집, 앱 설치 유도 캠페인
                 </Modal.Description>
-              </Box>
+              </Stack>
               <Field.Root name="serviceName" className="w-full">
                 <Input
                   frame="input"
@@ -80,8 +81,8 @@ export function CompareResultSaveServiceNameModal({
                   onChange={(event) => setServiceName(event.target.value)}
                 />
               </Field.Root>
-            </Box>
-            <Box className="gap-010 flex h-12 w-full">
+            </Stack>
+            <Flex className="gap-010 h-12 w-full">
               <Modal.CloseButton frame="button" tone="stroke" className="h-12 flex-1">
                 취소
               </Modal.CloseButton>
@@ -95,7 +96,7 @@ export function CompareResultSaveServiceNameModal({
               >
                 저장하기
               </Button>
-            </Box>
+            </Flex>
           </Form>
         </Modal.Popup>
       </Modal.Portal>

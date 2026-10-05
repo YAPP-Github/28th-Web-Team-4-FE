@@ -11,6 +11,7 @@ import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
 import { Tooltip } from '@/shared/ui/tooltip';
@@ -102,11 +103,7 @@ export function RecommendedChannelCard({
       <Stack
         className={cn('relative h-full', locked && '[clip-path:inset(0_round_var(--radius-l))]')}
       >
-        <Box
-          aria-hidden={locked || undefined}
-          inert={locked || undefined}
-          className="flex h-full flex-col"
-        >
+        <Stack aria-hidden={locked || undefined} inert={locked || undefined} className="h-full">
           <Box className="pointer-events-none relative h-[124px] w-full overflow-hidden rounded-t-[var(--radius-l)]">
             <Image
               src={thumbnailSrc}
@@ -124,16 +121,16 @@ export function RecommendedChannelCard({
             <Badge frame="indicator" tone={matchBadgeTone} className="left-020 top-018 absolute">
               적합도 {channel.matchRate}%
             </Badge>
-            <Box
+            <Center
               aria-hidden
               data-testid="recommend-channel-select-indicator"
               className={cn(
-                'top-018 right-020 absolute flex size-020 items-center justify-center rounded-full motion-safe:transition-colors motion-safe:duration-150 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none',
+                'top-018 right-020 absolute size-020 rounded-full motion-safe:transition-colors motion-safe:duration-150 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none',
                 selected ? 'bg-sys-primary-default' : 'bg-icon-low',
               )}
             >
               <Check className="text-text-lowest size-014" strokeWidth={2.4} />
-            </Box>
+            </Center>
           </Box>
 
           <VStack
@@ -199,7 +196,7 @@ export function RecommendedChannelCard({
               </Button>
             </VStack>
           </VStack>
-        </Box>
+        </Stack>
 
         <Box
           aria-hidden

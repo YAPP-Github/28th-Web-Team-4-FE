@@ -10,7 +10,8 @@ import type { BudgetInputRange } from '@/features/ad-onboarding/model/budget-ran
 import type { BudgetRange } from '@/features/ad-onboarding/model/common-onboarding-options';
 import { Input } from '@/shared/ui/input';
 import { WarningErrorIcon } from '@/shared/ui/icon';
-import { VStack } from '@/shared/ui/layout/v-stack';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 import { BudgetRangeSlider } from './budget-range-slider';
@@ -46,9 +47,9 @@ export function BudgetRangeControl({
   const errorMessageId = useId();
 
   return (
-    <VStack className="gap-016 w-full items-stretch">
-      <VStack className="gap-008 items-stretch">
-        <div className="gap-006 flex items-center">
+    <Stack className="gap-016 w-full">
+      <Stack className="gap-008">
+        <HStack className="gap-006">
           <Input
             id={minInputId}
             className="min-w-0 flex-1"
@@ -90,26 +91,26 @@ export function BudgetRangeControl({
             onChange={(event) => onMaxInputValueChange(readBudgetInputValue(event))}
             onKeyDown={blurBudgetInputOnEnter}
           />
-        </div>
+        </HStack>
 
         {error ? (
-          <div
+          <HStack
             id={errorMessageId}
             role="alert"
-            className="text-sys-error-default gap-006 pr-012 flex items-center pl-[2px]"
+            className="text-sys-error-default gap-006 pr-012 pl-[2px]"
           >
             <WarningErrorIcon />
             <Text variant="body-sm">예산을 입력해 주세요</Text>
-          </div>
+          </HStack>
         ) : null}
-      </VStack>
+      </Stack>
 
       <BudgetRangeSlider
         range={range}
         onRangePreviewChange={onSliderRangePreviewChange}
         onRangeChange={onSliderRangeChange}
       />
-    </VStack>
+    </Stack>
   );
 }
 

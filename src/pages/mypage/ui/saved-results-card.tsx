@@ -9,7 +9,8 @@ import type {
   SavedRecommendation,
   SavedSimulation,
 } from '@/pages/mypage/model/my-page-content';
-import { Box } from '@/shared/ui/layout/box';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 import { SavedResultsTabs } from './saved-results-tabs';
@@ -42,13 +43,13 @@ export function SavedResultsCard({
   const hasRecommendations = isLoggedIn && recommendations.length > 0;
 
   return (
-    <Box
+    <Stack
       as="section"
       aria-labelledby="saved-results-title"
-      className="bg-surface-lowest gap-018 px-030 py-024 flex w-full flex-col rounded-[var(--radius-l)]"
+      className="bg-surface-lowest gap-018 px-030 py-024 w-full rounded-[var(--radius-l)]"
     >
-      <Box className="gap-010 flex w-full flex-col">
-        <Box className="flex w-full items-center">
+      <Stack className="gap-010 w-full">
+        <HStack className="w-full">
           <Text
             as="h2"
             id="saved-results-title"
@@ -66,7 +67,7 @@ export function SavedResultsCard({
               <ChevronRight aria-hidden="true" className="size-016" strokeWidth={1.5} />
             </Link>
           ) : null}
-        </Box>
+        </HStack>
         <SavedResultsTabs
           isLoggedIn={isLoggedIn}
           recommendations={recommendations}
@@ -81,7 +82,7 @@ export function SavedResultsCard({
           previewLimit={3}
           linkRecommendations
         />
-      </Box>
-    </Box>
+      </Stack>
+    </Stack>
   );
 }

@@ -2,8 +2,9 @@
 
 import type { FormEvent, JSX } from 'react';
 
+import { Flex } from '@/shared/ui/layout/flex';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Button } from '@/shared/ui/button';
-import { Box } from '@/shared/ui/layout/box';
 import { Input } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 
@@ -39,16 +40,16 @@ export function SimulatorSaveServiceNameModal({
       <Modal.Portal>
         <Modal.Backdrop className="backdrop-blur-[2px]" />
         <Modal.Popup className="gap-024 px-030 pb-024 pt-030 items-center">
-          <form className="gap-024 flex w-full flex-col" onSubmit={handleSubmit}>
-            <Box className="gap-014 flex w-full flex-col items-start">
-              <Box className="gap-002 flex w-full flex-col items-start">
+          <Stack as="form" className="gap-024 w-full" onSubmit={handleSubmit}>
+            <Stack className="gap-014 w-full items-start">
+              <Stack className="gap-002 w-full items-start">
                 <Modal.Title className="text-text-high w-full text-left">
                   어떤 이름으로 결과를 저장할까요?
                 </Modal.Title>
                 <Modal.Description className="text-text-medium w-full text-left">
                   예: 채소집, 앱 설치 유도 캠페인
                 </Modal.Description>
-              </Box>
+              </Stack>
               <Input
                 frame="input"
                 id="simulator-save-service-name"
@@ -61,8 +62,8 @@ export function SimulatorSaveServiceNameModal({
                 value={serviceName}
                 onChange={(event) => onServiceNameChange(event.target.value)}
               />
-            </Box>
-            <Box className="gap-010 flex h-12 w-full">
+            </Stack>
+            <Flex className="gap-010 h-12 w-full">
               <Modal.CloseButton frame="button" tone="stroke" className="h-12 flex-1">
                 취소
               </Modal.CloseButton>
@@ -75,8 +76,8 @@ export function SimulatorSaveServiceNameModal({
               >
                 저장하기
               </Button>
-            </Box>
-          </form>
+            </Flex>
+          </Stack>
         </Modal.Popup>
       </Modal.Portal>
     </Modal.Root>

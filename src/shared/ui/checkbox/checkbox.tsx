@@ -28,7 +28,7 @@ const checkboxVariants = cva(
 
 type CheckboxPrimitiveProps = ComponentProps<typeof CheckboxPrimitive.Root>;
 
-export type CheckboxRenderMode = 'button' | 'label-control';
+type CheckboxRenderMode = 'button' | 'label-control';
 
 export type CheckboxProps = Omit<
   CheckboxPrimitiveProps,

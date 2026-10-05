@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, within } from 'storybook/test';
 
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text, TEXT_VARIANTS } from '@/shared/ui/text';
 
 const SAMPLE = 'YAPP님께 딱 맞는 광고 채널을 추천해 드려요';
@@ -20,14 +21,14 @@ type Story = StoryObj<typeof meta>;
 // 타이포 카탈로그 — 시각 차이는 Chromatic/육안, 클래스 매핑 단언은 하지 않음
 export const AllVariants: Story = {
   render: () => (
-    <div className="text-text-highest flex flex-col gap-6">
+    <Stack className="text-text-highest gap-6">
       {TEXT_VARIANTS.map((variant) => (
-        <div key={variant} className="flex flex-col gap-1">
+        <Stack key={variant} className="gap-1">
           <span className="typo-caption-sm text-text-medium">{variant}</span>
           <Text variant={variant}>{SAMPLE}</Text>
-        </div>
+        </Stack>
       ))}
-    </div>
+    </Stack>
   ),
 };
 

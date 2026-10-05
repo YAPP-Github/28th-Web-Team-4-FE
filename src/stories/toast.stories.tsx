@@ -4,8 +4,8 @@ import { useRef } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
+import { Center } from '@/shared/ui/layout/center';
 import { Button } from '@/shared/ui/button';
-import { Box } from '@/shared/ui/layout/box';
 import { showWarningToast } from '@/shared/ui/toast';
 
 const LIMIT_TOAST_ID = 'compare-selection-limit';
@@ -49,9 +49,9 @@ const meta = {
   tags: ['autodocs'],
   decorators: [
     (Story) => (
-      <Box className="bg-surface-background-default flex min-h-56 w-full items-center justify-center p-6">
+      <Center className="bg-surface-background-default min-h-56 w-full p-6">
         <Story />
-      </Box>
+      </Center>
     ),
   ],
 } satisfies Meta;

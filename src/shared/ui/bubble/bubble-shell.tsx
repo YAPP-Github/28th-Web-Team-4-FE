@@ -7,7 +7,7 @@ import { Text } from '@/shared/ui/text';
 
 type BubbleShellFrame = 'bot' | 'user';
 
-export const bubbleShellVariants = cva('px-026 py-022 shadow-drop-shadow-01 w-full', {
+const bubbleShellVariants = cva('px-026 py-022 shadow-drop-shadow-01 w-full', {
   variants: {
     frame: {
       bot: 'bg-surface-lowest rounded-bl-m rounded-br-m rounded-tr-m',

@@ -8,13 +8,12 @@ describe('ChannelDetailCasesPanel', () => {
   it('집행 사례 아래에 예시 이미지 갤러리를 표시한다', () => {
     render(<ChannelDetailCasesPanel channel={CHANNEL_DETAIL_FIXTURE} />);
 
-    const similarCases = screen.getByText('내셔널지오그래픽').closest('ul');
     const gallery = screen.getByRole('list', {
       name: `${CHANNEL_DETAIL_FIXTURE.name} 광고 예시 이미지`,
     });
 
-    expect(similarCases).toBeVisible();
-    expect(similarCases?.nextElementSibling).toBe(gallery);
+    expect(screen.getByText('내셔널지오그래픽')).toBeVisible();
+    expect(gallery).toBeVisible();
     expect(screen.getAllByRole('img')).toHaveLength(CHANNEL_DETAIL_FIXTURE.previewImageUrls.length);
     expect(screen.queryByText('등록된 광고 예시가 없습니다.')).not.toBeInTheDocument();
   });

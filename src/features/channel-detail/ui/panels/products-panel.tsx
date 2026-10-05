@@ -7,6 +7,7 @@ import type {
   ChannelDetail,
   ChannelProductRow,
 } from '@/features/channel-detail/model/channel-detail';
+import { InfoFillIcon } from '@/shared/ui/icon';
 import { Box } from '@/shared/ui/layout/box';
 import { HStack } from '@/shared/ui/layout/h-stack';
 import { Stack } from '@/shared/ui/layout/stack';
@@ -73,7 +74,7 @@ function ProductTableCell({
 }): JSX.Element {
   if (column.key === 'isExecutable') {
     return (
-      <HStack className="items-center justify-center">
+      <HStack className="justify-center">
         <ProductExecutableValue value={product.isExecutable} />
       </HStack>
     );
@@ -111,17 +112,13 @@ export function ChannelDetailProductsPanel({
               {PRODUCT_TABLE_COLUMNS.map((column) => (
                 <th key={column.key} className="px-014 py-008">
                   <HStack
-                    className={
-                      column.key === 'isExecutable'
-                        ? 'gap-004 items-center justify-center'
-                        : 'gap-004 items-center'
-                    }
+                    className={column.key === 'isExecutable' ? 'gap-004 justify-center' : 'gap-004'}
                   >
                     <Text as="span" variant="caption-lg" className="text-text-medium">
                       {column.label}
                     </Text>
                     {column.showInfo ? (
-                      <Info className="text-icon-medium size-014" aria-hidden />
+                      <Info className="text-icon-default size-012" aria-hidden />
                     ) : null}
                   </HStack>
                 </th>
@@ -141,8 +138,8 @@ export function ChannelDetailProductsPanel({
           </tbody>
         </table>
       </Box>
-      <HStack className="gap-006 items-start">
-        <Info className="text-icon-medium mt-002 size-014 shrink-0" aria-hidden />
+      <HStack className="gap-006">
+        <InfoFillIcon />
         <Text as="p" variant="subtitle-xxs" className="text-text-low">
           {channel.productsNote}
         </Text>

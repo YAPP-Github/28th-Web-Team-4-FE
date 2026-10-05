@@ -2,6 +2,8 @@
 
 import type { JSX } from 'react';
 
+import { Center } from '@/shared/ui/layout/center';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Button } from '@/shared/ui/button';
 import { Modal, TextModal } from '@/shared/ui/modal';
 
@@ -34,15 +36,16 @@ export function GoogleLinkModal({
       <TextModal
         className="gap-024 px-030 pb-024 pt-030 items-center"
         title={
-          <span className="flex flex-col items-center gap-[18px]">
-            <span
+          <VStack as="span" className="gap-[18px]">
+            <Center
+              as="span"
               aria-hidden
-              className="typo-heading-lg bg-surface-high text-text-lowest flex size-9 items-center justify-center rounded-full"
+              className="typo-heading-lg bg-surface-high text-text-lowest size-9 rounded-full"
             >
               ?
-            </span>
+            </Center>
             <span>Google 계정을 연동할까요?</span>
-          </span>
+          </VStack>
         }
         description={
           <>

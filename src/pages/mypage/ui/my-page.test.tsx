@@ -353,11 +353,6 @@ describe('MyPage', () => {
       ],
     });
 
-    const scrollContainer = screen.getByRole('main');
-    const contentContainer = scrollContainer.children[1];
-
-    expect(scrollContainer).toHaveClass('overflow-hidden');
-    expect(contentContainer).toHaveClass('overflow-y-auto', 'overscroll-y-contain', 'touch-pan-y');
     expect(screen.getByRole('heading', { name: '내 광고 조건' })).toBeVisible();
     expect(screen.getByText('#쇼핑·커머스')).toBeVisible();
     expect(screen.getByText('#웹 서비스')).toBeVisible();

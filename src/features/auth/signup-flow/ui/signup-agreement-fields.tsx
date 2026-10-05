@@ -2,7 +2,7 @@ import type { JSX } from 'react';
 
 import { Checkbox } from '@/shared/ui/checkbox';
 import { HStack } from '@/shared/ui/layout/h-stack';
-import { VStack } from '@/shared/ui/layout/v-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 
 export type SignupAgreements = {
   serviceTermsAgreed: boolean;
@@ -61,7 +61,7 @@ export function SignupAgreementFields({
   };
 
   return (
-    <VStack className="gap-020 items-stretch">
+    <Stack className="gap-020">
       <HStack className="gap-010">
         <Checkbox
           id={`${idPrefix}-all-agreements`}
@@ -79,7 +79,7 @@ export function SignupAgreementFields({
 
       <div className="border-outline-low border-t" />
 
-      <VStack className="gap-014 items-stretch">
+      <Stack className="gap-014">
         {AGREEMENT_ITEMS.map(({ agreement, label, qualifier, href }) => {
           const id = `${idPrefix}-${agreement}`;
 
@@ -91,13 +91,14 @@ export function SignupAgreementFields({
                 checked={agreements[agreement]}
                 onCheckedChange={(checked) => updateAgreement(agreement, checked)}
               />
-              <label
-                className="gap-004 flex min-w-0 flex-1 cursor-pointer items-center whitespace-nowrap"
+              <HStack
+                as="label"
+                className="gap-004 min-w-0 flex-1 cursor-pointer whitespace-nowrap"
                 htmlFor={id}
               >
                 <span className="typo-subtitle-xxl text-text-high">{label}</span>
                 <span className="typo-subtitle-xxs text-text-medium">({qualifier})</span>
-              </label>
+              </HStack>
               {href ? (
                 <a
                   className="typo-body-xl text-text-low focus-visible:outline-sys-primary-default rounded-xxs shrink-0 underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
@@ -119,7 +120,7 @@ export function SignupAgreementFields({
             </HStack>
           );
         })}
-      </VStack>
-    </VStack>
+      </Stack>
+    </Stack>
   );
 }

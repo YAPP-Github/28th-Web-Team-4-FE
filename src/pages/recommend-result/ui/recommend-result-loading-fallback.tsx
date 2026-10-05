@@ -6,6 +6,10 @@ import { useRecommendOnboardingStore } from '@/features/ad-onboarding';
 import { ResultSaveButton } from '@/features/result-save-action';
 import { Button } from '@/shared/ui/button';
 import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Grid } from '@/shared/ui/layout/grid';
+import { JustifyBetween } from '@/shared/ui/layout/justify-between';
 import { Stack } from '@/shared/ui/layout/stack';
 import { VStack } from '@/shared/ui/layout/v-stack';
 import { Skeleton } from '@/shared/ui/skeleton';
@@ -32,28 +36,28 @@ function RecommendChannelCardSkeleton(): JSX.Element {
         <VStack className="gap-022 w-full flex-1">
           <VStack className="gap-022 w-full">
             <VStack className="gap-010 w-full max-w-[174px]">
-              <VStack className="gap-006 w-full items-center">
-                <Box className="h-026 flex w-full items-center justify-center">
+              <VStack className="gap-006 w-full">
+                <Center className="h-026 w-full">
                   <Skeleton className="h-010 w-[140px] rounded-[var(--radius-max)]" />
-                </Box>
+                </Center>
                 <VStack className="gap-010 h-040 w-full justify-center">
                   <Skeleton className="h-010 w-full rounded-[var(--radius-max)]" />
                   <Skeleton className="h-010 w-full rounded-[var(--radius-max)]" />
                 </VStack>
               </VStack>
-              <Box className="h-026 flex w-full items-center justify-center">
+              <Center className="h-026 w-full">
                 <Skeleton className="h-010 w-full rounded-[var(--radius-max)]" />
-              </Box>
+              </Center>
             </VStack>
 
             <Box className="bg-outline-low h-px w-full" />
 
             <Stack className="gap-008 w-full">
               {SKELETON_METRIC_INDICES.map((index) => (
-                <Box key={index} className="h-022 flex w-full items-center justify-between">
+                <JustifyBetween key={index} className="h-022 w-full items-center">
                   <Skeleton className="h-010 w-[44px] rounded-[var(--radius-max)]" />
                   <Skeleton className="h-010 w-[110px] rounded-[var(--radius-max)]" />
-                </Box>
+                </JustifyBetween>
               ))}
             </Stack>
           </VStack>
@@ -71,26 +75,23 @@ export function RecommendResultLoadingFallback(): JSX.Element {
   const serviceName = useRecommendOnboardingStore((state) => state.answer?.serviceName ?? '채소집');
 
   return (
-    <main
-      aria-busy="true"
-      className="bg-surface-background-default flex flex-1 flex-col items-center"
-    >
+    <VStack as="main" aria-busy="true" className="bg-surface-background-default flex-1">
       <RecommendResultSubHeader
         serviceName={serviceName}
         action={<ResultSaveButton status="idle" disabled className="w-full lg:w-auto" />}
       />
-      <Box className="px-016 pb-040 sm:px-032 lg:px-064 flex w-full justify-center pt-[60px] xl:px-0">
-        <Box className="gap-040 flex w-full max-w-[1200px] flex-col">
+      <Flex className="px-016 pb-040 sm:px-032 lg:px-064 w-full justify-center pt-[60px] xl:px-0">
+        <Stack className="gap-040 w-full max-w-[1200px]">
           <Box
             as="section"
             role="status"
             aria-label="추천 채널을 불러오고 있어요"
             className="w-full"
           >
-            <Box
+            <Grid
               as="ul"
               aria-hidden="true"
-              className="gap-024 grid w-full grid-cols-1 justify-items-center sm:px-[56px] md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:px-0"
+              className="gap-024 w-full grid-cols-1 justify-items-center sm:px-[56px] md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:px-0"
             >
               {SKELETON_CARD_INDICES.map((index) => (
                 <Box
@@ -101,7 +102,7 @@ export function RecommendResultLoadingFallback(): JSX.Element {
                   <RecommendChannelCardSkeleton />
                 </Box>
               ))}
-            </Box>
+            </Grid>
           </Box>
 
           <Button
@@ -113,8 +114,8 @@ export function RecommendResultLoadingFallback(): JSX.Element {
           >
             추천받은 채널로 비교하기 (0/3)
           </Button>
-        </Box>
-      </Box>
-    </main>
+        </Stack>
+      </Flex>
+    </VStack>
   );
 }

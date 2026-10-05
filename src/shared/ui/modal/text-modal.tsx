@@ -2,9 +2,9 @@
 
 import type { ComponentProps, JSX, ReactNode } from 'react';
 
-import { Box } from '@/shared/ui/layout/box';
-
 import { Modal } from './modal';
+import { Flex } from '@/shared/ui/layout/flex';
+import { VStack } from '@/shared/ui/layout/v-stack';
 
 export type TextModalProps = {
   title: ReactNode;
@@ -25,11 +25,11 @@ export const TextModal = ({
     <Modal.Portal>
       <Modal.Backdrop className={backdropClassName} />
       <Modal.Popup className={className ?? 'gap-024 px-030 pb-024 pt-030 items-start'}>
-        <Box className="gap-012 flex w-full flex-col items-center text-center">
+        <VStack className="gap-012 w-full text-center">
           <Modal.Title>{title}</Modal.Title>
           <Modal.Description>{description}</Modal.Description>
-        </Box>
-        <Box className="gap-010 flex w-full">{actions}</Box>
+        </VStack>
+        <Flex className="gap-010 w-full">{actions}</Flex>
       </Modal.Popup>
     </Modal.Portal>
   );

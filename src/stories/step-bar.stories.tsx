@@ -3,6 +3,10 @@ import { expect, within } from 'storybook/test';
 
 import { Badge } from '@/shared/ui/badge';
 import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { CenterStack } from '@/shared/ui/layout/center-stack';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Stack } from '@/shared/ui/layout/stack';
 import { StepBar } from '@/shared/ui/step-bar';
 import { Text } from '@/shared/ui/text';
 
@@ -29,11 +33,11 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-background-low rounded-m flex min-h-56 w-full items-center justify-center p-6">
+      <Center className="bg-surface-background-low rounded-m min-h-56 w-full p-6">
         <Box className="w-full max-w-[792px]">
           <Story />
         </Box>
-      </Box>
+      </Center>
     ),
   ],
 } satisfies Meta<typeof StepBar>;
@@ -61,16 +65,16 @@ export const AllSteps: Story = {
     className: { control: false },
   },
   render: () => (
-    <Box className="flex w-full flex-col gap-6">
+    <Stack className="w-full gap-6">
       {ONBOARDING_LABELS.map((label, step) => (
-        <Box key={label} className="flex flex-col gap-2">
+        <Stack key={label} className="gap-2">
           <Text variant="caption-sm" className="text-text-medium">
             {step}단계
           </Text>
           <StepBar currentStep={step} totalSteps={8} labels={ONBOARDING_LABELS} />
-        </Box>
+        </Stack>
       ))}
-    </Box>
+    </Stack>
   ),
 };
 
@@ -105,23 +109,23 @@ export const SimulatorSubHeader: Story = {
     className: { control: false },
   },
   render: () => (
-    <Box className="bg-surface-lowest border-outline-low flex w-full justify-center border-y">
-      <Box className="py-018 gap-006 flex w-full max-w-[792px] flex-col items-center justify-center">
-        <Box className="gap-012 flex w-full items-center justify-center">
+    <Flex className="bg-surface-lowest border-outline-low w-full justify-center border-y">
+      <CenterStack className="py-018 gap-006 w-full max-w-[792px]">
+        <Center className="gap-012 w-full">
           <Badge frame="badge" tone="primary" className="w-[22px]">
             1
           </Badge>
           <Text variant="heading-lg" className="text-text-highest min-w-0 flex-1">
             서비스 이름
           </Text>
-        </Box>
+        </Center>
         <StepBar
           currentStep={0}
           totalSteps={5}
           labels={SIMULATOR_LABELS}
           ariaLabel="예산 시뮬레이터 진행률"
         />
-      </Box>
-    </Box>
+      </CenterStack>
+    </Flex>
   ),
 };

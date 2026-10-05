@@ -7,6 +7,10 @@ import { Info } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 
 import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { Flex } from '@/shared/ui/layout/flex';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { cn } from '@/shared/ui/cn';
 import { Text } from '@/shared/ui/text';
 import {
@@ -67,15 +71,15 @@ function ChannelIcon({
   }
 
   return (
-    <Box
+    <Center
       aria-hidden
       className={cn(
-        'bg-surface-low text-text-medium size-036 flex shrink-0 items-center justify-center rounded-[var(--radius-xs)]',
+        'bg-surface-low text-text-medium size-036 shrink-0 rounded-[var(--radius-xs)]',
         iconOpacityClass,
       )}
     >
       <Text variant="subtitle-xxs">{Array.from(name.trim())[0] ?? '?'}</Text>
-    </Box>
+    </Center>
   );
 }
 
@@ -118,26 +122,28 @@ export function SimulatorResultsViewToggle({
   onViewChange: (view: SimulatorResultsView) => void;
 }): JSX.Element {
   return (
-    <Box aria-label="결과 보기 방식" className="gap-002 flex items-center">
-      <button
+    <HStack aria-label="결과 보기 방식" className="gap-002">
+      <Center
+        as="button"
         type="button"
         aria-label="그래프로 보기"
         aria-pressed={view === 'graph'}
-        className="size-026 flex items-center justify-center"
+        className="size-026"
         onClick={() => onViewChange('graph')}
       >
         <SimulatorViewIcon type="graph" selected={view === 'graph'} />
-      </button>
-      <button
+      </Center>
+      <Center
+        as="button"
         type="button"
         aria-label="표로 보기"
         aria-pressed={view === 'table'}
-        className="size-026 flex items-center justify-center"
+        className="size-026"
         onClick={() => onViewChange('table')}
       >
         <SimulatorViewIcon type="table" selected={view === 'table'} />
-      </button>
-    </Box>
+      </Center>
+    </HStack>
   );
 }
 
@@ -153,7 +159,7 @@ function ChannelMetricRow({
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <Box className="gap-016 flex w-full items-center">
+    <HStack className="gap-016 w-full">
       <Box className="bg-surface-low h-010 w-full min-w-0 flex-1 overflow-hidden rounded-[var(--radius-max)]">
         <motion.div
           initial={shouldReduceMotion ? false : { transform: 'scaleX(0)' }}
@@ -175,7 +181,7 @@ function ChannelMetricRow({
       >
         {metric.value}
       </Text>
-    </Box>
+    </HStack>
   );
 }
 
@@ -229,13 +235,14 @@ function ChannelBasisInfo({
   }
 
   const infoButton = (
-    <button
+    <Center
+      as="button"
       type="button"
       aria-label={`${channelName} 기준 정보 안내`}
-      className="text-icon-default hover:text-icon-high focus-visible:outline-outline-selected size-014 flex shrink-0 items-center justify-center rounded-full outline-offset-2 focus-visible:outline-2"
+      className="text-icon-default hover:text-icon-high focus-visible:outline-outline-selected size-014 shrink-0 rounded-full outline-offset-2 focus-visible:outline-2"
     >
       <Info aria-hidden className="size-full" strokeWidth={1.8} />
-    </button>
+    </Center>
   );
 
   if (!tooltip) {
@@ -269,14 +276,14 @@ function ChannelBasisInfo({
               role="tooltip"
               className="bg-surface-lowest p-016 shadow-drop-shadow-02 w-max max-w-[calc(100vw-32px)] rounded-[var(--radius-m)] rounded-tl-none transition-opacity duration-1000 ease-out data-ending-style:opacity-0 motion-reduce:transition-none"
             >
-              <Box className="gap-008 flex flex-col items-start text-left">
+              <Stack className="gap-008 items-start text-left">
                 <span className="typo-subtitle-sm text-text-high">{tooltip.title}</span>
                 <span className="typo-body-xs text-text-medium whitespace-nowrap">
                   {tooltip.description[0]}
                   <br />
                   {tooltip.description[1]}
                 </span>
-              </Box>
+              </Stack>
             </BaseTooltip.Popup>
           </BaseTooltip.Positioner>
         </BaseTooltip.Portal>
@@ -293,15 +300,15 @@ function ChannelResultRow({
   autoOpenTooltipsKey?: object | null;
 }): JSX.Element {
   return (
-    <Box className="gap-014 flex w-full items-start">
+    <Flex className="gap-014 w-full items-start">
       <ChannelIcon
         iconUrl={channel.iconUrl}
         type={channel.type}
         name={channel.name}
         isExecutable={channel.isExecutable}
       />
-      <Box className="gap-006 flex min-w-0 flex-1 flex-col">
-        <Box className="gap-006 flex min-w-0 items-center">
+      <Stack className="gap-006 min-w-0 flex-1">
+        <HStack className="gap-006 min-w-0">
           <Text
             variant="subtitle-md"
             className={cn(
@@ -311,7 +318,7 @@ function ChannelResultRow({
           >
             {channel.name}
           </Text>
-          <Box className="group flex shrink-0">
+          <Flex className="group shrink-0">
             <ChannelBasisInfo
               channelName={channel.name}
               basisNote={channel.basisNote}
@@ -319,9 +326,9 @@ function ChannelResultRow({
               additionalBudgetWon={channel.additionalBudgetWon}
               autoOpenTooltipsKey={autoOpenTooltipsKey}
             />
-          </Box>
-        </Box>
-        <Box className="gap-004 flex w-full flex-col">
+          </Flex>
+        </HStack>
+        <Stack className="gap-004 w-full">
           <ChannelMetricRow
             metric={channel.impressions}
             fillClassName="bg-sys-primary-default"
@@ -332,28 +339,28 @@ function ChannelResultRow({
             fillClassName="bg-primitive-yellow-15"
             valueClassName="text-primitive-yellow-15"
           />
-        </Box>
-      </Box>
-    </Box>
+        </Stack>
+      </Stack>
+    </Flex>
   );
 }
 
 function ChannelMetricLegend(): JSX.Element {
   return (
-    <Box className="border-outline-low gap-018 pt-018 flex w-full flex-wrap border-t">
-      <Box className="gap-006 flex items-center">
+    <Flex className="border-outline-low gap-018 pt-018 w-full flex-wrap border-t">
+      <HStack className="gap-006">
         <Box aria-hidden className="bg-sys-primary-default size-012 rounded-full" />
         <Text variant="body-sm" className="text-text-medium">
           예상 노출 수
         </Text>
-      </Box>
-      <Box className="gap-006 flex items-center">
+      </HStack>
+      <HStack className="gap-006">
         <Box aria-hidden className="bg-primitive-yellow-15 size-012 rounded-full" />
         <Text variant="body-sm" className="text-text-medium">
           예상 클릭 수
         </Text>
-      </Box>
-    </Box>
+      </HStack>
+    </Flex>
   );
 }
 
@@ -365,8 +372,8 @@ export function ChannelPerformanceContent({
   autoOpenTooltipsKey?: object | null;
 }): JSX.Element {
   return (
-    <Box className="gap-024 flex w-full flex-col">
-      <Box className="gap-022 flex w-full flex-col">
+    <Stack className="gap-024 w-full">
+      <Stack className="gap-022 w-full">
         {channels.map((channel) => (
           <ChannelResultRow
             key={channel.channelId ?? channel.name}
@@ -374,8 +381,8 @@ export function ChannelPerformanceContent({
             autoOpenTooltipsKey={autoOpenTooltipsKey}
           />
         ))}
-      </Box>
+      </Stack>
       <ChannelMetricLegend />
-    </Box>
+    </Stack>
   );
 }

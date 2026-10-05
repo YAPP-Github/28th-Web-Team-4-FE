@@ -34,9 +34,9 @@ const contentClassName = [
   'motion-reduce:transition-none',
 ].join(' ');
 
-export type ModalCloseButtonProps = ButtonProps;
+type ModalCloseButtonProps = ButtonProps;
 
-export type ModalCloseTextProps = DialogPrimitive.Close.Props;
+type ModalCloseTextProps = DialogPrimitive.Close.Props;
 
 const ModalRoot = (props: ModalRootProps): JSX.Element => {
   return <DialogPrimitive.Root {...props} />;

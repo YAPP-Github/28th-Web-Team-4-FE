@@ -121,7 +121,7 @@ export const AD_EXPERIENCE_OPTION_LIST = entries(AD_EXPERIENCE_OPTION_BY_VALUE).
   ([, option]) => option,
 );
 
-export const PERFORMANCE_MODE_OPTION_BY_VALUE = {
+const PERFORMANCE_MODE_OPTION_BY_VALUE = {
   UPLOAD: { value: 'UPLOAD', label: '파일 업로드' },
   MANUAL: { value: 'MANUAL', label: '직접 입력' },
 } as const satisfies OnboardingOptionByValue<PerformanceMode>;

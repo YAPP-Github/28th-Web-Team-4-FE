@@ -8,12 +8,13 @@ import { ANALYTICS_EVENTS } from '@/shared/lib/analytics/events';
 import { trackClientEvent } from '@/shared/lib/analytics/track-client';
 
 import { CompareChannelSelection } from './compare-channel-selection';
+import { Stack } from '@/shared/ui/layout/stack';
 
 export function ComparePage(): JSX.Element {
   const router = useRouter();
 
   return (
-    <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-hidden">
+    <Stack as="main" className="bg-surface-background-default min-h-0 flex-1 overflow-hidden">
       <Suspense>
         <CompareChannelSelection
           onComplete={(channelIds) => {
@@ -24,6 +25,6 @@ export function ComparePage(): JSX.Element {
           }}
         />
       </Suspense>
-    </main>
+    </Stack>
   );
 }

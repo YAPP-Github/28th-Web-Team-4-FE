@@ -5,6 +5,8 @@ import { expect, within } from 'storybook/test';
 
 import { MOCK_COMPARE_RESULT_CHANNELS } from '@/pages/compare/model/compare-result-channel';
 import { Box } from '@/shared/ui/layout/box';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 import {
@@ -37,11 +39,11 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-low p-040 flex min-h-[240px] w-full justify-center">
+      <Flex className="bg-surface-low p-040 min-h-[240px] w-full justify-center">
         <Box className="w-full max-w-[732px]">
           <Story />
         </Box>
-      </Box>
+      </Flex>
     ),
   ],
 } satisfies Meta<typeof CompareResultChannelInsightCard>;
@@ -62,16 +64,16 @@ export const AllVariants: Story = {
     variant: { control: false },
   },
   render: ({ channel }) => (
-    <Box className="gap-032 flex flex-col">
+    <Stack className="gap-032">
       {COMPARE_RESULT_CHANNEL_INSIGHT_VARIANTS.map((variant) => (
-        <Box key={variant} className="gap-010 flex flex-col">
+        <Stack key={variant} className="gap-010">
           <Text as="h2" variant="subtitle-lg" className="text-text-highest">
             {VARIANT_LABELS[variant]} ({variant})
           </Text>
           <CompareResultChannelInsightCard channel={channel} variant={variant} />
-        </Box>
+        </Stack>
       ))}
-    </Box>
+    </Stack>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

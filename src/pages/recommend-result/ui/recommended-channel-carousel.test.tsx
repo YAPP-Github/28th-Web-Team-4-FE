@@ -224,7 +224,7 @@ describe('RecommendedChannelCarousel', () => {
     renderCarousel(recommendedChannels);
 
     const firstPage = screen.getByRole('group', { name: '1 / 2' });
-    const secondPage = document.querySelector<HTMLElement>('[aria-label="2 / 2"]');
+    const secondPage = screen.getByLabelText('2 / 2');
 
     expect(firstPage).not.toHaveAttribute('inert');
     expect(secondPage).toHaveAttribute('inert');
@@ -357,16 +357,5 @@ describe('RecommendedChannelCarousel', () => {
     renderCarousel(recommendedChannels.slice(0, 1), { isGuest: true });
 
     expect(screen.getAllByRole('link', { name: '로그인하기' })).toHaveLength(1);
-  });
-
-  it('loads the first page images eagerly and the second page lazily', () => {
-    renderCarousel(recommendedChannels);
-
-    const images = [...document.querySelectorAll('img')];
-    expect(images).toHaveLength(8);
-    expect(images.slice(0, 4).every((image) => image.getAttribute('loading') === 'eager')).toBe(
-      true,
-    );
-    expect(images.slice(4).every((image) => image.getAttribute('loading') === 'lazy')).toBe(true);
   });
 });

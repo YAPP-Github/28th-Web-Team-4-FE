@@ -1,1 +1,1 @@
-export { GoogleLogo, type GoogleLogoProps } from './google-logo';
+export { GoogleLogo } from './google-logo';

@@ -13,7 +13,7 @@ export type SelectOption<Value extends string = string> = {
   disabled?: boolean;
 };
 
-export const SELECT_VALUE_CLASSES = 'text-text-low min-w-0 flex-1 truncate text-left';
+const SELECT_VALUE_CLASSES = 'text-text-low min-w-0 flex-1 truncate text-left';
 
 export const SELECT_POPUP_ANIMATION_CLASSES = [
   '[clip-path:inset(0_0_0_0)] opacity-100 transition-[clip-path,opacity] duration-[200ms] ease-[cubic-bezier(0.23,1,0.32,1)]',

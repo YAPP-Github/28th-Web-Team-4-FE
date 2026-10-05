@@ -21,7 +21,7 @@ export function ChannelDetailHeader({
   description,
 }: ChannelDetailHeaderProps): JSX.Element {
   return (
-    <HStack className="gap-012 min-w-0 flex-1 items-center">
+    <HStack className="gap-012 min-w-0 flex-1">
       <Avatar
         src={channel.iconUrl?.trim()}
         alt={`${channel.name} 로고`}

@@ -2,7 +2,9 @@
 
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
 
@@ -22,8 +24,8 @@ node -v && pnpm -v    # 24.x / 11.4.x 확인
 | 영역          | 선택                                                                                           |
 | ------------- | ---------------------------------------------------------------------------------------------- |
 | Runtime       | Node **24**, pnpm **11.4** (mise)                                                              |
-| Framework     | Next.js **16.2.6** (App Router), React **19.2.4**                                              |
-| Language      | TypeScript **6.0.x** (strict)                                                                  |
+| Framework     | Next.js (App Router, `package.json` 기준), React (`package.json` 기준)                         |
+| Language      | TypeScript (`package.json` 기준, strict)                                                       |
 | Styling       | Tailwind CSS **4.3**, Style Dictionary 토큰 (`design-tokens/`)                                 |
 | Data / form   | TanStack Query 5, Zustand 5, ky 2, zod 4, react-hook-form 7                                    |
 | Observability | Sentry, PostHog, GA (`@next/third-parties`) — 이미 연동됨. 신규 연동 스킬로 중복 설치하지 않음 |
@@ -57,11 +59,14 @@ Conductor/비대화형 셸에서 기본 `node`가 `mise.toml`과 다르면 **`mi
 | `node --run dev`              | 개발 서버                                          |
 | `node --run build`            | 토큰 빌드 + Next build                             |
 | `node --run lint` / `fmt`     | oxlint / oxfmt                                     |
+| `node --run layout:check`     | Layout 사용 후보 보고 (`-- --changed`, `--strict`) |
 | `node --run test` / `test:ci` | Vitest                                             |
 | `node --run storybook`        | Storybook                                          |
 | `node --run tokens`           | 디자인 토큰 빌드·검증                              |
 | `node --run skills:sync`      | `shared/skills` → Cursor/Claude/Agents 심볼릭 링크 |
 | `node --run rules:sync`       | `shared/rules` → Cursor `.mdc` / Claude rules 생성 |
+
+개발 서버 실행 요청에는 [`shared/rules/project-stack.md`](shared/rules/project-stack.md)의 Doppler 설정과 `3000`~`3004` 포트 선택 규칙을 따른다.
 
 프로젝트 스킬·rules 원본은 **`shared/skills/`** · **`shared/rules/`** (FSD `src/shared/`와 별개).  
 수정 후 각각 `skills:sync` / `rules:sync`. Claude 전용 스킬(예: PostHog)은 sync 대상이 아니다.
@@ -70,6 +75,7 @@ Conductor/비대화형 셸에서 기본 `node`가 `mise.toml`과 다르면 **`mi
 
 - UI 언어: 한국어 (`lang="ko"`).
 - `shared/ui` 프리미티브·`cn` 재사용. 도메인 UI는 `pages` / `features`에 둔다.
+- TSX 레이아웃은 [`shared/rules/ui-layout.md`](shared/rules/ui-layout.md)의 선택 기준·불변 속성·합성 규칙을 따른다.
 - 디자인·FSD 참고 링크는 [`docs/architecture.md`](docs/architecture.md) 참고 섹션.
 
 ## 5. 시크릿·환경 변수
@@ -97,6 +103,7 @@ Conductor/비대화형 셸에서 기본 `node`가 `mise.toml`과 다르면 **`mi
 | ------------------------------- | ----------------------------------------------------------------------------------------------- |
 | `create-fsd-slice`              | `src/pages` / `src/features` 슬라이스 추가. “FSD 슬라이스”, “새 페이지”, “피처 만들어”          |
 | `add-shared-ui-storybook`       | `shared/ui` + Storybook. “공유 컴포넌트”, “스토리 추가”, “디자인 시스템 UI”                      |
+| `use-layout-components`         | TSX의 flex/grid 레이아웃 작성·리팩터링. Layout 선택·불변 속성·semantic 합성                     |
 | `design-handoff`                | 구현 **전** 핸드오프 검수. “스펙 리뷰”, “디자인 빠진 거”, “핸드오프 체크”                        |
 | `figma-bridge`                  | Figma MCP로 구현·토큰 매핑. “Figma대로”, “이 노드 구현”, “토큰 매핑”                             |
 | `github-workflow`               | 이슈·브랜치·커밋·푸시·draft PR. “커밋할까?”, “PR 만들어”, “이슈 먼저”                           |

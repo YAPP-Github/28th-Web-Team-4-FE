@@ -2,6 +2,8 @@ import type { ComponentType } from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
+import { Center } from '@/shared/ui/layout/center';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Bubble, BUBBLE_FRAMES } from '@/shared/ui/bubble';
 import { Button } from '@/shared/ui/button';
 import { Text } from '@/shared/ui/text';
@@ -44,9 +46,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="flex min-h-40 w-full items-center justify-center p-6">
+      <Center className="min-h-40 w-full p-6">
         <Story />
-      </div>
+      </Center>
     ),
   ],
 } satisfies Meta<BubbleStoryArgs>;
@@ -154,9 +156,9 @@ export const AllFrames: Story = {
     editLabel: { control: false },
   },
   render: () => (
-    <div className="flex flex-col gap-6">
+    <Stack className="gap-6">
       {BUBBLE_FRAMES.map((frame) => (
-        <div key={frame} className="flex flex-col gap-2">
+        <Stack key={frame} className="gap-2">
           <span className="typo-caption-sm text-text-medium">{frame}</span>
           {frame === 'bot' ? (
             <Bubble frame="bot" className="w-[246px]">
@@ -167,9 +169,9 @@ export const AllFrames: Story = {
               {SAMPLE}
             </Bubble>
           )}
-        </div>
+        </Stack>
       ))}
-    </div>
+    </Stack>
   ),
 };
 
@@ -193,12 +195,12 @@ export const StructuredContent: Story = {
   },
   render: () => (
     <Bubble frame="bot" className="w-[410px]">
-      <div className="gap-020 flex flex-col">
+      <Stack className="gap-020">
         <Text as="h3" variant="heading-lg">
           항목을 선택해 주세요
         </Text>
         <Button frame="cta">확인</Button>
-      </div>
+      </Stack>
     </Bubble>
   ),
   play: async ({ canvasElement }) => {

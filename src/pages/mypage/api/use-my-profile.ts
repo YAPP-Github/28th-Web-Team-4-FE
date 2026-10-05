@@ -12,7 +12,7 @@ import type {
 import { parseJsonResponse } from '@/shared/api/response';
 import { myProfileQueryKey } from '@/shared/lib/query-keys';
 
-export async function fetchMyProfile(): Promise<UserProfileResponse> {
+async function fetchMyProfile(): Promise<UserProfileResponse> {
   const response = await fetch('/api/users/me', {
     cache: 'no-store',
     credentials: 'same-origin',

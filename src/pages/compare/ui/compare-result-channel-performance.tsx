@@ -12,6 +12,10 @@ import type {
 import { keys } from '@/shared/lib/object';
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
+import { Grid } from '@/shared/ui/layout/grid';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { JustifyBetween } from '@/shared/ui/layout/justify-between';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Tabs } from '@/shared/ui/tabs';
 import { Text } from '@/shared/ui/text';
 
@@ -67,14 +71,14 @@ function PerformanceInfoPopover(): JSX.Element {
             initialFocus={false}
             className="bg-surface-lowest p-016 shadow-drop-shadow-02 w-[204px] max-w-[calc(100vw-32px)] rounded-tr-[var(--radius-m)] rounded-br-[var(--radius-m)] rounded-bl-[var(--radius-m)]"
           >
-            <Box className="gap-008 flex w-full flex-col items-start text-left">
+            <Stack className="gap-008 w-full items-start text-left">
               <Popover.Title className="typo-subtitle-sm text-text-high m-0 w-full">
                 예상 수치는 어떻게 계산되나요?
               </Popover.Title>
               <Popover.Description className="typo-body-xs text-text-medium m-0 w-full text-pretty">
                 입력하신 예산 기준으로 예상 클릭 수와 노출 수를 산출했어요.
               </Popover.Description>
-            </Box>
+            </Stack>
           </Popover.Popup>
         </Popover.Positioner>
       </Popover.Portal>
@@ -136,19 +140,19 @@ function ChannelPerformanceRow({
   const color = METRIC_CONFIG[metricKey].color;
 
   return (
-    <Box className="gap-014 flex w-full items-center">
+    <HStack className="gap-014 w-full">
       <CompareResultChannelLogo
         name={channel.name}
         logoSrc={channel.logoSrc}
         cropIcon={channel.cropIcon}
         size="large"
       />
-      <Box className="gap-008 flex min-w-0 flex-1 flex-col">
-        <Box className="flex w-full items-center justify-between">
+      <Stack className="gap-008 min-w-0 flex-1">
+        <JustifyBetween className="w-full items-center">
           <Text variant="subtitle-md" className="text-text-default truncate">
             {channel.name}
           </Text>
-          <Box className="grid shrink-0 justify-items-end">
+          <Grid className="shrink-0 justify-items-end">
             {METRIC_KEYS.map((valueMetricKey) => {
               const isActive = valueMetricKey === metricKey;
               const valueMetric = channel[valueMetricKey];
@@ -170,11 +174,11 @@ function ChannelPerformanceRow({
                 </Text>
               );
             })}
-          </Box>
-        </Box>
+          </Grid>
+        </JustifyBetween>
         <PerformanceBar metric={metric} color={color} />
-      </Box>
-    </Box>
+      </Stack>
+    </HStack>
   );
 }
 
@@ -186,11 +190,11 @@ function ChannelPerformanceRows({
   metricKey: CompareResultMetric;
 }): JSX.Element {
   return (
-    <Box className="gap-022 flex w-full flex-col">
+    <Stack className="gap-022 w-full">
       {channels.map((channel) => (
         <ChannelPerformanceRow key={channel.id} channel={channel} metricKey={metricKey} />
       ))}
-    </Box>
+    </Stack>
   );
 }
 
@@ -209,8 +213,8 @@ export function CompareResultChannelPerformance({
         value={metricKey}
         onValueChange={(value) => setMetricKey(value as CompareResultMetric)}
       >
-        <Box className="flex w-full items-center justify-between">
-          <Box className="gap-006 flex items-center">
+        <JustifyBetween className="w-full items-center">
+          <HStack className="gap-006">
             <Text
               as="h2"
               id="compare-result-channel-performance-title"
@@ -220,7 +224,7 @@ export function CompareResultChannelPerformance({
               채널별 예상 노출 · 클릭 수
             </Text>
             <PerformanceInfoPopover />
-          </Box>
+          </HStack>
           <Tabs.List className="bg-surface-low gap-004 p-004 w-fit items-center rounded-[var(--radius-s)] border-b-0">
             {METRIC_KEYS.map((metricKey) => (
               <Tabs.Tab
@@ -235,7 +239,7 @@ export function CompareResultChannelPerformance({
             ))}
             <Tabs.Indicator className="bg-surface-lowest shadow-drop-shadow-02 ease-in-out-quart top-004 bottom-004 h-auto rounded-[var(--radius-xs)] duration-200" />
           </Tabs.List>
-        </Box>
+        </JustifyBetween>
         <Tabs.Panel value={metricKey} className="pt-024">
           <ChannelPerformanceRows channels={channels} metricKey={metricKey} />
         </Tabs.Panel>

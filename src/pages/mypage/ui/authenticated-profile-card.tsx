@@ -10,20 +10,23 @@ import { myProfileQueryKey } from '@/shared/lib/query-keys';
 import { useMyProfile } from '@/pages/mypage/api/use-my-profile';
 import { Avatar } from '@/shared/ui/avatar';
 import { Button } from '@/shared/ui/button';
-import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { JustifyBetween } from '@/shared/ui/layout/justify-between';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Modal } from '@/shared/ui/modal';
 import { Skeleton } from '@/shared/ui/skeleton';
 import { Text } from '@/shared/ui/text';
 
 function ProfileCardFrame({ children }: { children: ReactNode }): JSX.Element {
   return (
-    <Box
+    <Stack
       as="section"
       aria-labelledby="profile-title"
-      className="bg-surface-lowest gap-018 px-030 py-024 flex w-full flex-col rounded-[var(--radius-l)]"
+      className="bg-surface-lowest gap-018 px-030 py-024 w-full rounded-[var(--radius-l)]"
     >
       {children}
-    </Box>
+    </Stack>
   );
 }
 
@@ -35,20 +38,21 @@ function ProfileCardHeader({
   onEdit?: () => void;
 }): JSX.Element {
   return (
-    <Box className="flex w-full items-center justify-between">
+    <JustifyBetween className="w-full items-center">
       <Text as="h2" id="profile-title" variant="heading-lg" className="text-text-highest">
         내 정보
       </Text>
-      <button
+      <Center
+        as="button"
         type="button"
         aria-label="내 정보 수정"
-        className="focus-visible:outline-sys-primary-default size-018 rounded-xxs flex cursor-pointer items-center justify-center outline-none focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        className="focus-visible:outline-sys-primary-default size-018 rounded-xxs cursor-pointer outline-none focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         disabled={disabled}
         onClick={onEdit}
       >
         <Pencil aria-hidden="true" className="text-icon-low size-018" strokeWidth={1.6} />
-      </button>
-    </Box>
+      </Center>
+    </JustifyBetween>
   );
 }
 
@@ -56,44 +60,44 @@ function ProfileCardLoading(): JSX.Element {
   return (
     <ProfileCardFrame>
       <ProfileCardHeader disabled />
-      <Box
+      <Stack
         role="status"
         aria-label="내 정보를 불러오고 있어요"
         data-testid="my-profile-skeleton"
-        className="gap-018 flex w-full flex-col"
+        className="gap-018 w-full"
       >
-        <Box className="bg-surface-lower rounded-m px-016 py-012 h-072 flex w-full items-center">
-          <Box className="gap-014 h-048 flex w-full items-center">
+        <HStack className="bg-surface-lower rounded-m px-016 py-012 h-072 w-full">
+          <HStack className="gap-014 h-048 w-full">
             <Avatar className="size-048 hover:ring-0" alt="" />
-            <Box className="flex h-[46px] min-w-0 flex-1 flex-col">
-              <Box className="h-026 flex w-full items-center">
+            <Stack className="h-[46px] min-w-0 flex-1">
+              <HStack className="h-026 w-full">
                 <Skeleton className="h-020 w-[76px] rounded-[var(--radius-xxs)]" />
-              </Box>
-              <Box className="h-020 flex w-full items-center">
+              </HStack>
+              <HStack className="h-020 w-full">
                 <Skeleton className="h-010 w-[130px] rounded-full" />
-              </Box>
-            </Box>
-          </Box>
-        </Box>
-        <Box className="gap-010 flex w-full flex-col">
+              </HStack>
+            </Stack>
+          </HStack>
+        </HStack>
+        <Stack className="gap-010 w-full">
           <ProfileFieldSkeleton />
           <ProfileFieldSkeleton />
-        </Box>
-      </Box>
+        </Stack>
+      </Stack>
     </ProfileCardFrame>
   );
 }
 
 function ProfileFieldSkeleton(): JSX.Element {
   return (
-    <Box className="gap-012 h-022 flex w-full items-center">
-      <Box className="h-022 w-036 flex shrink-0 items-center">
+    <HStack className="gap-012 h-022 w-full">
+      <HStack className="h-022 w-036 shrink-0">
         <Skeleton className="h-010 w-[24px] rounded-full" />
-      </Box>
-      <Box className="h-022 flex min-w-0 flex-1 items-center">
+      </HStack>
+      <HStack className="h-022 min-w-0 flex-1">
         <Skeleton className="h-010 w-[50px] rounded-full" />
-      </Box>
-    </Box>
+      </HStack>
+    </HStack>
   );
 }
 
@@ -101,9 +105,9 @@ function ProfileCardError({ onRetry }: { onRetry: () => void }): JSX.Element {
   return (
     <ProfileCardFrame>
       <ProfileCardHeader disabled />
-      <Box
+      <Stack
         role="alert"
-        className="bg-surface-lower gap-012 rounded-m px-016 py-020 flex w-full flex-col items-start"
+        className="bg-surface-lower gap-012 rounded-m px-016 py-020 w-full items-start"
       >
         <Text variant="body-xl" className="text-text-low">
           내 정보를 불러오지 못했어요
@@ -117,7 +121,7 @@ function ProfileCardError({ onRetry }: { onRetry: () => void }): JSX.Element {
         >
           다시 시도
         </Button>
-      </Box>
+      </Stack>
     </ProfileCardFrame>
   );
 }
@@ -132,37 +136,37 @@ function ProfileCardContent({
   return (
     <ProfileCardFrame>
       <ProfileCardHeader onEdit={onEdit} />
-      <Box className="bg-surface-lower gap-012 rounded-m px-016 py-012 flex w-full items-center">
-        <Box className="gap-012 flex min-w-0 flex-1 items-center">
+      <HStack className="bg-surface-lower gap-012 rounded-m px-016 py-012 w-full">
+        <HStack className="gap-012 min-w-0 flex-1">
           <Avatar className="size-048 hover:ring-0" alt={`${profile.nickname} 프로필`} />
-          <Box className="flex h-[46px] min-w-0 flex-1 flex-col">
+          <Stack className="h-[46px] min-w-0 flex-1">
             <Text variant="heading-lg" className="text-text-highest">
               {profile.nickname}
             </Text>
             <Text variant="body-xl" className="text-text-low">
               {profile.email}
             </Text>
-          </Box>
-        </Box>
-      </Box>
-      <Box className="gap-010 flex w-full flex-col">
-        <Box className="gap-012 flex w-full items-center">
+          </Stack>
+        </HStack>
+      </HStack>
+      <Stack className="gap-010 w-full">
+        <HStack className="gap-012 w-full">
           <Text as="p" variant="subtitle-xxs" className="text-text-low w-036 shrink-0">
             회사
           </Text>
           <Text as="p" variant="subtitle-xxs" className="text-text-highest">
             {profile.companyName}
           </Text>
-        </Box>
-        <Box className="gap-012 flex w-full items-center">
+        </HStack>
+        <HStack className="gap-012 w-full">
           <Text as="p" variant="subtitle-xxs" className="text-text-low w-036 shrink-0">
             직무
           </Text>
           <Text as="p" variant="subtitle-xxs" className="text-text-highest">
             {PROFILE_OCCUPATION_LABELS[profile.occupation]}
           </Text>
-        </Box>
-      </Box>
+        </HStack>
+      </Stack>
     </ProfileCardFrame>
   );
 }

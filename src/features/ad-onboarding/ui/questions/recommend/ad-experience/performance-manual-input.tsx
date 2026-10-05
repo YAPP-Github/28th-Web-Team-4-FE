@@ -13,7 +13,8 @@ import {
   type ManualPerformanceChannel,
 } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import { isManualPerformanceChannelComplete } from '@/features/ad-onboarding/model/recommend-onboarding-rules';
-import { Box } from '@/shared/ui/layout/box';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 import { PerformanceChannelSearch } from './performance-channel-search';
@@ -68,8 +69,8 @@ export function PerformanceManualInput({
   };
 
   return (
-    <Box className="gap-020 flex w-full flex-col">
-      <Box className="gap-008 flex w-full flex-col">
+    <Stack className="gap-020 w-full">
+      <Stack className="gap-008 w-full">
         <Text variant="body-xl" className="text-text-medium">
           광고 채널
         </Text>
@@ -80,20 +81,20 @@ export function PerformanceManualInput({
           onAppend={appendChannel}
         />
         <SelectedPerformanceChannelTags channelList={watchedChannelList} onRemove={removeChannel} />
-      </Box>
+      </Stack>
 
-      <Box className="gap-008 flex w-full flex-col">
-        <Box className="gap-008 flex w-full items-center">
+      <Stack className="gap-008 w-full">
+        <HStack className="gap-008 w-full">
           <Text variant="body-xl" className="text-text-medium min-w-0 flex-1">
             채널별 성과
           </Text>
           <Text variant="body-sm" className="text-text-low shrink-0">
             * 채널당 최소 2칸 이상 입력해 주세요
           </Text>
-        </Box>
+        </HStack>
 
         {fields.length > 0 ? (
-          <Box className="gap-012 flex flex-col">
+          <Stack className="gap-012">
             {fields.map((field, index) => {
               const channel = watchedChannelList[index] ?? field;
 
@@ -109,7 +110,7 @@ export function PerformanceManualInput({
                 />
               );
             })}
-          </Box>
+          </Stack>
         ) : null}
 
         {hasInvalidChannel ? (
@@ -117,7 +118,7 @@ export function PerformanceManualInput({
             채널당 최소 2칸 이상 입력해 주세요.
           </Text>
         ) : null}
-      </Box>
-    </Box>
+      </Stack>
+    </Stack>
   );
 }

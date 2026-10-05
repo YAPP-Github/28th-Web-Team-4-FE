@@ -24,6 +24,7 @@ import {
 
 import { cn } from '@/shared/ui/cn';
 import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
 import { Text } from '@/shared/ui/text';
 
 const ARROW_SIZE_PX = 8;
@@ -33,7 +34,7 @@ const ARROW_STATIC_OFFSET = `-${ARROW_DEPTH_PX}px`;
 const ARROW_MIDDLEWARE_PADDING = 6;
 const SHIFT_PADDING = 8;
 
-export type TooltipRootProps = PropsWithChildren<{
+type TooltipRootProps = PropsWithChildren<{
   placement?: Placement;
   offset?: OffsetOptions;
   strategy?: 'absolute' | 'fixed';
@@ -41,9 +42,9 @@ export type TooltipRootProps = PropsWithChildren<{
   allowShift?: boolean;
 }>;
 
-export type TooltipAnchorProps = ComponentPropsWithoutRef<'span'>;
+type TooltipAnchorProps = ComponentPropsWithoutRef<'span'>;
 
-export type TooltipContentProps = ComponentPropsWithoutRef<'div'> & {
+type TooltipContentProps = ComponentPropsWithoutRef<'div'> & {
   arrowClassName?: string;
   showArrow?: boolean;
 };
@@ -125,10 +126,10 @@ const Content = ({
   const { refs, floatingStyles } = useTooltipContext();
 
   const content = (
-    <Box
+    <Center
       ref={refs.setFloating}
       className={cn(
-        'z-50 flex w-max max-w-[min(240px,calc(100vw-32px))] items-center justify-center',
+        'z-50 w-max max-w-[min(240px,calc(100vw-32px))]',
         'rounded-[var(--radius-s)] bg-surface-toast px-012 py-006 text-text-lowest shadow-drop-shadow-01',
         className,
       )}
@@ -139,7 +140,7 @@ const Content = ({
         {children}
       </Text>
       {showArrow ? <Arrow className={arrowClassName} /> : null}
-    </Box>
+    </Center>
   );
 
   return content;

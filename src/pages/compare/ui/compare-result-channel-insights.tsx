@@ -7,6 +7,7 @@ import { Collapsible } from '@base-ui/react/collapsible';
 import { ChevronDown } from 'lucide-react';
 
 import type { CompareResultChannel } from '@/pages/compare/model/compare-result-channel';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 import {
@@ -26,7 +27,7 @@ type CompareResultChannelInsightsProps = {
 export const COMPARE_RESULT_CHANNEL_INSIGHTS_COLLAPSED_VIEWS = ['first', 'title'] as const;
 
 /** 인사이트 섹션을 접었을 때 남겨둘 콘텐츠 범위. */
-export type CompareResultChannelInsightsCollapsedView =
+type CompareResultChannelInsightsCollapsedView =
   (typeof COMPARE_RESULT_CHANNEL_INSIGHTS_COLLAPSED_VIEWS)[number];
 
 /** 선택한 채널의 인사이트 목록을 하나의 Collapsible 영역으로 표시한다. */
@@ -80,13 +81,7 @@ export function CompareResultChannelInsights({
 
       <Collapsible.Panel className="ease-in-out-quart h-[var(--collapsible-panel-height)] overflow-hidden transition-[height] duration-200 data-ending-style:h-0 data-starting-style:h-0 motion-reduce:transition-none [&[hidden]:not([hidden='until-found'])]:hidden">
         {collapsibleChannels.length > 0 ? (
-          <div
-            className={
-              collapsedView === 'first'
-                ? 'gap-008 pt-008 flex flex-col'
-                : 'gap-008 pt-024 flex flex-col'
-            }
-          >
+          <Stack className={collapsedView === 'first' ? 'gap-008 pt-008' : 'gap-008 pt-024'}>
             {collapsibleChannels.map((channel) => (
               <CompareResultChannelInsightCard
                 key={channel.id}
@@ -94,7 +89,7 @@ export function CompareResultChannelInsights({
                 variant={variant}
               />
             ))}
-          </div>
+          </Stack>
         ) : null}
       </Collapsible.Panel>
     </Collapsible.Root>

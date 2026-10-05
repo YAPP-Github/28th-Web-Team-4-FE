@@ -1,1 +1,1 @@
-export { AuthForm, type AuthFormProps } from './ui/auth-form';
+export { AuthForm } from './ui/auth-form';

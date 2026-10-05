@@ -1,7 +1,8 @@
 import type { JSX } from 'react';
 import type { SimulationResponse } from '@/shared/api/generated';
 
-import { Box } from '@/shared/ui/layout/box';
+import { Flex } from '@/shared/ui/layout/flex';
+import { JustifyBetween } from '@/shared/ui/layout/justify-between';
 import { Text } from '@/shared/ui/text';
 
 import { SimulatorSaveAction } from './simulator-save-action';
@@ -16,13 +17,13 @@ export function SimulatorSubHeader({
   showSaveAction?: boolean;
 }): JSX.Element {
   return (
-    <Box className="border-outline-low bg-surface-lowest min-h-072 px-016 sm:px-032 flex w-full justify-center border-y lg:px-120">
-      <Box className="gap-016 py-016 flex w-full max-w-[1200px] items-center justify-between md:py-0">
+    <Flex className="border-outline-low bg-surface-lowest min-h-072 px-016 sm:px-032 w-full justify-center border-y lg:px-120">
+      <JustifyBetween className="gap-016 py-016 w-full max-w-[1200px] items-center md:py-0">
         <Text as="h1" variant="heading-lg" className="text-text-highest break-keep">
           {title}
         </Text>
         {showSaveAction ? <SimulatorSaveAction simulationResult={simulationResult} /> : null}
-      </Box>
-    </Box>
+      </JustifyBetween>
+    </Flex>
   );
 }

@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { expect, within } from 'storybook/test';
 
+import { Flex } from '@/shared/ui/layout/flex';
 import { BottomNavigation } from '@/shared/ui/bottom-navigation';
 import { Button } from '@/shared/ui/button';
-import { Box } from '@/shared/ui/layout/box';
 
 const meta = {
   title: 'components/BottomNavigation',
@@ -40,9 +40,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-background-low p-032 flex min-h-80 w-full items-end">
+      <Flex className="bg-surface-background-low p-032 min-h-80 w-full items-end">
         <Story />
-      </Box>
+      </Flex>
     ),
   ],
 } satisfies Meta<typeof BottomNavigation>;

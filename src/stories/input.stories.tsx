@@ -4,6 +4,7 @@ import { expect, userEvent, within } from 'storybook/test';
 
 import { Input, INPUT_FRAMES, type InputFrame, type InputProps } from '@/shared/ui/input';
 import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
 
 type InputStoryArgs = InputProps & {
   frame?: InputFrame;
@@ -28,11 +29,11 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-high rounded-m flex min-h-40 w-full items-center justify-center p-6">
+      <Center className="bg-surface-high rounded-m min-h-40 w-full p-6">
         <Box className="w-full max-w-[440px]">
           <Story />
         </Box>
-      </Box>
+      </Center>
     ),
   ],
 } satisfies Meta<InputStoryArgs>;

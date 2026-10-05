@@ -3,6 +3,7 @@ import { expect, within } from 'storybook/test';
 
 import { InputField, type InputFieldProps } from '@/shared/ui/input-field';
 import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
 
 const meta = {
   title: 'components/InputField',
@@ -17,11 +18,11 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <Box className="bg-surface-high rounded-m flex min-h-40 w-full items-center justify-center p-6">
+      <Center className="bg-surface-high rounded-m min-h-40 w-full p-6">
         <Box className="w-full max-w-[440px]">
           <Story />
         </Box>
-      </Box>
+      </Center>
     ),
   ],
 } satisfies Meta<InputFieldProps>;

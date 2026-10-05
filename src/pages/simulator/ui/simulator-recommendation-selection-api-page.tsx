@@ -3,7 +3,8 @@
 import type { JSX } from 'react';
 
 import { SimulatorRecommendationSelectionPage } from '@/pages/simulator/ui/simulator-recommendation-selection-page';
-import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Placeholder } from '@/shared/ui/placeholder';
 
 import { useRecommendationSelectionData } from '@/pages/simulator/api/use-recommendation-selection-data';
@@ -17,12 +18,12 @@ function RecommendationSelectionState({
   subtitle: string;
 }): JSX.Element {
   return (
-    <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-hidden">
+    <Stack as="main" className="bg-surface-background-default min-h-0 flex-1 overflow-hidden">
       <SimulatorSubHeader title="불러올 추천 결과를 선택해 주세요" showSaveAction={false} />
-      <Box className="bg-surface-background-default px-016 py-040 flex min-h-0 flex-1 items-center justify-center">
+      <Center className="bg-surface-background-default px-016 py-040 min-h-0 flex-1">
         <Placeholder title={title} subtitle={subtitle} />
-      </Box>
-    </main>
+      </Center>
+    </Stack>
   );
 }
 

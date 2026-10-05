@@ -9,7 +9,12 @@ const config: StorybookConfig = {
     '@storybook/addon-docs',
     '@storybook/addon-mcp',
   ],
-  framework: '@storybook/nextjs-vite',
+  framework: {
+    name: '@storybook/nextjs-vite',
+    options: {
+      nextConfigPath: '.storybook/next.config.ts',
+    },
+  },
   staticDirs: ['../public'],
 };
 export default config;

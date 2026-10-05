@@ -8,7 +8,7 @@ import {
   type AuthSession,
 } from '@/shared/lib/auth/session';
 
-export { hasActiveAuthSession, readAuthSession } from '@/shared/lib/auth/session-cookie';
+export { readAuthSession } from '@/shared/lib/auth/session-cookie';
 
 export async function writeAuthSession(tokens: TokenResponse): Promise<AuthSession> {
   const session = createAuthSession(tokens);

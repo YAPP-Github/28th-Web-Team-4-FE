@@ -1,10 +1,10 @@
 import type { HeaderToneTheme } from '@/shared/lib/hero-header-tone';
 
-export const HOME_HERO_REVEAL_THRESHOLD = 0.22;
+const HOME_HERO_REVEAL_THRESHOLD = 0.22;
 
 // `400vh` 질문 섹션의 실제 sticky 이동 거리는 `300vh`다. 각 단계에 약 42vh를
 // 배정해 한 번의 짧은 휠 입력이 여러 문장을 건너뛰지 않도록 한다.
-export const HOME_QUESTION_TIMELINE = {
+const HOME_QUESTION_TIMELINE = {
   doorOpen: 0.02,
   firstWorry: 0.2,
   secondWorry: 0.34,
@@ -14,7 +14,7 @@ export const HOME_QUESTION_TIMELINE = {
 
 // 헤더는 `end start` 기준이라 400vh 전체를 진행률 1로 본다. 콘텐츠 brand 시점은
 // sticky 거리 기준이므로 `0.62 * (400 - 100) / 400 = 0.465`로 환산한다.
-export const HOME_QUESTION_HEADER_TIMELINE = {
+const HOME_QUESTION_HEADER_TIMELINE = {
   dark: 0.015,
   orange: 0.465,
   white: 0.99,

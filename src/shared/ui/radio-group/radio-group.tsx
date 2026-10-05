@@ -28,7 +28,7 @@ export type RadioGroupItemProps = Omit<
   renderMode?: RadioGroupItemRenderMode;
 };
 
-export type RadioGroupItemRenderMode = 'button' | 'label-control';
+type RadioGroupItemRenderMode = 'button' | 'label-control';
 
 export const RadioGroup = ({ className, ...props }: RadioGroupProps): JSX.Element => {
   return <RadioGroupPrimitive className={cn('grid gap-2', className)} {...props} />;

@@ -5,6 +5,7 @@ import { getQueryClient } from '@/app/providers/query-client';
 import { HomePageHeader } from '@/app/layouts/home-page-header';
 import { authSessionQueryKey } from '@/features/auth/session/model/auth-session-query';
 import { readAuthSession } from '@/shared/lib/auth/session-cookie';
+import { Stack } from '@/shared/ui/layout/stack';
 import {
   brandStructuredData,
   stringifyStructuredData,
@@ -31,7 +32,7 @@ export default async function HomeLayout({ children }: { children: ReactNode }) 
   queryClient.setQueryData(authSessionQueryKey, sessionState);
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <Stack className="min-h-dvh">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: stringifyStructuredData(brandStructuredData) }}
@@ -39,7 +40,7 @@ export default async function HomeLayout({ children }: { children: ReactNode }) 
       <HydrationBoundary state={dehydrate(queryClient)}>
         <HomePageHeader />
       </HydrationBoundary>
-      <div className="flex flex-1 flex-col">{children}</div>
-    </div>
+      <Stack className="flex-1">{children}</Stack>
+    </Stack>
   );
 }

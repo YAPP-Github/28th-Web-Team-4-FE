@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { createChannelComparisonHref } from '@/features/channel-comparison';
 import { useSavedRecommendation } from '@/pages/recommend-result/api/use-saved-recommendation';
 import { mapRecommendationItemsToChannels } from '@/pages/recommend-result/model/recommended-channels';
+import { Center } from '@/shared/ui/layout/center';
 import { Placeholder } from '@/shared/ui/placeholder';
 
 import { RecommendResultPage } from './recommend-result-page';
@@ -18,9 +19,9 @@ function SavedRecommendationState({
   subtitle: string;
 }): JSX.Element {
   return (
-    <main className="bg-surface-background-default px-016 py-040 flex min-h-0 flex-1 items-center justify-center">
+    <Center as="main" className="bg-surface-background-default px-016 py-040 min-h-0 flex-1">
       <Placeholder title={title} subtitle={subtitle} />
-    </main>
+    </Center>
   );
 }
 

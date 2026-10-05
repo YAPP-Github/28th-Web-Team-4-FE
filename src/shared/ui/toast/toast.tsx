@@ -5,6 +5,7 @@ import { Toast as BaseToast } from '@base-ui/react/toast';
 import { Check } from 'lucide-react';
 import Image from 'next/image';
 
+import { Center } from '@/shared/ui/layout/center';
 import { cn } from '@/shared/ui/cn';
 
 type ToastType = 'warning' | 'success';
@@ -70,9 +71,9 @@ function ToastList() {
               className="size-016 shrink-0"
             />
           ) : (
-            <span className="bg-surface-lowest size-016 flex shrink-0 items-center justify-center rounded-full">
+            <Center as="span" className="bg-surface-lowest size-016 shrink-0 rounded-full">
               <Check aria-hidden="true" className="text-text-medium size-012" strokeWidth={2} />
-            </span>
+            </Center>
           )}
           <BaseToast.Description className="typo-subtitle-xxs text-text-lowest text-center whitespace-nowrap" />
         </BaseToast.Content>

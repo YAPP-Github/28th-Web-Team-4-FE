@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, within } from 'storybook/test';
 
+import { Center } from '@/shared/ui/layout/center';
 import { GoogleLogo } from '@/shared/ui/google-logo';
 
 const meta = {
@@ -13,9 +14,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="bg-surface-high rounded-m flex min-h-40 w-full items-center justify-center p-6">
+      <Center className="bg-surface-high rounded-m min-h-40 w-full p-6">
         <Story />
-      </div>
+      </Center>
     ),
   ],
 } satisfies Meta<typeof GoogleLogo>;

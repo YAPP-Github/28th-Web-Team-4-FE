@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 export const ACCEPTED_PERFORMANCE_FILE_EXTENSION_LIST = ['.csv', '.xlsx'] as const;
 export const MAX_PERFORMANCE_FILE_SIZE = 10 * 1024 * 1024;
-export const MAX_PERFORMANCE_FILE_COUNT = 5;
+const MAX_PERFORMANCE_FILE_COUNT = 5;
 
 const PERFORMANCE_FILE_SCHEMA = z
   .custom<File>((file) => typeof File !== 'undefined' && file instanceof File)

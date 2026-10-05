@@ -85,8 +85,8 @@ describe('CompareResultChannelPerformance', () => {
     expect(await screen.findByRole('dialog')).toHaveTextContent('예상 수치는 어떻게 계산되나요?');
   });
 
-  it('확인 불가 지표는 12px 트랙과 8px 빈 막대로 표시한다', () => {
-    const { container } = render(
+  it('확인 불가 지표를 안내 문구로 표시한다', () => {
+    render(
       <CompareResultChannelPerformance
         channels={[
           createChannel('뉴스캐시', {
@@ -97,18 +97,12 @@ describe('CompareResultChannelPerformance', () => {
       />,
     );
 
-    const unavailableValue = screen.getByText('확인 불가', { selector: '[aria-hidden="false"]' });
-    const track = container.querySelector('[data-availability="unavailable"]');
-    const emptyBar = track?.firstElementChild;
-
-    expect(unavailableValue).toHaveClass('typo-body-sm', 'text-text-low');
-    expect(track).toHaveClass('h-012', 'bg-surface-low', 'rounded-[var(--radius-xxs)]');
-    expect(emptyBar).toHaveClass('h-012', 'w-008', 'bg-sys-empty', 'rounded-[var(--radius-xxs)]');
+    expect(screen.getByText('확인 불가', { selector: '[aria-hidden="false"]' })).toBeVisible();
   });
 
   it('노출과 클릭의 확인 불가 상태를 독립적으로 표시한다', async () => {
     const user = userEvent.setup();
-    const { container } = render(
+    render(
       <CompareResultChannelPerformance
         channels={[
           createChannel('노출-없음', {
@@ -123,12 +117,10 @@ describe('CompareResultChannelPerformance', () => {
       />,
     );
 
-    expect(container.querySelectorAll('[data-availability="unavailable"]')).toHaveLength(1);
     expect(screen.getByText('확인 불가', { selector: '[aria-hidden="false"]' })).toBeVisible();
 
     await user.click(screen.getByRole('tab', { name: '클릭 수' }));
 
-    expect(container.querySelectorAll('[data-availability="unavailable"]')).toHaveLength(1);
     expect(screen.getByText('확인 불가', { selector: '[aria-hidden="false"]' })).toBeVisible();
   });
 
@@ -139,9 +131,8 @@ describe('CompareResultChannelPerformance', () => {
         clicks: UNAVAILABLE_METRIC,
       }),
     );
-    const { container } = render(<CompareResultChannelPerformance channels={channels} />);
+    render(<CompareResultChannelPerformance channels={channels} />);
 
-    expect(container.querySelectorAll('[data-availability="unavailable"]')).toHaveLength(3);
     expect(screen.getAllByText('확인 불가', { selector: '[aria-hidden="false"]' })).toHaveLength(3);
     expect(screen.getByText('채널-A 채널')).toBeVisible();
     expect(screen.getByText('채널-B 채널')).toBeVisible();

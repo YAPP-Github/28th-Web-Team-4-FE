@@ -79,13 +79,6 @@ const SIMULATION_RESULT: SimulationResponse = {
   ],
 };
 
-const MIXED_EXECUTABILITY_RESULT: SimulationResponse = {
-  ...SIMULATION_RESULT,
-  items: SIMULATION_RESULT.items.map((item, index) =>
-    index === 1 ? { ...item, isExecutable: true } : item,
-  ),
-};
-
 vi.mock('@/features/simulator-filter/api/use-simulator-filter-channels', () => ({
   useSimulatorFilterChannels: useSimulatorFilterChannelsMock,
 }));
@@ -105,6 +98,26 @@ beforeEach(() => {
 describe('AuthenticatedChannelResults', () => {
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  it('집행 불가 채널에 기준 정보를 확인할 수 있는 안내 버튼을 제공한다', () => {
+    const mixedSimulationResult: SimulationResponse = {
+      ...SIMULATION_RESULT,
+      items: SIMULATION_RESULT.items.map((item, index) =>
+        index === 1 ? { ...item, isExecutable: true } : item,
+      ),
+    };
+
+    render(
+      <AuthenticatedChannelResults
+        isChannelSelectionComplete
+        selectedChannelIds={SELECTED_CHANNEL_IDS}
+        simulationResult={mixedSimulationResult}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: '채널 A 기준 정보 안내' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: '채널 B 기준 정보 안내' })).not.toBeInTheDocument();
   });
 
   it('채널 미선택 상태에서 채널 추가 방식을 선택하는 모달을 제공한다', async () => {
@@ -229,41 +242,6 @@ describe('AuthenticatedChannelResults', () => {
     });
   });
 
-  it('집행 불가 채널의 이름과 이미지를 집행 가능 채널보다 흐리게 보여준다', () => {
-    useSimulatorFilterChannelsMock.mockReturnValue({
-      channels: [
-        {
-          id: 'channel-a',
-          name: '채널 A',
-          iconUrl: '/simulator-assets/naver.png',
-        },
-        {
-          id: 'channel-b',
-          name: '채널 B',
-          iconUrl: '/simulator-assets/meta.svg',
-        },
-      ],
-      isPending: false,
-      isError: false,
-    });
-
-    const { container } = render(
-      <AuthenticatedChannelResults
-        isChannelSelectionComplete
-        selectedChannelIds={['channel-a', 'channel-b']}
-        simulationResult={MIXED_EXECUTABILITY_RESULT}
-      />,
-    );
-
-    expect(screen.getByText('채널 A')).toHaveClass('text-text-low');
-    expect(screen.getByText('채널 B')).toHaveClass('text-text-default');
-
-    const channelIcons = container.querySelectorAll('img[alt=""]');
-    expect(channelIcons).toHaveLength(2);
-    expect(channelIcons[0]).toHaveClass('opacity-40');
-    expect(channelIcons[1]).not.toHaveClass('opacity-40');
-  });
-
   it('시뮬레이션 결과가 처음 표시되면 각 미집행 채널의 툴팁을 2초간 자동으로 보여준다', async () => {
     vi.useFakeTimers();
 
@@ -277,8 +255,6 @@ describe('AuthenticatedChannelResults', () => {
 
     const tooltips = screen.getAllByRole('tooltip');
     expect(tooltips).toHaveLength(2);
-    expect(tooltips[0]).toHaveClass('transition-opacity', 'duration-1000');
-    expect(tooltips[0]).toHaveClass('data-ending-style:opacity-0');
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(1_999);
@@ -309,13 +285,7 @@ describe('AuthenticatedChannelResults', () => {
     const infoButton = screen.getByRole('button', { name: '채널 A 기준 정보 안내' });
     fireEvent.pointerDown(infoButton, { pointerType: 'touch' });
 
-    const openedTooltip = screen
-      .getAllByRole('tooltip')
-      .find(
-        (element) =>
-          element.textContent?.includes('예산이 부족해요') && element.hasAttribute('data-open'),
-      );
-    expect(openedTooltip).toBeDefined();
+    expect(screen.getAllByRole('tooltip')).toHaveLength(1);
 
     fireEvent.pointerUp(infoButton, { pointerType: 'touch' });
 

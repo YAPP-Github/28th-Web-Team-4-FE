@@ -27,6 +27,7 @@ import { useScrollToInitialStep } from '@/features/ad-onboarding/lib/use-scroll-
 import { Bubble } from '@/shared/ui/bubble';
 import { OnboardingQuestion } from '@/features/ad-onboarding/ui/onboarding-question';
 import { Stack } from '@/shared/ui/layout/stack';
+import { JustifyEnd } from '@/shared/ui/layout/justify-end';
 
 import { RecommendOnboardingStepContent } from './recommend-onboarding-step-content';
 
@@ -374,14 +375,14 @@ function CompletedStepItem({
         className={getQuestionWidthClassName(stepId)}
       />
 
-      <div ref={answerRef} className="flex w-full scroll-mt-[12px] justify-end">
+      <JustifyEnd ref={answerRef} className="w-full scroll-mt-[12px]">
         <CollapsedAnswerItem
           stepIndex={stepIndex}
           label={label}
           isEditable={isEditable}
           onEditStep={onEditStep}
         />
-      </div>
+      </JustifyEnd>
     </Stack>
   );
 }

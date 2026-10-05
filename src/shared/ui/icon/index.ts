@@ -1,1 +1,1 @@
-export { InfoFillIcon, type FeedbackIconProps, WarningErrorIcon } from './feedback-icon';
+export { InfoFillIcon, WarningErrorIcon } from './feedback-icon';

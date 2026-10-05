@@ -11,7 +11,8 @@ import { useController, useFormContext, type FieldPath } from 'react-hook-form';
 import type { RecommendOnboardingDraft } from '@/features/ad-onboarding/model/onboarding-draft';
 import type { ManualPerformanceChannel } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import { cn } from '@/shared/ui/cn';
-import { Box } from '@/shared/ui/layout/box';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 type ManualPerformanceField = {
@@ -109,11 +110,11 @@ export function NumericPerformanceInput({
   const value = typeof field.value === 'number' ? field.value : undefined;
 
   return (
-    <label className={cn('gap-006 flex min-w-0 flex-col', className)}>
+    <Stack as="label" className={cn('gap-006 min-w-0', className)}>
       <Text variant="body-sm" className="text-text-medium">
         {label}
       </Text>
-      <Box className="bg-surface-low gap-006 px-014 flex h-[38px] items-center rounded-[var(--radius-s)]">
+      <HStack className="bg-surface-low gap-006 px-014 h-[38px] rounded-[var(--radius-s)]">
         <BaseInput
           ref={field.ref}
           value={formatNumber(value)}
@@ -130,7 +131,7 @@ export function NumericPerformanceInput({
             {rightAddon}
           </Text>
         ) : null}
-      </Box>
-    </label>
+      </HStack>
+    </Stack>
   );
 }

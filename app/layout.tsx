@@ -3,6 +3,7 @@ import { AppProviders } from '@/app/providers/app-providers';
 import { pretendard, wantedSans } from '@/shared/fonts';
 
 import '@/app/styles/globals.css';
+import { Stack } from '@/shared/ui/layout/stack';
 
 export { metadata } from '@/app/config/metadata';
 
@@ -13,13 +14,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${pretendard.variable} ${wantedSans.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col">
-        <div className="root flex min-h-full flex-1 flex-col">
+      <Stack as="body" className="min-h-full">
+        <Stack className="root min-h-full flex-1">
           <MSWBootstrap>
             <AppProviders>{children}</AppProviders>
           </MSWBootstrap>
-        </div>
-      </body>
+        </Stack>
+      </Stack>
     </html>
   );
 }

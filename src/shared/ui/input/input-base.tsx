@@ -30,7 +30,7 @@ const inputRootVariants = cva(
   },
 );
 
-export type BaseInputProps = BaseInput.Props;
+type BaseInputProps = BaseInput.Props;
 type InputRootVariantProps = Omit<VariantProps<typeof inputRootVariants>, 'invalid'>;
 
 export type InputBaseProps = Omit<BaseInputProps, 'className' | 'type'> &

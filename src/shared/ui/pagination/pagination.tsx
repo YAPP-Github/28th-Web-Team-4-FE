@@ -2,7 +2,8 @@ import type { JSX, ReactNode } from 'react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 
 import { cn } from '@/shared/ui/cn';
-import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { HStack } from '@/shared/ui/layout/h-stack';
 import { Text } from '@/shared/ui/text';
 
 export type PaginationProps = {
@@ -52,7 +53,7 @@ export function Pagination({
   const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1);
 
   return (
-    <Box as="nav" aria-label={ariaLabel} className="gap-004 flex items-center">
+    <HStack as="nav" aria-label={ariaLabel} className="gap-004">
       <PaginationButton label="첫 페이지" disabled={isFirstPage} onClick={() => onPageChange(1)}>
         <ChevronsLeft aria-hidden className="size-020" strokeWidth={1.6} />
       </PaginationButton>
@@ -63,19 +64,20 @@ export function Pagination({
       >
         <ChevronLeft aria-hidden className="size-020" strokeWidth={1.6} />
       </PaginationButton>
-      <Box className="gap-002 flex items-center">
+      <HStack className="gap-002">
         {pageNumbers.map((pageNumber) => {
           const isCurrentPage = pageNumber === currentPage;
 
           return (
-            <button
+            <Center
+              as="button"
               key={pageNumber}
               type="button"
               aria-label={`페이지 ${pageNumber}`}
               aria-current={isCurrentPage ? 'page' : undefined}
               onClick={() => onPageChange(pageNumber)}
               className={cn([
-                'size-024 relative flex cursor-pointer items-center justify-center rounded-[var(--radius-s)] transition-colors',
+                'size-024 relative cursor-pointer rounded-[var(--radius-s)] transition-colors',
                 'hover:bg-surface-low active:scale-[0.97]',
                 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sys-primary-default',
               ])}
@@ -89,10 +91,10 @@ export function Pagination({
               >
                 {pageNumber}
               </Text>
-            </button>
+            </Center>
           );
         })}
-      </Box>
+      </HStack>
       <PaginationButton
         label="다음 페이지"
         disabled={isLastPage}
@@ -107,6 +109,6 @@ export function Pagination({
       >
         <ChevronsRight aria-hidden className="size-020" strokeWidth={1.6} />
       </PaginationButton>
-    </Box>
+    </HStack>
   );
 }

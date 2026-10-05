@@ -8,6 +8,10 @@ import { useReducedMotion } from 'motion/react';
 import type { SimulationResponse } from '@/shared/api/generated';
 import { getSimulatorCountDisplay } from '@/pages/simulator/model/simulator-channel';
 import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { Flex } from '@/shared/ui/layout/flex';
+import { JustifyBetween } from '@/shared/ui/layout/justify-between';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 type MetricIconType = 'channels' | 'impressions' | 'clicks';
@@ -15,7 +19,7 @@ type MetricIconType = 'channels' | 'impressions' | 'clicks';
 function MetricIcon({ type }: { type: MetricIconType }): JSX.Element {
   if (type === 'channels') {
     return (
-      <Box aria-hidden className="size-040 flex shrink-0 items-center justify-center">
+      <Center aria-hidden className="size-040 shrink-0">
         <Image
           src="/simulator-assets/channels.svg"
           alt=""
@@ -23,7 +27,7 @@ function MetricIcon({ type }: { type: MetricIconType }): JSX.Element {
           height={30}
           className="h-030 w-034"
         />
-      </Box>
+      </Center>
     );
   }
 
@@ -73,8 +77,8 @@ function SummaryMetric({
   const countDisplay = getSimulatorCountDisplay(value);
 
   return (
-    <Box className="gap-010 flex min-w-0 flex-1 items-center justify-between">
-      <Box className="gap-002 flex min-w-0 flex-col">
+    <JustifyBetween className="gap-010 min-w-0 flex-1 items-center">
+      <Stack className="gap-002 min-w-0">
         <Text variant="display-lg" className="text-text-high whitespace-nowrap">
           <NumberFlow
             value={countDisplay.value}
@@ -91,9 +95,9 @@ function SummaryMetric({
         <Text variant="subtitle-xxs" className="text-text-low whitespace-nowrap">
           {label}
         </Text>
-      </Box>
+      </Stack>
       <MetricIcon type={icon} />
-    </Box>
+    </JustifyBetween>
   );
 }
 
@@ -111,15 +115,15 @@ export function SimulatorResultSummary({
   const totalClicks = simulationResult?.totalEstClicks ?? 0;
 
   return (
-    <Box
+    <Stack
       as="section"
       aria-labelledby="simulator-summary-title"
-      className="bg-surface-lowest gap-018 px-030 py-024 flex w-full flex-col rounded-[var(--radius-l)]"
+      className="bg-surface-lowest gap-018 px-030 py-024 w-full rounded-[var(--radius-l)]"
     >
       <Text as="h2" id="simulator-summary-title" variant="heading-lg" className="text-text-highest">
         총 예상 성과
       </Text>
-      <Box className="gap-016 flex w-full flex-col sm:flex-row sm:items-center sm:justify-between">
+      <Flex className="gap-016 w-full flex-col sm:flex-row sm:items-center sm:justify-between">
         <SummaryMetric
           icon="channels"
           value={executableChannelCount}
@@ -135,7 +139,7 @@ export function SimulatorResultSummary({
         />
         <MetricDivider />
         <SummaryMetric icon="clicks" value={totalClicks} suffix="회" label="예상 총 클릭" />
-      </Box>
-    </Box>
+      </Flex>
+    </Stack>
   );
 }

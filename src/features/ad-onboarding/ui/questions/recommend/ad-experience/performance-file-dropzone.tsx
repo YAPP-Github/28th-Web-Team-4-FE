@@ -14,6 +14,13 @@ import {
 } from '@/features/ad-onboarding/lib/file-upload';
 import type { UploadedPerformanceFile } from '@/features/ad-onboarding/model/recommend-onboarding-options';
 import { cn } from '@/shared/ui/cn';
+import { Center } from '@/shared/ui/layout/center';
+import { CenterStack } from '@/shared/ui/layout/center-stack';
+import { Flex } from '@/shared/ui/layout/flex';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { JustifyEnd } from '@/shared/ui/layout/justify-end';
+import { Stack } from '@/shared/ui/layout/stack';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Text } from '@/shared/ui/text';
 
 const ACCEPTED_FILE_TYPE = ACCEPTED_PERFORMANCE_FILE_EXTENSION_LIST.join(',');
@@ -119,10 +126,11 @@ export function PerformanceFileDropzone({
     );
   } else {
     dropzoneContent = (
-      <button
+      <CenterStack
+        as="button"
         type="button"
         className={[
-          'gap-010 absolute inset-0 flex cursor-pointer flex-col items-center justify-center',
+          'gap-010 absolute inset-0 cursor-pointer',
           'rounded-[var(--radius-s)] outline-none',
           'focus-visible:outline-2 focus-visible:outline-offset-2',
           'focus-visible:outline-outline-high',
@@ -130,15 +138,15 @@ export function PerformanceFileDropzone({
         onClick={() => inputRef.current?.click()}
       >
         <File aria-hidden className="text-icon-default size-040 stroke-[1.5]" />
-        <div className="gap-002 flex flex-col items-center text-center">
+        <VStack className="gap-002 text-center">
           <Text variant="body-xl" className="text-text-default">
             파일을 드래그하거나 클릭해서 업로드
           </Text>
           <Text variant="body-xs" className="text-icon-default">
             지원 형식 : xlsx, csv (최대 10MB)
           </Text>
-        </div>
-      </button>
+        </VStack>
+      </CenterStack>
     );
   }
 
@@ -152,12 +160,12 @@ export function PerformanceFileDropzone({
         multiple
         onChange={handleInputChange}
       />
-      <div
+      <Flex
         role="group"
         aria-label="광고 성과 파일 업로드 영역"
         className={cn(
           [
-            'border-outline-default bg-surface-lowest relative flex min-h-[146px] w-full',
+            'border-outline-default bg-surface-lowest relative min-h-[146px] w-full',
             'flex-col items-center justify-center rounded-[var(--radius-s)] border border-dashed',
             'px-018 py-014 transition-colors',
             'hover:bg-surface-lower',
@@ -175,14 +183,14 @@ export function PerformanceFileDropzone({
         onDrop={handleDrop}
       >
         {dropzoneContent}
-      </div>
+      </Flex>
 
       {errorMessage ? (
-        <div className="mt-006 flex justify-end">
+        <JustifyEnd className="mt-006">
           <Text role="alert" variant="body-xs" className="text-sys-error-default text-right">
             {errorMessage}
           </Text>
-        </div>
+        </JustifyEnd>
       ) : null}
     </div>
   );
@@ -191,31 +199,29 @@ export function PerformanceFileDropzone({
 /** 드래그 중에는 Figma의 drop 가능 상태를 파일 목록이나 기본 안내보다 우선 표시한다. */
 function PerformanceFileDropActiveContent(): JSX.Element {
   return (
-    <div className="gap-010 pointer-events-none flex flex-col items-center justify-center">
-      <div className="bg-sys-primary-low flex size-[48px] items-center justify-center rounded-full">
+    <CenterStack className="gap-010 pointer-events-none">
+      <Center className="bg-sys-primary-low size-[48px] rounded-full">
         <Upload aria-hidden className="text-icon-primary-low size-024 stroke-[1.5]" />
-      </div>
+      </Center>
       <Text variant="body-xl" className="text-icon-primary-low text-center">
         여기에 파일을 놓아 주세요
       </Text>
-    </div>
+    </CenterStack>
   );
 }
 
 /** 업로드된 파일 메타데이터를 삭제 버튼과 함께 표시한다. */
 function PerformanceFileList({ fileList, onRemove }: PerformanceFileListProps): JSX.Element {
   return (
-    <ul
-      aria-live="polite"
-      className="gap-008 pointer-events-none relative z-10 flex w-full flex-col"
-    >
+    <Stack as="ul" aria-live="polite" className="gap-008 pointer-events-none relative z-10 w-full">
       {fileList.map((file) => (
-        <li key={file.id} className="gap-010 flex min-w-0 items-center">
-          <button
+        <HStack as="li" key={file.id} className="gap-010 min-w-0">
+          <Center
+            as="button"
             type="button"
             aria-label={`${file.name} 삭제`}
             className={cn([
-              'bg-surface-low text-icon-high flex size-014 shrink-0 items-center justify-center',
+              'bg-surface-low text-icon-high size-014 shrink-0',
               'rounded-[var(--radius-max)] outline-none pointer-events-auto',
               'hover:bg-surface-default focus-visible:outline-2',
               'focus-visible:outline-offset-2 focus-visible:outline-outline-high',
@@ -226,7 +232,7 @@ function PerformanceFileList({ fileList, onRemove }: PerformanceFileListProps): 
             }}
           >
             <X aria-hidden className="size-010" />
-          </button>
+          </Center>
           <Text
             variant="subtitle-xs"
             className="text-text-default min-w-0 flex-1 truncate"
@@ -237,8 +243,8 @@ function PerformanceFileList({ fileList, onRemove }: PerformanceFileListProps): 
           <Text variant="body-xs" className="text-icon-default shrink-0">
             {formatFileSize(file.size)}
           </Text>
-        </li>
+        </HStack>
       ))}
-    </ul>
+    </Stack>
   );
 }

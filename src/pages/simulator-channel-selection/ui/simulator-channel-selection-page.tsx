@@ -4,6 +4,7 @@ import { Suspense, type JSX } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { ChannelSelectionScreen } from '@/features/channel-selection';
+import { Stack } from '@/shared/ui/layout/stack';
 
 function createSimulatorResultHref(
   channelIds: readonly string[],
@@ -39,7 +40,7 @@ export function SimulatorChannelSelectionPage({
   };
 
   return (
-    <main className="bg-surface-background-default flex min-h-0 flex-1 flex-col overflow-hidden">
+    <Stack as="main" className="bg-surface-background-default min-h-0 flex-1 overflow-hidden">
       <Suspense>
         <ChannelSelectionScreen
           title={
@@ -55,6 +56,6 @@ export function SimulatorChannelSelectionPage({
           onComplete={handleComplete}
         />
       </Suspense>
-    </main>
+    </Stack>
   );
 }

@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { render, screen } from '@testing-library/react';
 
 import { hasActiveAuthSession } from '@/shared/lib/auth/session-cookie';
 
@@ -20,9 +21,9 @@ describe('AuthLayout', () => {
   it('renders auth pages for guests', async () => {
     hasActiveAuthSessionMock.mockResolvedValue(false);
 
-    await expect(AuthLayout({ children: <p>로그인</p> })).resolves.toEqual(
-      expect.objectContaining({ type: 'main' }),
-    );
+    render(await AuthLayout({ children: <p>로그인</p> }));
+
+    expect(screen.getByRole('main')).toHaveTextContent('로그인');
   });
 
   it('redirects authenticated users home', async () => {

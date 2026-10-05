@@ -13,6 +13,10 @@ import {
   type MotionValue,
 } from 'motion/react';
 
+import { Center } from '@/shared/ui/layout/center';
+import { CenterStack } from '@/shared/ui/layout/center-stack';
+import { Flex } from '@/shared/ui/layout/flex';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Button } from '@/shared/ui/button';
 
 import { useHeroHeaderToneStore } from '@/shared/lib/hero-header-tone';
@@ -83,7 +87,7 @@ function HeroTagline({
   gradientOpacity: MotionValue<number>;
 }): JSX.Element {
   return (
-    <div className="px-016 sm:px-032 relative flex w-full min-w-0 items-center justify-center">
+    <Center className="px-016 sm:px-032 relative w-full min-w-0">
       <motion.p
         aria-label={HERO_TAGLINE_WORDS.join(' ')}
         variants={headlineContainerVariants}
@@ -121,7 +125,7 @@ function HeroTagline({
           </motion.span>
         ))}
       </motion.p>
-    </div>
+    </Center>
   );
 }
 
@@ -156,8 +160,14 @@ function HeroRevealSubtext(): JSX.Element {
 // 2줄: "광고 채널 고민, 여기서 끝내 보세요"
 function HeroRevealTitle(): JSX.Element {
   return (
-    <h1 className="text-text-highest flex w-full flex-col items-center text-center font-bold tracking-[-1px] text-pretty">
-      <span className="flex w-full flex-wrap items-center justify-center text-[28px] leading-[1.3] sm:text-[40px] lg:text-[48px] lg:leading-[70px]">
+    <VStack
+      as="h1"
+      className="text-text-highest w-full text-center font-bold tracking-[-1px] text-pretty"
+    >
+      <Center
+        as="span"
+        className="w-full flex-wrap text-[28px] leading-[1.3] sm:text-[40px] lg:text-[48px] lg:leading-[70px]"
+      >
         <span>내게 맞는 광고 채널을 </span>
         <span className="relative -top-[3px] ml-[7px] inline-flex -rotate-[4.78deg] items-center justify-center border-[1.5px] border-[#41BCF6] px-[10px] py-[1.5px] sm:-top-[5px] sm:px-[12px] sm:py-[2px] lg:-top-[7px] lg:px-[14.4px] lg:py-[2px]">
           {/* 네 모서리 꼭짓점 데코 포인트 (피그마 13.33px 사각형, 2.06px border, 중앙 정렬) */}
@@ -169,11 +179,11 @@ function HeroRevealTitle(): JSX.Element {
             한눈에!
           </span>
         </span>
-      </span>
+      </Center>
       <span className="w-full text-[28px] leading-[1.3] whitespace-normal sm:text-[40px] lg:text-[48px] lg:leading-[70px]">
         광고 채널 고민, 여기서 끝내 보세요
       </span>
-    </h1>
+    </VStack>
   );
 }
 
@@ -187,26 +197,27 @@ function HomeHeroReducedMotion(): JSX.Element {
   }, [setHeaderProgress]);
 
   return (
-    <section
+    <CenterStack
+      as="section"
       aria-label="채소ZIP 소개"
-      className="bg-surface-lowest px-016 sm:px-032 flex w-full flex-col items-center justify-center overflow-x-clip py-[96px] lg:px-120"
+      className="bg-surface-lowest px-016 sm:px-032 w-full overflow-x-clip py-[96px] lg:px-120"
     >
       <p
         className={`font-wanted text-center leading-[1.15] font-bold whitespace-nowrap ${TAGLINE_SIZE_CLASS} ${GRADIENT_TEXT_CLASS}`}
       >
         {HERO_TAGLINE_WORDS.join(' ')}
       </p>
-      <div className="mt-024 flex flex-col items-center gap-[12px] text-center sm:gap-[16px] lg:gap-[20px]">
+      <VStack className="mt-024 gap-[12px] text-center sm:gap-[16px] lg:gap-[20px]">
         <HeroRevealTitle />
         <HeroRevealSubtext />
         <div className="mt-[10px] sm:mt-[16px] lg:mt-[20px]">
           <HeroRevealCta />
         </div>
-      </div>
+      </VStack>
       <div className="mt-[28px] w-full max-w-[1170px] sm:mt-[40px] lg:mt-[52px]">
         <HomeHeroServicePreview />
       </div>
-    </section>
+    </CenterStack>
   );
 }
 
@@ -335,18 +346,18 @@ function HomeHeroScrollScrub(): JSX.Element {
           }`}
         >
           {/* 타이틀 + 서브타이틀 + CTA */}
-          <div className="flex flex-col items-center gap-[12px] text-center sm:gap-[16px] lg:gap-[20px]">
+          <VStack className="gap-[12px] text-center sm:gap-[16px] lg:gap-[20px]">
             <HeroRevealTitle />
             <HeroRevealSubtext />
             <div className="mt-[10px] sm:mt-[16px] lg:mt-[20px]">
               <HeroRevealCta />
             </div>
-          </div>
+          </VStack>
 
           {/* 예산 시뮬레이션 결과 화면 (원래 크기 100% 온전하게 노출) */}
-          <div className="mt-[28px] flex w-full max-w-[1170px] justify-center drop-shadow-[0_24px_48px_rgba(0,0,0,0.06)] sm:mt-[40px] lg:mt-[52px]">
+          <Flex className="mt-[28px] w-full max-w-[1170px] justify-center drop-shadow-[0_24px_48px_rgba(0,0,0,0.06)] sm:mt-[40px] lg:mt-[52px]">
             <HomeHeroServicePreview />
-          </div>
+          </Flex>
         </motion.div>
       </motion.div>
     </section>

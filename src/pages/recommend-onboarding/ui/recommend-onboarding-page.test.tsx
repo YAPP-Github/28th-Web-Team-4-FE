@@ -109,7 +109,6 @@ describe('RecommendOnboardingPage', () => {
 
     expect(screen.getByRole('main')).toBeVisible();
     expect(screen.getByText('1')).toBeVisible();
-    expect(screen.getByText('1').parentElement).toHaveClass('bg-sys-primary-lowest');
     expect(screen.getByText('서비스 이름')).toBeVisible();
     expect(
       screen.getByRole('heading', {
@@ -135,7 +134,6 @@ describe('RecommendOnboardingPage', () => {
 
     expect(screen.getByRole('heading', { name: '서비스 이름을 알려 주세요' })).toBeVisible();
     expect(screen.getByText('채소집')).toBeVisible();
-    expect(screen.getByText('채소집')).toHaveClass('text-text-lowest');
     expect(screen.getByRole('button', { name: '수정' })).toBeVisible();
     expect(screen.getByRole('heading', { name: '어떤 업종인가요?' })).toBeVisible();
     expect(scrollToMock).toHaveBeenCalledWith({

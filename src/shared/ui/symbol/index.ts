@@ -1,2 +1,2 @@
-export { BrandSymbol, type SymbolProps } from './symbol';
-export { SYMBOL_TYPES, SymbolMark, type SymbolMarkProps, type SymbolType } from './symbol-mark';
+export { BrandSymbol } from './symbol';
+export { SYMBOL_TYPES } from './symbol-mark';

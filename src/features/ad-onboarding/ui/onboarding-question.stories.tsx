@@ -8,6 +8,7 @@ import { expect, within } from 'storybook/test';
 import { OnboardingQuestion } from '@/features/ad-onboarding/ui/onboarding-question';
 import { SelectCard } from '@/features/ad-onboarding/ui/select-card';
 import { StepActionButton } from '@/features/ad-onboarding/ui/step-action-button';
+import { Stack } from '@/shared/ui/layout/stack';
 import { RadioGroup } from '@/shared/ui/radio-group';
 
 const meta = {
@@ -45,7 +46,7 @@ export const WithControls: Story = {
   },
   render: (args) => (
     <OnboardingQuestion {...args} className="max-w-[410px]">
-      <div className="gap-020 flex w-full flex-col">
+      <Stack className="gap-020 w-full">
         <RadioGroup aria-label="서비스 형태" className="gap-010">
           <SelectCard
             control="radio"
@@ -56,7 +57,7 @@ export const WithControls: Story = {
           <SelectCard control="radio" value="OTHER" label="기타" />
         </RadioGroup>
         <StepActionButton disabled>다음</StepActionButton>
-      </div>
+      </Stack>
     </OnboardingQuestion>
   ),
   play: async ({ canvasElement }) => {

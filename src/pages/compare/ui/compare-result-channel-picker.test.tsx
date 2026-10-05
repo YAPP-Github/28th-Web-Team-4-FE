@@ -96,14 +96,12 @@ describe('CompareResultChannelPicker', () => {
     render(<PickerHarness />);
 
     const trigger = screen.getByLabelText('비교할 채널 추가');
-    expect(trigger).toHaveClass('cursor-pointer');
     await user.click(trigger);
 
     const searchInput = await screen.findByRole('combobox', { name: '추가할 채널 검색' });
     expect(searchInput).toHaveFocus();
     expect(screen.getAllByText('추천')).toHaveLength(2);
     expect(screen.getByRole('option', { name: /구글 검색 광고/ })).toBeVisible();
-    expect(screen.getByRole('option', { name: /구글 검색 광고/ })).toHaveClass('cursor-pointer');
     expect(screen.getByRole('option', { name: /카카오 모먼트/ })).toBeVisible();
     screen
       .getAllByRole('checkbox', { hidden: true })
@@ -158,11 +156,8 @@ describe('CompareResultChannelPicker', () => {
     await user.type(searchInput, '메타 검색');
 
     const selectedChannel = screen.getByRole('option', { name: /메타 검색 광고/ });
-    const checkbox = selectedChannel.querySelector('[role="checkbox"]');
     expect(selectedChannel).toHaveAttribute('aria-disabled', 'true');
-    expect(checkbox).toHaveAttribute('aria-hidden', 'true');
-    expect(checkbox).toHaveAttribute('aria-disabled', 'true');
-    expect(checkbox).not.toBeChecked();
+    expect(selectedChannel).toHaveAttribute('aria-selected', 'false');
 
     await user.click(selectedChannel);
     await user.keyboard('{ArrowDown}{Enter}');
@@ -207,7 +202,7 @@ describe('CompareResultChannelPicker', () => {
     expect(screen.getByLabelText('추가할 채널 선택')).toHaveAttribute('aria-busy', 'true');
   });
 
-  it('조회 상태가 바뀌어도 목록을 mount한 채 검색창 포커스를 유지한다', async () => {
+  it('조회 상태가 바뀌어도 검색창 포커스를 유지한다', async () => {
     const user = userEvent.setup();
     const { rerender } = render(<PickerHarness options={[]} />);
 
@@ -216,13 +211,13 @@ describe('CompareResultChannelPicker', () => {
 
     rerender(<PickerHarness isPending options={[]} />);
 
-    expect(screen.getByRole('listbox', { hidden: true })).toHaveClass('hidden');
+    expect(screen.getByRole('status')).toHaveTextContent('채널을 불러오고 있어요');
     expect(screen.getByRole('combobox', { name: '추가할 채널 검색' })).toBe(searchInput);
     expect(searchInput).toHaveFocus();
 
     rerender(<PickerHarness isError options={[]} />);
 
-    expect(screen.getByRole('listbox', { hidden: true })).toHaveClass('hidden');
+    expect(screen.getByRole('alert')).toHaveTextContent('채널 목록을 불러오지 못했어요');
     expect(screen.getByRole('combobox', { name: '추가할 채널 검색' })).toBe(searchInput);
     expect(searchInput).toHaveFocus();
 

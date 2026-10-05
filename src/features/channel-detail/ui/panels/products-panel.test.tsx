@@ -69,8 +69,8 @@ describe('ChannelDetailProductsPanel', () => {
     const table = screen.getByRole('table');
     expect(within(table).getByRole('columnheader', { name: '집행 가능' })).toBeVisible();
 
-    expect(within(getProductRow('피드 광고')).getByText('집행 가능')).toHaveClass('sr-only');
-    expect(within(getProductRow('스토리 광고')).getByText('집행 불가')).toHaveClass('sr-only');
+    expect(within(getProductRow('피드 광고')).getByText('집행 가능')).toBeInTheDocument();
+    expect(within(getProductRow('스토리 광고')).getByText('집행 불가')).toBeInTheDocument();
     expect(within(getProductRow('리타기팅 광고')).getByText('-')).toBeVisible();
   });
 

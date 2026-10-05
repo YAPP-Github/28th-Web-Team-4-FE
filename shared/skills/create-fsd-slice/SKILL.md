@@ -29,6 +29,7 @@ description: >-
    - [ ] 폴더·파일 kebab-case / 컴포넌트 PascalCase / 훅 `use` prefix
    - [ ] 레이어 루트 거대 배럴 추가 안 함
    - [ ] 루트 `pages/`에 Pages Router 라우트 추가 안 함
+   - [ ] TSX 레이아웃은 [`shared/rules/ui-layout.md`](../../rules/ui-layout.md)와 `use-layout-components`를 따름
 
 ## 기준 예시 (`pages`, group 없음)
 

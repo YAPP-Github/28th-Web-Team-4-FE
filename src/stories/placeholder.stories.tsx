@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { expect, within } from 'storybook/test';
 
+import { Center } from '@/shared/ui/layout/center';
 import { Placeholder } from '@/shared/ui/placeholder';
 
 const meta = {
@@ -19,9 +20,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="bg-surface-background-low rounded-m flex min-h-80 w-full items-center justify-center p-6">
+      <Center className="bg-surface-background-low rounded-m min-h-80 w-full p-6">
         <Story />
-      </div>
+      </Center>
     ),
   ],
 } satisfies Meta<typeof Placeholder>;

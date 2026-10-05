@@ -1,0 +1,135 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests",
+    "docker:pinDigests",
+    "security:minimumReleaseAgeNpm"
+  ],
+  "dependencyDashboard": true,
+  "timezone": "Asia/Seoul",
+  "schedule": ["before 9am on monday"],
+  "prConcurrentLimit": 4,
+  "prHourlyLimit": 2,
+  "automerge": false,
+  "rangeStrategy": "auto",
+  "rebaseWhen": "behind-base-branch",
+  "semanticCommits": "enabled",
+  "semanticCommitType": "chore",
+  "semanticCommitScope": "deps",
+  "labels": ["dependencies"],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 9am on monday"]
+  },
+  "vulnerabilityAlerts": {
+    "labels": ["dependencies", "security"],
+    "dependencyDashboardApproval": false,
+    "minimumReleaseAge": null,
+    "prCreation": "immediate",
+    "prConcurrentLimit": 0,
+    "schedule": []
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github\\/actions\\/pnpm-setup-node\\/action\\.yml$/"],
+      "matchStrings": ["node-version:\\s*(?<currentValue>\\d+)"],
+      "depNameTemplate": "node",
+      "datasourceTemplate": "node-version",
+      "versioningTemplate": "node"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Require dashboard approval for all major updates",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Keep Node runtime references together",
+      "matchPackageNames": ["node", "@types/node"],
+      "groupName": "Node.js runtime",
+      "groupSlug": "node-runtime"
+    },
+    {
+      "description": "Use Node.js LTS-aware versioning for the Docker tag",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["node"],
+      "versioning": "node",
+      "versionCompatibility": "^(?<version>[^-]+)(?<compatibility>-.*)?$"
+    },
+    {
+      "description": "Keep pnpm toolchain references together",
+      "matchPackageNames": ["pnpm"],
+      "groupName": "pnpm toolchain",
+      "groupSlug": "pnpm-toolchain"
+    },
+    {
+      "description": "Group Next.js packages without grouping React",
+      "matchPackageNames": ["next", "@next/third-parties"],
+      "groupName": "Next.js",
+      "groupSlug": "nextjs"
+    },
+    {
+      "description": "Group React runtime and type packages separately from Next.js",
+      "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"],
+      "groupName": "React",
+      "groupSlug": "react"
+    },
+    {
+      "description": "Group Storybook and Chromatic packages",
+      "matchPackageNames": ["storybook", "@storybook/**", "@chromatic-com/storybook", "chromatic"],
+      "groupName": "Storybook",
+      "groupSlug": "storybook"
+    },
+    {
+      "description": "Group Vitest packages",
+      "matchPackageNames": ["vitest", "@vitest/**"],
+      "groupName": "Vitest",
+      "groupSlug": "vitest"
+    },
+    {
+      "description": "Group Playwright packages",
+      "matchPackageNames": ["playwright", "@playwright/test"],
+      "groupName": "Playwright",
+      "groupSlug": "playwright"
+    },
+    {
+      "description": "Group Tailwind and PostCSS packages",
+      "matchPackageNames": [
+        "tailwindcss",
+        "@tailwindcss/**",
+        "tailwind-merge",
+        "tailwindcss-animated",
+        "postcss"
+      ],
+      "groupName": "Tailwind CSS",
+      "groupSlug": "tailwindcss"
+    },
+    {
+      "description": "Group TanStack Query packages",
+      "matchPackageNames": ["@tanstack/react-query", "@tanstack/react-query-devtools"],
+      "groupName": "TanStack Query",
+      "groupSlug": "tanstack-query"
+    },
+    {
+      "description": "Group Testing Library packages",
+      "matchPackageNames": ["@testing-library/**"],
+      "groupName": "Testing Library",
+      "groupSlug": "testing-library"
+    },
+    {
+      "description": "Group PostHog packages",
+      "matchPackageNames": ["posthog-js", "posthog-node"],
+      "groupName": "PostHog",
+      "groupSlug": "posthog"
+    },
+    {
+      "description": "Group Oxc tooling packages",
+      "matchPackageNames": ["oxlint", "oxlint-tsgolint", "oxfmt"],
+      "groupName": "Oxc tooling",
+      "groupSlug": "oxc"
+    }
+  ]
+}

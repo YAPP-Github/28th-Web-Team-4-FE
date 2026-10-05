@@ -5,6 +5,7 @@ import { Field as BaseField } from '@base-ui/react/field';
 import { Check } from 'lucide-react';
 import { cva } from 'class-variance-authority';
 
+import { Center } from '@/shared/ui/layout/center';
 import { cn } from '@/shared/ui/cn';
 import { WarningErrorIcon } from '@/shared/ui/icon';
 
@@ -36,12 +37,13 @@ function FeedbackIcon({ tone }: { tone: FieldFeedbackTone }): JSX.Element {
   }
 
   return (
-    <span
-      className="bg-sys-success-default text-text-lowest size-012 flex shrink-0 items-center justify-center rounded-full"
+    <Center
+      as="span"
+      className="bg-sys-success-default text-text-lowest size-012 shrink-0 rounded-full"
       aria-hidden
     >
       <Check className="size-010" strokeWidth={3} />
-    </span>
+    </Center>
   );
 }
 

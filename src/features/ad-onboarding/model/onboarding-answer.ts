@@ -37,7 +37,7 @@ export type PerformanceInput =
     };
 
 /** 추천 온보딩에서 확정하는 광고 운영 경험 답변. */
-export type AdExperienceAnswer =
+type AdExperienceAnswer =
   | { type: Extract<AdExperienceType, 'FIRST_TIME'> }
   | {
       type: Extract<AdExperienceType, 'EXPERIENCED'>;

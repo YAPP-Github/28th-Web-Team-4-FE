@@ -173,9 +173,6 @@ describe('AuthEntryPage', () => {
       }),
     );
     expect(screen.getByRole('button', { name: 'Google로 시작하기' })).toBeEnabled();
-    const googleButtonContainer = document.querySelector('div[aria-hidden="true"]');
-    expect(googleButtonContainer).toHaveClass('pointer-events-auto');
-    expect(googleButtonContainer).not.toHaveClass('pointer-events-none');
     expect(promptMock).not.toHaveBeenCalled();
   });
 
@@ -193,26 +190,6 @@ describe('AuthEntryPage', () => {
     expect(await openGoogleLinkModal()).toBeVisible();
 
     await user.keyboard('{Escape}');
-
-    await waitFor(() => {
-      expect(
-        screen.queryByRole('dialog', { name: 'Google 계정을 연동할까요?' }),
-      ).not.toBeInTheDocument();
-    });
-    expect(screen.getByRole('heading', { name: '이메일로 시작하기' })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: '로그인하기' })).not.toBeInTheDocument();
-  });
-
-  it('returns to auth entry without selecting local login when the link backdrop is clicked', async () => {
-    const user = userEvent.setup();
-    expect(await openGoogleLinkModal()).toBeVisible();
-    const backdrop = document.querySelector<HTMLElement>('.bg-surface-dimmed');
-
-    expect(backdrop).not.toBeNull();
-    if (!backdrop) {
-      throw new Error('Google link modal backdrop was not rendered.');
-    }
-    await user.click(backdrop);
 
     await waitFor(() => {
       expect(

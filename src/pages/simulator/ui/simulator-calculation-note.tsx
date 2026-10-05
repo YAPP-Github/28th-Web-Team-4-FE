@@ -1,20 +1,18 @@
 import type { JSX } from 'react';
 
-import { Box } from '@/shared/ui/layout/box';
+import { Center } from '@/shared/ui/layout/center';
+import { VStack } from '@/shared/ui/layout/v-stack';
 import { Text } from '@/shared/ui/text';
 
 export function SimulatorCalculationNote(): JSX.Element {
   return (
-    <Box className="bg-surface-default gap-014 px-030 py-026 flex min-h-[146px] w-full flex-col items-center rounded-[var(--radius-l)]">
-      <Box className="gap-008 flex flex-col items-center">
-        <Box
-          aria-hidden
-          className="bg-surface-high size-022 flex items-center justify-center rounded-[var(--radius-max)]"
-        >
+    <VStack className="bg-surface-default gap-014 px-030 py-026 min-h-[146px] w-full rounded-[var(--radius-l)]">
+      <VStack className="gap-008">
+        <Center aria-hidden className="bg-surface-high size-022 rounded-[var(--radius-max)]">
           <Text variant="subtitle-md" className="text-surface-default">
             ?
           </Text>
-        </Box>
+        </Center>
         <Text variant="subtitle-xs" className="text-text-default text-center">
           해당 수치는 어떻게 계산됐나요?
         </Text>
@@ -23,7 +21,7 @@ export function SimulatorCalculationNote(): JSX.Element {
           <br />
           실제 성과는 소재·타깃 설정에 따라 달라질 수 있어요.
         </Text>
-      </Box>
-    </Box>
+      </VStack>
+    </VStack>
   );
 }

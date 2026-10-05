@@ -1,9 +1,9 @@
 import type { ComponentProps, JSX, ReactNode } from 'react';
 
 import { cn } from '@/shared/ui/cn';
-import { Box } from '@/shared/ui/layout/box';
 import { Center } from '@/shared/ui/layout/center';
 import { HStack } from '@/shared/ui/layout/h-stack';
+import { JustifyEnd } from '@/shared/ui/layout/justify-end';
 
 const DEFAULT_ARIA_LABEL = '하단 내비게이션';
 
@@ -30,8 +30,8 @@ export const BottomNavigation = ({
       {...restProps}
     >
       <HStack className="gap-016 w-full max-w-[1200px] justify-between">
-        <Box className="flex min-w-0 flex-1 items-center justify-start">{left}</Box>
-        <Box className="flex min-w-0 flex-1 items-center justify-end">{right}</Box>
+        <HStack className="min-w-0 flex-1 justify-start">{left}</HStack>
+        <JustifyEnd className="min-w-0 flex-1 items-center">{right}</JustifyEnd>
       </HStack>
     </Center>
   );

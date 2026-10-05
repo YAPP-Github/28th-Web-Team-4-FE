@@ -16,7 +16,7 @@ export type BadgeFrame = keyof typeof FRAME_MAP;
 
 export const BADGE_FRAMES = keys(FRAME_MAP);
 
-export type BadgeIndicatorSize = 'm' | 's';
+type BadgeIndicatorSize = 'm' | 's';
 
 type BadgeToneByFrame = {
   badge: 'gray' | 'primary' | 'deep-gray';

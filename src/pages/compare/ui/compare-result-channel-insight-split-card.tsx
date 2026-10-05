@@ -3,7 +3,8 @@
 import type { JSX } from 'react';
 
 import type { CompareResultChannel } from '@/pages/compare/model/compare-result-channel';
-import { Box } from '@/shared/ui/layout/box';
+import { Flex } from '@/shared/ui/layout/flex';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 type CompareResultChannelInsightSplitCardProps = {
@@ -17,33 +18,33 @@ export function CompareResultChannelInsightSplitCard({
   const titleId = `compare-result-channel-${channel.id}-split-insight-title`;
 
   return (
-    <Box
+    <Stack
       as="article"
       aria-labelledby={titleId}
-      className="border-outline-low p-020 flex w-full flex-col items-start rounded-[var(--radius-m)] border"
+      className="border-outline-low p-020 w-full items-start rounded-[var(--radius-m)] border"
     >
-      <Box className="gap-030 flex w-full items-start">
-        <Box className="gap-008 flex w-[94px] shrink-0 flex-col items-start">
+      <Flex className="gap-030 w-full items-start">
+        <Stack className="gap-008 w-[94px] shrink-0 items-start">
           <Text as="h3" id={titleId} variant="subtitle-lg" className="text-text-default">
             {channel.name}
           </Text>
-          <Box className="gap-004 flex flex-col items-start">
+          <Stack className="gap-004 items-start">
             {channel.insight.keyword.map((keyword) => (
               <Text key={keyword} variant="caption-lg" className="text-text-low">
                 # {keyword}
               </Text>
             ))}
-          </Box>
-        </Box>
+          </Stack>
+        </Stack>
 
-        <Box className="border-outline-lower gap-002 pl-030 flex min-w-0 flex-1 flex-col self-stretch border-l">
+        <Stack className="border-outline-lower gap-002 pl-030 min-w-0 flex-1 self-stretch border-l">
           {channel.insight.advantages.map((advantage) => (
             <Text as="p" key={advantage} variant="subtitle-xxs" className="text-text-medium w-full">
               {advantage}
             </Text>
           ))}
-        </Box>
-      </Box>
-    </Box>
+        </Stack>
+      </Flex>
+    </Stack>
   );
 }

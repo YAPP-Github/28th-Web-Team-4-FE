@@ -21,6 +21,7 @@ import {
   StepActionButton,
   type StepActionButtonProps,
 } from '@/features/ad-onboarding/ui/step-action-button';
+import { HStack } from '@/shared/ui/layout/h-stack';
 import { Button } from '@/shared/ui/button';
 
 export type PerformanceInputQuestionProps = {
@@ -150,7 +151,7 @@ export function PerformanceInputQuestion({
         </Tabs.Panel>
       </Tabs.Root>
 
-      <div className="gap-010 flex w-full items-center">
+      <HStack className="gap-010 w-full">
         <Button
           frame="cta"
           tone="third"
@@ -165,7 +166,7 @@ export function PerformanceInputQuestion({
         <StepActionButton className="min-w-0 flex-1" disabled={!isInputComplete} onClick={onAction}>
           {actionLabel}
         </StepActionButton>
-      </div>
+      </HStack>
     </OnboardingQuestion>
   );
 }

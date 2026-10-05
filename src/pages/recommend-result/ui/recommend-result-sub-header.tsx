@@ -5,6 +5,9 @@ import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 import { Info } from 'lucide-react';
 
 import { Box } from '@/shared/ui/layout/box';
+import { Flex } from '@/shared/ui/layout/flex';
+import { HStack } from '@/shared/ui/layout/h-stack';
+import { Stack } from '@/shared/ui/layout/stack';
 import { Text } from '@/shared/ui/text';
 
 export type RecommendResultSubHeaderProps = {
@@ -21,7 +24,7 @@ export function RecommendResultSubHeader({
   description = '입력하신 조건으로 분석했어요',
 }: RecommendResultSubHeaderProps): JSX.Element {
   const title = (
-    <Box className="gap-006 flex max-w-full min-w-0 items-center">
+    <HStack className="gap-006 max-w-full min-w-0">
       <Text
         as="h1"
         variant="heading-lg"
@@ -50,7 +53,7 @@ export function RecommendResultSubHeader({
                 role="tooltip"
                 className="bg-surface-lowest p-016 shadow-drop-shadow-02 w-[228px] max-w-[calc(100vw-32px)] rounded-tr-[var(--radius-m)] rounded-br-[var(--radius-m)] rounded-bl-[var(--radius-m)]"
               >
-                <Box className="gap-008 flex w-full flex-col items-start text-left">
+                <Stack className="gap-008 w-full items-start text-left">
                   <Text as="strong" variant="subtitle-sm" className="text-text-high block w-full">
                     클릭 1회당 비용이란?
                   </Text>
@@ -59,26 +62,26 @@ export function RecommendResultSubHeader({
                     <br /> 채소집에서는 쉬운 비교를 위해
                     <br /> 단위를 모두 클릭 수 기준으로 통일했어요.
                   </Text>
-                </Box>
+                </Stack>
               </BaseTooltip.Popup>
             </BaseTooltip.Positioner>
           </BaseTooltip.Portal>
         </BaseTooltip.Root>
       </BaseTooltip.Provider>
-    </Box>
+    </HStack>
   );
 
   return (
     <Box className="bg-surface-lowest border-outline-low min-h-072 px-016 py-016 sm:px-032 w-full border-y lg:px-120 lg:py-0">
-      <Box className="gap-016 lg:min-h-072 flex w-full max-w-[1200px] flex-col lg:mx-auto lg:flex-row lg:items-center lg:justify-between">
-        <Box className="gap-006 lg:gap-052 flex w-full min-w-0 flex-col items-start lg:w-auto lg:flex-row lg:items-center">
+      <Flex className="gap-016 lg:min-h-072 w-full max-w-[1200px] flex-col lg:mx-auto lg:flex-row lg:items-center lg:justify-between">
+        <Flex className="gap-006 lg:gap-052 w-full min-w-0 flex-col items-start lg:w-auto lg:flex-row lg:items-center">
           <Box className="max-w-full min-w-0">{title}</Box>
           <Text as="p" variant="subtitle-xxs" className="text-text-low m-0 whitespace-nowrap">
             {description}
           </Text>
-        </Box>
+        </Flex>
         {action}
-      </Box>
+      </Flex>
     </Box>
   );
 }
