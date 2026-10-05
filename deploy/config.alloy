@@ -1,0 +1,53 @@
+// 같은 ECS 태스크의 Next.js에서 수집합니다. 외부 /api/metrics 접근 차단은 별도 설정입니다.
+prometheus.scrape "frontend" {
+	targets = [{
+		"__address__" = "localhost:3000",
+		// awsvpc 태스크의 호스트 이름으로 구분해 배포 중 여러 태스크의 지표가 섞이지 않게 합니다.
+		"instance" = constants.hostname,
+	}]
+
+	job_name        = "chaeso-zip-frontend"
+	metrics_path    = "/api/metrics"
+	scrape_interval = "60s"
+	scrape_timeout  = "10s"
+	forward_to      = [prometheus.relabel.frontend_cloud.receiver]
+}
+
+prometheus.relabel "frontend_cloud" {
+	forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+
+	// 초기에는 프로세스 자원과 이벤트 루프, GC 횟수·시간만 전송합니다. GC 버킷은 제외합니다.
+	rule {
+		source_labels = ["__name__"]
+		regex         = string.join([
+			"up",
+			"scrape_duration_seconds",
+			"scrape_samples_scraped",
+			"chaeso_zip_process_(cpu_seconds_total|resident_memory_bytes|start_time_seconds)",
+			"chaeso_zip_nodejs_heap_size_(total|used)_bytes",
+			"chaeso_zip_nodejs_external_memory_bytes",
+			"chaeso_zip_nodejs_eventloop_lag(_mean|_max|_p99)?_seconds",
+			"chaeso_zip_nodejs_active_(handles|requests)_total",
+			"chaeso_zip_nodejs_gc_duration_seconds_(sum|count)",
+		], "|")
+		action = "keep"
+	}
+
+	// 앱이 내려가도 생성되는 up 지표까지 같은 서비스 라벨로 조회할 수 있게 합니다.
+	rule {
+		target_label = "service"
+		replacement  = "chaeso-zip-frontend"
+	}
+}
+
+// 세 값은 Alloy 실행 환경에 주입합니다. Next.js 이미지나 설정 파일에 토큰을 넣지 않습니다.
+prometheus.remote_write "grafana_cloud" {
+	endpoint {
+		url = sys.env("GRAFANA_PROM_URL")
+
+		basic_auth {
+			username = sys.env("GRAFANA_PROM_USER")
+			password = sys.env("GRAFANA_TOKEN")
+		}
+	}
+}

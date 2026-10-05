@@ -13,6 +13,7 @@
     {
       "name": "nextjs-ecs-container",
       "image": "953138073651.dkr.ecr.ap-northeast-2.amazonaws.com/nextjs-ecr:latest",
+      "cpu": 448,
       "environment": [
         {
           "name": "BFF_ALLOWED_ORIGINS",
@@ -23,6 +24,10 @@
         {
           "name": "SESSION_ENCRYPTION_KEY",
           "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:953138073651:secret:/chaeso-zip/production/SESSION_ENCRYPTION_KEY-qCgSR4"
+        },
+        {
+          "name": "OBSERVABILITY_METRICS_ENABLED",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:953138073651:secret:/chaeso-zip/production/OBSERVABILITY_METRICS_ENABLED-kigcSN"
         }
       ],
       "essential": true,
@@ -43,6 +48,54 @@
           "awslogs-create-group": "true",
           "awslogs-region": "ap-northeast-2",
           "awslogs-stream-prefix": "ecs"
+        }
+      }
+    },
+    {
+      "name": "alloy",
+      "image": "953138073651.dkr.ecr.ap-northeast-2.amazonaws.com/nextjs-ecr:alloy-placeholder",
+      "essential": false,
+      "cpu": 64,
+      "memoryReservation": 128,
+      "memory": 256,
+      "environment": [
+        {
+          "name": "GOMEMLIMIT",
+          "value": "192MiB"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "GRAFANA_PROM_URL",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:953138073651:secret:/chaeso-zip/production/GRAFANA_PROM_URL-5c3l7x"
+        },
+        {
+          "name": "GRAFANA_PROM_USER",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:953138073651:secret:/chaeso-zip/production/GRAFANA_PROM_USER-TGzCUf"
+        },
+        {
+          "name": "GRAFANA_TOKEN",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:953138073651:secret:/chaeso-zip/production/GRAFANA_TOKEN-YgpYOy"
+        }
+      ],
+      "dependsOn": [
+        {
+          "containerName": "nextjs-ecs-container",
+          "condition": "START"
+        }
+      ],
+      "restartPolicy": {
+        "enabled": true,
+        "restartAttemptPeriod": 60
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/nextjs-ecs-task",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "alloy",
+          "mode": "non-blocking",
+          "max-buffer-size": "1m"
         }
       }
     }

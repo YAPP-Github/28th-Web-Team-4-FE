@@ -1,0 +1,8 @@
+# 설정 검증에 사용한 백엔드와 동일한 버전으로 고정합니다.
+FROM grafana/alloy:v1.17.1
+
+# 빌드 컨텍스트는 deploy/입니다. 토큰은 이미지에 넣지 않고 실행 환경에서 주입합니다.
+COPY config.alloy /etc/alloy/config.alloy
+
+# 공식 이미지의 /bin/alloy 진입점을 사용하고, 관리 UI는 태스크 내부에서만 접근합니다.
+CMD ["run", "/etc/alloy/config.alloy", "--storage.path=/var/lib/alloy/data", "--server.http.listen-addr=127.0.0.1:12345"]
