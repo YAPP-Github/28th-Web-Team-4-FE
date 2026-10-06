@@ -14,6 +14,7 @@
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix-suggestions",
     "layout:check": "node scripts/check-layout-usage.mjs",
+    "ecs:check": "node scripts/check-ecs-cpu.mjs",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "storybook": "storybook dev -p 6006",

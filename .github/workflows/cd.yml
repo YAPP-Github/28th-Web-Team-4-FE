@@ -40,6 +40,9 @@ jobs:
       - name: Setup pnpm and Node.js
         uses: ./.github/actions/pnpm-setup-node
 
+      - name: Validate ECS CPU allocation
+        run: node --run ecs:check
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

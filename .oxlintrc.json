@@ -167,7 +167,11 @@
   },
   "overrides": [
     {
-      "files": ["scripts/sync-rules.mjs", "scripts/check-layout-usage.mjs"],
+      "files": [
+        "scripts/sync-rules.mjs",
+        "scripts/check-layout-usage.mjs",
+        "scripts/check-ecs-cpu.mjs"
+      ],
       "rules": {
         "typescript/no-unsafe-member-access": "off",
         "eslint/no-console": "off"
