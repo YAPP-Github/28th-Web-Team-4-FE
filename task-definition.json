@@ -18,6 +18,10 @@
         {
           "name": "BFF_ALLOWED_ORIGINS",
           "value": "https://chaeso-zip.com,http://localhost:3000"
+        },
+        {
+          "name": "HOSTNAME",
+          "value": "0.0.0.0"
         }
       ],
       "secrets": [
