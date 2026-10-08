@@ -58,7 +58,8 @@ const nextConfig: NextConfig = {
   ...(isProd && {
     compiler: {
       removeConsole: {
-        exclude: ['error'],
+        // 운영 CloudWatch에서 서버 진단 로그를 확인할 수 있도록 info도 유지합니다.
+        exclude: ['error', 'info'],
       },
     },
   }),

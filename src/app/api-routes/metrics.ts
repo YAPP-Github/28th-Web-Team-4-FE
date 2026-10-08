@@ -9,7 +9,7 @@ import { isAuthorizedMetricsRequest, unauthorizedMetricsResponse } from './metri
 function logMetricsRequest(request: Request, status: number, bodyBytes: number): void {
   // 진단 기간 동안 Alloy의 내부 스크랩 요청과 외부 요청을 구분하기 위한 로그입니다.
   // eslint-disable-next-line no-console
-  console.error('[metrics] scrape request', {
+  console.info('[metrics] scrape request', {
     host: request.headers.get('host'),
     userAgent: request.headers.get('user-agent'),
     status,
