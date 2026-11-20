@@ -11,6 +11,11 @@ prometheus.scrape "frontend" {
 	scrape_interval = "60s"
 	scrape_timeout  = "10s"
 	forward_to      = [prometheus.relabel.frontend_cloud.receiver]
+	// 새 환경에서는 Next.js와 같은 토큰을 주입한다. 기존 환경은 미설정 상태를 유지할 수 있다.
+	authorization {
+		type        = "Bearer"
+		credentials = sys.env("OBSERVABILITY_METRICS_BEARER_TOKEN")
+	}
 }
 
 prometheus.relabel "frontend_cloud" {

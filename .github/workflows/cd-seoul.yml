@@ -1,0 +1,88 @@
+name: cd-seoul
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: cd-seoul
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main' && vars.SEOUL_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 45
+    env:
+      ECR_REPOSITORY: chaeso-zip-frontend
+      ECS_CLUSTER: chaeso-zip-frontend
+      ECS_SERVICE: chaeso-zip-frontend
+      RELEASE_ID: ${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: ./.github/actions/pnpm-setup-node
+      - run: pnpm install --frozen-lockfile
+      - uses: dopplerhq/cli-action@v4
+      - name: Build
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+          CDN_BASE_URL: ${{ vars.SEOUL_CDN_BASE_URL }}
+        run: |
+          export ASSET_PREFIX="${CDN_BASE_URL%/}/$RELEASE_ID"
+          doppler run -- node --run build
+
+      - uses: aws-actions/configure-aws-credentials@v4.3.1
+        with:
+          aws-region: ap-northeast-2
+          role-to-assume: ${{ vars.SEOUL_AWS_ROLE_ARN }}
+          allowed-account-ids: ${{ vars.SEOUL_AWS_ACCOUNT_ID }}
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: login-ecr
+      - name: Upload static files
+        env:
+          STATIC_BUCKET: ${{ vars.SEOUL_STATIC_BUCKET }}
+        run: aws s3 sync .next/static "s3://$STATIC_BUCKET/$RELEASE_ID/_next/static" --cache-control 'max-age=31536000,public,immutable'
+      - name: Build and push images
+        id: images
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          app_image="$REGISTRY/$ECR_REPOSITORY:app-$RELEASE_ID"
+          alloy_image="$REGISTRY/$ECR_REPOSITORY:alloy-$RELEASE_ID"
+          docker build --platform linux/arm64 -f docker/Dockerfile -t "$app_image" .
+          docker build --platform linux/arm64 -f docker/Dockerfile.alloy -t "$alloy_image" deploy
+          docker push "$app_image"
+          docker push "$alloy_image"
+          echo "app=$app_image" >> "$GITHUB_OUTPUT"
+          echo "alloy=$alloy_image" >> "$GITHUB_OUTPUT"
+
+      # Preserve the infrastructure-owned Tunnel, roles and secret references.
+      - name: Read current task definition
+        id: current
+        run: |
+          arn=$(aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" --query 'services[0].taskDefinition' --output text)
+          echo "arn=$arn" >> "$GITHUB_OUTPUT"
+      - name: Update Next.js image
+        id: nextjs
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition-arn: ${{ steps.current.outputs.arn }}
+          container-name: nextjs
+          image: ${{ steps.images.outputs.app }}
+      - name: Update Alloy image
+        id: alloy
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ steps.nextjs.outputs.task-definition }}
+          container-name: alloy
+          image: ${{ steps.images.outputs.alloy }}
+      - name: Deploy
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.alloy.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
