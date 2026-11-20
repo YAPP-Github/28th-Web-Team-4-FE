@@ -38,7 +38,6 @@ jobs:
         with:
           aws-region: ap-northeast-2
           role-to-assume: ${{ vars.SEOUL_AWS_ROLE_ARN }}
-          allowed-account-ids: ${{ vars.SEOUL_AWS_ACCOUNT_ID }}
       - uses: aws-actions/amazon-ecr-login@v2
         id: login-ecr
       - name: Upload static files
