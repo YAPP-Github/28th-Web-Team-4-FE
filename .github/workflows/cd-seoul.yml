@@ -1,4 +1,4 @@
-name: cd-sydney
+name: cd-seoul
 
 on:
   workflow_dispatch:
@@ -8,12 +8,12 @@ permissions:
   id-token: write
 
 concurrency:
-  group: cd-sydney
+  group: cd-seoul
   cancel-in-progress: false
 
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/main' && vars.SYDNEY_DEPLOY_ENABLED == 'true'
+    if: github.ref == 'refs/heads/main' && vars.SEOUL_DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 45
     env:
@@ -29,21 +29,21 @@ jobs:
       - name: Build
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
-          CDN_BASE_URL: ${{ vars.SYDNEY_CDN_BASE_URL }}
+          CDN_BASE_URL: ${{ vars.SEOUL_CDN_BASE_URL }}
         run: |
           export ASSET_PREFIX="${CDN_BASE_URL%/}/$RELEASE_ID"
           doppler run -- node --run build
 
       - uses: aws-actions/configure-aws-credentials@v4.3.1
         with:
-          aws-region: ap-southeast-2
-          role-to-assume: ${{ vars.SYDNEY_AWS_ROLE_ARN }}
-          allowed-account-ids: ${{ vars.SYDNEY_AWS_ACCOUNT_ID }}
+          aws-region: ap-northeast-2
+          role-to-assume: ${{ vars.SEOUL_AWS_ROLE_ARN }}
+          allowed-account-ids: ${{ vars.SEOUL_AWS_ACCOUNT_ID }}
       - uses: aws-actions/amazon-ecr-login@v2
         id: login-ecr
       - name: Upload static files
         env:
-          STATIC_BUCKET: ${{ vars.SYDNEY_STATIC_BUCKET }}
+          STATIC_BUCKET: ${{ vars.SEOUL_STATIC_BUCKET }}
         run: aws s3 sync .next/static "s3://$STATIC_BUCKET/$RELEASE_ID/_next/static" --cache-control 'max-age=31536000,public,immutable'
       - name: Build and push images
         id: images
