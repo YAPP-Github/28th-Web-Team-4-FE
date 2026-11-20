@@ -1,6 +1,9 @@
 name: cd-seoul
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -13,7 +16,6 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/main' && vars.SEOUL_DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 45
     env:
